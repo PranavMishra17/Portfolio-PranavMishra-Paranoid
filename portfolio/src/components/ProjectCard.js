@@ -1,4 +1,4 @@
-// src/components/ProjectCard.js
+// src/components/ProjectCard.js (update)
 import React, { useState } from 'react';
 import { getImageWithFallback } from '../data/projects';
 import TechStackBadge from './TechStackBadge';
@@ -13,32 +13,48 @@ const ProjectCard = ({ project, theme }) => {
   // Get image with fallback
   const mainImage = getImageWithFallback(project.mainImage, theme);
   
+  // Get theme-specific classes
+  const getThemeClasses = () => {
+    if (theme === 'game-design') return 'game-card font-pixel';
+    if (theme === 'ai-ml') return 'ai-card font-sans';
+    if (theme === 'misc') return 'misc-card font-mono';
+    return '';
+  };
+  
   return (
-    <div className={`project-card ${theme}-card`}>
+    <div className={`project-card ${getThemeClasses()}`}>
       <div className="project-image">
         <img src={mainImage} alt={project.title} />
+
         <div className="project-links">
           {project.githubLink && (
             <a href={project.githubLink} target="_blank" rel="noopener noreferrer" className="project-link github">
-              <i className="icon github-icon"></i>
+              <img src="/assets/images/icons/github.png" alt="GitHub" className="icon-img" />
             </a>
           )}
           {project.demoLink && project.demoLink !== "" && (
             <a href={project.demoLink} target="_blank" rel="noopener noreferrer" className="project-link demo">
-              <i className="icon demo-icon"></i>
+              <img src="/assets/images/icons/demo.png" alt="Demo" className="icon-img" />
+            </a>
+          )}
+          {project.youtubeLink && project.youtubeLink !== "" && (
+            <a href={project.youtubeLink} target="_blank" rel="noopener noreferrer" className="project-link youtube">
+              <img src="/assets/images/icons/youtube.png" alt="YouTube" className="icon-img" />
             </a>
           )}
           {project.websiteLink && project.websiteLink !== "" && (
             <a href={project.websiteLink} target="_blank" rel="noopener noreferrer" className="project-link website">
-              <i className="icon website-icon"></i>
+              <img src="/assets/images/icons/website.png" alt="Website" className="icon-img" />
             </a>
           )}
           {project.gallery && project.gallery.length > 0 && (
             <button onClick={toggleExpand} className="project-link gallery">
-              <i className="icon gallery-icon"></i>
+              <img src="/assets/images/icons/gallery.png" alt="Gallery" className="icon-img" />
             </button>
           )}
         </div>
+
+        
       </div>
       <div className="project-info">
         <h3 className="project-title">{project.title}</h3>

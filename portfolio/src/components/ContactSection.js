@@ -1,6 +1,6 @@
 // src/components/ContactSection.js
-
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { contactInfo } from '../data/projects';
 
 const ContactSection = () => {
@@ -11,25 +11,25 @@ const ContactSection = () => {
         <div className="contact-links">
           <a href={contactInfo.linkedin} target="_blank" rel="noopener noreferrer" className="contact-item linkedin">
             <div className="icon-container">
-              <i className="icon linkedin-icon"></i>
+              <i className="linkedin-icon"></i>
             </div>
             <span>LinkedIn</span>
           </a>
           <a href={contactInfo.github} target="_blank" rel="noopener noreferrer" className="contact-item github">
             <div className="icon-container">
-              <i className="icon github-icon"></i>
+              <i className="github-icon"></i>
             </div>
             <span>GitHub</span>
           </a>
-          <a href={contactInfo.resume} target="_blank" rel="noopener noreferrer" className="contact-item resume">
+          <Link to="/resume" className="contact-item resume">
             <div className="icon-container">
-              <i className="icon resume-icon"></i>
+              <i className="resume-icon"></i>
             </div>
             <span>Resume</span>
-          </a>
+          </Link>
           <a href={`mailto:${contactInfo.email.personal}`} className="contact-item email">
             <div className="icon-container">
-              <i className="icon email-icon"></i>
+              <i className="email-icon"></i>
             </div>
             <span>Email</span>
           </a>

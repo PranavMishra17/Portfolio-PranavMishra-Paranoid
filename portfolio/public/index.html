@@ -1,3 +1,4 @@
+<!-- public/index.html (updated to handle both routes) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,58 +18,67 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.18.13/babel.min.js"></script>
     
-    <!-- Main App Script -->
-    <script type="text/babel" src="app.js"></script>
-    
-    <!-- Animation Script -->
+    <!-- Animation Script (Only for portfolio page) -->
     <script>
         // Header scroll effect
-        window.addEventListener('scroll', function() {
-            const header = document.querySelector('.header');
-            if (window.scrollY > 50) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
-            }
-        });
-
-        // Intersection Observer for animation
-        document.addEventListener('DOMContentLoaded', function() {
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('fade-in');
+        window.addEventListener('DOMContentLoaded', function() {
+            // Only apply these animations if on the main portfolio page (not resume)
+            if (!window.location.pathname.includes('resume')) {
+                window.addEventListener('scroll', function() {
+                    const header = document.querySelector('.header');
+                    if (header) {
+                        if (window.scrollY > 50) {
+                            header.classList.add('scrolled');
+                        } else {
+                            header.classList.remove('scrolled');
+                        }
                     }
                 });
-            }, { threshold: 0.1 });
 
-            document.querySelectorAll('.project-card, .section-title, .contact-item').forEach(element => {
-                observer.observe(element);
-                element.classList.add('opacity-0');
-            });
+                // Add animation observers once DOM is loaded
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('fade-in');
+                        }
+                    });
+                }, { threshold: 0.1 });
 
-            // Add delay classes to cards
-            const projectCards = document.querySelectorAll('.project-card');
-            projectCards.forEach((card, index) => {
-                const delay = index % 4;
-                card.classList.add(`delay-${delay + 1}`);
-            });
-
-            // Add theme transition effect
-            const themeTransition = document.createElement('div');
-            themeTransition.classList.add('theme-transition');
-            document.body.appendChild(themeTransition);
-
-            // Trigger transition when switching sections
-            const navButtons = document.querySelectorAll('.nav-menu button');
-            navButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    themeTransition.style.opacity = '1';
-                    setTimeout(() => {
-                        themeTransition.style.opacity = '0';
-                    }, 400);
+                // Only observe elements that exist
+                document.querySelectorAll('.project-card, .section-title, .contact-item').forEach(element => {
+                    if (element) {
+                        observer.observe(element);
+                        element.classList.add('opacity-0');
+                    }
                 });
-            });
+
+                // Add delay classes to cards (if they exist)
+                const projectCards = document.querySelectorAll('.project-card');
+                if (projectCards.length > 0) {
+                    projectCards.forEach((card, index) => {
+                        const delay = index % 4;
+                        card.classList.add(`delay-${delay + 1}`);
+                    });
+                }
+
+                // Add theme transition effect
+                const themeTransition = document.createElement('div');
+                themeTransition.classList.add('theme-transition');
+                document.body.appendChild(themeTransition);
+
+                // Trigger transition when switching sections (if nav buttons exist)
+                const navButtons = document.querySelectorAll('.nav-menu button');
+                if (navButtons.length > 0) {
+                    navButtons.forEach(button => {
+                        button.addEventListener('click', () => {
+                            themeTransition.style.opacity = '1';
+                            setTimeout(() => {
+                                themeTransition.style.opacity = '0';
+                            }, 400);
+                        });
+                    });
+                }
+            }
         });
     </script>
 </body>

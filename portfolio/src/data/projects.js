@@ -118,6 +118,21 @@ const projects = {
         githubLink: "https://github.com/PranavMishra17?tab=repositories",
         demoLink: "",
         websiteLink: ""
+      },
+      {
+        id: "virtual-van-gogh",
+        title: "Virtual Van Gogh",
+        category: "NFT Galleria",
+        description: "An interactive NFT museum using Unity and Ethereum blockchain that allows dynamic viewing and transactions of digital art. Secured first place at HINT 5.0 (Hack in the North).",
+        mainImage: "assets/images/game_design/virtual_van_gogh/main.jpg",
+        gallery: [
+          "assets/images/game_design/virtual_van_gogh/gallery1.jpg",
+          "assets/images/game_design/virtual_van_gogh/gallery2.jpg",
+        ],
+        techStack: ["Unity", "Ethereum", "Web3"],
+        githubLink: "https://github.com/PranavMishra17?tab=repositories",
+        demoLink: "",
+        websiteLink: ""
       }
     ],
     aiMl: [
@@ -254,24 +269,60 @@ const projects = {
     github: "https://github.com/PranavMishra17?tab=repositories",
     resume: "assets/resume.pdf"
   };
+
+  // Social media icons
+// Social media icons with image paths
+const socialIcons = {
+    linkedin: {
+      icon: "/assets/images/icons/linkedin.png",
+      alt: "LinkedIn"
+    },
+    github: {
+      icon: "/assets/images/icons/github.png",
+      alt: "GitHub"
+    },
+    resume: {
+      icon: "/assets/images/icons/resume.png",
+      alt: "Resume"
+    },
+    email: {
+      icon: "/assets/images/icons/email.png",
+      alt: "Email"
+    }
+  };
+
   
-// src/data/projects.js (partial update)
+  
+// src/data/projects.js (update defaultImages section)
 const defaultImages = {
     projectMain: "/assets/images/default/project_default.jpg",
     gameDesign: "/assets/images/default/game_design_default.jpg",
-    aiMl: "/assets/images/default/ai_ml_default.jpg",
+    aiMl: "/assets/images/default/ai_ml_default.jpg", 
     misc: "/assets/images/default/misc_default.jpg",
     profile: "/assets/images/default/profile_default.jpg"
   };
   
-  export const getImageWithFallback = (imagePath, category) => {
-    if (!imagePath || imagePath === "") {
-      if (category === "game-design") return defaultImages.gameDesign;
-      if (category === "ai-ml") return defaultImages.aiMl;
-      if (category === "misc") return defaultImages.misc;
-      return defaultImages.projectMain;
+// src/data/projects.js (update getImageWithFallback)
+// src/data/projects.js (update getImageWithFallback function)
+export const getImageWithFallback = (imagePath, category) => {
+    if (!imagePath || imagePath === "" || imagePath.includes("undefined")) {
+      if (category === "game-design") return "/assets/images/default/game_design_default.jpg";
+      if (category === "ai-ml") return "/assets/images/default/ai_ml_default.jpg";
+      if (category === "misc") return "/assets/images/default/misc_default.jpg";
+      if (category === "profile") return "/assets/images/default/profile_default.jpg";
+      return "/assets/images/default/project_default.jpg";
     }
-    return imagePath;
+    
+    // Try to load image
+    const img = new Image();
+    img.src = imagePath.startsWith('/') ? imagePath : '/' + imagePath;
+    
+    // Return the image path or default if it doesn't load
+    return img.complete ? (imagePath.startsWith('/') ? imagePath : '/' + imagePath) : 
+      (category === "game-design" ? "/assets/images/default/game_design_default.jpg" :
+       category === "ai-ml" ? "/assets/images/default/ai_ml_default.jpg" :
+       category === "misc" ? "/assets/images/default/misc_default.jpg" :
+       "/assets/images/default/project_default.jpg");
   };
-  
-  export { projects, contactInfo, defaultImages };
+
+  export { projects, contactInfo, defaultImages, socialIcons };

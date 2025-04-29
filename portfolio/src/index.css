@@ -912,3 +912,158 @@ button {
     width: 100%;
   }
 }
+
+/* src/index.css (add these styles) */
+/* Icon styling */
+.icon-img {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+}
+
+/* Theme-specific font classes */
+.font-pixel {
+  font-family: var(--font-game);
+}
+
+.font-sans {
+  font-family: var(--font-ai);
+}
+
+.font-mono {
+  font-family: var(--font-misc);
+}
+
+/* Card theme animations */
+.game-card {
+  border-color: var(--game-primary);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.game-card:hover {
+  transform: translateY(-8px) rotate(1deg);
+  box-shadow: 0 10px 25px rgba(255, 45, 85, 0.15);
+}
+
+.ai-card {
+  border-color: var(--ai-primary);
+  transition: transform 0.3s ease-out;
+}
+
+.ai-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 10px 25px rgba(61, 90, 254, 0.15);
+}
+
+.misc-card {
+  border-color: var(--misc-primary);
+  transition: all 0.3s ease;
+}
+
+.misc-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 10px 25px rgba(0, 200, 83, 0.15);
+}
+
+/* Project category styling */
+.game-card .project-category {
+  background: var(--game-gradient);
+}
+
+.ai-card .project-category {
+  background: var(--ai-gradient);
+}
+
+.misc-card .project-category {
+  background: var(--misc-gradient);
+}
+
+/* Add to index.css */
+.linkedin-icon::before {
+  content: '\f08c'; /* LinkedIn icon */
+  font-family: 'FontAwesome';
+}
+
+.github-icon::before {
+  content: '\f09b'; /* GitHub icon */
+  font-family: 'FontAwesome';
+}
+
+.resume-icon::before {
+  content: '\f15c'; /* File icon */
+  font-family: 'FontAwesome';
+}
+
+.email-icon::before {
+  content: '\f0e0'; /* Envelope icon */
+  font-family: 'FontAwesome';
+}
+
+
+/* Update in index.css */
+.project-tabs-container {
+  padding-top: 60px; /* Add padding at top to make room for images */
+}
+
+.tabs-wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 20px; /* Closer spacing between buttons */
+}
+
+.tab-wrapper {
+  position: relative;
+  margin: 0 10px;
+}
+
+.floating-image {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  top: -50px; /* Move images higher */
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  z-index: 1;
+  pointer-events: none;
+  transition: opacity 2s ease, transform 0.9s ease;
+}
+
+.floating-left {
+  left: 55%;
+}
+
+.floating-right {
+  right: 55%;
+}
+
+/* Make buttons grow upward */
+.project-tab {
+  min-width: 180px;
+  padding: 15px 20px;
+  transform-origin: bottom center; /* Grow from bottom */
+  transition: all 0.9s ease;
+  position: relative;
+  bottom: 0; /* Fix bottom position */
+}
+
+.project-tab:hover, .project-tab.hovered {
+  transform: scale(1.25) translateY(-5px); /* Scale and move up */
+  height: 60px; /* Taller on hover */
+  width: 200px; /* Wider on hover */
+}
+
+.floating-image.hidden {
+  opacity: 0 !important;
+  transform: translateY(10px);
+}
+
+.project-tab.active {
+  font-weight: 800;
+}
+
+/* Add hover effect on the tab-wrapper to enhance visibility */
+.tab-wrapper:hover .floating-image {
+  opacity: 1;
+  transform: translateY(-5px);
+}
