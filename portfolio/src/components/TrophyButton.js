@@ -1,18 +1,29 @@
 // src/components/TrophyButton.js
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import './TrophyButton.css';
 
 const TrophyButton = ({ onStoryOpen }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeStory, setActiveStory] = useState(null);
-  const [rotation, setRotation] = useState(0);
-  
+  const [hintVisible, setHintVisible] = useState(true);
+  const [hintPulse, setHintPulse] = useState(false);
+
+  // Pulsing effect for the hint
   useEffect(() => {
-    const rotationInterval = setInterval(() => {
-      setRotation(prev => prev + 0.5);
-    }, 50);
-    return () => clearInterval(rotationInterval);
+    const pulseInterval = setInterval(() => {
+      setHintPulse(prev => !prev);
+    }, 2000);
+    
+    // Auto-hide hint after 8 seconds
+    const hideTimeout = setTimeout(() => {
+      setHintVisible(false);
+    }, 8000);
+    
+    return () => {
+      clearInterval(pulseInterval);
+      clearTimeout(hideTimeout);
+    };
   }, []);
   
   const achievements = [
@@ -52,8 +63,11 @@ const TrophyButton = ({ onStoryOpen }) => {
   
   const toggleOpen = () => {
     setIsOpen(!isOpen);
+    setHintVisible(false);
+    
     if (activeStory && isOpen) {
       setActiveStory(null);
+      onStoryOpen && onStoryOpen(false);
     }
   };
   
@@ -67,85 +81,173 @@ const TrophyButton = ({ onStoryOpen }) => {
     onStoryOpen && onStoryOpen(false);
   };
   
+  // Calculate whether achievement should rotate left or right
+  const getRotation = (index) => {
+    // Even indices rotate left, odd indices rotate right
+    return index % 2 === 0 ? -10 : 10;
+  };
+  
+  // Calculate position for each achievement
+  const getButtonPosition = (index) => {
+    // If we have 4 or fewer achievements, position them in two groups
+    if (achievements.length <= 4) {
+      if (index < 2) {
+        // First two items - above trophy button
+        return { top: -((index + 1) * 120), left: 0 };
+      } else {
+        // Next items - below trophy button
+        return { top: ((index - 1) * 120), left: 0 };
+      }
+    } else {
+      // Multiple achievements - grid layout
+      return {}; // Will use CSS grid
+    }
+  };
+  
   return (
     <div className={`trophy-container ${isOpen ? 'open' : ''}`}>
-
-<motion.div 
-  className="trophy-button"
-  style={{ 
-    left: "100px", // Keep fixed position
-    position: "absolute"
-  }}
-  animate={{ rotate: 0 }}
-  whileHover={{ scale: 1.1 }}
-  onClick={toggleOpen}
->
-  <img 
-    src={isOpen ? '/assets/images/icons/close.png' : '/assets/images/icons/trophy.png'} 
-    alt={isOpen ? "Close" : "Achievements"} 
-  />
-  {!isOpen && (
-    <div className="click-me-hint">
-      <span>Click me</span>
-    </div>
-  )}
-</motion.div>
+      {/* Animated Hint */}
+      <AnimatePresence>
+        {hintVisible && !isOpen && !activeStory && (
+          <motion.div 
+            className="achievement-hint"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ 
+              opacity: 1, 
+              x: 0,
+              scale: hintPulse ? 1.05 : 1
+            }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ 
+              duration: 0.5,
+              scale: { duration: 1, ease: "easeInOut" }
+            }}
+          >
+            <span className="hint-text">Check out my achievements!</span>
+            <span className="hint-arrow">→</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
       
-{isOpen && (
-  <div className="satellite-buttons">
-    {achievements.map((achievement, index) => {
-      // Calculate row and position
-      const row = Math.floor(index / 2);
-      const isLeft = index % 2 === 0;
-      
-      return (
+      {/* Trophy Button */}
+      <motion.div 
+        className="trophy-button"
+        whileHover={{ scale: 1.1, rotate: [0, -5, 5, -5, 0] }}
+        transition={{ rotate: { duration: 0.5 } }}
+        onClick={toggleOpen}
+      >
         <motion.div
-          key={achievement.id}
-          className="satellite-button"
-          initial={{ opacity: 0 }}
-          animate={{ 
-            opacity: 1,
-            rotate: isLeft ? -10 : 10, // Rotate left/right based on position
-          }}
-          transition={{ duration: 0.3, delay: index * 0.1 }}
-          style={{
-            marginTop: row * 80, // Space between rows
-            marginLeft: isLeft ? 0 : 10 // Slight offset for right items
-          }}
-          whileHover={{ scale: 1.1 }}
-          onClick={() => openStory(achievement.id)}
+          className="trophy-inner"
+          animate={{ rotate: isOpen ? 360 : 0 }}
+          transition={{ duration: 0.5 }}
         >
-          <img src={achievement.icon} alt={achievement.title} />
+          <img 
+            src={isOpen ? '/assets/images/icons/close.png' : '/assets/images/icons/trophy.png'} 
+            alt={isOpen ? "Close" : "Achievements"} 
+          />
         </motion.div>
-      );
-    })}
-  </div>
-)}
+      </motion.div>
       
-      {activeStory && (
-        <motion.div 
-          className="story-card"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <div className="story-header">
-            <h3>{achievements.find(a => a.id === activeStory).title}</h3>
-            <button className="close-button" onClick={closeStory}>✕</button>
-          </div>
-          <div className="story-content">
-            <div className="story-image">
-              <img src={achievements.find(a => a.id === activeStory).image} alt={achievements.find(a => a.id === activeStory).title} />
+      {/* Achievement Icons */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div 
+            className={`satellite-buttons ${achievements.length > 4 ? 'multi-column' : ''}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            {achievements.map((achievement, index) => (
+              <motion.div
+                key={achievement.id}
+                className="satellite-button"
+                initial={{ opacity: 0, scale: 0, x: -50 }}
+                animate={{ 
+                  opacity: 1, 
+                  scale: 1,
+                  x: 0,
+                  ...getButtonPosition(index)
+                }}
+                exit={{ opacity: 0, scale: 0, x: -50 }}
+                transition={{ 
+                  duration: 0.5, 
+                  delay: index * 0.15,
+                  type: "spring",
+                  stiffness: 260,
+                  damping: 20
+                }}
+                whileHover={{ 
+                  scale: 1.05,
+                  transition: { duration: 0.3 } 
+                }}
+                onClick={() => openStory(achievement.id)}
+              >
+                <img src={achievement.icon} alt={achievement.title} />
+                <div className="achievement-tooltip">
+                  {achievement.title}
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* Story Card */}
+      <AnimatePresence>
+        {activeStory && (
+          <motion.div 
+            className="story-card"
+            initial={{ opacity: 0, scale: 0.8, x: -50 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            exit={{ opacity: 0, scale: 0.8, x: -50 }}
+            transition={{ 
+              type: "spring",
+              stiffness: 300,
+              damping: 25 
+            }}
+          >
+            <div className="story-header">
+              <h3>{achievements.find(a => a.id === activeStory).title}</h3>
+              <motion.button 
+                className="close-button"
+                whileHover={{ scale: 1.2, rotate: 90 }}
+                transition={{ duration: 0.3 }}
+                onClick={closeStory}
+              >
+                ✕
+              </motion.button>
             </div>
-            <div className="story-text">
-              <p>{achievements.find(a => a.id === activeStory).description}</p>
-              <a href={achievements.find(a => a.id === activeStory).link} target="_blank" rel="noopener noreferrer" className="story-link">
-                View Project
-              </a>
+            <div className="story-content">
+              <motion.div 
+                className="story-image"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.2 }}
+              >
+                <img src={achievements.find(a => a.id === activeStory).image} alt={achievements.find(a => a.id === activeStory).title} />
+              </motion.div>
+              <motion.div 
+                className="story-text"
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.3 }}
+              >
+                <p>{achievements.find(a => a.id === activeStory).description}</p>
+                <motion.a 
+                  href={achievements.find(a => a.id === activeStory).link} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="story-link"
+                  whileHover={{ scale: 1.05, y: -3 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  View Project
+                </motion.a>
+              </motion.div>
             </div>
-          </div>
-        </motion.div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

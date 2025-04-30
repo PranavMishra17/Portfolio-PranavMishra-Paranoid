@@ -1,5 +1,7 @@
 // src/MainPortfolio.js
+// Add these imports at the top of your MainPortfolio.js file
 import React, { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion'; // Removed AnimatePresence since it's unused
 import { Link } from 'react-router-dom';
 import ParticleBackground from './components/ParticleBackground';
 import PixelText from './components/PixelText';
@@ -8,6 +10,7 @@ import ProjectTabs from './components/ProjectTabs';
 import ProjectCard from './components/ProjectCard';
 import TrophyButton from './components/TrophyButton';
 import { projects, contactInfo, getImageWithFallback } from './data/projects';
+import './styles/About.css';
 
 function MainPortfolio() {
   const [activeSection, setActiveSection] = useState('about');
@@ -94,57 +97,113 @@ function MainPortfolio() {
 
       {/* Main Content */}
       <main>
-        {/* About Section */}
-      <section 
-        id="about" 
-        className={`about-section ${storyOpen ? 'story-open' : ''}`}
-        ref={(el) => registerSection('about', el)}
-      >
-        <ParticleBackground />
-        <div className="container">
-          <div className="about-content">
-            <TrophyButton onStoryOpen={setStoryOpen} />
-            
-            <div className={`profile-image ${storyOpen ? 'centered' : ''}`}>
-              <div className="profile-img-container" style={{
-                transform: storyOpen ? 'translateX(50%)' : 'none',
-                marginLeft: storyOpen ? '-150px' : '0',
-                transition: 'all 0.5s ease'
-              }}>
-                <img src={getImageWithFallback("", "profile")} alt={contactInfo.name} />
+
+               {/* About Section */}
+               <section 
+          id="about" 
+          className={`about-section ${storyOpen ? 'story-active' : ''}`}
+          ref={(el) => registerSection('about', el)}
+        >
+          <ParticleBackground />
+          <div className="container">
+            <div className="about-content">
+              <div className="profile-container">
+                <TrophyButton onStoryOpen={setStoryOpen} />
+                
+                <motion.div 
+                  className="profile-image"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.8, type: "spring", stiffness: 100 }}
+                >
+                  <div className="profile-img-container">
+                    <img src={getImageWithFallback("", "profile")} alt={contactInfo.name} />
+                    <div className="profile-img-glow"></div>
+                  </div>
+                </motion.div>
               </div>
-            </div>
-            
-            <div className="about-text" style={{
-              opacity: storyOpen ? 0 : 1,
-              transform: storyOpen ? 'translateX(50px)' : 'none',
-              transition: 'all 0.5s ease'
-            }}>
-              <h1 className="fade-in">{contactInfo.name}</h1>
-              <h2 className="fade-in delay-1">{contactInfo.title}</h2>
-              <p className="fade-in delay-2">{contactInfo.bio}</p>
-              <div className="cta-buttons fade-in delay-4">
-                <button className="primary-btn" onClick={() => scrollToSection('game-design')}>
-                  View Projects
-                </button>
-                <button className="secondary-btn" onClick={() => scrollToSection('contact')}>
-                  Connect
-                </button>
+              
+              <div className="about-text">
+                <motion.h1 
+                  className="name-title"
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6 }}
+                >
+                  {contactInfo.name}
+                </motion.h1>
+                
+                <motion.h2 
+                  className="profession-title"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                >
+                  {contactInfo.title}
+                </motion.h2>
+                
+                <motion.p 
+                  className="bio-text"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.4 }}
+                >
+                  {contactInfo.bio}
+                </motion.p>
+                
+                <motion.div 
+                  className="cta-buttons"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.6 }}
+                >
+                  <motion.button 
+                    className="primary-btn"
+                    whileHover={{ 
+                      scale: 1.05, 
+                      boxShadow: "0 10px 25px rgba(61, 90, 254, 0.3)"
+                    }}
+                    onClick={() => scrollToSection('game-design')}
+                  >
+                    View Projects
+                  </motion.button>
+                  
+                  <motion.button 
+                    className="secondary-btn"
+                    whileHover={{ 
+                      scale: 1.05, 
+                      boxShadow: "0 10px 25px rgba(0, 0, 0, 0.2)"
+                    }}
+                    onClick={() => scrollToSection('contact')}
+                  >
+                    Connect
+                  </motion.button>
+                </motion.div>
               </div>
             </div>
           </div>
-        </div>
-        {!storyOpen && (
-          <div className="scroll-indicator" onClick={() => scrollToSection('game-design')}>
+          
+          <motion.div 
+            className="scroll-indicator" 
+            onClick={() => scrollToSection('game-design')}
+            animate={{ 
+              y: [0, 10, 0],
+              opacity: [0.6, 1, 0.6] 
+            }}
+            transition={{ 
+              repeat: Infinity, 
+              duration: 2,
+              ease: "easeInOut" 
+            }}
+          >
             <div className="mouse">
               <div className="wheel"></div>
             </div>
             <div>
               <span className="scroll-arrow"></span>
             </div>
-          </div>
-        )}
-      </section>
+          </motion.div>
+        </section>
 
         {/* Project Navigation Tabs */}
         <div className="projects-navigation-section">
