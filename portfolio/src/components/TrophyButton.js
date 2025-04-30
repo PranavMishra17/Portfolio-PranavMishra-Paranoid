@@ -123,7 +123,7 @@ const TrophyButton = ({ onStoryOpen }) => {
               scale: { duration: 1, ease: "easeInOut" }
             }}
           >
-            <span className="hint-text">Check out my achievements!</span>
+            <span className="hint-text"></span>
             <span className="hint-arrow">→</span>
           </motion.div>
         )}
