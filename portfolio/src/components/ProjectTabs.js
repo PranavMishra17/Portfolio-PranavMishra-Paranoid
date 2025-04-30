@@ -18,7 +18,7 @@ const ProjectTabs = ({ activeTab, onTabChange }) => {
   const tabs = [
     {
       id: 'game-design',
-      label: 'GD PROJECTS',
+      label: 'Game Design PROJECTS',
       image: '/assets/images/default/game_design_default.jpg',
       floatingImages: {
         left: '/assets/images/icons/game_floating.png',
@@ -29,7 +29,7 @@ const ProjectTabs = ({ activeTab, onTabChange }) => {
     },
     {
       id: 'ai-ml',
-      label: 'AIML PROJECTS',
+      label: 'AI-ML PROJECTS',
       image: '/assets/images/default/ai_ml_default.jpg',
       floatingImages: {
         left: '/assets/images/icons/ai_floating.png',

@@ -6,12 +6,14 @@ import PixelText from './components/PixelText';
 import ThemeSwitch from './components/ThemeSwitch';
 import ProjectTabs from './components/ProjectTabs';
 import ProjectCard from './components/ProjectCard';
+import TrophyButton from './components/TrophyButton';
 import { projects, contactInfo, getImageWithFallback } from './data/projects';
 
 function MainPortfolio() {
   const [activeSection, setActiveSection] = useState('about');
   const [menuOpen, setMenuOpen] = useState(false);
   const sectionsRef = useRef({});
+  const [storyOpen, setStoryOpen] = useState(false);
 
   // Handle smooth scrolling
   const scrollToSection = (sectionId) => {
@@ -93,34 +95,47 @@ function MainPortfolio() {
       {/* Main Content */}
       <main>
         {/* About Section */}
-        <section 
-          id="about" 
-          className="about-section"
-          ref={(el) => registerSection('about', el)}
-        >
-          <ParticleBackground />
-          <div className="container">
-            <div className="about-content">
-              <div className="profile-image">
-                <div className="profile-img-container">
-                  <img src={getImageWithFallback("", "profile")} alt={contactInfo.name} />
-                </div>
+      {/* About Section - Updated with TrophyButton */}
+      <section 
+        id="about" 
+        className={`about-section ${storyOpen ? 'story-open' : ''}`}
+        ref={(el) => registerSection('about', el)}
+      >
+        <ParticleBackground />
+        <div className="container">
+          <div className="about-content">
+            <TrophyButton onStoryOpen={setStoryOpen} />
+            
+            <div className={`profile-image ${storyOpen ? 'centered' : ''}`}>
+              <div className="profile-img-container" style={{
+                transform: storyOpen ? 'translateX(50%)' : 'none',
+                marginLeft: storyOpen ? '-150px' : '0',
+                transition: 'all 0.5s ease'
+              }}>
+                <img src={getImageWithFallback("", "profile")} alt={contactInfo.name} />
               </div>
-              <div className="about-text">
-                <h1 className="fade-in">{contactInfo.name}</h1>
-                <h2 className="fade-in delay-1">{contactInfo.title}</h2>
-                <p className="fade-in delay-2">{contactInfo.bio}</p>
-                <div className="cta-buttons fade-in delay-4">
-                  <button className="primary-btn" onClick={() => scrollToSection('game-design')}>
-                    View Projects
-                  </button>
-                  <button className="secondary-btn" onClick={() => scrollToSection('contact')}>
-                    Connect
-                  </button>
-                </div>
+            </div>
+            
+            <div className="about-text" style={{
+              opacity: storyOpen ? 0 : 1,
+              transform: storyOpen ? 'translateX(50px)' : 'none',
+              transition: 'all 0.5s ease'
+            }}>
+              <h1 className="fade-in">{contactInfo.name}</h1>
+              <h2 className="fade-in delay-1">{contactInfo.title}</h2>
+              <p className="fade-in delay-2">{contactInfo.bio}</p>
+              <div className="cta-buttons fade-in delay-4">
+                <button className="primary-btn" onClick={() => scrollToSection('game-design')}>
+                  View Projects
+                </button>
+                <button className="secondary-btn" onClick={() => scrollToSection('contact')}>
+                  Connect
+                </button>
               </div>
             </div>
           </div>
+        </div>
+        {!storyOpen && (
           <div className="scroll-indicator" onClick={() => scrollToSection('game-design')}>
             <div className="mouse">
               <div className="wheel"></div>
@@ -129,7 +144,8 @@ function MainPortfolio() {
               <span className="scroll-arrow"></span>
             </div>
           </div>
-        </section>
+        )}
+      </section>
 
         {/* Project Navigation Tabs */}
         <div className="projects-navigation-section">
