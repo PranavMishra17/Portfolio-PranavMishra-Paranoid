@@ -1,4 +1,4 @@
-// src/MainPortfolio.js (new file)
+// src/MainPortfolio.js
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import ParticleBackground from './components/ParticleBackground';
