@@ -1,0 +1,255 @@
+/* src/components/ProjectCard.css */
+
+/* Base project card styles */
+.project-card {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 30px;
+    border-radius: 12px;
+    height: 100%;
+    min-height: 450px;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+  }
+  
+  .project-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+  }
+  
+  .project-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+  }
+  
+  .project-info {
+    padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    z-index: 2;
+  }
+  
+  .project-title {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-weight: 700;
+    font-size: 1.4rem;
+    letter-spacing: -0.5px;
+    transition: all 0.3s ease;
+  }
+  
+  .project-category {
+    display: inline-block;
+    margin-bottom: 15px;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.7;
+  }
+  
+  .project-description {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    flex-grow: 1;
+  }
+  
+  /* Tech Stack badges container */
+  .tech-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 15px;
+  }
+  
+  /* Project links styling */
+  .project-links {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 5;
+  }
+  
+  .project-link {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  .icon-img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+  }
+  
+  /* Gallery styles */
+  .expanded-view {
+    margin-top: 20px;
+    overflow: hidden;
+  }
+  
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+  
+  .gallery-image {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .close-gallery {
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+  }
+  
+  .close-gallery:hover {
+    background: rgba(0, 0, 0, 0.8);
+  }
+  
+  /* Theme-specific styles */
+  .game-card {
+    font-family: 'Roboto', sans-serif;
+  }
+  
+  .game-card .project-title {
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  
+  .ai-card {
+    font-family: 'Inter', sans-serif;
+  }
+  
+  .ai-card .project-title {
+    font-weight: 800;
+  }
+  
+  .misc-card {
+    font-family: 'Roboto', sans-serif;
+  }
+  
+  .misc-card .project-title {
+    position: relative;
+    display: inline-block;
+    padding-left: 10px;
+  }
+  
+  .misc-card .project-title::before {
+    content: '/>';
+    position: absolute;
+    left: -20px;
+    color: #00c853;
+    font-size: 0.9rem;
+    top: 5px;
+  }
+  
+  /* Decorative Elements */
+  .decorative-element {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  
+  /* Game Design decorative elements */
+  .game-element .game-glow-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 45, 85, 0.7), transparent);
+  }
+  
+  .game-element .game-glow-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 45, 85, 0.7), transparent);
+  }
+  
+  /* AI/ML decorative elements */
+  .ai-element .ai-glow {
+    position: absolute;
+    top: 50%;
+    left: -50%;
+    width: 200%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(61, 90, 254, 0.7), transparent);
+    transform: rotate(45deg);
+  }
+  
+  /* Misc decorative elements */
+  .misc-element .misc-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(to bottom, transparent, rgba(0, 200, 83, 0.7), transparent);
+  }
+  
+  /* Responsive styles */
+  @media (max-width: 768px) {
+    .project-card {
+      min-height: 400px;
+    }
+    
+    .project-image {
+      height: 160px;
+    }
+    
+    .project-title {
+      font-size: 1.2rem;
+    }
+    
+    .project-description {
+      font-size: 0.9rem;
+    }
+  }
+  
+  @media (min-width: 992px) {
+    .project-card {
+      height: 450px;
+    }
+  }

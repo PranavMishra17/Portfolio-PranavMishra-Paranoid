@@ -851,9 +851,9 @@ button {
 }
 
 .project-tab.hovered {
-  width: 240px;
+  width: 300px;
   border-radius: 4px;
-  transform: translateY(-3px);
+  transform: translateY(-8px);
 }
 
 .tab-text {
@@ -1030,16 +1030,16 @@ button {
 }
 
 .floating-left {
-  left: 55%;
+  left: 60%;
 }
 
 .floating-right {
-  right: 55%;
+  right: 60%;
 }
 
 /* Make buttons grow upward */
 .project-tab {
-  min-width: 180px;
+  min-width: 200px;
   padding: 15px 20px;
   transform-origin: bottom center; /* Grow from bottom */
   transition: all 0.9s ease;
