@@ -69,45 +69,58 @@ const TrophyButton = ({ onStoryOpen }) => {
   
   return (
     <div className={`trophy-container ${isOpen ? 'open' : ''}`}>
-      <motion.div 
-        className="trophy-button"
-        initial={{ rotate: 0 }}
-        animate={{ rotate: isOpen ? 0 : rotation }}
-        whileHover={{ scale: 1.1 }}
-        onClick={toggleOpen}
-      >
-        <img 
-          src={isOpen ? '/assets/images/icons/close.png' : '/assets/images/icons/trophy.png'} 
-          alt={isOpen ? "Close" : "Achievements"} 
-        />
-        {!isOpen && (
-          <div className="click-me-hint">
-            <span>Click to see my achievements!</span>
-          </div>
-        )}
-      </motion.div>
+
+<motion.div 
+  className="trophy-button"
+  style={{ 
+    left: "100px", // Keep fixed position
+    position: "absolute"
+  }}
+  animate={{ rotate: 0 }}
+  whileHover={{ scale: 1.1 }}
+  onClick={toggleOpen}
+>
+  <img 
+    src={isOpen ? '/assets/images/icons/close.png' : '/assets/images/icons/trophy.png'} 
+    alt={isOpen ? "Close" : "Achievements"} 
+  />
+  {!isOpen && (
+    <div className="click-me-hint">
+      <span>Click me</span>
+    </div>
+  )}
+</motion.div>
       
-      {isOpen && (
-        <div className="satellite-buttons">
-          {achievements.map((achievement, index) => (
-            <motion.div
-              key={achievement.id}
-              className="satellite-button"
-              initial={{ x: 0, y: 0, opacity: 0 }}
-              animate={{ 
-                x: 120 * Math.cos(2 * Math.PI * index / achievements.length), 
-                y: 120 * Math.sin(2 * Math.PI * index / achievements.length),
-                opacity: 1
-              }}
-              transition={{ duration: 0.3, delay: index * 0.1 }}
-              whileHover={{ scale: 1.2 }}
-              onClick={() => openStory(achievement.id)}
-            >
-              <img src={achievement.icon} alt={achievement.title} />
-            </motion.div>
-          ))}
-        </div>
-      )}
+{isOpen && (
+  <div className="satellite-buttons">
+    {achievements.map((achievement, index) => {
+      // Calculate row and position
+      const row = Math.floor(index / 2);
+      const isLeft = index % 2 === 0;
+      
+      return (
+        <motion.div
+          key={achievement.id}
+          className="satellite-button"
+          initial={{ opacity: 0 }}
+          animate={{ 
+            opacity: 1,
+            rotate: isLeft ? -10 : 10, // Rotate left/right based on position
+          }}
+          transition={{ duration: 0.3, delay: index * 0.1 }}
+          style={{
+            marginTop: row * 80, // Space between rows
+            marginLeft: isLeft ? 0 : 10 // Slight offset for right items
+          }}
+          whileHover={{ scale: 1.1 }}
+          onClick={() => openStory(achievement.id)}
+        >
+          <img src={achievement.icon} alt={achievement.title} />
+        </motion.div>
+      );
+    })}
+  </div>
+)}
       
       {activeStory && (
         <motion.div 

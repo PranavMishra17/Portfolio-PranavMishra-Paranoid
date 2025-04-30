@@ -95,7 +95,6 @@ function MainPortfolio() {
       {/* Main Content */}
       <main>
         {/* About Section */}
-      {/* About Section - Updated with TrophyButton */}
       <section 
         id="about" 
         className={`about-section ${storyOpen ? 'story-open' : ''}`}
