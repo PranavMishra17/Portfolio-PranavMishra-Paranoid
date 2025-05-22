@@ -29,10 +29,10 @@ const TrophyButton = ({ onStoryOpen }) => {
   const achievements = [
     {
       id: 'hint',
-      icon: '/assets/images/achievements/hint.png',
+      icon: '/assets/images/achievements/virtual van.png',
       title: 'HINT 5.0 Hackathon - First Place',
       description: 'Won first place at HINT 5.0 (Hack in the North) with Virtual Van Gogh, an interactive NFT museum using Unity and Ethereum blockchain.',
-      image: '/assets/images/achievements/hint_story.jpg',
+      image: '/assets/images/achievements/vvg.png',
       link: 'https://github.com/PranavMishra17/Virtual-Van-Gogh'
     },
     {
@@ -40,25 +40,25 @@ const TrophyButton = ({ onStoryOpen }) => {
       icon: '/assets/images/achievements/mit.png',
       title: 'MIT XR Hackathon - Best Location AR',
       description: 'Won Best Location AR at MIT XR Reality Hackathon 2024 with SnAIder-Cut, using Mixed Reality and Generative AI to create movie scenes.',
-      image: '/assets/images/achievements/mit_story.jpg',
+      image: '/assets/images/achievements/mit.jpeg',
       link: 'https://github.com/PranavMishra17/snaider-cut'
     },
-    {
-      id: 'ai',
-      icon: '/assets/images/achievements/ai.png',
-      title: 'ACL 2024 Research Paper',
-      description: 'Published research paper on InBedder, an instruction-following text embedder, at the Association for Computational Linguistics (ACL) 2024 conference.',
-      image: '/assets/images/achievements/acl_story.jpg',
-      link: 'https://github.com/Hjhirp/InBedder'
-    },
-    {
-      id: 'unity',
-      icon: '/assets/images/achievements/unity.png',
-      title: 'Unity Student Ambassador',
-      description: 'Selected as Unity Student Ambassador, representing Unity at campus events and conducting workshops for students.',
-      image: '/assets/images/achievements/unity_story.jpg',
-      link: 'https://unity.com/education/ambassadors'
-    }
+{
+  id: 'informs',
+  icon: '/assets/images/achievements/informs.jpeg',
+  title: 'INFORMS Analytics+ 2025 Conference',
+  description: 'Presented MetaRAG research at the INFORMS Analytics+ Conference in Indianapolis, April 6-8, 2025. Showcased metadata enrichment framework using LLMs for improved RAG systems in internal knowledge retrieval, among 700+ analytics professionals and industry leaders.',
+  image: '/assets/images/achievements/informs1.jpeg',
+  link: 'https://github.com/PranavMishra17/Metadata-Enrichment-with-LLMs-for-RAGs-Internal-Knowledge-Retrieval'
+},
+{
+  id: 'solana-hackerhouse',
+  icon: '/assets/images/achievements/piix.png',
+  title: 'Solana Hacker House - Pixel Punks Demo',
+  description: 'Showcased Pixel Punks at Solana Hacker House in May 2022, pioneering collaborative pixel art NFTs with blockchain integration. Community-driven platform where users paint NxN pixel grids collectively, with completed artworks auctioned and proceeds distributed among contributors.',
+  image: '/assets/images/achievements/solana.jpeg',
+  link: 'https://github.com/PranavMishra17/pixel-punks'
+}
   ];
   
   const toggleOpen = () => {
@@ -81,11 +81,6 @@ const TrophyButton = ({ onStoryOpen }) => {
     onStoryOpen && onStoryOpen(false);
   };
   
-  // Calculate whether achievement should rotate left or right
-  const getRotation = (index) => {
-    // Even indices rotate left, odd indices rotate right
-    return index % 2 === 0 ? -10 : 10;
-  };
   
   // Calculate position for each achievement
   const getButtonPosition = (index) => {
