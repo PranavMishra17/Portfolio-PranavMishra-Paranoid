@@ -6,7 +6,7 @@ const projects = {
         title: "Stellarium: ASO",
         category: "VR Application",
         description: "A virtual reality project developed in Unity for the CAVE 2 system featuring over 107,000 stars and constellations. Users can navigate space, explore constellations, and observe stellar movements over time.",
-        mainImage: "assets/images/game_design/stellarium/main.jpg",
+        mainImage: "assets/images/stellarium.png",
         gallery: [
           "assets/images/game_design/stellarium/gallery1.jpg",
           "assets/images/game_design/stellarium/gallery2.jpg",
@@ -376,7 +376,7 @@ const projects = {
     resume: "assets/resume.pdf"
   };
 
-  // Social media icons
+
 // Social media icons with image paths
 const socialIcons = {
     linkedin: {

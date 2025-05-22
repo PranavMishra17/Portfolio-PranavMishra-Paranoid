@@ -64,7 +64,7 @@ portfolio/
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/portfolio.git
+   git clone https://github.com/PranavMishra17/Portfolio-PranavMishra-Paranoid
    cd portfolio
    ```
 
@@ -88,7 +88,7 @@ portfolio/
 
 #### 1. Update Personal Information
 
-Edit the About section in `App.js`:
+Edit the About section in `data/projects.js`:
 
 ```jsx
 <div className="about-text">
@@ -102,7 +102,7 @@ Edit the About section in `App.js`:
 
 #### 2. Update Projects
 
-Edit the project arrays in `App.js`:
+Edit the project arrays in `data/projects.js`:
 
 ```jsx
 const gameProjects = [
@@ -211,10 +211,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 - Fonts: Google Fonts (Press Start 2P, Inter, Space Mono, Roboto)
 - Icons: Font Awesome
-- Placeholder Images: Use your actual project screenshots
 
 ## Contact
 
-Pranav Pushkar Mishra - [Your Email] - [Your LinkedIn]
-
-Project Link: [https://github.com/your-username/portfolio](https://github.com/your-username/portfolio)
+Pranav Pushkar Mishra - [pmishr23@uic.edu] - [[LinkedIn](https://www.linkedin.com/in/pranavgamedev/)] - [[Youtube](https://www.youtube.com/@parano1dgames)]
