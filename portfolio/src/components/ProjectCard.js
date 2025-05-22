@@ -1,18 +1,32 @@
-// src/components/ProjectCard.js (update)
+// Updated ProjectCard.js with proper image loading
 import React, { useState } from 'react';
-import { getImageWithFallback } from '../data/projects';
 import TechStackBadge from './TechStackBadge';
 
 const ProjectCard = ({ project, theme }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [imageSrc, setImageSrc] = useState(project.mainImage?.startsWith('/') ? project.mainImage : `/${project.mainImage}`);
+  const [imageError, setImageError] = useState(false);
   
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
   };
-  
-  // Get image with fallback
-  const mainImage = getImageWithFallback(project.mainImage, theme);
-  
+
+  // Get fallback image based on theme
+  const getFallbackImage = () => {
+    if (theme === 'game-design') return '/assets/images/default/game_design_default.jpg';
+    if (theme === 'ai-ml') return '/assets/images/default/ai_ml_default.jpg';
+    if (theme === 'misc') return '/assets/images/default/misc_default.jpg';
+    return '/assets/images/default/project_default.jpg';
+  };
+
+  // Handle image error
+  const handleImageError = () => {
+    if (!imageError) {
+      setImageError(true);
+      setImageSrc(getFallbackImage());
+    }
+  };
+
   // Get theme-specific classes
   const getThemeClasses = () => {
     if (theme === 'game-design') return 'game-card font-pixel';
@@ -20,11 +34,21 @@ const ProjectCard = ({ project, theme }) => {
     if (theme === 'misc') return 'misc-card font-mono';
     return '';
   };
+
+  // Handle gallery image with fallback
+  const getGalleryImageSrc = (galleryImage) => {
+    return galleryImage?.startsWith('/') ? galleryImage : `/${galleryImage}`;
+  };
   
   return (
     <div className={`project-card ${getThemeClasses()}`}>
       <div className="project-image">
-        <img src={mainImage} alt={project.title} />
+        <img 
+          src={imageSrc} 
+          alt={project.title}
+          onError={handleImageError}
+          onLoad={() => setImageError(false)}
+        />
 
         <div className="project-links">
           {project.githubLink && (
@@ -34,12 +58,12 @@ const ProjectCard = ({ project, theme }) => {
           )}
           {project.demoLink && project.demoLink !== "" && (
             <a href={project.demoLink} target="_blank" rel="noopener noreferrer" className="project-link demo">
-              <img src="/assets/images/icons/demo.png" alt="Demo" className="icon-img" />
+              <img src="/assets/images/icons/yt.png" alt="Demo" className="icon-img" />
             </a>
           )}
           {project.youtubeLink && project.youtubeLink !== "" && (
             <a href={project.youtubeLink} target="_blank" rel="noopener noreferrer" className="project-link youtube">
-              <img src="/assets/images/icons/youtube.png" alt="YouTube" className="icon-img" />
+              <img src="/assets/images/icons/yt.png" alt="YouTube" className="icon-img" />
             </a>
           )}
           {project.websiteLink && project.websiteLink !== "" && (
@@ -53,9 +77,8 @@ const ProjectCard = ({ project, theme }) => {
             </button>
           )}
         </div>
-
-        
       </div>
+      
       <div className="project-info">
         <h3 className="project-title">{project.title}</h3>
         <span className="project-category">{project.category}</span>
@@ -76,9 +99,12 @@ const ProjectCard = ({ project, theme }) => {
               {project.gallery.map((image, index) => (
                 <img 
                   key={index} 
-                  src={getImageWithFallback(image, theme)} 
+                  src={getGalleryImageSrc(image)} 
                   alt={`${project.title} gallery ${index + 1}`} 
                   className="gallery-image"
+                  onError={(e) => {
+                    e.target.src = getFallbackImage();
+                  }}
                 />
               ))}
             </div>
