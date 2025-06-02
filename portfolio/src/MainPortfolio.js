@@ -215,6 +215,26 @@ function MainPortfolio() {
           </div>
         </div>
 
+        {/* AI/ML Projects Section */}
+        <section 
+          id="ai-ml" 
+          className="ai-ml-section"
+          ref={(el) => registerSection('ai-ml', el)}
+        >
+          <div className="container">
+            <h2 className="section-title ai-title">Machine Learning Projects</h2>
+            <div className="projects-grid">
+              {projects.aiMl.map((project) => (
+                <ProjectCard 
+                  key={project.id}
+                  project={project}
+                  theme="ai-ml"
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+
         {/* Game Design Projects Section */}
         <section 
           id="game-design" 
@@ -237,25 +257,6 @@ function MainPortfolio() {
           </div>
         </section>
 
-        {/* AI/ML Projects Section */}
-        <section 
-          id="ai-ml" 
-          className="ai-ml-section"
-          ref={(el) => registerSection('ai-ml', el)}
-        >
-          <div className="container">
-            <h2 className="section-title ai-title">Machine Learning Projects</h2>
-            <div className="projects-grid">
-              {projects.aiMl.map((project) => (
-                <ProjectCard 
-                  key={project.id}
-                  project={project}
-                  theme="ai-ml"
-                />
-              ))}
-            </div>
-          </div>
-        </section>
 
         {/* Miscellaneous Projects Section */}
         <section 

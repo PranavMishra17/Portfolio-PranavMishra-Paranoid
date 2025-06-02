@@ -4,28 +4,28 @@ const projects = {
       {
         id: "stellarium",
         title: "Stellarium: A Space Odyssey",
-        category: "VR Application",
-        description: "An immersive VR application developed in Unity for the CAVE 2 system featuring over 107,000 stars and constellations with real-time rendering. Users can navigate space through spatial computing interfaces, explore constellations, and observe stellar movements over time with optimized performance for large-scale datasets.",
+        category: "XR Application",
+        description: "Immersive CAVE 2 VR application rendering 107,000+ astronomical objects with spatial computing interfaces. Optimized real-time performance for large-scale datasets using advanced culling algorithms and GPU instancing.",
         mainImage: "assets/images/game_design/stellarium.png",
         gallery: [
           "assets/images/game_design/st1.png",
           "assets/images/game_design/st2.png",
         ],
-        techStack: ["Unity", "C#", "VR", "CAVE 3", "Python", "Immersive Technologies", "Real-Time Systems", "Spatial Computing"],
+        techStack: ["Unity", "C#", "XR Development", "CAVE Integration", "Spatial Computing", "Real-Time Rendering", "Performance Optimization", "Data Visualization"],
         githubLink: "https://github.com/PranavMishra17?tab=repositories",
         demoLink: "https://youtu.be/EX0c-6E8iNc?si=iir4DZKA3nCSydL2",
         websiteLink: ""
       },
-            {
+      {
         id: "mafia-agents",
         title: "AI Mafia Game",
-        category: "Social Deduction Simulation",
-        description: "A full-stack implementation of the classic Mafia game powered by intelligent AI agents with unique personalities and collaborative reasoning. Features real-time AI discussions, complex decision making based on personality traits, and interactive visualization of social dynamics through multi-agent systems.",
+        category: "Agentic AI Simulation",
+        description: "Multi-agent system simulating social deduction gameplay with personality-driven AI agents. Features collaborative reasoning, real-time agent discussions, and emergent behavioral patterns through advanced prompt engineering.",
         mainImage: "assets/images/game_design/mafia.png",
         gallery: [
           "assets/images/game_design/mafia2.png",
         ],
-        techStack: ["React", "Python", "Azure OpenAI", "LangChain", "AI Agents", "Full-Stack Development", "Real-Time Systems", "Multi-Agent Systems"],
+        techStack: ["React", "Python", "LangChain", "Multi-Agent Systems", "Real-Time Systems", "Full-Stack Development", "Behavioral AI"],
         githubLink: "https://github.com/PranavMishra17/Mafia-Boardgame-via-Agents",
         demoLink: "",
         websiteLink: ""
@@ -34,15 +34,15 @@ const projects = {
       {
         id: "neon-bites",
         title: "Neon-Bites",
-        category: "PC Game",
-        description: "A thrilling cyberpunk food delivery game with advanced gameplay programming and performance optimization. Players navigate a neon-lit city using real-time physics systems, avoiding obstacles and enemies while managing resources and upgrading characters through procedural generation mechanics.",
+        category: "Cross-Platform Game",
+        description: "Cyberpunk delivery game with advanced physics systems and procedural content generation. Implemented resource management, character progression, and real-time performance optimization for consistent frame rates.",
         mainImage: "assets/images/game_design/neon.png",
         gallery: [
           "assets/images/game_design/neon1.png",
           "assets/images/game_design/neon2.png",
           "assets/images/game_design/neon3.png",
         ],
-        techStack: ["Unity", "C#", "Game Design", "Gameplay Programming", "Performance Optimization", "Real-Time Systems"],
+        techStack: ["Unity", "C#", "Physics Optimization", "Cross-Platform Development", "Performance Profiling"],
         githubLink: "https://github.com/PranavMishra17?tab=repositories",
         demoLink: "https://youtu.be/PLVynmeGvsI?si=HAVRIjbQF0fDGlPN",
         websiteLink: ""
@@ -50,29 +50,29 @@ const projects = {
       {
         id: "snaider-cut",
         title: "SnAIder-Cut",
-        category: "XR/VR Application",
-        description: "Won Best Location AR at MIT XR Reality Hackathon 2024 using Mixed Reality and Generative AI to visually generate and modify movie scenes in real-time. Features advanced XR development with AI-driven content generation and real-time rendering optimization.",
+        category: "Mixed Reality Application",
+        description: "MIT XR Hackathon 2024 winner combining generative AI with real-time AR scene modification. Features spatial mapping, gesture recognition, and AI-driven content generation with optimized rendering pipeline.",
         mainImage: "assets/images/game_design/snaider.png",
         gallery: [
           "assets/images/game_design/mit.jpeg",
         ],
-        techStack: ["Unity", "AR", "C#", "Generative AI", "XR Development", "Real-Time Systems", "Computer Vision"],
+        techStack: ["Unity", "Mixed Reality", "Generative AI", "Computer Vision", "Spatial Mapping", "XR Development", "Real-Time Rendering"],
         githubLink: "https://github.com/PranavMishra17?tab=repositories",
         demoLink: "https://youtu.be/CZtGmnGYKp8?si=wTtNdhiYHRDgUKBi",
         websiteLink: ""
       },
-{
+      {
         id: "virtual-van-gogh",
         title: "Virtual Van Gogh",
-        category: "NFT Galleria",
-        description: "An interactive NFT museum using Unity and Ethereum blockchain with cross-platform deployment capabilities. Features dynamic viewing and secure blockchain transactions of digital art with real-time Web3 integration. Secured first place at HINT 5.0 (Hack in the North).",
+        category: "Blockchain Integration",
+        description: "Interactive NFT museum with Web3 integration and decentralized art transactions. Secured first place at HINT 5.0 with seamless blockchain-to-Unity data pipeline and cross-platform deployment.",
         mainImage: "assets/images/game_design/van gogh.jpg",
         gallery: [
           "assets/images/game_design/virtual van.png",
           "assets/images/game_design/virtual van3.png",
           "assets/images/game_design/virtual van2.png",
         ],
-        techStack: ["Unity", "Ethereum", "Web3", "C#", "Cross-Platform Development", "Blockchain Integration"],
+        techStack: ["Unity", "Web3 Integration", "Blockchain Technology", "Smart Contracts", "Decentralized Systems"],
         githubLink: "https://github.com/PranavMishra17/Nalleria",
         demoLink: "https://youtu.be/rz_NiIj-dic?si=2b2rN4SZ_qGJ1WQl",
         websiteLink: ""
@@ -80,14 +80,14 @@ const projects = {
       {
         id: "equity-project",
         title: "Equity Project",
-        category: "Unreal Engine Application",
-        description: "An Unreal Engine 5 application for UIC AHS supporting equity research in the medical field with advanced real-time rendering and immersive technologies. Features interactive dialogue trees utilizing MetaHuman technology and optimized performance for medical simulation environments.",
+        category: "Medical Simulation",
+        description: "UE5-powered medical simulation for bias research using MetaHuman technology. Features advanced facial animation systems, interactive dialogue trees, and optimized performance for healthcare applications.",
         mainImage: "assets/images/game_design/equity.png",
         gallery: [
           "assets/images/game_design/eq1.png",
           "assets/images/game_design/eq2.png",
         ],
-        techStack: ["Unreal", "MetaHuman", "C++", "Immersive Technologies", "Real-Time Rendering", "Medical Simulation"],
+        techStack: ["Unreal Engine 5", "MetaHuman", "C++", "Medical Simulation", "Real-Time Animation", "Healthcare Technology", "Performance Optimization"],
         githubLink: "https://github.com/PranavMishra17?tab=repositories",
         demoLink: "https://youtu.be/WO2vVaD8WoE?si=D2-56CQtPhK3ju-v",
         websiteLink: ""
@@ -95,11 +95,11 @@ const projects = {
       {
         id: "kill-motherboard",
         title: "Kill the Motherboard",
-        category: "Multiplayer Game",
-        description: "A multiplayer game developed in Unity with advanced network programming and client-server architecture. Players control a mouse character in collaborative gameplay, featuring real-time synchronization, educational content delivery, and achievement systems with optimized multiplayer performance.",
+        category: "Multiplayer Architecture",
+        description: "Networked multiplayer game with client-server architecture and real-time synchronization. Implemented custom networking protocols, lag compensation, and scalable backend systems for concurrent players.",
         mainImage: "assets/images/game_design/kil.png",
         gallery: [],
-        techStack: ["Unity", "C#", "Multiplayer", "Network Programming", "Client-Server Architecture", "Real-Time Systems"],
+        techStack: ["Unity", "C#", "Network Programming", "Client-Server Architecture", "Real-Time Synchronization", "Multiplayer Systems"],
         githubLink: "https://github.com/PranavMishra17/cs426_Asgn2_Pranav_Mishra",
         demoLink: "https://youtu.be/5vNe2up7Gp0?si=TnH0RGUgdsZrpWxE",
         websiteLink: ""
@@ -107,11 +107,11 @@ const projects = {
       {
         id: "sign-smash",
         title: "Sign Smash",
-        category: "Android Game",
-        description: "An action-packed mobile FPS shooter with performance optimization for Android platforms. Features intelligent AI enemies, dynamic traps and tricks, and a challenging final boss with multiple attack patterns. Optimized for cross-platform mobile deployment with efficient resource management.",
+        category: "Mobile Optimization",
+        description: "Android FPS with intelligent AI systems and advanced mobile optimization. Features dynamic difficulty scaling, memory-efficient asset streaming, and cross-platform performance profiling.",
         mainImage: "assets/images/game_design/sign.png",
         gallery: [],
-        techStack: ["Unity", "Mobile", "C#", "Performance Optimization", "Cross-Platform Development", "AI Programming"],
+        techStack: ["Unity", "Mobile Optimization", "Cross-Platform Development", "Memory Management", "Performance Profiling"],
         githubLink: "https://github.com/PranavMishra17/Sign_Bender",
         demoLink: "https://youtu.be/jIbRtXV8lk4?si=EvZ_Wfl_yykzTB4t",
         websiteLink: ""
@@ -119,11 +119,11 @@ const projects = {
       {
         id: "upsurge",
         title: "Upsurge: Project Outlive",
-        category: "Android Game",
-        description: "A mobile platformer game with cross-platform development architecture and performance optimization for mobile devices. Players control a rocketship through procedurally generated challenging levels, featuring cloud-integrated leaderboard systems and real-time achievement tracking.",
+        category: "Cloud-Integrated Gaming",
+        description: "Mobile platformer with procedural level generation and cloud-based leaderboard systems. Implemented real-time analytics, achievement tracking, and scalable backend architecture.",
         mainImage: "assets/images/game_design/up.png",
         gallery: [],
-        techStack: ["Unity", "Mobile", "C#", "Cross-Platform Development", "Performance Optimization", "Cloud Integration"],
+        techStack: ["Unity", "C#", "Blender", "Real-Time Analytics", "Mobile Development", "Backend Systems"],
         githubLink: "https://github.com/PranavMishra17?tab=repositories",
         demoLink: "https://youtu.be/wFV3eJhN3Ts?si=aLhavIhSyhecAn-O",
         websiteLink: ""
@@ -131,11 +131,11 @@ const projects = {
       {
         id: "cracking",
         title: "Cracking",
-        category: "Android Game",
-        description: "A mobile rail shooter game with optimized performance for Android platforms and Google Play Store integration. Features limited level running mechanics, real-time leaderboard systems, and achievement tracking with efficient mobile resource management and cross-platform deployment capabilities.",
+        category: "Mobile Platform Integration",
+        description: "Android rail shooter with Google Play Store integration and cloud-based progression systems. Features optimized resource management, cross-platform compatibility, and real-time performance monitoring.",
         mainImage: "assets/images/game_design/cracking.png",
         gallery: [],
-        techStack: ["Unity", "Mobile", "C#", "Performance Optimization", "Cross-Platform Development", "Cloud Integration"],
+        techStack: ["Unity", "Google Play Integration", "Mobile Optimization", "Cross-Platform Development", "Performance Monitoring"],
         githubLink: "https://github.com/PranavMishra17?tab=repositories",
         demoLink: "https://youtu.be/Za-9WKnd1gA?si=neHw3qB2cejnxPNU",
         websiteLink: ""
@@ -145,163 +145,174 @@ const projects = {
       {
         id: "auto-prompting",
         title: "Auto-Prompting for PaintSeg",
-        category: "Research Project",
-        description: "An innovative autoprompting system for training-free object segmentation using computer vision and deep learning techniques. Leverages k-means clustering and Dense Prediction Transformer (DPT) for model deployment to extract depth maps and create precise binary and bounding box masks with production-ready performance.",
+        category: "Computer Vision Pipeline",
+        description: "Training-free object segmentation using k-means clustering and Dense Prediction Transformer. Automated mask generation pipeline with depth estimation for production-ready segmentation tasks.",
         mainImage: "assets/images/ai_ml/paint.png",
         gallery: [
           "assets/images/ai_ml/paint1.png",
         ],
-        techStack: ["Python", "PyTorch", "DPT", "Computer Vision", "Deep Learning", "Model Deployment"],
+        techStack: ["PyTorch", "Computer Vision", "Transformer Models", "Model Deployment", "Depth Estimation", "Production Pipeline"],
         githubLink: "https://github.com/PranavMishra17/Auto-Prompting-for-PaintSeg",
         demoLink: "",
         websiteLink: ""
       },
       {
         id: "big5-agents",
-        title: "Big5: Multi-Agent System for Medical Diagnosis",
-        category: "Multi-Agent System",
-        description: "A flexible multi-agent system based on the Big Five teamwork model with collaborative AI and distributed systems architecture. Features dynamic task handling, specialized agent roles, and adaptive agent recruitment based on task complexity for medical diagnosis applications with MLOps integration.",
+        title: "Big5: Agentic Medical Diagnosis System",
+        category: "Multi-Agent Architecture",
+        description: "Collaborative AI system implementing Big Five teamwork model for distributed medical diagnosis. Features dynamic agent recruitment, specialized role assignment, and MLOps integration for healthcare deployment.",
         mainImage: "assets/images/ai_ml/big5.png",
         gallery: [
           "assets/images/ai_ml/big51.png",
         ],
-        techStack: ["Python", "LLM", "Multi-Agent Systems", "Collaborative AI", "Distributed Systems", "MLOps"],
+        techStack: ["Python", "Agentic AI", "Multi-Agent Systems", "Healthcare AI", "MLOps", "Distributed Architecture", "Medical Informatics"],
         githubLink: "https://github.com/PranavMishra17/Big5-Agents",
         demoLink: "",
         websiteLink: ""
       },
-            {
+      {
         id: "ai-avatar",
-        title: "Azure Talking Avatar",
-        category: "RAG Interface",
-        description: "A cloud-deployed web application for creating interactive talking avatars powered by Azure OpenAI and production RAG systems. Features real-time systems for knowledge base document processing, avatar appearance selection, and conversational AI agents with MLOps integration for scalable deployment.",
+        title: "Azure Talking Avatar Platform",
+        category: "Production RAG System",
+        description: "Cloud-deployed conversational AI with real-time avatar synthesis. Production RAG architecture with document processing, Azure Speech Services integration, and scalable deployment pipeline.",
         mainImage: "assets/images/ai_ml/avatar.png",
         gallery: [
           "assets/images/ai_ml/av1.png",
           "assets/images/ai_ml/av2.png",
         ],
-        techStack: ["Python", "Azure OpenAI", "Azure Speech Services", "Cosmos DB", "MLOps", "Cloud Deployment", "Real-Time Systems"],
+        techStack: ["Python", "Production RAG", "Azure AI Services", "Real-Time Systems", "Cloud Infrastructure", "MLOps", "Vector Databases"],
         githubLink: "https://github.com/PranavMishra17/Azure-Web-app-Python-for-VARE-website-UIC",
         demoLink: "https://youtu.be/tZ5aoUfyKgM",
         websiteLink: ""
       },
       {
         id: "realestate-ai",
-        title: "KEYA - RealEstate AI",
-        category: "Conversational AI Platform",
-        description: "An AI-powered platform for real estate with conversational AI and Large Language Models (LLMs) integration. Supports multilingual queries, property searches with advanced filtering, and nearby amenity information using hybrid LLM approaches with full-stack development and real-time data processing.",
+        title: "KEYA - Agentic Real Estate Platform",
+        category: "Enterprise AI Application",
+        description: "Multilingual AI platform for real estate with hybrid LLM architecture. Features intelligent property search, geospatial analysis, and conversational interfaces with enterprise-grade scalability.",
         mainImage: "assets/images/ai_ml/keya.png",
         gallery: [
           "assets/images/ai_ml/keya1.png",
           "assets/images/ai_ml/keya2.png",
           "assets/images/ai_ml/keya3.png",
         ],
-        techStack: ["React", "Rapid API", "LLM", "Python", "SerpAPI", "Conversational AI", "Full-Stack Development"],
+        techStack: ["React", "Agentic AI", "Hybrid LLM", "Geospatial Analysis", "Enterprise AI", "Full-Stack Development", "RAPID API"],
         githubLink: "https://github.com/Archit1706/cs532-project",
         demoLink: "",
         websiteLink: ""
       },
-
-           {
+      {
         id: "metadata-enrichment",
-        title: "MetaRAG: Metadata Enrichment in RAGs for Internal Knowledge Retrieval",
-        category: "Research Project",
-        description: "A production RAG system framework for metadata enrichment using Large Language Models (LLMs) to improve enterprise AI applications. Demonstrates enhanced information retrieval accuracy through vector embeddings and three distinct approaches with comprehensive evaluation metrics for enterprise knowledge management.",
+        title: "MetaRAG: Enterprise Knowledge Retrieval",
+        category: "Production RAG Framework",
+        description: "Advanced RAG system with LLM-powered metadata enrichment for enterprise knowledge management. Vector embeddings optimization with comprehensive evaluation metrics and production deployment.",
         mainImage: "assets/images/ai_ml/arch1.jpeg",
         gallery: [
           "assets/images/ai_ml/arch.png",
         ],
-        techStack: ["LangChain", "Pinecone", "Vector Embeddings", "LLM", "Production RAG Systems", "Enterprise AI", "Information Retrieval"],
+        techStack: ["LangChain", "Vector Embeddings", "Production RAG", "ML Research", "Information Retrieval", "Model Evaluation", "Knowledge Management"],
         githubLink: "https://github.com/PranavMishra17/Metadata-Enrichment-with-LLMs-for-RAGs-Internal-Knowledge-Retrieval",
         demoLink: "",
         websiteLink: ""
       },
       {
         id: "inbedder",
-        title: "InBedder-Reproducibility Study",
-        category: "Research Project",
-        description: "An instruction-following text embedder using advanced NLP and transformer models for model deployment in production environments. Treats instructions as questions about input text and encodes expected answers with vector embeddings, demonstrating awareness of instructions across different evaluation tasks.",
+        title: "InBedder: Instruction-Following Embeddings",
+        category: "NLP Research Implementation",
+        description: "Instruction-aware text embedding system treating instructions as queries with encoded expected answers. Transformer-based architecture with production deployment capabilities and cross-task evaluation.",
         mainImage: "assets/images/ai_ml/inbedder.png",
         gallery: [
           "assets/images/ai_ml/in1.png",
           "assets/images/ai_ml/in2.png",
         ],
-        techStack: ["PyTorch", "Transformer Models", "NLP", "Vector Embeddings", "Model Deployment", "Deep Learning"],
+        techStack: ["PyTorch", "Transformer Models", "Vector Embeddings", "Model Deployment", "NLP Research"],
         githubLink: "https://github.com/Hjhirp/InBedder",
         demoLink: "",
         websiteLink: ""
       },
       {
         id: "lunar-survival",
-        title: "Lunar Survival Challenge",
-        category: "Collaborative Agent Architecture",
-        description: "A collaborative agent architecture for NASA's lunar survival challenge featuring intelligent AI agents and distributed systems. Implements paired agent teams with collaborative reasoning that work together before cross-team integration, enabling comprehensive decision-making for space survival scenarios.",
+        title: "NASA Lunar Survival Challenge",
+        category: "Collaborative AI Architecture",
+        description: "Multi-agent system for space survival scenarios with paired collaborative reasoning. Distributed decision-making architecture enabling cross-team integration and comprehensive survival strategy development.",
         mainImage: "assets/images/ai_ml/moon.png",
         gallery: [
           "assets/images/ai_ml/moon1.png",
           "assets/images/ai_ml/moon2.png",
         ],
-        techStack: ["Python", "AI Agents", "Collaborative Reasoning", "Distributed Systems", "Multi-Agent Systems"],
+        techStack: ["Python", "Multi-Agent Systems", "Collaborative AI", "Distributed Architecture", "Decision Systems"],
         githubLink: "https://github.com/PranavMishra17/NASA-Survival-on-the-moon--via-Agents",
         demoLink: "",
         websiteLink: ""
       },
       {
         id: "transformer-nmt",
-        title: "Transformer-based NMT",
-        category: "Research Project",
-        description: "A from-scratch implementation of a Transformer model for English to German neural machine translation with deep learning architecture. Follows 'Attention Is All You Need' paper with multi-head attention, positional encoding, and layer normalization for production-ready model training and deployment.",
+        title: "Transformer Neural Machine Translation",
+        category: "Deep Learning Implementation",
+        description: "From-scratch Transformer implementation for English-German translation following 'Attention Is All You Need'. Features multi-head attention, positional encoding, and production-ready training pipeline.",
         mainImage: "assets/images/ai_ml/transformer_nmt/main.jpg",
         gallery: [],
-        techStack: ["PyTorch", "Transformer", "NLP", "Python", "Deep Learning", "Model Training"],
+        techStack: ["PyTorch", "Transformer Architecture", "Neural Machine Translation", "Model Training", "Deep Learning", "Production Pipeline"],
         githubLink: "https://github.com/VasistP/Transformer",
         demoLink: "",
         websiteLink: ""
       },
       {
+        id: "resumecraft-optimizer",
+        title: "ResumeCraft - Intelligent Document Optimizer",
+        category: "Document Processing Pipeline",
+        description: "LLM-powered LaTeX optimization with component-level analysis and keyword usage tracking. Features surgical document reconstruction, constraint solving, and ATS compatibility optimization.",
+        mainImage: "assets/images/ai_ml/resume.png",
+        gallery: [],
+        techStack: ["Python", "LangChain", "Document Processing", "LaTeX Parsing", "Production Systems"],
+        githubLink: "https://github.com/PranavMishra17/ResumeCraft-Latex-resume-optimizer",
+        demoLink: "",
+        websiteLink: ""
+      },
+      {
         id: "microscopy",
-        title: "Microscopy Image Segmentation",
-        category: "Research Project",
-        description: "Advanced computer vision and medical AI project for segmentation of 5x5x5 um section of CA1 hippocampus using Electron Microscopy Dataset. Implemented various techniques from histogram segmentation to deep learning with UNet architecture for medical imaging applications.",
+        title: "Medical Microscopy Segmentation",
+        category: "Healthcare AI Application",
+        description: "Deep learning pipeline for hippocampus electron microscopy segmentation using UNet architecture. Advanced medical imaging with performance optimization for clinical deployment scenarios.",
         mainImage: "assets/images/ai_ml/micro.png",
         gallery: [],
-        techStack: ["Python", "TensorFlow", "UNet", "Computer Vision", "Medical AI", "Deep Learning"],
+        techStack: ["TensorFlow", "UNet Architecture", "Medical Imaging", "Healthcare AI", "Computer Vision"],
         githubLink: "https://github.com/PranavMishra17/Microscopy_Seg_CVProjectFall23",
         demoLink: "",
         websiteLink: ""
       },
       {
         id: "market-volatility",
-        title: "Market Volatility Prediction",
-        category: "Optiver Trading Challenge",
-        description: "CS 512 project analyzing market dynamics using MLOps practices and model evaluation techniques. Implemented and compared multiple regression models including Linear Regression, SGD Regressor, Random Forest Regressor, and LGBM with comprehensive model deployment and performance evaluation for trading applications.",
+        title: "Market Volatility Prediction System",
+        category: "Financial ML Pipeline",
+        description: "Production ML system for trading volatility prediction with ensemble methods. MLOps implementation featuring model comparison, performance monitoring, and real-time inference capabilities.",
         mainImage: "assets/images/ai_ml/votal.png",
         gallery: [],
-        techStack: ["Python", "Scikit-learn", "LGBM", "Random Forest", "MLOps", "Model Evaluation"],
+        techStack: ["Python", "Ensemble Methods", "MLOps", "Financial ML", "Model Evaluation", "Real-Time Inference"],
         githubLink: "https://github.com/PranavMishra17/Applied-AI-Projects-CS512-UIC",
         demoLink: "",
         websiteLink: ""
       },
       {
         id: "football-bayesian-analysis",
-        title: "Football Performance Bayesian Networks",
-        category: "Sports Analytics & Decision Systems",
-        description: "CS 512 project implementing Bayesian Networks for sports analytics and predictive modeling. Developed performance prediction models using Expected Goals (xG) and Expected Assists (xA) with sigmoid functions, creating decision-making tools for player selection with comprehensive sports analytics integration.",
+        title: "Sports Analytics Decision System",
+        category: "Bayesian ML Application",
+        description: "Probabilistic modeling for football performance prediction using Bayesian Networks. Expected Goals (xG) analysis with sigmoid functions for sports analytics and decision support systems.",
         mainImage: "assets/images/ai_ml/foot.png",
         gallery: [],
-        techStack: ["Python", "Bayesian Networks", "Sports Analytics", "Decision Theory", "Predictive Modeling", "Data Science"],
+        techStack: ["Python", "Bayesian Networks", "Sports Analytics", "Probabilistic Modeling", "Decision Systems", "Data Science"],
         githubLink: "https://github.com/PranavMishra17/Applied-AI-Projects-CS512-UIC",
         demoLink: "",
         websiteLink: ""
       },
       {
         id: "unetplus",
-        title: "UnetPlus",
-        category: "Oral Cancer Image Segmentation",
-        description: "Developed deep learning models using U-Net architecture with various pre-trained backbones for medical AI applications in oral cancer detection. Achieved high performance using IoU metrics with computer vision techniques and model deployment strategies for healthcare applications.",
+        title: "UNet++ Oral Cancer Detection",
+        category: "Medical AI Deployment",
+        description: "Advanced segmentation system for oral cancer detection using U-Net++ with multiple backbone architectures. High-performance medical AI with IoU optimization and clinical deployment pipeline.",
         mainImage: "assets/images/ai_ml/unet.png",
         gallery: [],
-        techStack: ["Python", "TensorFlow", "ResNet", "Medical AI", "Computer Vision", "Deep Learning"],
+        techStack: ["TensorFlow", "U-Net Architecture", "Medical AI", "Cancer Detection", "Performance Optimization"],
         githubLink: "https://github.com/PranavMishra17/UnetPLUS-OralCancer-image-segmenattion",
         demoLink: "",
         websiteLink: ""
@@ -310,12 +321,12 @@ const projects = {
     misc: [
       {
         id: "pixel-punks",
-        title: "Pixel Punks",
-        category: "Collaborative Pixel Art",
-        description: "A collaborative pixel art project on the Solana blockchain with real-time systems and distributed architecture. Users collectively create NFT artwork through blockchain integration, with each pixel change involving optimized Solana transactions and cross-platform deployment capabilities.",
+        title: "Pixel Punks - Collaborative Blockchain Art",
+        category: "Decentralized Application",
+        description: "Real-time collaborative pixel art on Solana blockchain with optimized transaction batching. Distributed architecture enabling collective NFT creation with seamless Web3 integration.",
         mainImage: "assets/images/misc/pixel.png", 
         gallery: [],
-        techStack: ["Solana", "JavaScript", "Blockchain", "Real-Time Systems", "Cross-Platform Development"],
+        techStack: ["Solana", "Web3 Integration", "Blockchain Development", "Real-Time Systems", "Decentralized Architecture", "Smart Contracts"],
         githubLink: "https://github.com/PranavMishra17/pixel-punks",
         demoLink: "",
         websiteLink: ""
@@ -323,23 +334,23 @@ const projects = {
       {
         id: "portfolio-website",
         title: "Portfolio Website",
-        category: "Web Development",
-        description: "A modern, responsive portfolio website with full-stack development architecture and performance optimization. Features distinctive visual themes for each project category, interactive elements, cloud deployment, and SEO optimization with cross-platform compatibility and real-time content management.",
+        category: "Full-Stack Development",
+        description: "Modern responsive portfolio with performance optimization and cloud deployment. Features interactive elements, SEO optimization, dynamic content management, and cross-platform compatibility.",
         mainImage: "assets/images/misc/preview.png",
         gallery: [],
-        techStack: ["React.js", "CSS3", "JavaScript ES6+", "Full-Stack Development", "Performance Optimization", "Cloud Deployment"],
+        techStack: ["React.js", "Modern CSS", "Performance Optimization", "Cloud Deployment", "SEO Optimization", "Full-Stack Development"],
         githubLink: "https://github.com/PranavMishra17/Portfolio-PranavMishra-Paranoid",
         demoLink: "",
         websiteLink: ""
       },
       {
         id: "rusty-ant",
-        title: "Rusty ANT",
-        category: "2D Game",
-        description: "A top-down 2D game created in Rust with advanced gameplay programming and performance optimization. Features ant life cycle simulation from larva to adult with procedural generation, food gathering mechanics, and evolutionary progression through different life stages with optimized WASD controls.",
+        title: "Rusty ANT - Systems Programming Game",
+        category: "Rust Development",
+        description: "2D life simulation game built in Rust with memory-safe systems programming. Features ant evolution mechanics, procedural generation, and performance-optimized game loops using Rust's ownership model.",
         mainImage: "assets/images/game_design/rust.png",
         gallery: [],
-        techStack: ["Rust", "Cargo", "Game Design", "Gameplay Programming", "Performance Optimization"],
+        techStack: ["Rust", "Systems Programming", "Memory Safety", "Performance Optimization", "Game Engine Development", "Cargo Ecosystem"],
         githubLink: "https://github.com/PranavMishra17/Rust-yy-Ant",
         demoLink: "",
         websiteLink: ""
@@ -349,8 +360,8 @@ const projects = {
   
 const contactInfo = {
   name: "Pranav Pushkar Mishra",
-  title: "AI/ML Engineer & Game Developer",
-  bio: "Computer Science graduate from University of Illinois at Chicago with expertise in production-ready AI systems and immersive game development. Specializing in Multi-Agent Systems, LLMs, and RAG architectures with proven experience deploying ML models to cloud platforms. Proficient in Unity/Unreal Engine development with VR/AR applications, cross-platform deployment, and real-time systems optimization. Demonstrated success in hackathons, research publications, and industry collaborations with hands-on experience in MLOps, game engine programming, and full-stack development.",
+  title: "AI/ML Engineer & XR Developer",
+  bio: "Computer Science graduate from University of Illinois at Chicago specializing in production AI systems and immersive technology development. Expert in Multi-Agent Systems, Production RAG architectures, and MLOps with proven cloud deployment experience. Proficient in Unity/Unreal XR development, spatial computing, and real-time optimization. Demonstrated success in hackathons, research publications, and enterprise AI solutions with hands-on experience in agentic AI, distributed systems, and cross-platform development.",
   email: {
     personal: "pranavgamedev.17@gmail.com",
     academic: "pmishr23@uic.edu"
@@ -380,7 +391,7 @@ const socialIcons = {
     }
   };
 
-// src/data/projects.js (update defaultImages section)
+// Default images configuration
 const defaultImages = {
     projectMain: "/assets/images/default/project_default.jpg",
     gameDesign: "/assets/images/default/game_design_default.jpg",
@@ -389,9 +400,8 @@ const defaultImages = {
     profile: "/assets/images/default/profile_default.jpg"
   };
   
-// Updated getImageWithFallback function - replace in src/data/projects.js
+// Updated getImageWithFallback function
 export const getImageWithFallback = (imagePath, category) => {
-  // If no image path provided, return default
   if (!imagePath || imagePath === "" || imagePath.includes("undefined")) {
     if (category === "game-design") return "/assets/images/default/game_design_default.jpg";
     if (category === "ai-ml") return "/assets/images/default/ai_ml_default.jpg";
@@ -400,7 +410,6 @@ export const getImageWithFallback = (imagePath, category) => {
     return "/assets/images/default/project_default.jpg";
   }
   
-  // Return the image path with leading slash if needed
   return imagePath.startsWith('/') ? imagePath : '/' + imagePath;
 };
 
