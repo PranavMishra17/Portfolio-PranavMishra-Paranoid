@@ -172,9 +172,9 @@ const projects = {
       },
       {
         id: "ai-avatar",
-        title: "Azure Talking Avatar Platform",
+        title: "MedRAG Avatar Platform - IVORY",
         category: "Production RAG System",
-        description: "Cloud-deployed conversational AI with real-time avatar synthesis. Production RAG architecture with document processing, Azure Speech Services integration, and scalable deployment pipeline.",
+        description: "Developed IVORY, a production-grade RAG system enabling custom conversational avatars for healthcare education. Comprehensiive RAG architecture with document processing, Azure Speech Services integration, and scalable deployment pipeline.",
         mainImage: "assets/images/ai_ml/avatar.png",
         gallery: [
           "assets/images/ai_ml/av1.png",
