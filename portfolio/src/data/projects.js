@@ -79,7 +79,7 @@ const projects = {
       },
       {
         id: "equity-project",
-        title: "Equity Project",
+        title: "EQUITY: Virtual Patient Research Application",
         category: "Medical Simulation",
         description: "UE5-powered medical simulation for bias research using MetaHuman technology. Features advanced facial animation systems, interactive dialogue trees, and optimized performance for healthcare applications.",
         mainImage: "assets/images/game_design/equity.png",
@@ -88,7 +88,7 @@ const projects = {
           "assets/images/game_design/eq2.png",
         ],
         techStack: ["Unreal Engine 5", "MetaHuman", "C++", "Medical Simulation", "Real-Time Animation", "Healthcare Technology", "Performance Optimization"],
-        githubLink: "https://github.com/PranavMishra17?tab=repositories",
+        githubLink: "https://github.com/PranavMishra17/EQUITY-VirtualPatient-UE5",
         demoLink: "https://youtu.be/WO2vVaD8WoE?si=D2-56CQtPhK3ju-v",
         websiteLink: ""
       },
