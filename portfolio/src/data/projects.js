@@ -30,6 +30,33 @@ const projects = {
         demoLink: "",
         websiteLink: ""
       },
+
+      {
+  id: "snakeai-mlops",
+  title: "SnakeAI-MLOps: Reinforcement Learning Game Platform",
+  category: "Machine Learning & Game Development",
+  description: "Production-ready reinforcement learning platform featuring Q-Learning AI agents in a classic Snake game environment. Implements comprehensive MLOps pipeline with real-time data collection, model persistence, and performance analytics. Features three distinct training modes: human vs system, AI vs human, and AI vs system for diverse learning scenarios. Built with modern C++ and SFML 3.x for high-performance real-time training and visualization.",
+  mainImage: "assets/images/ai_ml/snake.png",
+  gallery: [
+    "assets/images/ml_projects/snakeai-training.png",
+    "assets/images/ml_projects/snakeai-modes.png",
+    "assets/images/ml_projects/snakeai-analytics.png"
+  ],
+  techStack: [
+    "C++17", 
+    "SFML 3.x", 
+    "CICD Pipeline", 
+    "Reinforcement Learning", 
+    "MLOps", 
+    "Docker", 
+    "vcpkg",  
+    "Real-Time Analytics", 
+    "Cross-Platform Development"
+  ],
+  githubLink: "https://github.com/PranavMishra17/SnakeAI-MLOps",
+  demoLink: "",
+  websiteLink: ""
+},
       
       {
         id: "neon-bites",
@@ -185,6 +212,21 @@ const projects = {
         demoLink: "https://youtu.be/tZ5aoUfyKgM",
         websiteLink: ""
       },
+            {
+        id: "metadata-enrichment",
+        title: "MetaRAG: Enterprise Knowledge Retrieval",
+        category: "Production RAG Framework",
+        description: "Advanced RAG system with LLM-powered metadata enrichment for enterprise knowledge management. Vector embeddings optimization with comprehensive evaluation metrics and production deployment.",
+        mainImage: "assets/images/ai_ml/arch1.jpeg",
+        gallery: [
+          "assets/images/ai_ml/arch.png",
+        ],
+        techStack: ["LangChain", "Vector Embeddings", "Production RAG", "ML Research", "Information Retrieval", "Model Evaluation", "Knowledge Management"],
+        githubLink: "https://github.com/PranavMishra17/Metadata-Enrichment-with-LLMs-for-RAGs-Internal-Knowledge-Retrieval",
+        demoLink: "",
+        websiteLink: ""
+      },
+
       {
         id: "realestate-ai",
         title: "KEYA - Agentic Real Estate Platform",
@@ -201,20 +243,33 @@ const projects = {
         demoLink: "",
         websiteLink: ""
       },
-      {
-        id: "metadata-enrichment",
-        title: "MetaRAG: Enterprise Knowledge Retrieval",
-        category: "Production RAG Framework",
-        description: "Advanced RAG system with LLM-powered metadata enrichment for enterprise knowledge management. Vector embeddings optimization with comprehensive evaluation metrics and production deployment.",
-        mainImage: "assets/images/ai_ml/arch1.jpeg",
-        gallery: [
-          "assets/images/ai_ml/arch.png",
-        ],
-        techStack: ["LangChain", "Vector Embeddings", "Production RAG", "ML Research", "Information Retrieval", "Model Evaluation", "Knowledge Management"],
-        githubLink: "https://github.com/PranavMishra17/Metadata-Enrichment-with-LLMs-for-RAGs-Internal-Knowledge-Retrieval",
-        demoLink: "",
-        websiteLink: ""
-      },
+
+           {
+  id: "snakeai-mlops",
+  title: "SnakeAI-MLOps: Reinforcement Learning Game Platform",
+  category: "Machine Learning & Game Development",
+  description: "Production-ready reinforcement learning platform featuring Q-Learning AI agents in a classic Snake game environment. Implements comprehensive MLOps pipeline with real-time data collection, model persistence, and performance analytics. Features three distinct training modes: human vs system, AI vs human, and AI vs system for diverse learning scenarios. Built with modern C++ and SFML 3.x for high-performance real-time training and visualization.",
+  mainImage: "assets/images/ai_ml/snake.png",
+  gallery: [
+    "assets/images/ml_projects/snakeai-training.png",
+    "assets/images/ml_projects/snakeai-modes.png",
+    "assets/images/ml_projects/snakeai-analytics.png"
+  ],
+  techStack: [
+    "C++17", 
+    "SFML 3.x", 
+    "CICD Pipeline", 
+    "Reinforcement Learning", 
+    "MLOps", 
+    "Docker", 
+    "vcpkg",  
+    "Real-Time Analytics", 
+    "Cross-Platform Development"
+  ],
+  githubLink: "https://github.com/PranavMishra17/SnakeAI-MLOps",
+  demoLink: "",
+  websiteLink: ""
+},
       {
         id: "inbedder",
         title: "InBedder: Instruction-Following Embeddings",
