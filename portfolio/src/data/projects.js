@@ -415,7 +415,7 @@ const projects = {
   
 const contactInfo = {
   name: "Pranav Pushkar Mishra",
-  title: "AI/ML Engineer & XR Developer",
+  title: "AI/ML Engineer & Game Developer",
   bio: "Computer Science graduate from University of Illinois at Chicago with a deep passion for AI and immersive technology. I'm driven by the potential to integrate next-generation artificial intelligence into game development, creating truly revolutionary interactive experiences. With proven success in research publications, hackathons, and enterprise AI solutions, I bring expertise in advanced AI systems, cloud deployment, and real-time optimization. My goal is to be at the forefront of shaping the future of gaming through cutting-edge AI research and innovative development.",
   email: {
     personal: "pranavgamedev.17@gmail.com",
