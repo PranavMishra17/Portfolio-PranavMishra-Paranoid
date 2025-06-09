@@ -33,9 +33,9 @@ const projects = {
 
       {
   id: "snakeai-mlops",
-  title: "SnakeAI-MLOps: Reinforcement Learning Game Platform",
+  title: "SnakeAI-MLOps: Reinforcement Learning Game Agents",
   category: "Machine Learning & Game Development",
-  description: "Production-ready reinforcement learning platform featuring Q-Learning AI agents in a classic Snake game environment. Implements comprehensive MLOps pipeline with real-time data collection, model persistence, and performance analytics. Features three distinct training modes: human vs system, AI vs human, and AI vs system for diverse learning scenarios. Built with modern C++ and SFML 3.x for high-performance real-time training and visualization.",
+  description: "Classic Snake game implemented in C++ with Q-Learning AI agents. Features three gameplay modes: human player, AI-controlled snake with human-placed food, and fully automated AI training. Includes data collection for training analytics and Q-table persistence. Built with SFML for graphics and modern C++ practices.",
   mainImage: "assets/images/ai_ml/snake.png",
   gallery: [
     "assets/images/ml_projects/snakeai-training.png",
@@ -43,14 +43,12 @@ const projects = {
     "assets/images/ml_projects/snakeai-analytics.png"
   ],
   techStack: [
-    "C++17", 
-    "SFML 3.x", 
+    "C++", 
+    "SFML", 
     "CICD Pipeline", 
     "Reinforcement Learning", 
     "MLOps", 
     "Docker", 
-    "vcpkg",  
-    "Real-Time Analytics", 
     "Cross-Platform Development"
   ],
   githubLink: "https://github.com/PranavMishra17/SnakeAI-MLOps",
@@ -246,9 +244,9 @@ const projects = {
 
            {
   id: "snakeai-mlops",
-  title: "SnakeAI-MLOps: Reinforcement Learning Game Platform",
+  title: "SnakeAI-MLOps: Reinforcement Learning Game Agents",
   category: "Machine Learning & Game Development",
-  description: "Production-ready reinforcement learning platform featuring Q-Learning AI agents in a classic Snake game environment. Implements comprehensive MLOps pipeline with real-time data collection, model persistence, and performance analytics. Features three distinct training modes: human vs system, AI vs human, and AI vs system for diverse learning scenarios. Built with modern C++ and SFML 3.x for high-performance real-time training and visualization.",
+  description: "Classic Snake game implemented in C++ with Q-Learning AI agents. Features three gameplay modes: human player, AI-controlled snake with human-placed food, and fully automated AI training. Includes data collection for training analytics and Q-table persistence. Built with SFML for graphics and modern C++ practices.",
   mainImage: "assets/images/ai_ml/snake.png",
   gallery: [
     "assets/images/ml_projects/snakeai-training.png",
@@ -256,14 +254,12 @@ const projects = {
     "assets/images/ml_projects/snakeai-analytics.png"
   ],
   techStack: [
-    "C++17", 
-    "SFML 3.x", 
+    "C++", 
+    "SFML", 
     "CICD Pipeline", 
     "Reinforcement Learning", 
     "MLOps", 
     "Docker", 
-    "vcpkg",  
-    "Real-Time Analytics", 
     "Cross-Platform Development"
   ],
   githubLink: "https://github.com/PranavMishra17/SnakeAI-MLOps",
