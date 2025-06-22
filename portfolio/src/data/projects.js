@@ -35,12 +35,9 @@ const projects = {
   id: "snakeai-mlops",
   title: "SnakeAI-MLOps: Reinforcement Learning Game Agents",
   category: "Machine Learning & Game Development",
-  description: "Classic Snake game implemented in C++ with Q-Learning AI agents. Features three gameplay modes: human player, AI-controlled snake with human-placed food, and fully automated AI training. Includes data collection for training analytics and Q-table persistence. Built with SFML for graphics and modern C++ practices.",
+  description: "Multi-agent Snake game with 4 RL techniques (Q-Learning, DQN, PPO, Actor-Critic). C++/SFML gameplay, Python/PyTorch training, LibTorch inference. GPU-accelerated with performance analytics.",
   mainImage: "assets/images/ai_ml/snake.png",
   gallery: [
-    "assets/images/ml_projects/snakeai-training.png",
-    "assets/images/ml_projects/snakeai-modes.png",
-    "assets/images/ml_projects/snakeai-analytics.png"
   ],
   techStack: [
     "C++", 
@@ -49,10 +46,12 @@ const projects = {
     "Reinforcement Learning", 
     "MLOps", 
     "Docker", 
-    "Cross-Platform Development"
+    "Python",
+    "PyTorch",
+    "LibTorch"
   ],
   githubLink: "https://github.com/PranavMishra17/SnakeAI-MLOps",
-  demoLink: "",
+  demoLink: "https://pranavmishra17.github.io/SnakeAI-MLOps/",
   websiteLink: ""
 },
       
@@ -246,12 +245,9 @@ const projects = {
   id: "snakeai-mlops",
   title: "SnakeAI-MLOps: Reinforcement Learning Game Agents",
   category: "Machine Learning & Game Development",
-  description: "Classic Snake game implemented in C++ with Q-Learning AI agents. Features three gameplay modes: human player, AI-controlled snake with human-placed food, and fully automated AI training. Includes data collection for training analytics and Q-table persistence. Built with SFML for graphics and modern C++ practices.",
+  description: "Multi-agent Snake game with 4 RL techniques (Q-Learning, DQN, PPO, Actor-Critic). C++/SFML gameplay, Python/PyTorch training, LibTorch inference. GPU-accelerated with performance analytics.",
   mainImage: "assets/images/ai_ml/snake.png",
   gallery: [
-    "assets/images/ml_projects/snakeai-training.png",
-    "assets/images/ml_projects/snakeai-modes.png",
-    "assets/images/ml_projects/snakeai-analytics.png"
   ],
   techStack: [
     "C++", 
@@ -260,10 +256,12 @@ const projects = {
     "Reinforcement Learning", 
     "MLOps", 
     "Docker", 
-    "Cross-Platform Development"
+    "Python",
+    "PyTorch",
+    "LibTorch"
   ],
   githubLink: "https://github.com/PranavMishra17/SnakeAI-MLOps",
-  demoLink: "",
+  demoLink: "https://pranavmishra17.github.io/SnakeAI-MLOps/",
   websiteLink: ""
 },
       {
