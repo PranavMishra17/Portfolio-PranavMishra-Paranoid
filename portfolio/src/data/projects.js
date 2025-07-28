@@ -209,7 +209,23 @@ const projects = {
         demoLink: "https://youtu.be/tZ5aoUfyKgM",
         websiteLink: ""
       },
-            {
+
+      {
+        id: "voicepersona-dataset",
+        title: "VoicePersona: Voice Character Dataset",
+        category: "AI Voice Synthesis Dataset",
+        tagline: "80K+ voice samples with detailed character profiles for consistent voice synthesis",
+        description: "Comprehensive voice persona dataset combining 80,000+ voice samples from 4 major datasets with AI-generated character profiles. Features detailed voice characteristics, demographics, and personality traits for training character-consistent voice synthesis models. Powers the VoiceForge project for text-to-voice generation.",
+        mainImage: "assets/images/ai_ml/voicepersona.png",
+        gallery: [
+        ],
+        techStack: ["Qwen2-Audio", "HuggingFace Datasets", "Voice Analysis", "Audio Processing", "Character Profiling", "Multi-Modal AI", "Voice Synthesis", "Dataset Curation"],
+        githubLink: "https://github.com/PranavMishra17/VoicePersona-Dataset",
+        demoLink: "",
+        websiteLink: "https://huggingface.co/datasets/Paranoiid/VoicePersona"
+        },
+
+        {
         id: "metadata-enrichment",
         title: "MetaRAG: Enterprise Knowledge Retrieval",
         category: "Production RAG Framework",
@@ -279,6 +295,21 @@ const projects = {
         demoLink: "",
         websiteLink: ""
       },
+
+      {
+ id: "voiceforge-architecture",
+ title: "VoiceForge: Text-to-Voice Synthesis",
+ category: "AI Voice Generation System",
+ tagline: "Generate consistent character voices from pure text descriptions",
+ description: "Revolutionary text-to-voice architecture that creates character voices without audio samples or voice actors. Uses CharacterBERT embeddings and XTTS-v2 synthesis to generate consistent character voices from natural language descriptions. Features lightweight deployment, multi-speaker support, and game engine integration.",
+ mainImage: "assets/images/ai_ml/voiceforge.png",
+ gallery: [
+ ],
+ techStack: ["XTTS-v2", "CharacterBERT", "Coqui TTS", "Sentence Transformers", "PyTorch", "Voice Synthesis", "Neural Embeddings", "Real-time Audio"],
+ githubLink: "https://github.com/PranavMishra17/VoiceForge--Forge-Character-Voices-from-Pure-Text",
+ demoLink: "",
+ websiteLink: ""
+},
       {
         id: "lunar-survival",
         title: "NASA Lunar Survival Challenge",
