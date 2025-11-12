@@ -1,6 +1,21 @@
 /* src/styles/About.css */
 /* Include this CSS file in your project and import it in MainPortfolio.js */
 
+/* Navigation styling for Resume link */
+.nav-link {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.nav-link:hover {
+  background: rgba(61, 90, 254, 0.2);
+  color: #3d5afe;
+}
+
 .about-section {
     position: relative;
     min-height: 100vh;

@@ -9,6 +9,11 @@ import ThemeSwitch from './components/ThemeSwitch';
 import ProjectTabs from './components/ProjectTabs';
 import ProjectCard from './components/ProjectCard';
 import TrophyButton from './components/TrophyButton';
+import ExperienceSection from './components/ExperienceSection';
+import PublicationsSection from './components/PublicationsSection';
+import MinimalContactBelt from './components/MinimalContactBelt';
+import CollapsibleSectionTabs from './components/CollapsibleSectionTabs';
+import ExperienceModal from './components/ExperienceModal';
 import { projects, contactInfo, getImageWithFallback } from './data/projects';
 import './styles/About.css';
 
@@ -17,9 +22,29 @@ function MainPortfolio() {
   const [menuOpen, setMenuOpen] = useState(false);
   const sectionsRef = useRef({});
   const [storyOpen, setStoryOpen] = useState(false);
+  const [experienceModalOpen, setExperienceModalOpen] = useState(false);
+  const [publicationsOpen, setPublicationsOpen] = useState(false);
 
   // Handle smooth scrolling
   const scrollToSection = (sectionId) => {
+    // Handle research button click - open publications and scroll to it
+    if (sectionId === 'research') {
+      setPublicationsOpen(true);
+      // Use setTimeout to allow the publications section to render before scrolling
+      setTimeout(() => {
+        const element = document.getElementById('publications');
+        if (element) {
+          window.scrollTo({
+            top: element.offsetTop - 60,
+            behavior: 'smooth'
+          });
+          setActiveSection('research');
+        }
+      }, 100);
+      setMenuOpen(false);
+      return;
+    }
+
     const element = document.getElementById(sectionId);
     if (element) {
       window.scrollTo({
@@ -85,11 +110,17 @@ function MainPortfolio() {
             <li className={activeSection === 'ai-ml' ? 'active' : ''}>
               <button onClick={() => scrollToSection('ai-ml')}>AI / ML</button>
             </li>
+            <li className={activeSection === 'research' ? 'active' : ''}>
+              <button onClick={() => scrollToSection('research')}>Research</button>
+            </li>
             <li className={activeSection === 'misc' ? 'active' : ''}>
               <button onClick={() => scrollToSection('misc')}>Misc</button>
             </li>
             <li className={activeSection === 'contact' ? 'active' : ''}>
               <button onClick={() => scrollToSection('contact')}>Connect</button>
+            </li>
+            <li>
+              <Link to="/resume" className="nav-link">Resume</Link>
             </li>
           </ul>
         </nav>
@@ -163,7 +194,7 @@ function MainPortfolio() {
                       scale: 1.05, 
                       boxShadow: "0 10px 25px rgba(61, 90, 254, 0.3)"
                     }}
-                    onClick={() => scrollToSection('game-design')}
+                    onClick={() => scrollToSection('ai-ml')}
                   >
                     View Projects
                   </motion.button>
@@ -185,7 +216,7 @@ function MainPortfolio() {
           
           <motion.div 
             className="scroll-indicator" 
-            onClick={() => scrollToSection('game-design')}
+            onClick={() => scrollToSection('ai-ml')}
             animate={{ 
               y: [0, 10, 0],
               opacity: [0.6, 1, 0.6] 
@@ -204,6 +235,20 @@ function MainPortfolio() {
             </div>
           </motion.div>
         </section>
+
+        {/* Experience Button */}
+        <CollapsibleSectionTabs 
+          experienceSection={{
+            isOpen: false,
+            component: <div></div> // Dummy component to show button
+          }}
+          publicationsSection={{
+            isOpen: false,
+            component: null
+          }}
+          onExperienceToggle={() => setExperienceModalOpen(true)}
+          onPublicationsToggle={() => {}}
+        />
 
         {/* Project Navigation Tabs */}
         <div className="projects-navigation-section">
@@ -234,6 +279,22 @@ function MainPortfolio() {
             </div>
           </div>
         </section>
+
+        {/* Collapsible Publications Section */}
+        <div id="publications">
+          <CollapsibleSectionTabs
+            experienceSection={{
+              isOpen: false,
+              component: null
+            }}
+            publicationsSection={{
+              isOpen: publicationsOpen,
+              component: <PublicationsSection />
+            }}
+            onExperienceToggle={() => {}}
+            onPublicationsToggle={() => setPublicationsOpen(!publicationsOpen)}
+          />
+        </div>
 
         {/* Game Design Projects Section */}
         <section 
@@ -278,42 +339,14 @@ function MainPortfolio() {
           </div>
         </section>
 
-        {/* Contact Section */}
-        <section 
-          id="contact" 
-          className="contact-section"
-          ref={(el) => registerSection('contact', el)}
-        >
-          <div className="container">
-            <h2 className="section-title">Connect With Me</h2>
-            <div className="contact-links">
-              <a href={contactInfo.linkedin} target="_blank" rel="noopener noreferrer" className="contact-item linkedin">
-                <div className="icon-container">
-                  <i className="icon linkedin-icon"></i>
-                </div>
-                <span>LinkedIn</span>
-              </a>
-              <a href={contactInfo.github} target="_blank" rel="noopener noreferrer" className="contact-item github">
-                <div className="icon-container">
-                  <i className="icon github-icon"></i>
-                </div>
-                <span>GitHub</span>
-              </a>
-              <Link to="/resume" className="contact-item resume">
-                <div className="icon-container">
-                  <i className="icon resume-icon"></i>
-                </div>
-                <span>Resume</span>
-              </Link>
-              <a href={`mailto:${contactInfo.email.personal}`} className="contact-item email">
-                <div className="icon-container">
-                  <i className="icon email-icon"></i>
-                </div>
-                <span>Email</span>
-              </a>
-            </div>
-          </div>
-        </section>
+        {/* Minimal Contact Belt */}
+        <MinimalContactBelt ref={(el) => registerSection('contact', el)} />
+        
+        {/* Experience Modal */}
+        <ExperienceModal 
+          isOpen={experienceModalOpen}
+          onClose={() => setExperienceModalOpen(false)}
+        />
       </main>
 
       {/* Footer */}

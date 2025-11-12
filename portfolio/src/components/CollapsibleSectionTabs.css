@@ -1,0 +1,238 @@
+/* src/components/CollapsibleSectionTabs.css */
+
+.collapsible-tabs-container {
+  margin: 40px 0;
+  position: relative;
+  z-index: 2;
+}
+
+.collapsible-tabs-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: center;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 80px;
+}
+
+.collapsible-tab-wrapper {
+  position: relative;
+}
+
+.collapsible-tab-wrapper:hover::after {
+  content: 'Click to open';
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.collapsible-tab {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  width: fit-content;
+  min-width: 250px;
+}
+
+.collapsible-tab-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  gap: 20px;
+}
+
+/* Googly Eyes */
+.googly-eyes {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.eye {
+  width: 22px;
+  height: 30px;
+  background: white;
+  border-radius: 50%;
+  position: relative;
+  box-shadow: 
+    inset 0 2px 4px rgba(0, 0, 0, 0.1),
+    0 2px 8px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.eyeball {
+  width: 15px;
+  height: 15px;
+  background: radial-gradient(circle at 30% 30%, #333, #000);
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform 0.1s ease-out;
+  box-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.4),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+/* Eye highlight */
+.eyeball::after {
+  content: '';
+  width: 3px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  position: absolute;
+  top: 20%;
+  left: 25%;
+  box-shadow: 0 0 1px rgba(255, 255, 255, 0.6);
+}
+
+/* Eye positioning */
+.eye-left {
+  --eye-rotation: -5deg;
+  transform: rotate(-5deg);
+}
+
+.eye-right {
+  --eye-rotation: 5deg;
+  transform: rotate(5deg);
+}
+
+/* Hover effects for eyes */
+.collapsible-tab:hover .eye {
+  animation: blink 4s infinite ease-in-out;
+}
+
+@keyframes blink {
+  0%, 92%, 100% {
+    transform: scaleY(1) rotate(var(--eye-rotation, 0deg));
+  }
+  94%, 96% {
+    transform: scaleY(0.05) rotate(var(--eye-rotation, 0deg));
+  }
+}
+
+.collapsible-tab-label {
+  font-weight: 700;
+  font-size: 1.1rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  flex: 1;
+  text-align: center;
+}
+
+.collapsible-tab-arrow {
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.collapsible-active-indicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 2px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+}
+
+/* Collapsible Content */
+.collapsible-content {
+  overflow: hidden;
+  background: rgba(13, 13, 13, 0.7);
+  backdrop-filter: blur(10px);
+  border-radius: 0 0 16px 16px;
+  margin-top: -16px;
+  padding-top: 16px;
+  width: 100vw;
+  margin-left: calc(-50vw + 50%);
+}
+
+.collapsible-content-inner {
+  padding: 24px 16px 16px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .collapsible-tab {
+    padding: 16px 20px;
+  }
+  
+  .collapsible-tab-label {
+    font-size: 1rem;
+    letter-spacing: 1px;
+  }
+  
+  .collapsible-content-inner {
+    padding: 20px 15px 15px;
+  }
+  
+  .eye {
+    width: 20px;
+    height: 25px;
+  }
+  
+  .eyeball {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .googly-eyes {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .collapsible-tabs-wrapper {
+    padding: 0 10px;
+  }
+  
+  .collapsible-tab {
+    padding: 14px 16px;
+  }
+  
+  .collapsible-tab-label {
+    font-size: 0.9rem;
+  }
+  
+  .eye {
+    width: 18px;
+    height: 22px;
+  }
+  
+  .eyeball {
+    width: 7px;
+    height: 7px;
+  }
+  
+  .googly-eyes {
+    gap: 8px;
+  }
+  
+  .collapsible-tab-content {
+    gap: 15px;
+  }
+}

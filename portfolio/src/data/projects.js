@@ -194,6 +194,29 @@ const projects = {
         demoLink: "",
         websiteLink: ""
       },
+                 {
+  id: "snakeai-mlops",
+  title: "SnakeAI-MLOps: Reinforcement Learning Game Agents",
+  category: "Machine Learning & Game Development",
+  description: "Multi-agent Snake game with 4 RL techniques (Q-Learning, DQN, PPO, Actor-Critic). C++/SFML gameplay, Python/PyTorch training, LibTorch inference. GPU-accelerated with performance analytics.",
+  mainImage: "assets/images/ai_ml/snake.png",
+  gallery: [
+  ],
+  techStack: [
+    "C++", 
+    "SFML", 
+    "CICD Pipeline", 
+    "Reinforcement Learning", 
+    "MLOps", 
+    "Docker", 
+    "Python",
+    "PyTorch",
+    "LibTorch"
+  ],
+  githubLink: "https://github.com/PranavMishra17/SnakeAI-MLOps",
+  demoLink: "https://pranavmishra17.github.io/SnakeAI-MLOps/",
+  websiteLink: ""
+},
       {
         id: "ai-avatar",
         title: "MedRAG Avatar Platform - IVORY",
@@ -210,20 +233,6 @@ const projects = {
         websiteLink: ""
       },
 
-      {
-        id: "voicepersona-dataset",
-        title: "VoicePersona: Voice Character Dataset",
-        category: "AI Voice Synthesis Dataset",
-        tagline: "80K+ voice samples with detailed character profiles for consistent voice synthesis",
-        description: "Comprehensive voice persona dataset combining 80,000+ voice samples from 4 major datasets with AI-generated character profiles. Features detailed voice characteristics, demographics, and personality traits for training character-consistent voice synthesis models. Powers the VoiceForge project for text-to-voice generation.",
-        mainImage: "assets/images/ai_ml/voicepersona.png",
-        gallery: [
-        ],
-        techStack: ["Qwen2-Audio", "HuggingFace Datasets", "Voice Analysis", "Audio Processing", "Character Profiling", "Multi-Modal AI", "Voice Synthesis", "Dataset Curation"],
-        githubLink: "https://github.com/PranavMishra17/VoicePersona-Dataset",
-        demoLink: "",
-        websiteLink: "https://huggingface.co/datasets/Paranoiid/VoicePersona"
-        },
 
         {
         id: "metadata-enrichment",
@@ -257,29 +266,63 @@ const projects = {
         websiteLink: ""
       },
 
-           {
-  id: "snakeai-mlops",
-  title: "SnakeAI-MLOps: Reinforcement Learning Game Agents",
-  category: "Machine Learning & Game Development",
-  description: "Multi-agent Snake game with 4 RL techniques (Q-Learning, DQN, PPO, Actor-Critic). C++/SFML gameplay, Python/PyTorch training, LibTorch inference. GPU-accelerated with performance analytics.",
-  mainImage: "assets/images/ai_ml/snake.png",
+      {
+ "id": "healthcare-automation-pipeline",
+ "title": "Patient Care Automation",
+ "category": "Healthcare AI Automation",
+ "description": "HIPAA-compliant healthcare automation pipeline with AI-powered triage, specialist assignment, and real-time care coordination. Features PHI encryption, Slack bot integration, automated scheduling, and comprehensive medical reporting using n8n workflows.",
+ "mainImage": "assets/images/ai_ml/n8n.png",
+ "gallery": [ ],
+ "techStack": [
+   "n8n",
+   "Docker",
+   "PostgreSQL",
+   "Redis",
+   "Healthcare AI",
+   "Slack API",
+   "SendGrid",
+   "Calendly",
+   "Medical NLP",
+   "Automation"
+ ],
+ "githubLink": "https://github.com/PranavMishra17/Patient-care-automation-system",
+ "demoLink": "",
+ "websiteLink": ""
+},
+
+
+{
+  id: "streaming-digit-classifier",
+  title: "Streaming Digit Classifier",
+  category: "Real-Time Audio ML Pipeline",
+  tagline: "Real-time spoken digit recognition with comprehensive ML model comparison",
+  description: "Advanced streaming audio classification system comparing MFCC+NN, CNN architectures, and transformer models for real-time digit recognition. Features Voice Activity Detection, robustness testing with noise injection, and comprehensive performance analytics. Achieves 98.52% accuracy with sub-2ms inference time using optimized feature engineering approach.",
+  mainImage: "assets/images/ai_ml/streaming-digit.png",
   gallery: [
+    "assets/images/ai_ml/Digit1.png",
+    "assets/images/ai_ml/Digit2.png"
   ],
-  techStack: [
-    "C++", 
-    "SFML", 
-    "CICD Pipeline", 
-    "Reinforcement Learning", 
-    "MLOps", 
-    "Docker", 
-    "Python",
-    "PyTorch",
-    "LibTorch"
-  ],
-  githubLink: "https://github.com/PranavMishra17/SnakeAI-MLOps",
-  demoLink: "https://pranavmishra17.github.io/SnakeAI-MLOps/",
+  techStack: ["Python", "TensorFlow", "Flask", "Audio Processing", "Real-Time Audio", "Voice Activity Detection", "Web Audio API", "Model Comparison"],
+  githubLink: "https://github.com/PranavMishra17/Streaming-Digit-Detector",
+  demoLink: "",
   websiteLink: ""
 },
+
+
+      {
+        id: "voicepersona-dataset",
+        title: "VoicePersona: Voice Character Dataset",
+        category: "AI Voice Synthesis Dataset",
+        tagline: "80K+ voice samples with detailed character profiles for consistent voice synthesis",
+        description: "Comprehensive voice persona dataset combining 80,000+ voice samples from 4 major datasets with AI-generated character profiles. Features detailed voice characteristics, demographics, and personality traits for training character-consistent voice synthesis models. Powers the VoiceForge project for text-to-voice generation.",
+        mainImage: "assets/images/ai_ml/voicepersona.png",
+        gallery: [
+        ],
+        techStack: ["Qwen2-Audio", "HuggingFace Datasets", "Voice Analysis", "Audio Processing", "Character Profiling", "Multi-Modal AI", "Voice Synthesis", "Dataset Curation"],
+        githubLink: "https://github.com/PranavMishra17/VoicePersona-Dataset",
+        demoLink: "",
+        websiteLink: "https://huggingface.co/datasets/Paranoiid/VoicePersona"
+        },
       {
         id: "inbedder",
         title: "InBedder: Instruction-Following Embeddings",
@@ -292,6 +335,19 @@ const projects = {
         ],
         techStack: ["PyTorch", "Transformer Models", "Vector Embeddings", "Model Deployment", "NLP Research"],
         githubLink: "https://github.com/Hjhirp/InBedder",
+        demoLink: "",
+        websiteLink: ""
+      },
+
+            {
+        id: "resumecraft-optimizer",
+        title: "ResumeCraft - Intelligent Document Optimizer",
+        category: "Document Processing Pipeline",
+        description: "LLM-powered LaTeX optimization with component-level analysis and keyword usage tracking. Features surgical document reconstruction, constraint solving, and ATS compatibility optimization.",
+        mainImage: "assets/images/ai_ml/resume.png",
+        gallery: [],
+        techStack: ["Python", "LangChain", "Document Processing", "LaTeX Parsing", "Production Systems"],
+        githubLink: "https://github.com/PranavMishra17/ResumeCraft-Latex-resume-optimizer",
         demoLink: "",
         websiteLink: ""
       },
@@ -334,18 +390,6 @@ const projects = {
         gallery: [],
         techStack: ["PyTorch", "Transformer Architecture", "Neural Machine Translation", "Model Training", "Deep Learning", "Production Pipeline"],
         githubLink: "https://github.com/VasistP/Transformer",
-        demoLink: "",
-        websiteLink: ""
-      },
-      {
-        id: "resumecraft-optimizer",
-        title: "ResumeCraft - Intelligent Document Optimizer",
-        category: "Document Processing Pipeline",
-        description: "LLM-powered LaTeX optimization with component-level analysis and keyword usage tracking. Features surgical document reconstruction, constraint solving, and ATS compatibility optimization.",
-        mainImage: "assets/images/ai_ml/resume.png",
-        gallery: [],
-        techStack: ["Python", "LangChain", "Document Processing", "LaTeX Parsing", "Production Systems"],
-        githubLink: "https://github.com/PranavMishra17/ResumeCraft-Latex-resume-optimizer",
         demoLink: "",
         websiteLink: ""
       },
@@ -448,26 +492,55 @@ const contactInfo = {
   },
   linkedin: "https://www.linkedin.com/in/pranavgamedev/",
   github: "https://github.com/PranavMishra17?tab=repositories",
-  resume: "assets/resume.pdf"
+  googleScholar: "https://scholar.google.com/citations?user=_Twn_owAAAAJ&hl=en", // Update with actual URL
+  huggingFace: "https://huggingface.co/Paranoiid",
+  orcid: "https://orcid.org/YOUR-ORCID-ID", // Update with actual ORCID
+  resume: {
+    ai: "resumes/ai/resume_ai.pdf",
+    game: "resumes/game/resume_game.pdf",
+    default: "ai" // AI resume as default
+  },
+
+  location: "Chicago, IL",
+  status: "Available for opportunities"
 };
 
 // Social media icons with image paths
 const socialIcons = {
     linkedin: {
       icon: "/assets/images/icons/linkedin.png",
-      alt: "LinkedIn"
+      alt: "LinkedIn",
+      title: "LinkedIn"
     },
     github: {
       icon: "/assets/images/icons/github.png",
-      alt: "GitHub"
+      alt: "GitHub",
+      title: "GitHub"
+    },
+    googleScholar: {
+      icon: "/assets/images/icons/sc.png",
+      alt: "Google Scholar",
+      title: "Research Publications"
+    },
+    huggingFace: {
+      icon: "/assets/images/icons/hf.png",
+      alt: "Hugging Face",
+      title: "Hugging Face"
+    },
+    orcid: {
+      icon: "/assets/images/icons/orcid.png",
+      alt: "ORCID",
+      title: "Academic Identity"
     },
     resume: {
       icon: "/assets/images/icons/resume.png",
-      alt: "Resume"
+      alt: "Resume",
+      title: "Resumes"
     },
     email: {
       icon: "/assets/images/icons/email.png",
-      alt: "Email"
+      alt: "Email",
+      title: "Get in Touch"
     }
   };
 

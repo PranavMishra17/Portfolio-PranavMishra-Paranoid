@@ -19,17 +19,6 @@ const ProjectTabs = ({ activeTab, onTabChange }) => {
   
   const tabs = [
     {
-      id: 'game-design',
-      label: 'GAME DESIGN PROJECTS',
-      image: '/assets/images/default/game_design_default.jpg',
-      floatingImages: {
-        left: '/assets/images/icons/game_floating.png',
-        right: '/assets/images/icons/game_floating2.png'
-      },
-      color: '#ff2d55',
-      hoverColor: 'rgba(255, 45, 85, 0.9)'
-    },
-    {
       id: 'ai-ml',
       label: 'AI-ML PROJECTS',
       image: '/assets/images/default/ai_ml_default.jpg',
@@ -41,15 +30,26 @@ const ProjectTabs = ({ activeTab, onTabChange }) => {
       hoverColor: 'rgba(61, 90, 254, 0.9)'
     },
     {
-      id: 'misc',
-      label: 'MISC PROJECTS',
+      id: 'research',
+      label: 'RESEARCH PROJECTS',
       image: '/assets/images/default/misc_default.jpg',
       floatingImages: {
         left: '/assets/images/icons/misc_floating.png',
         right: '/assets/images/icons/misc_floating2.png'
       },
-      color: '#00c853',
-      hoverColor: 'rgba(0, 200, 83, 0.9)'
+      color: '#ffffff',
+      hoverColor: 'rgba(255, 255, 255, 0.9)'
+    },
+    {
+      id: 'game-design',
+      label: 'GAME DESIGN PROJECTS',
+      image: '/assets/images/default/game_design_default.jpg',
+      floatingImages: {
+        left: '/assets/images/icons/game_floating.png',
+        right: '/assets/images/icons/game_floating2.png'
+      },
+      color: '#ff2d55',
+      hoverColor: 'rgba(255, 45, 85, 0.9)'
     }
   ];
   
@@ -143,12 +143,12 @@ const ProjectTabs = ({ activeTab, onTabChange }) => {
               </div>
               
               {/* Tab text with hover effect */}
-              <motion.span 
+              <motion.span
                 className="tab-text"
                 style={{
                   position: 'relative',
                   zIndex: 1,
-                  color: 'white',
+                  color: tab.id === 'research' ? '#333333' : 'white',
                   fontWeight: 700,
                   letterSpacing: '1px',
                   textTransform: 'uppercase',

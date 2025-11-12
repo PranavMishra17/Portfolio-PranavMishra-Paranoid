@@ -1,0 +1,252 @@
+/* src/components/PublicationCard.css */
+
+.publication-card {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 0;
+  padding: 32px;
+  margin-bottom: 24px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-family: 'Times New Roman', serif;
+}
+
+.publication-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Publication Header */
+.publication-header {
+  margin-bottom: 20px;
+}
+
+.publication-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.citation-count {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px 8px;
+  border-radius: 12px;
+}
+
+.publication-title {
+  margin: 0 0 16px 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #000;
+  line-height: 1.3;
+  text-align: center;
+  font-family: 'Times New Roman', serif;
+}
+
+.publication-authors {
+  margin: 0 0 12px 0;
+  font-size: 1rem;
+  color: #333;
+  line-height: 1.4;
+  text-align: center;
+  font-style: italic;
+  font-family: 'Times New Roman', serif;
+}
+
+.publication-venue {
+  font-size: 0.9rem;
+  color: #666;
+  text-align: center;
+  margin-bottom: 20px;
+  font-family: 'Times New Roman', serif;
+}
+
+/* Publication Content */
+.publication-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.publication-abstract h4,
+.tech-stack h4,
+.publication-keywords h4 {
+  margin: 0 0 12px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+
+.abstract-text {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #333;
+  text-align: justify;
+  font-family: 'Times New Roman', serif;
+}
+
+.abstract-toggle {
+  background: none;
+  border: none;
+  color: #3d5afe;
+  cursor: pointer;
+  font-weight: 600;
+  margin-left: 8px;
+  text-decoration: underline;
+  font-size: 0.9rem;
+}
+
+.abstract-toggle:hover {
+  color: #304ffe;
+}
+
+/* Tech Stack */
+.tech-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Keywords */
+.keywords-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.keyword-tag {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+  padding: 4px 10px;
+  border-radius: 16px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Publication Links */
+.publication-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.publication-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 0;
+  background: white;
+  color: #333;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border: 1px solid #ddd;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.publication-link:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.publication-link .icon-img {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+}
+
+.publication-link span {
+  color: #333;
+}
+
+/* Specific link styles */
+.publication-link.pdf:hover {
+  background: rgba(244, 67, 54, 0.3);
+  border-color: rgba(244, 67, 54, 0.5);
+}
+
+.publication-link.github:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+.publication-link.website:hover {
+  background: rgba(61, 90, 254, 0.3);
+  border-color: rgba(61, 90, 254, 0.5);
+}
+
+.publication-link.arxiv:hover {
+  background: rgba(176, 68, 62, 0.3);
+  border-color: rgba(176, 68, 62, 0.5);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .publication-card {
+    padding: 20px;
+  }
+  
+  .publication-title {
+    font-size: 1.2rem;
+  }
+  
+  .publication-details {
+    gap: 6px;
+  }
+  
+  .publication-venue,
+  .publication-dates {
+    font-size: 0.85rem;
+  }
+  
+  .publication-links {
+    gap: 8px;
+  }
+  
+  .publication-link {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .publication-status {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .keywords-list {
+    gap: 6px;
+  }
+  
+  .keyword-tag {
+    font-size: 0.75rem;
+    padding: 3px 8px;
+  }
+}

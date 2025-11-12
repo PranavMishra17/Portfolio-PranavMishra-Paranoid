@@ -33,15 +33,15 @@ const TrophyButton = ({ onStoryOpen }) => {
       title: 'HINT 5.0 Hackathon - First Place',
       description: 'Won first place at HINT 5.0 (Hack in the North) with Virtual Van Gogh, an interactive NFT museum using Unity and Ethereum blockchain.',
       image: '/assets/images/achievements/vvg.png',
-      link: 'https://github.com/PranavMishra17/Virtual-Van-Gogh'
+      link: 'https://github.com/TheGreatFellow/virtual-van-gogh'
     },
     {
       id: 'mit',
-      icon: '/assets/images/achievements/mit.png',
+      icon: '/assets/images/achievements/mitout.jpg',
       title: 'MIT XR Hackathon - Best Location AR',
       description: 'Won Best Location AR at MIT XR Reality Hackathon 2024 with SnAIder-Cut, using Mixed Reality and Generative AI to create movie scenes.',
       image: '/assets/images/achievements/mit.jpeg',
-      link: 'https://github.com/PranavMishra17/snaider-cut'
+      link: 'https://codeberg.org/reality-hack-2024/SnAIder-CUT-MIT-XR-Hackathon-Winner-2024'
     },
 {
   id: 'informs',
