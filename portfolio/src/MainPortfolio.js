@@ -9,7 +9,6 @@ import ThemeSwitch from './components/ThemeSwitch';
 import ProjectTabs from './components/ProjectTabs';
 import ProjectCard from './components/ProjectCard';
 import TrophyButton from './components/TrophyButton';
-import ExperienceSection from './components/ExperienceSection';
 import PublicationsSection from './components/PublicationsSection';
 import MinimalContactBelt from './components/MinimalContactBelt';
 import CollapsibleSectionTabs from './components/CollapsibleSectionTabs';
