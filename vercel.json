@@ -1,0 +1,9 @@
+{
+  "buildCommand": "cd portfolio && npm install && npm run build",
+  "outputDirectory": "portfolio/build",
+  "installCommand": "cd portfolio && npm install",
+  "framework": "create-react-app",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/" }
+  ]
+}
