@@ -1,70 +1,217 @@
-# Getting Started with Create React App
+# Portfolio-PranavMishra-Paranoid
+ 
+# Pranav Pushkar Mishra - Portfolio Website
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern, responsive portfolio website showcasing game development, machine learning, and miscellaneous projects with distinctive visual themes for each category.
 
-## Available Scripts
+![Portfolio Preview](./preview.png)
 
-In the project directory, you can run:
+## Features
 
-### `npm start`
+- **Responsive Design**: Fully responsive layout optimized for all screen sizes
+- **Distinct Visual Themes**:
+  - Game Design: Pixel-inspired typography with red color scheme
+  - AI/ML: Clean, professional typography with blue color scheme
+  - Miscellaneous: Monospace typography with green color scheme
+- **Interactive Elements**:
+  - Animated skill bars
+  - Particle background effect
+  - Project galleries with lightbox
+  - Smooth scrolling navigation
+  - Dark/light mode toggle
+- **SEO Optimized**: Proper metadata and semantic HTML structure
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Technologies Used
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- **React.js**: Core framework for building the UI
+- **CSS3**: Custom styling with CSS variables for theming
+- **JavaScript ES6+**: Modern JavaScript features
+- **Framer Motion**: (Optional) For enhanced animations
+- **Font Awesome**: For icons
 
-### `npm test`
+## Project Structure
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```
+portfolio/
+├── public/
+│   ├── index.html
+│   ├── favicon.ico
+│   └── assets/
+│       └── images/
+├── src/
+│   ├── App.js               # Main application component
+│   ├── index.js             # Entry point
+│   ├── App.css              # Main styles
+│   ├── index.css            # Global styles
+│   └── components/
+│       ├── ParticleBackground.js
+│       ├── PixelText.js
+│       ├── ThemeSwitch.js
+│       ├── TechStackBadge.js
+│       ├── ProjectGallery.js
+│       └── AnimatedSkillBar.js
+└── package.json
+```
 
-### `npm run build`
+## Getting Started
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Prerequisites
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+- Node.js (v14.0.0 or higher)
+- npm or yarn
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Installation
 
-### `npm run eject`
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/PranavMishra17/Portfolio-PranavMishra-Paranoid
+   cd portfolio
+   ```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+2. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+3. Start the development server:
+   ```bash
+   npm start
+   # or
+   yarn start
+   ```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+4. Open your browser and visit `http://localhost:3000`
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Customization
 
-## Learn More
+#### 1. Update Personal Information
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Edit the About section in `data/projects.js`:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```jsx
+<div className="about-text">
+  <h1>Your Name</h1>
+  <h2>Your Title</h2>
+  <p>
+    Your bio here...
+  </p>
+</div>
+```
 
-### Code Splitting
+#### 2. Update Projects
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Edit the project arrays in `data/projects.js`:
 
-### Analyzing the Bundle Size
+```jsx
+const gameProjects = [
+  {
+    title: "Project Title",
+    category: "Category",
+    description: "Description...",
+    image: "/path/to/image.jpg",
+    githubLink: "https://github.com/...",
+    demoLink: "https://...",
+    techStack: ["Tech1", "Tech2"],
+    gallery: [
+      "/path/to/gallery1.jpg",
+      "/path/to/gallery2.jpg"
+    ]
+  },
+  // More projects...
+];
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+#### 3. Custom Styling
 
-### Making a Progressive Web App
+Modify CSS variables in `index.css` to customize colors and themes:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```css
+:root {
+  /* Base Colors */
+  --color-bg: #0a0a0a;
+  --color-text: #f5f5f5;
+  
+  /* Theme Colors */
+  --game-primary: #ff2d55;
+  --game-secondary: #b30021;
+  
+  --ai-primary: #3d5afe;
+  --ai-secondary: #0039cb;
+  
+  --misc-primary: #00c853;
+  --misc-secondary: #009624;
+  
+  /* More variables... */
+}
+```
 
-### Advanced Configuration
+## Deployment
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### Option 1: GitHub Pages
 
-### Deployment
+1. Install gh-pages:
+   ```bash
+   npm install --save-dev gh-pages
+   ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+2. Add these scripts to `package.json`:
+   ```json
+   "predeploy": "npm run build",
+   "deploy": "gh-pages -d build"
+   ```
 
-### `npm run build` fails to minify
+3. Add homepage to `package.json`:
+   ```json
+   "homepage": "https://your-username.github.io/portfolio"
+   ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+4. Deploy:
+   ```bash
+   npm run deploy
+   ```
+
+### Option 2: Netlify/Vercel
+
+1. Create an account on [Netlify](https://www.netlify.com/) or [Vercel](https://vercel.com/)
+2. Connect your GitHub repository
+3. Follow the deployment instructions
+
+## Performance Optimization Tips
+
+1. **Optimize Images**:
+   - Use modern formats (WebP)
+   - Compress images with tools like [TinyPNG](https://tinypng.com/)
+   - Use appropriate image dimensions
+
+2. **Code Splitting**:
+   - Use React.lazy() for component lazy loading
+   - Split code into smaller chunks
+
+3. **Preload Critical Assets**:
+   - Add preload tags for critical resources
+
+4. **Enable Caching**:
+   - Add appropriate cache headers in deployment
+
+## Browser Support
+
+- Chrome (latest)
+- Firefox (latest)
+- Safari (latest)
+- Edge (latest)
+- Opera (latest)
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Credits
+
+- Fonts: Google Fonts (Press Start 2P, Inter, Space Mono, Roboto)
+- Icons: Font Awesome
+
+## Contact
+
+Pranav Pushkar Mishra - [pmishr23@uic.edu] - [[LinkedIn](https://www.linkedin.com/in/pranavgamedev/)] - [[Youtube](https://www.youtube.com/@parano1dgames)]

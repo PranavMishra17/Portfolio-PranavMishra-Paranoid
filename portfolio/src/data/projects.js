@@ -266,31 +266,6 @@ const projects = {
         websiteLink: ""
       },
 
-      {
- "id": "healthcare-automation-pipeline",
- "title": "Patient Care Automation",
- "category": "Healthcare AI Automation",
- "description": "HIPAA-compliant healthcare automation pipeline with AI-powered triage, specialist assignment, and real-time care coordination. Features PHI encryption, Slack bot integration, automated scheduling, and comprehensive medical reporting using n8n workflows.",
- "mainImage": "assets/images/ai_ml/n8n.png",
- "gallery": [ ],
- "techStack": [
-   "n8n",
-   "Docker",
-   "PostgreSQL",
-   "Redis",
-   "Healthcare AI",
-   "Slack API",
-   "SendGrid",
-   "Calendly",
-   "Medical NLP",
-   "Automation"
- ],
- "githubLink": "https://github.com/PranavMishra17/Patient-care-automation-system",
- "demoLink": "",
- "websiteLink": ""
-},
-
-
 {
   id: "streaming-digit-classifier",
   title: "Streaming Digit Classifier",
@@ -339,7 +314,70 @@ const projects = {
         websiteLink: ""
       },
 
-            {
+      {
+  id: "youtube-comments-analysis",
+  title: "Comments Probe AI",
+  category: "Sentiment Analysis & Multi-Modal Search",
+  description: "Production-grade comment analysis platform with semantic search, LLM-based categorization, and automated insight extraction. Features two-phase hybrid search algorithm combining semantic filtering with GPT-4o ranking, comprehensive analytics pipeline, and session persistence for reusable embeddings.",
+  mainImage: "assets/images/ai_ml/sentiment.png",
+  gallery: [],
+  techStack: [
+    "Python",
+    "OpenAI API",
+    "Semantic Search",
+    "Multi-Agent Systems",
+    "Vector Embeddings",
+    "Production Pipeline",
+    "Real-Time Analytics"
+  ],
+  githubLink: "https://github.com/PranavMishra17/comment-probe-ai",
+  demoLink: "",
+  websiteLink: ""
+},
+{
+  id: "flow-planner",
+  title: "Flow Planner: AI Workflow Documentation",
+  category: "Multi-modal AI Agent System",
+  description: "Autonomous workflow capture system using Browser Agents with Claude Sonnet 4.5 vision and Gemini planning. Features multi-tier authentication handling, persistent browser profiles, and real-time state capture. Deployed on Railway with comprehensive testing suite and CI/CD pipeline.",
+  mainImage: "assets/images/ai_ml/flow.png",
+  gallery: [],
+  techStack: [
+    "Python",
+    "Browser Agents",
+    "Claude Sonnet 4.5",
+    "Google Gemini",
+    "Playwright",
+    "Railway Deployment",
+    "WebSockets",
+    "Autonomous Agents"
+  ],
+  githubLink: "https://github.com/PranavMishra17/Flow-Planner",
+  demoLink: "",
+  websiteLink: "https://flow-planner-production.up.railway.app"
+},
+{
+  id: "clausecraft",
+  title: "ClauseCraft: Agentic Document Editor",
+  category: "AI-Powered Document Intelligence",
+  description: "Intelligent document editor with conversational AI interface powered by Google Gemini Flash. Features line-based citations, multi-format parsing (DOCX/PDF/Markdown), document locking, and real-time collaborative editing with function calling architecture.",
+  mainImage: "assets/images/ai_ml/clause.png",
+  gallery: [],
+  techStack: [
+    "Next.js 14",
+    "TypeScript",
+    "Google Gemini API",
+    "MCP Server",
+    "Document Parsing",
+    "Real-Time Editing",
+    "Tailwind CSS",
+    "Vercel Deployment"
+  ],
+  githubLink: "https://github.com/PranavMishra17/clausecraft",
+  demoLink: "",
+  websiteLink: "https://clause-craft-bay.vercel.app"
+},
+
+      {
         id: "resumecraft-optimizer",
         title: "ResumeCraft - Intelligent Document Optimizer",
         category: "Document Processing Pipeline",
@@ -366,6 +404,30 @@ const projects = {
  demoLink: "",
  websiteLink: ""
 },
+
+
+      {
+ "id": "healthcare-automation-pipeline",
+ "title": "Patient Care Automation",
+ "category": "Healthcare AI Automation",
+ "description": "HIPAA-compliant healthcare automation pipeline with AI-powered triage, specialist assignment, and real-time care coordination. Features PHI encryption, Slack bot integration, automated scheduling, and comprehensive medical reporting using n8n workflows.",
+ "mainImage": "assets/images/ai_ml/n8n.png",
+ "gallery": [ ],
+ "techStack": [
+   "n8n",
+   "Docker",
+   "PostgreSQL",
+   "Redis",
+   "Healthcare AI",
+   "Slack API",
+   "SendGrid",
+   "Automation"
+ ],
+ "githubLink": "https://github.com/PranavMishra17/Patient-care-automation-system",
+ "demoLink": "",
+ "websiteLink": ""
+},
+
       {
         id: "lunar-survival",
         title: "NASA Lunar Survival Challenge",
@@ -456,6 +518,29 @@ const projects = {
         websiteLink: ""
       },
       {
+  id: "complaint-hub-pro",
+  title: "Complaint Hub Pro",
+  category: "Full-Stack Web Application",
+  description: "Professional complaint management system with secure admin dashboard and public tracking. Features JWT authentication, role-based access control, rich text markdown support, threaded comments, and comprehensive security middleware with rate limiting and XSS protection.",
+  mainImage: "assets/images/fullstack/complaint.png",
+  gallery: [],
+  techStack: [
+    "React 18",
+    "TypeScript",
+    "Node.js",
+    "Express",
+    "Supabase",
+    "PostgreSQL",
+    "JWT Authentication",
+    "Tailwind CSS",
+    "bcrypt",
+    "express-validator"
+  ],
+  githubLink: "https://github.com/PranavMishra17/complaint-hub-pro",
+  demoLink: "https://youtu.be/GDowE43oYFM",
+  websiteLink: ""
+},
+      {
         id: "portfolio-website",
         title: "Portfolio Website",
         category: "Full-Stack Development",
@@ -484,8 +569,8 @@ const projects = {
   
 const contactInfo = {
   name: "Pranav Pushkar Mishra",
-  title: "AI/ML Engineer & Game Developer",
-  bio: "Computer Science graduate from University of Illinois at Chicago with a deep passion for AI and immersive technology. I'm driven by the potential to integrate next-generation artificial intelligence into game development, creating truly revolutionary interactive experiences. With proven success in research publications, hackathons, and enterprise AI solutions, I bring expertise in advanced AI systems, cloud deployment, and real-time optimization. My goal is to be at the forefront of shaping the future of gaming through cutting-edge AI research and innovative development.",
+  title: "AI Engineer & Game Developer",
+  bio: "Computer Science graduate from University of Illinois at Chicago specializing in agentic AI and game development. Expert in multi-agent systems, reinforcement learning, and autonomous intelligence. Published researcher with proven success in AI deployments, from enterprise RAG systems to game AI agents. Driven to revolutionize interactive experiences through cutting-edge agentic architectures.",
   email: {
     personal: "pranavgamedev.17@gmail.com",
     academic: "pmishr23@uic.edu"
@@ -494,15 +579,14 @@ const contactInfo = {
   github: "https://github.com/PranavMishra17?tab=repositories",
   googleScholar: "https://scholar.google.com/citations?user=_Twn_owAAAAJ&hl=en", // Update with actual URL
   huggingFace: "https://huggingface.co/Paranoiid",
-  orcid: "https://orcid.org/YOUR-ORCID-ID", // Update with actual ORCID
   resume: {
     ai: "resumes/ai/resume_ai.pdf",
     game: "resumes/game/resume_game.pdf",
     default: "ai" // AI resume as default
   },
 
-  location: "Chicago, IL",
-  status: "Available for opportunities"
+  location: "Metuchen, NJ, USA",
+  status: "Available for full-time opportunities"
 };
 
 // Social media icons with image paths
