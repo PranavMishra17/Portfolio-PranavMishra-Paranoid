@@ -522,7 +522,7 @@ const projects = {
   title: "Complaint Hub Pro",
   category: "Full-Stack Web Application",
   description: "Professional complaint management system with secure admin dashboard and public tracking. Features JWT authentication, role-based access control, rich text markdown support, threaded comments, and comprehensive security middleware with rate limiting and XSS protection.",
-  mainImage: "assets/images/fullstack/complaint.png",
+  mainImage: "assets/images/misc/complaint.png",
   gallery: [],
   techStack: [
     "React 18",
