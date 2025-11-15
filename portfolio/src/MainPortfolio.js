@@ -22,28 +22,9 @@ function MainPortfolio() {
   const sectionsRef = useRef({});
   const [storyOpen, setStoryOpen] = useState(false);
   const [experienceModalOpen, setExperienceModalOpen] = useState(false);
-  const [publicationsOpen, setPublicationsOpen] = useState(false);
 
   // Handle smooth scrolling
   const scrollToSection = (sectionId) => {
-    // Handle research button click - open publications and scroll to it
-    if (sectionId === 'research') {
-      setPublicationsOpen(true);
-      // Use setTimeout to allow the publications section to render before scrolling
-      setTimeout(() => {
-        const element = document.getElementById('publications');
-        if (element) {
-          window.scrollTo({
-            top: element.offsetTop - 60,
-            behavior: 'smooth'
-          });
-          setActiveSection('research');
-        }
-      }, 100);
-      setMenuOpen(false);
-      return;
-    }
-
     const element = document.getElementById(sectionId);
     if (element) {
       window.scrollTo({
@@ -279,21 +260,8 @@ function MainPortfolio() {
           </div>
         </section>
 
-        {/* Collapsible Publications Section */}
-        <div id="publications">
-          <CollapsibleSectionTabs
-            experienceSection={{
-              isOpen: false,
-              component: null
-            }}
-            publicationsSection={{
-              isOpen: publicationsOpen,
-              component: <PublicationsSection />
-            }}
-            onExperienceToggle={() => {}}
-            onPublicationsToggle={() => setPublicationsOpen(!publicationsOpen)}
-          />
-        </div>
+        {/* Research Publications Section */}
+        <PublicationsSection ref={(el) => registerSection('research', el)} />
 
         {/* Game Design Projects Section */}
         <section 

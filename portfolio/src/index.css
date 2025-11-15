@@ -233,6 +233,22 @@ button {
   background: var(--misc-gradient);
 }
 
+/* Research Publications Section Theme */
+.publications-section {
+  background-color: #0f1419;
+  padding: var(--space-xl) 0;
+}
+
+.publications-title {
+  color: #ffffff;
+  font-size: var(--text-2xl);
+  font-weight: 600;
+}
+
+.publications-title::after {
+  background-color: #3d5afe;
+}
+
 /* Header Styles */
 .header {
   position: fixed;

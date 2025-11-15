@@ -568,7 +568,7 @@ const projects = {
   };
   
 const contactInfo = {
-  name: "Pranav Pushkar Mishra",
+  name: "Pranav Mishra",
   title: "AI Engineer & Game Developer",
   bio: "Computer Science graduate from University of Illinois at Chicago specializing in agentic AI and game development. Expert in multi-agent systems, reinforcement learning, and autonomous intelligence. Published researcher with proven success in AI deployments, from enterprise RAG systems to game AI agents. Driven to revolutionize interactive experiences through cutting-edge agentic architectures.",
   email: {

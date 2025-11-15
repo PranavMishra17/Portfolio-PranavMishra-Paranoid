@@ -6,18 +6,16 @@ import './PublicationCard.css';
 
 const PublicationsSection = React.forwardRef((props, ref) => {
   return (
-    <section id="publications" className="publications-section" ref={ref}>
+    <section id="research" className="publications-section" ref={ref}>
       <div className="container">
-        <h2 className="section-title publications-title">Research Publications</h2>
-        
+        <h2 className="section-title publications-title">Research Projects and Publications</h2>
 
         {/* Published/Accepted Publications */}
         {publications.length > 0 && (
           <div className="publications-group">
-            <h3 className="group-title">Current Publications</h3>
             <div className="publications-grid">
               {publications.map((publication) => (
-                <PublicationCard 
+                <PublicationCard
                   key={publication.id}
                   publication={publication}
                 />
