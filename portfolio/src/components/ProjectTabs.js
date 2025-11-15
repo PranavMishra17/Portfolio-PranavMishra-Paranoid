@@ -6,7 +6,20 @@ import { motion, AnimatePresence } from 'framer-motion';
 const ProjectTabs = ({ activeTab, onTabChange }) => {
   const [hoveredTab, setHoveredTab] = useState(null);
   const [randomAngles, setRandomAngles] = useState({});
-  
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile device
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   // Generate random angles on component mount
   useEffect(() => {
     const angles = {};
@@ -58,54 +71,56 @@ const ProjectTabs = ({ activeTab, onTabChange }) => {
       <div className="tabs-wrapper">
         {tabs.map((tab) => (
           <div key={tab.id} className="tab-wrapper">
-            {/* Floating images that appear on hover */}
-            <AnimatePresence>
-              {hoveredTab === tab.id && (
-                <>
-                  <motion.div 
-                    className="floating-image floating-left"
-                    initial={{ opacity: 0, scale: 0, rotate: 0 }}
-                    animate={{ 
-                      opacity: 0.9, 
-                      scale: 1, 
-                      rotate: randomAngles[`${tab.id}-left`] || 0,
-                      x: -20
-                    }}
-                    exit={{ opacity: 0, scale: 0, x: 0 }}
-                    transition={{ duration: 0.4, type: "spring" }}
-                    style={{
-                      backgroundImage: `url(${tab.floatingImages.left})`
-                    }}
-                  />
-                  
-                  <motion.div 
-                    className="floating-image floating-right"
-                    initial={{ opacity: 0, scale: 0, rotate: 0 }}
-                    animate={{ 
-                      opacity: 0.9, 
-                      scale: 1, 
-                      rotate: randomAngles[`${tab.id}-right`] || 0,
-                      x: 20
-                    }}
-                    exit={{ opacity: 0, scale: 0, x: 0 }}
-                    transition={{ duration: 0.4, type: "spring", delay: 0.1 }}
-                    style={{
-                      backgroundImage: `url(${tab.floatingImages.right})`
-                    }}
-                  />
-                </>
-              )}
-            </AnimatePresence>
+            {/* Floating images that appear on hover - disabled on mobile */}
+            {!isMobile && (
+              <AnimatePresence>
+                {hoveredTab === tab.id && (
+                  <>
+                    <motion.div
+                      className="floating-image floating-left"
+                      initial={{ opacity: 0, scale: 0, rotate: 0 }}
+                      animate={{
+                        opacity: 0.9,
+                        scale: 1,
+                        rotate: randomAngles[`${tab.id}-left`] || 0,
+                        x: -20
+                      }}
+                      exit={{ opacity: 0, scale: 0, x: 0 }}
+                      transition={{ duration: 0.4, type: "spring" }}
+                      style={{
+                        backgroundImage: `url(${tab.floatingImages.left})`
+                      }}
+                    />
+
+                    <motion.div
+                      className="floating-image floating-right"
+                      initial={{ opacity: 0, scale: 0, rotate: 0 }}
+                      animate={{
+                        opacity: 0.9,
+                        scale: 1,
+                        rotate: randomAngles[`${tab.id}-right`] || 0,
+                        x: 20
+                      }}
+                      exit={{ opacity: 0, scale: 0, x: 0 }}
+                      transition={{ duration: 0.4, type: "spring", delay: 0.1 }}
+                      style={{
+                        backgroundImage: `url(${tab.floatingImages.right})`
+                      }}
+                    />
+                  </>
+                )}
+              </AnimatePresence>
+            )}
             
             <motion.button
               className={`project-tab ${activeTab === tab.id ? 'active' : ''}`}
               onClick={() => onTabChange(tab.id)}
-              onMouseEnter={() => setHoveredTab(tab.id)}
-              onMouseLeave={() => setHoveredTab(null)}
-              whileHover={{ 
+              onMouseEnter={() => !isMobile && setHoveredTab(tab.id)}
+              onMouseLeave={() => !isMobile && setHoveredTab(null)}
+              whileHover={!isMobile ? {
                 scale: 1.05,
                 boxShadow: `0 10px 25px ${tab.color}50`
-              }}
+              } : {}}
               style={{
                 background: `linear-gradient(to right, ${tab.color}, ${tab.color}E0)`,
                 boxShadow: activeTab === tab.id ? `0 4px 12px ${tab.color}80` : 'none',
@@ -156,36 +171,38 @@ const ProjectTabs = ({ activeTab, onTabChange }) => {
                   transition: 'all 0.3s ease',
                   textShadow: hoveredTab === tab.id ? '0 2px 10px rgba(0,0,0,0.5)' : 'none'
                 }}
-                whileHover={{ scale: 1.05 }}
+                whileHover={!isMobile ? { scale: 1.05 } : {}}
               >
                 {tab.label}
               </motion.span>
               
-              {/* Animated icon that appears on hover */}
-              <AnimatePresence>
-                {hoveredTab === tab.id && (
-                  <motion.div
-                    className="tab-icon"
-                    initial={{ opacity: 0, scale: 0, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0, y: 20 }}
-                    transition={{ 
-                      type: "spring", 
-                      stiffness: 500, 
-                      damping: 20,
-                      delay: 0.1
-                    }}
-                    style={{
-                      position: 'absolute',
-                      bottom: -20,
-                      right: 15,
-                      zIndex: 2
-                    }}
-                  >
+              {/* Animated icon that appears on hover - disabled on mobile */}
+              {!isMobile && (
+                <AnimatePresence>
+                  {hoveredTab === tab.id && (
+                    <motion.div
+                      className="tab-icon"
+                      initial={{ opacity: 0, scale: 0, y: 20 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0, y: 20 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 500,
+                        damping: 20,
+                        delay: 0.1
+                      }}
+                      style={{
+                        position: 'absolute',
+                        bottom: -20,
+                        right: 15,
+                        zIndex: 2
+                      }}
+                    >
 
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              )}
               
               {/* Active tab indicator */}
               {activeTab === tab.id && (

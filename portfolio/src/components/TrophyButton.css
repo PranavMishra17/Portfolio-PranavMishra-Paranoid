@@ -327,23 +327,30 @@
     .story-content {
       flex-direction: column;
     }
-    
+
     .story-image {
       flex: 0 0 100%;
     }
-    
+
     .story-card {
       left: 50%;
       transform: translateX(-50%);
       width: 90%;
       max-width: 550px;
     }
-    
+
     .trophy-container {
       left: -100px;
     }
-    
+
     .satellite-buttons {
       left: -60px;
+    }
+  }
+
+  /* Hide trophy button on mobile */
+  @media (max-width: 768px) {
+    .trophy-container {
+      display: none;
     }
   }

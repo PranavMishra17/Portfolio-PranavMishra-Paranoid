@@ -3,22 +3,29 @@ import React, { useEffect, useRef } from 'react';
 
 const ParticleBackground = () => {
   const canvasRef = useRef(null);
-  
+
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
-    
+
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    
-    // Particle properties
+
+    // Detect mobile device
+    const isMobile = window.innerWidth <= 768;
+
+    // Particle properties - adjusted for mobile
     const particlesArray = [];
-    const numberOfParticles = 120;
+    const numberOfParticles = isMobile ? 40 : 120; // Significantly reduce particles on mobile
     let mousePosition = {
       x: null,
       y: null,
-      radius: 150
+      radius: isMobile ? 150 : 150 // Explosion radius on mobile
     };
+
+    // Store explosion state for mobile
+    let explosionActive = false;
+    let explosionDecay = 1.0;
     
     // Define Particle class first
     class Particle {
@@ -50,27 +57,38 @@ const ParticleBackground = () => {
         // Basic movement
         this.x += this.speedX;
         this.y += this.speedY;
-        
-        // Mouse interaction - particles respond to mouse proximity
+
+        // Mouse/Touch interaction
         if (mousePosition.x != null) {
           const dx = this.x - mousePosition.x;
           const dy = this.y - mousePosition.y;
           const distance = Math.sqrt(dx * dx + dy * dy);
-          
+
           if (distance < mousePosition.radius) {
             const force = (mousePosition.radius - distance) / mousePosition.radius;
             const directionX = dx / distance || 0;
             const directionY = dy / distance || 0;
-            
-            // Push particles away from mouse
-            this.x += directionX * force * 2;
-            this.y += directionY * force * 2;
-            
-            // Grow particles near mouse
-            this.size = this.baseSize + (force * 3);
-            this.opacity = Math.min(1, this.baseOpacity + (force * 0.5));
+
+            if (isMobile) {
+              // Mobile - explosion effect with dramatic push
+              const explosionForce = force * 12 * explosionDecay;
+              this.x += directionX * explosionForce;
+              this.y += directionY * explosionForce;
+
+              // Make particles glow during touch
+              this.size = this.baseSize + (force * 4);
+              this.opacity = Math.min(1, this.baseOpacity + (force * 0.8));
+            } else {
+              // Desktop - smooth push away
+              this.x += directionX * force * 2;
+              this.y += directionY * force * 2;
+
+              // Grow particles near mouse
+              this.size = this.baseSize + (force * 3);
+              this.opacity = Math.min(1, this.baseOpacity + (force * 0.5));
+            }
           } else {
-            // Return to original size and opacity when away from mouse
+            // Return to original size and opacity when away from interaction
             if (this.size > this.baseSize) {
               this.size -= 0.1;
             }
@@ -124,34 +142,83 @@ const ParticleBackground = () => {
     
     window.addEventListener('resize', handleResize);
     
-    // Handle mouse move for interactive particles
+    // Handle mouse move for interactive particles (desktop only)
     const handleMouseMove = (event) => {
-      mousePosition.x = event.x;
-      mousePosition.y = event.y;
+      if (!isMobile) {
+        mousePosition.x = event.x;
+        mousePosition.y = event.y;
+      }
     };
-    
+
     // Handle mouse leave
     const handleMouseOut = () => {
-      mousePosition.x = null;
-      mousePosition.y = null;
+      if (!isMobile) {
+        mousePosition.x = null;
+        mousePosition.y = null;
+      }
     };
-    
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseout', handleMouseOut);
+
+    // Handle touch events for mobile - similar to desktop cursor
+    const handleTouchStart = (event) => {
+      if (isMobile && event.touches.length > 0) {
+        event.preventDefault();
+        const touch = event.touches[0];
+        mousePosition.x = touch.clientX;
+        mousePosition.y = touch.clientY;
+
+        // Trigger explosion with strong initial force
+        explosionActive = true;
+        explosionDecay = 1.5;
+      }
+    };
+
+    const handleTouchMove = (event) => {
+      if (isMobile && event.touches.length > 0) {
+        event.preventDefault();
+        const touch = event.touches[0];
+        mousePosition.x = touch.clientX;
+        mousePosition.y = touch.clientY;
+
+        // Keep explosion active while touching
+        explosionActive = true;
+        explosionDecay = 1.2; // Maintain force while dragging
+      }
+    };
+
+    const handleTouchEnd = () => {
+      if (isMobile) {
+        explosionActive = false;
+        explosionDecay = 0;
+        mousePosition.x = null;
+        mousePosition.y = null;
+      }
+    };
+
+    // Add event listeners based on device type
+    if (!isMobile) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseout', handleMouseOut);
+    } else {
+      canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+      canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+      canvas.addEventListener('touchend', handleTouchEnd);
+      canvas.addEventListener('touchcancel', handleTouchEnd);
+    }
     
     // Connect particles with dynamic lines
     const connectParticles = () => {
-      const maxDistance = 120;
-      
+      const maxDistance = isMobile ? 100 : 120; // Adjust line connections for mobile
+
       for (let a = 0; a < particlesArray.length; a++) {
         for (let b = a; b < particlesArray.length; b++) {
           const dx = particlesArray[a].x - particlesArray[b].x;
           const dy = particlesArray[a].y - particlesArray[b].y;
           const distance = Math.sqrt(dx * dx + dy * dy);
-          
+
           if (distance < maxDistance) {
-            // Calculate opacity based on distance
-            const opacity = 0.3 - (distance / maxDistance);
+            // Calculate opacity based on distance - reduce opacity on mobile
+            const baseOpacity = isMobile ? 0.2 : 0.3;
+            const opacity = baseOpacity - (distance / maxDistance);
             
             // Create gradient connections with color blending
             const gradient = ctx.createLinearGradient(
@@ -200,8 +267,15 @@ const ParticleBackground = () => {
     // Cleanup event listeners on component unmount
     return () => {
       window.removeEventListener('resize', handleResize);
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseout', handleMouseOut);
+      if (!isMobile) {
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseout', handleMouseOut);
+      } else {
+        canvas.removeEventListener('touchstart', handleTouchStart);
+        canvas.removeEventListener('touchmove', handleTouchMove);
+        canvas.removeEventListener('touchend', handleTouchEnd);
+        canvas.removeEventListener('touchcancel', handleTouchEnd);
+      }
     };
   }, []);
   

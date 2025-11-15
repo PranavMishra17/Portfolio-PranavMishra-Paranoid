@@ -1,19 +1,58 @@
 /* src/styles/About.css */
 /* Include this CSS file in your project and import it in MainPortfolio.js */
 
-/* Navigation styling for Resume link */
+/* Navigation styling for Resume link - Eye-catching red button */
 .nav-link {
   color: white;
   text-decoration: none;
-  font-weight: 500;
-  padding: 8px 16px;
-  border-radius: 4px;
+  font-weight: 700;
+  padding: 10px 24px;
+  border-radius: 25px;
   transition: all 0.3s ease;
+  background: linear-gradient(135deg, #ff2d55 0%, #e91e63 100%);
+  box-shadow:
+    0 4px 15px rgba(255, 45, 85, 0.4),
+    0 0 20px rgba(255, 45, 85, 0.2);
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.9rem;
+  animation: pulse-glow 2s ease-in-out infinite;
+  z-index: 1;
 }
 
+/* Remove the sliding white glow effect */
+.nav-link::before {
+  display: none;
+}
+
+/* Color inversion on hover - white background, red text */
 .nav-link:hover {
-  background: rgba(61, 90, 254, 0.2);
-  color: #3d5afe;
+  background: white;
+  color: #ff2d55;
+  box-shadow:
+    0 6px 25px rgba(255, 45, 85, 0.6),
+    0 0 30px rgba(255, 45, 85, 0.4),
+    inset 0 0 0 2px #ff2d55;
+  transform: translateY(-2px) scale(1.05);
+}
+
+.nav-link:active {
+  transform: translateY(0) scale(1);
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow:
+      0 4px 15px rgba(255, 45, 85, 0.4),
+      0 0 20px rgba(255, 45, 85, 0.2);
+  }
+  50% {
+    box-shadow:
+      0 4px 20px rgba(255, 45, 85, 0.6),
+      0 0 30px rgba(255, 45, 85, 0.4);
+  }
 }
 
 .about-section {

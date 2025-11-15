@@ -409,59 +409,101 @@
 }
 
 @media (max-width: 768px) {
+  /* Change to vertical layout on mobile */
   .experience-card {
-    height: 270px;
+    height: 300px;
+    flex-direction: column;
+    padding: 0;
   }
-  
+
   .experience-card.expanded {
-    height: 270px;
+    height: auto;
     margin: 0 10px;
     padding: 24px;
+    flex-direction: column;
+    align-items: center;
   }
-  
+
   .experience-logo-section {
     width: 250px;
     height: 250px;
+    margin-bottom: 0;
   }
-  
+
   .experience-card.expanded .experience-logo-section {
-    width: 250px;
-    height: 250px;
-    transform: translateX(-60px);
+    width: 280px;
+    height: 280px;
+    transform: translateX(0); /* No horizontal slide on mobile */
+    margin-bottom: 20px;
   }
-  
+
   .experience-content {
-    padding: 12px 16px 12px 20px;
+    padding: 0;
+    gap: 12px;
+    max-width: 100%;
+    text-align: center;
+  }
+
+  .experience-card.expanded .experience-content {
+    max-width: 100%;
+    transform: scale(1) translateY(0);
+  }
+
+  .experience-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
     gap: 12px;
   }
-  
+
+  .experience-title-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .experience-meta {
+    align-items: center;
+    text-align: center;
+  }
+
   .experience-title {
     font-size: 1.2rem;
+    text-align: center;
   }
-  
+
   .experience-company-text {
     font-size: 0.95rem;
+    text-align: center;
   }
-  
+
+  .experience-bullets {
+    text-align: left;
+  }
+
   .experience-bullets li {
     font-size: 0.9rem;
     margin-bottom: 8px;
   }
-  
+
+  .experience-links {
+    justify-content: center;
+  }
+
   .experience-link {
     width: 32px;
     height: 32px;
   }
-  
+
   .experience-link img {
     width: 32px;
     height: 32px;
   }
-  
+
   .company-name-overlay {
     font-size: 0.9rem;
   }
-  
+
   .job-title-overlay {
     font-size: 1.1rem;
   }
@@ -472,73 +514,79 @@
     gap: 6px;
     padding: 10px 0;
   }
-  
+
+  /* Vertical layout on small mobile */
   .experience-card {
-    height: 220px;
+    height: 240px;
+    flex-direction: column;
   }
-  
+
   .experience-card.expanded {
-    height: 220px;
+    height: auto;
     margin: 0 8px;
     padding: 20px;
+    flex-direction: column;
   }
-  
+
   .experience-logo-section {
     width: 200px;
     height: 200px;
   }
-  
+
   .experience-card.expanded .experience-logo-section {
-    width: 200px;
-    height: 200px;
-    transform: translateX(-40px);
+    width: 220px;
+    height: 220px;
+    transform: translateX(0); /* No horizontal slide */
+    margin-bottom: 16px;
   }
-  
+
   .experience-content {
-    padding: 10px 12px 10px 16px;
+    padding: 0;
     gap: 10px;
+    text-align: center;
   }
-  
+
   .experience-title {
     font-size: 1rem;
   }
-  
+
   .experience-company-text {
     font-size: 0.85rem;
   }
-  
+
   .experience-bullets li {
     font-size: 0.8rem;
     margin-bottom: 6px;
   }
-  
+
   .experience-links {
     gap: 6px;
+    justify-content: center;
   }
-  
+
   .experience-link {
     width: 28px;
     height: 28px;
   }
-  
+
   .experience-link img {
     width: 28px;
     height: 28px;
   }
-  
+
   .experience-duration {
     font-size: 0.75rem;
     padding: 2px 8px;
   }
-  
+
   .experience-location {
     font-size: 0.75rem;
   }
-  
+
   .company-name-overlay {
     font-size: 0.8rem;
   }
-  
+
   .job-title-overlay {
     font-size: 1rem;
   }
