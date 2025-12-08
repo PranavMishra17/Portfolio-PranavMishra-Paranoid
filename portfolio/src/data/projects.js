@@ -166,6 +166,22 @@ const projects = {
       }
     ],
     aiMl: [
+
+      {
+  id: "resume-craft-pro",
+  title: "Resume-Craft-Pro: AI-Powered Resume Optimization",
+  category: "AI/ML Full-Stack Application",
+  description: "AI-powered resume optimization platform with dual-mode operation: Quick Craft for automated one-click optimization and Studio Mode for full LaTeX editing with AI chat agent. Features intelligent keyword extraction, ATS optimization, parallel Gemini API processing, and format-preserving edits.",
+  mainImage: "assets/images/ai_ml/rcp.png",
+  gallery: [
+    "assets/images/ai_ml/rcp1.png",
+    "assets/images/ai_ml/rcp2.png"
+  ],
+  techStack: ["Next.js", "MCP", "AI-Agents", "TypeScript", "Gemini API", "LaTeX", "Tailwind CSS", "pdf-lib", "React"],
+  githubLink: "https://github.com/PranavMishra17/Resume-Craft-Pro",
+  demoLink: "https://resume-craft-pro-nu.vercel.app",
+  websiteLink: "https://resume-craft-pro-nu.vercel.app"
+},
       {
         id: "auto-prompting",
         title: "Auto-Prompting for PaintSeg",
@@ -314,6 +330,22 @@ const projects = {
         websiteLink: ""
       },
 
+      
+      {
+ id: "voiceforge-architecture",
+ title: "VoiceForge: Text-to-Voice Synthesis",
+ category: "AI Voice Generation System",
+ tagline: "Generate consistent character voices from pure text descriptions",
+ description: "Revolutionary text-to-voice architecture that creates character voices without audio samples or voice actors. Uses CharacterBERT embeddings and XTTS-v2 synthesis to generate consistent character voices from natural language descriptions. Features lightweight deployment, multi-speaker support, and game engine integration.",
+ mainImage: "assets/images/ai_ml/voiceforge.png",
+ gallery: [
+ ],
+ techStack: ["XTTS-v2", "CharacterBERT", "Coqui TTS", "Sentence Transformers", "PyTorch", "Voice Synthesis", "Neural Embeddings", "Real-time Audio"],
+ githubLink: "https://github.com/PranavMishra17/VoiceForge--Forge-Character-Voices-from-Pure-Text",
+ demoLink: "",
+ websiteLink: ""
+},
+
       {
   id: "youtube-comments-analysis",
   title: "Comments Probe AI",
@@ -389,22 +421,6 @@ const projects = {
         demoLink: "",
         websiteLink: ""
       },
-
-      {
- id: "voiceforge-architecture",
- title: "VoiceForge: Text-to-Voice Synthesis",
- category: "AI Voice Generation System",
- tagline: "Generate consistent character voices from pure text descriptions",
- description: "Revolutionary text-to-voice architecture that creates character voices without audio samples or voice actors. Uses CharacterBERT embeddings and XTTS-v2 synthesis to generate consistent character voices from natural language descriptions. Features lightweight deployment, multi-speaker support, and game engine integration.",
- mainImage: "assets/images/ai_ml/voiceforge.png",
- gallery: [
- ],
- techStack: ["XTTS-v2", "CharacterBERT", "Coqui TTS", "Sentence Transformers", "PyTorch", "Voice Synthesis", "Neural Embeddings", "Real-time Audio"],
- githubLink: "https://github.com/PranavMishra17/VoiceForge--Forge-Character-Voices-from-Pure-Text",
- demoLink: "",
- websiteLink: ""
-},
-
 
       {
  "id": "healthcare-automation-pipeline",
