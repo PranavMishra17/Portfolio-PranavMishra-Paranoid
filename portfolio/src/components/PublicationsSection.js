@@ -40,11 +40,7 @@ const PublicationsSection = React.forwardRef((props, ref) => {
         )}
 
         {/* Call to Action */}
-        <div className="collaboration-cta">
-          <a href="mailto:pmishr23@uic.edu" className="collaboration-button">
-            Get in Touch
-          </a>
-        </div>
+
       </div>
     </section>
   );

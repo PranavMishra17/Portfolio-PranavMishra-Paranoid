@@ -2,6 +2,42 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
+// Move tabs to module scope so it's stable (prevents useEffect dependency warnings)
+const TABS = [
+  {
+    id: 'ai-ml',
+    label: 'AI-ML PROJECTS',
+    image: '/assets/images/default/ai_ml_default.jpg',
+    floatingImages: {
+      left: '/assets/images/icons/ai_floating.png',
+      right: '/assets/images/icons/ai_floating2.png'
+    },
+    color: '#3d5afe',
+    hoverColor: 'rgba(61, 90, 254, 0.9)'
+  },
+  {
+    id: 'research',
+    label: 'RESEARCH & PUBLICATIONS',
+    image: '/assets/images/default/misc_default.jpg',
+    floatingImages: {
+      left: '/assets/images/icons/misc_floating.png',
+      right: '/assets/images/icons/misc_floating2.png'
+    },
+    color: '#ffffff',
+    hoverColor: 'rgba(255, 255, 255, 0.9)'
+  },
+  {
+    id: 'game-design',
+    label: 'GAME DESIGN PROJECTS',
+    image: '/assets/images/default/game_design_default.jpg',
+    floatingImages: {
+      left: '/assets/images/icons/game_floating.png',
+      right: '/assets/images/icons/game_floating2.png'
+    },
+    color: '#ff2d55',
+    hoverColor: 'rgba(255, 45, 85, 0.9)'
+  }
+];
 
 const ProjectTabs = ({ activeTab, onTabChange }) => {
   const [hoveredTab, setHoveredTab] = useState(null);
@@ -20,51 +56,17 @@ const ProjectTabs = ({ activeTab, onTabChange }) => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  // Generate random angles on component mount
+  // Generate random angles on component mount (use TABS - stable reference)
   useEffect(() => {
     const angles = {};
-    tabs.forEach(tab => {
+    TABS.forEach(tab => {
       angles[`${tab.id}-left`] = Math.random() * 20 - 10; // -10 to +10 degrees
       angles[`${tab.id}-right`] = Math.random() * 20 - 10;
     });
     setRandomAngles(angles);
   }, []);
   
-  const tabs = [
-    {
-      id: 'ai-ml',
-      label: 'AI-ML PROJECTS',
-      image: '/assets/images/default/ai_ml_default.jpg',
-      floatingImages: {
-        left: '/assets/images/icons/ai_floating.png',
-        right: '/assets/images/icons/ai_floating2.png'
-      },
-      color: '#3d5afe',
-      hoverColor: 'rgba(61, 90, 254, 0.9)'
-    },
-    {
-      id: 'research',
-      label: 'RESEARCH PROJECTS',
-      image: '/assets/images/default/misc_default.jpg',
-      floatingImages: {
-        left: '/assets/images/icons/misc_floating.png',
-        right: '/assets/images/icons/misc_floating2.png'
-      },
-      color: '#ffffff',
-      hoverColor: 'rgba(255, 255, 255, 0.9)'
-    },
-    {
-      id: 'game-design',
-      label: 'GAME DESIGN PROJECTS',
-      image: '/assets/images/default/game_design_default.jpg',
-      floatingImages: {
-        left: '/assets/images/icons/game_floating.png',
-        right: '/assets/images/icons/game_floating2.png'
-      },
-      color: '#ff2d55',
-      hoverColor: 'rgba(255, 45, 85, 0.9)'
-    }
-  ];
+  const tabs = TABS;
   
   return (
     <div className="project-tabs-container">

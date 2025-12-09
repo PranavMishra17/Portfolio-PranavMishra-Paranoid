@@ -14,6 +14,10 @@ const ProjectCard = ({ project, theme }) => {
     setIsExpanded(!isExpanded);
   };
 
+  // Feature flag: toggle LIVE badge display site-wide
+  // Set to `false` to keep badge disabled even when project.websiteLink exists
+  const SHOW_LIVE_BADGE = false;
+
   // Get fallback image based on theme
   const getFallbackImage = () => {
     if (theme === 'game-design') return '/assets/images/default/game_design_default.jpg';
@@ -76,6 +80,10 @@ const ProjectCard = ({ project, theme }) => {
     <>
       <div className={`project-card ${getThemeClasses()}`}>
         <div className="project-image">
+          {/* LIVE Badge - shown only if feature flag enabled and websiteLink exists */}
+          {SHOW_LIVE_BADGE && project.websiteLink && project.websiteLink !== "" && (
+            <div className="live-badge">LIVE</div>
+          )}
           <img 
             src={imageSrc} 
             alt={project.title}
