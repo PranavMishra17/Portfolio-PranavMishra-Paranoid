@@ -166,7 +166,20 @@ const projects = {
       }
     ],
     aiMl: [
-
+{
+  id: "mockflow-ai",
+  title: "MockFlow-AI: Real-Time Voice Interview Platform",
+  category: "AI/ML Full-Stack Application",
+  description: "AI-powered mock interview platform with real-time voice conversation. Features FSM-driven multi-stage interviews, Deepgram STT and OpenAI TTS integration, resume/JD parsing for tailored questions, performance feedback with competency scores, and BYOK architecture. Built on LiveKit Agents SDK for low-latency voice interaction.",
+  mainImage: "assets/images/ai_ml/mf.png",
+  gallery: [
+    "assets/images/ai_ml/mf3.png",
+  ],
+  techStack: ["Python", "Flask", "LiveKit", "OpenAI", "Deepgram", "Supabase", "WebRTC", "FSM", "Google OAuth", "Render"],
+  githubLink: "https://github.com/PranavMishra17/MockFlow-AI",
+  demoLink: "https://www.youtube.com/watch?v=FUFKHy19oGA",
+  websiteLink: "https://mockflow-ai.onrender.com"
+},
       {
   id: "resume-craft-pro",
   title: "Resume-Craft-Pro: AI-Powered Resume Optimization",
