@@ -17,19 +17,19 @@
     width: 70px;
     height: 70px;
     border-radius: 50%;
-    background: rgba(61, 90, 254, 0.15);
-    border: 2px solid rgba(61, 90, 254, 0.6);
+    background: rgba(255, 193, 7, 0.12);
+    border: 2px solid rgba(255, 193, 7, 0.7);
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    box-shadow: 0 0 20px rgba(61, 90, 254, 0.3);
+    box-shadow: 0 0 20px rgba(255, 193, 7, 0.25);
     position: absolute;
     z-index: 15;
     backdrop-filter: blur(5px);
     overflow: hidden;
   }
-  
+
   .trophy-button::before {
     content: '';
     position: absolute;
@@ -37,7 +37,7 @@
     left: -50%;
     width: 200%;
     height: 200%;
-    background: radial-gradient(circle, rgba(61, 90, 254, 0.2) 0%, transparent 60%);
+    background: radial-gradient(circle, rgba(255, 193, 7, 0.2) 0%, transparent 60%);
     opacity: 0;
     transition: opacity 0.5s ease;
   }
@@ -59,7 +59,7 @@
     width: 40px;
     height: 40px;
     object-fit: contain;
-    filter: drop-shadow(0 0 5px rgba(61, 90, 254, 0.5));
+    filter: drop-shadow(0 0 5px rgba(255, 193, 7, 0.5));
   }
   
   /* Sleek animated hint */

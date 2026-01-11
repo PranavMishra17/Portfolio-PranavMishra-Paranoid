@@ -93,8 +93,22 @@ function MainPortfolio() {
       <ThemeSwitch />
 
       <header className="header">
-        <div className="logo">
-          <span>{contactInfo.name}</span>
+        <div className="header-left">
+          <a
+            href="https://github.com/sponsors/PranavMishra17"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="sponsor-btn"
+            title="Sponsor me"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+          </a>
+          <div className="logo">
+            <span className="logo-first">Pranav P. Mishra</span>
+            <span className="logo-last"> | AI/ML Intern @ WheelPrice</span>
+          </div>
         </div>
         <div
           className={`mobile-menu-button ${menuOpen ? 'active' : ''}`}
@@ -109,24 +123,29 @@ function MainPortfolio() {
             <li className={activeSection === 'about' ? 'active' : ''}>
               <button onClick={() => scrollToSection('about')}>About Me</button>
             </li>
-            <li className={activeSection === 'game-design' ? 'active' : ''}>
-              <button onClick={() => scrollToSection('game-design')}>
-                Game Design
-              </button>
-            </li>
+
             <li className={activeSection === 'ai-ml' ? 'active' : ''}>
               <button onClick={() => scrollToSection('ai-ml')}>AI / ML</button>
             </li>
+
             <li className={activeSection === 'research' ? 'active' : ''}>
               <button onClick={() => scrollToSection('research')}>
                 Research
               </button>
             </li>
+
+            <li className={activeSection === 'game-design' ? 'active' : ''}>
+              <button onClick={() => scrollToSection('game-design')}>
+                Game Design
+              </button>
+            </li>
+
             <li className={activeSection === 'misc' ? 'active' : ''}>
               <button onClick={() => scrollToSection('misc')}>Misc</button>
             </li>
+
             <li className={activeSection === 'contact' ? 'active' : ''}>
-              <button onClick={() => scrollToSection('contact')}>Connect</button>
+              <button onClick={() => scrollToSection('about')}>Connect</button>
             </li>
             <li>
               <Link to="/resume" className="nav-link">

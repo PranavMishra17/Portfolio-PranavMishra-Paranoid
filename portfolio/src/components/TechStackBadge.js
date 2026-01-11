@@ -9,73 +9,99 @@ import React from 'react';
 const TechStackBadge = ({ tech, theme }) => {
   const getColor = () => {
     const colors = {
-      // Game Development
+      // Game Development & Engines
       Unity: '#000000',
-      'Unreal': '#0e1128',
+      'Unreal Engine 5': '#0e1128',
       'C#': '#239120',
       'C++': '#00599c',
-      VR: '#ff6b35',
-      AR: '#ff8c42',
-      'Game Development': '#8e44ad',
-      'Mobile': '#34495e',
-      
+      'SFML': '#8cc84b',
+      Blender: '#f5792a',
+      Rust: '#ce422b',
+
+      // XR Technologies
+      'XR Development': '#ff6b35',
+      'Mixed Reality': '#ff8c42',
+
       // Web Development
       React: '#61dafb',
-      'React.js': '#61dafb',
+      'React 18': '#61dafb',
+      'Next.js': '#000000',
+      'Next.js 14': '#000000',
       JavaScript: '#f7df1e',
-      'JavaScript ES6+': '#f7df1e',
-      'CSS3': '#1572b6',
-      'HTML5': '#e34f26',
-      
-      // AI/ML
-      Python: '#3776ab',
-      'TensorFlow': '#ff6f00',
-      'PyTorch': '#ee4c2c',
-      'Scikit-learn': '#f7931e',
-      'OpenAI': '#10a37f',
-      'AI Agents': '#9c27b0',
-      'Multi-Agent Systems': '#673ab7',
-      NLP: '#2196f3',
-      'LangChain': '#00b894',
-      'Vector Embeddings': '#6c5ce7',
-      'Transformer Models': '#e74c3c',
-      'Machine Learning': '#27ae60',
-      'Deep Learning': '#8e44ad',
-      'Computer Vision': '#f39c12',
-      'Neural Networks': '#e67e22',
-      LGBM: '#3498db',
-      'Random Forest': '#16a085',
-      'Bayesian Networks': '#9b59b6',
-      'Decision Theory': '#34495e',
-      'Sports Analytics': '#1abc9c',
-      
-      // Cloud & Services
-      Azure: '#0078d4',
-      'Azure OpenAI': '#0078d4',
-      'Azure Speech Services': '#0078d4',
-      'Cosmos DB': '#0078d4',
+      TypeScript: '#3178c6',
+      'Node.js': '#68a063',
+      Express: '#000000',
       Flask: '#000000',
-      
-      // Blockchain
+      Hono: '#e36002',
+      'Tailwind CSS': '#06b6d4',
+
+      // AI/ML Core
+      Python: '#3776ab',
+      'PyTorch': '#ee4c2c',
+      'TensorFlow': '#ff6f00',
+      LibTorch: '#ee4c2c',
+
+      // AI/ML - LLMs & APIs
+      'OpenAI': '#10a37f',
+      'Gemini': '#4285f4',
+      'Gemini API': '#4285f4',
+      'Anthropic': '#cc9b7a',
+      Deepgram: '#13ef93',
+
+      // AI/ML - Frameworks & Tools
+      'LangChain': '#00b894',
+      'MCP': '#7c3aed',
+      'AI-Agents': '#9c27b0',
+      'Agentic AI': '#9c27b0',
+      'Multi-Agent Systems': '#673ab7',
+      'LiveKit': '#5b8def',
+
+      // AI/ML - Specialized
+      'Computer Vision': '#f39c12',
+      'Transformer Models': '#e74c3c',
+      'Vector Embeddings': '#6c5ce7',
+      'Reinforcement Learning': '#27ae60',
+      'Deep Learning': '#8e44ad',
+      'Machine Learning': '#16a085',
+      'MLOps': '#2ecc71',
+      'Production RAG': '#00b894',
+
+      // Medical & Healthcare
+      'Medical Simulation': '#e74c3c',
+      'Healthcare AI': '#c0392b',
+      'Medical Imaging': '#e67e22',
+
+      // Databases & Storage
+      'Supabase': '#3ecf8e',
+      'PostgreSQL': '#336791',
+      'Redis': '#dc382d',
+
+      // Cloud & DevOps
+      'Azure AI Services': '#0078d4',
+      'Docker': '#2496ed',
+      'CICD Pipeline': '#2088ff',
+
+      // Real-Time & Communication
+      'WebRTC': '#333333',
+      'WebSocket': '#010101',
+
+      // Blockchain & Web3
       'Solana': '#9945ff',
-      'Ethereum': '#627eea',
       'Web3': '#f16822',
+      'Web3 Integration': '#f16822',
       'Blockchain': '#21bf73',
-      'NFT': '#ff6b6b',
-      
-      // Databases & Tools
-      'Pinecone': '#000000',
-      'Context API': '#61dafb',
-      'SerpAPI': '#4285f4',
-      'Cargo': '#dea584',
-      'Rust': '#ce422b',
+      'Blockchain Technology': '#21bf73',
+      'Smart Contracts': '#627eea',
+
+      // Specialized Technologies
       'MetaHuman': '#313131',
-      'Omniverse': '#76b900',
-      'Healthcare': '#e74c3c',
-      'DPT': '#3498db',
-      'UNet': '#9b59b6',
-      'ResNet': '#e67e22',
-      
+      'Generative AI': '#9c27b0',
+      'n8n': '#ff6d5a',
+
+      // Authentication
+      'JWT Authentication': '#000000',
+      'Google OAuth': '#4285f4',
+
       default: '#888888'
     };
     

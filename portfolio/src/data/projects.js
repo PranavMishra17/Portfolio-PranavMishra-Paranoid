@@ -195,6 +195,22 @@ const projects = {
   demoLink: "https://resume-craft-pro-nu.vercel.app",
   websiteLink: "https://resume-craft-pro-nu.vercel.app"
 },
+
+{
+  id: "soulengine",
+  title: "SoulEngine: NPCs with memeory, motive & agency",
+  category: "AI/ML Game Development",
+  description: "TypeScript framework for game NPCs with evolving personalities, layered memory systems, and autonomous agency. Features multi-provider LLM support (Gemini/OpenAI/Anthropic/Grok), multi-modal voice interaction (4 conversation modes), FSM-based memory cycles (Daily Pulse, Weekly Whisper, Persona Shift), MCP tool invocation for world actions, per-NPC memory retention tuning, player identity recognition, and YAML-based stateless architecture. Includes 8-tab web editor and real-time testing playground.",
+  mainImage: "assets/images/ai_ml/SE.gif",
+  gallery: [
+    "assets/images/ai_ml/SE2.png",
+    "assets/images/ai_ml/SE3.png"
+  ],
+  techStack: ["TypeScript", "Node.js", "Hono", "Gemini", "OpenAI", "Anthropic", "Deepgram", "Cartesia", "WebSocket", "MCP", "YAML", "Encryption"],
+  githubLink: "https://github.com/PranavMishra17/SoulEngine",
+  demoLink: "", // Add your demo video link
+  websiteLink: ""
+},
       {
         id: "auto-prompting",
         title: "Auto-Prompting for PaintSeg",
@@ -599,7 +615,7 @@ const projects = {
 const contactInfo = {
   name: "Pranav Mishra",
   title: "AI Engineer & Game Developer",
-  bio: "Computer Science graduate from University of Illinois at Chicago specializing in agentic AI and game development. Expert in multi-agent systems, reinforcement learning, and autonomous intelligence. Published researcher with proven success in AI deployments, from enterprise RAG systems to game AI agents. Driven to revolutionize interactive experiences through cutting-edge agentic architectures.",
+  bio: "Computer Science graduate from the University of Illinois Chicago with a focus on agentic AI and game development, building systems that behave intelligently and autonomously. Experienced in multi-agent systems, reinforcement learning, and game/enterprise deployments, with published research and production work spanning enterprise RAG platforms and game AI agents.",
   email: {
     personal: "pranavgamedev.17@gmail.com",
     academic: "pmishr23@uic.edu"
