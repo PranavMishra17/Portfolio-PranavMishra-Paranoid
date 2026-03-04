@@ -107,7 +107,7 @@ function MainPortfolio() {
           </a>
           <div className="logo">
             <span className="logo-first">Pranav P. Mishra</span>
-            <span className="logo-last"> | AI/ML Intern @ WheelPrice</span>
+            <span className="logo-last"> | AI Engineer @ WheelPrice</span>
           </div>
         </div>
         <div

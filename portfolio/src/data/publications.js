@@ -1,6 +1,35 @@
 // src/data/publications.js
 const publications = [
   {
+    id: "metarag",
+    title: "A Systematic Framework for Enterprise Knowledge Retrieval: Leveraging LLM-Generated Metadata to Enhance RAG Systems",
+    authors: ["Pranav Pushkar Mishra","Kranti Yeole", "Ramyashree Keshavamurthy", "Mokshit Bharat Surana", "Fatemeh Sarayloo"],
+    abstract: "In enterprise settings, efficiently retrieving relevant information from large and complex knowledge bases is essential for operational productivity and informed decision-making. This research presents a systematic framework for metadata enrichment using large language models (LLMs) to enhance document retrieval in Retrieval-Augmented Generation (RAG) systems. Our approach employs a comprehensive, structured pipeline that dynamically generates meaningful metadata for document segments, substantially improving their semantic representations and retrieval accuracy. Through extensive experiments, we compare three chunking strategies-semantic, recursive, and naive-and evaluate their effectiveness when combined with advanced embedding techniques. The results demonstrate that metadata-enriched approaches consistently outperform content-only baselines, with recursive chunking paired with TF-IDF weighted embeddings yielding an 82.5% precision rate compared to 73.3% for semantic content-only approaches. The naive chunking strategy with prefix-fusion achieved the highest Hit Rate@10 of 0.925. Our evaluation employs cross-encoder reranking for ground truth generation, enabling rigorous assessment via Hit Rate and Metadata Consistency metrics. These findings confirm that metadata enrichment enhances vector clustering quality while reducing retrieval latency, making it a key optimization for RAG systems across knowledge domains. This work offers practical insights for deploying high-performance, scalable document retrieval solutions in enterprise settings, demonstrating that metadata enrichment is a powerful approach for enhancing RAG effectiveness.",
+    conference: "CAI 2026 | IEEE International Conference on Big Data",
+    venue: "CAI 2026 | IEEE",
+    status: "ACCEPTED",
+    researchDates: "2023 - 2026",
+    publicationDate: "2026",
+    doi: "https://doi.org/10.48550/arXiv.2512.05411",
+    pdfLink: "https://arxiv.org/pdf/2512.05411",
+    codeLink: "https://github.com/PranavMishra17/Metadata-Enrichment-with-LLMs-for-RAGs-Internal-Knowledge-Retrieval",
+    projectLink: "",
+    citationCount: 0,
+    techStack: [
+      "LangChain", 
+      "Pinecone",
+      "Azure Cloud Services",
+      "Vector Embeddings", 
+      "TF-IDF",
+      "Information Retrieval", 
+      "Kubernetes",
+      "Linux"
+    ],
+    tags: ["RAG Systems", "Information Retrieval", "LLM Applications", "Metadata"],
+    category: "Information Retrieval",
+    keywords: ["Retrieval-Augmented Generation", "Large Language Models", "Metadata Enrichment", "Information Retrieval", "Document Processing"]
+  },
+  {
     id: "teammedagents",
     title: "TeamMedAgents: Enhancing Medical Decision-Making of LLMs Through Teamwork",
     authors: ["Pranav Pushkar Mishra", "Mohammad Arvan", "Mohan Zalake"],
@@ -14,7 +43,7 @@ const publications = [
     pdfLink: "https://arxiv.org/pdf/2508.08115",
     codeLink: "https://github.com/PranavMishra17/Big5-Agents",
     projectLink: "",
-    citationCount: 3,
+    citationCount: 4,
     techStack: [
       "Python",
       "Multi-Agent Systems", 
@@ -58,35 +87,6 @@ const publications = [
     tags: ["Multi-Agent Systems", "Small Language Models", "Multi-Modal AI", "Medical Vision", "Cost Efficiency", "Healthcare"],
     category: "Medical AI",
     keywords: ["Multi-Agent Systems", "Small Language Models", "Multi-Modal Reasoning", "Medical Decision-Making", "Vision-Language Models", "Cost-Efficient AI", "Healthcare AI", "Collaborative Intelligence"]
-  },
-  {
-    id: "metarag",
-    title: "A Systematic Framework for Enterprise Knowledge Retrieval: Leveraging LLM-Generated Metadata to Enhance RAG Systems",
-    authors: ["Pranav Pushkar Mishra","Kranti Yeole", "Ramyashree Keshavamurthy", "Mokshit Bharat Surana", "Fatemeh Sarayloo"],
-    abstract: "In enterprise settings, efficiently retrieving relevant information from large and complex knowledge bases is essential for operational productivity and informed decision-making. This research presents a systematic framework for metadata enrichment using large language models (LLMs) to enhance document retrieval in Retrieval-Augmented Generation (RAG) systems. Our approach employs a comprehensive, structured pipeline that dynamically generates meaningful metadata for document segments, substantially improving their semantic representations and retrieval accuracy. Through extensive experiments, we compare three chunking strategies-semantic, recursive, and naive-and evaluate their effectiveness when combined with advanced embedding techniques. The results demonstrate that metadata-enriched approaches consistently outperform content-only baselines, with recursive chunking paired with TF-IDF weighted embeddings yielding an 82.5% precision rate compared to 73.3% for semantic content-only approaches. The naive chunking strategy with prefix-fusion achieved the highest Hit Rate@10 of 0.925. Our evaluation employs cross-encoder reranking for ground truth generation, enabling rigorous assessment via Hit Rate and Metadata Consistency metrics. These findings confirm that metadata enrichment enhances vector clustering quality while reducing retrieval latency, making it a key optimization for RAG systems across knowledge domains. This work offers practical insights for deploying high-performance, scalable document retrieval solutions in enterprise settings, demonstrating that metadata enrichment is a powerful approach for enhancing RAG effectiveness.",
-    conference: "IEEE International Conference on Big Data",
-    venue: "IEEE BigData 2025",
-    status: "Under Review",
-    researchDates: "2023 - 2025",
-    publicationDate: "2026",
-    doi: "https://doi.org/10.48550/arXiv.2512.05411",
-    pdfLink: "https://arxiv.org/pdf/2512.05411",
-    codeLink: "https://github.com/PranavMishra17/Metadata-Enrichment-with-LLMs-for-RAGs-Internal-Knowledge-Retrieval",
-    projectLink: "",
-    citationCount: 0,
-    techStack: [
-      "LangChain", 
-      "Pinecone",
-      "Azure Cloud Services",
-      "Vector Embeddings", 
-      "TF-IDF",
-      "Information Retrieval", 
-      "Kubernetes",
-      "Linux"
-    ],
-    tags: ["RAG Systems", "Information Retrieval", "LLM Applications", "Metadata"],
-    category: "Information Retrieval",
-    keywords: ["Retrieval-Augmented Generation", "Large Language Models", "Metadata Enrichment", "Information Retrieval", "Document Processing"]
   }
 ];
 

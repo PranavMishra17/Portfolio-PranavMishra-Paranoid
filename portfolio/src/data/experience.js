@@ -3,8 +3,8 @@ const experiences = [
   {
     id: "wheelprice-intern",
     company: "WheelPrice",
-    title: "AI/ML Intern",
-    duration: "July 2025 - Nov 2025",
+    title: "AI Engineer",
+    duration: "July 2025 - March 2026",
     location: "Charlotte, NC",
     companyLogo: "assets/images/companies/wheelprice.jpg",
     description: [
@@ -20,12 +20,12 @@ const experiences = [
     id: "research-software-engineer-uic",
     company: "UIC: V-ARE Labs",
     title: "Research Software Engineer",
-    duration: "Feb 2024 - July 2025",
+    duration: "Feb 2024 - Present",
     location: "Chicago, IL",
     companyLogo: "assets/images/companies/uic.jpg",
     description: [
       "Built virtual patient system using Unreal Engine and C++. Deployed REST APIs with Python backend for data analysis",
-      "Integrated LangChain & PostgreSQL to build a full-stack virtual avatar platform on Azure cloud services, enabling users to create custom RAG systems with one-click deployment using React/JavaScript frontend and Cosmos DB vector database"
+      "Deployed end-to-end audio ML pipeline with Flask backend comparing MFCC feature engineering and CNN architectures achieving 98.52% accuracy; deployed real-time inference system with VAD & robustness testing."
     ],
     techStack: ["Unreal Engine 5", "C++", "Python", "LangChain", "PostgreSQL", "Azure", "React", "JavaScript", "Cosmos DB"],
     links: {
