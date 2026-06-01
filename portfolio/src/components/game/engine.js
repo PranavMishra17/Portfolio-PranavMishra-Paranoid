@@ -531,17 +531,21 @@ export class Engine {
   // ----------------------------------------------------------
 
   checkCollisions() {
+    const hbMap = CONFIG.ui.hitboxMult;
     for (let pi = this.projectiles.length - 1; pi >= 0; pi--) {
       const p = this.projectiles[pi];
       for (let ci = this.capsules.length - 1; ci >= 0; ci--) {
         const c = this.capsules[ci];
+        const m = (hbMap && hbMap[c.cls]) || 1;
+        // expand the bounding box by (m-1)/2 on each side
+        const padX = (c.w * (m - 1)) / 2;
+        const padY = (c.h * (m - 1)) / 2;
         if (
-          p.x >= c.x &&
-          p.x <= c.x + c.w &&
-          p.y >= c.y &&
-          p.y <= c.y + c.h
+          p.x >= c.x - padX &&
+          p.x <= c.x + c.w + padX &&
+          p.y >= c.y - padY &&
+          p.y <= c.y + c.h + padY
         ) {
-          // hit
           this.projectiles.splice(pi, 1);
           this.capsules.splice(ci, 1);
           this.handlePop(c);

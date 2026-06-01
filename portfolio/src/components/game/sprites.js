@@ -587,45 +587,47 @@ function drawCapsule(ctx, cap) {
   ctx.textBaseline = 'alphabetic';
 }
 
-// BLACK BOMB — circular, distinct from grey pills. Pulsing red core,
-// outer warning halo, and a small X danger mark on top. Phrase text
-// sits below the orb in a tiny label.
+// BLACK BOMB — truly black sphere with a fuse on top. The only bright
+// detail is the fuse ember flickering. No red halo, no red core glow,
+// no bright border — that was making the bomb read as "bright red" not
+// "black". Inner highlight on top-left gives it ball-like depth so it
+// doesn't look like a flat dot.
 function drawBomb(ctx, cap) {
   const cx = cap.x + cap.w / 2;
   const cy = cap.y + cap.h / 2;
   const r = cap.h / 2 + 4;
 
-  // outer warning halo (pulses)
-  const t = (performance.now() % 1200) / 1200;
-  const pulse = 0.55 + 0.45 * Math.sin(t * Math.PI * 2);
-  ctx.strokeStyle = `rgba(255, 93, 108, ${0.18 + pulse * 0.32})`;
-  ctx.lineWidth = 2;
+  // subtle dark warning ring (no pulse, no red — just a faint
+  // separator so it sits cleanly against any background)
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+  ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.arc(cx, cy, r + 5, 0, Math.PI * 2);
+  ctx.arc(cx, cy, r + 3, 0, Math.PI * 2);
   ctx.stroke();
 
-  // bomb body
-  ctx.fillStyle = '#15090b';
+  // body — near pure black
+  ctx.fillStyle = '#050507';
   ctx.beginPath();
   ctx.arc(cx, cy, r, 0, Math.PI * 2);
   ctx.fill();
-  ctx.strokeStyle = '#ff5d6c';
-  ctx.lineWidth = 1.6;
+
+  // thin neutral border so the silhouette holds against the grid
+  ctx.strokeStyle = '#1d1f25';
+  ctx.lineWidth = 1.5;
   ctx.stroke();
 
-  // inner radial glow (pulsing red core)
-  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
-  grad.addColorStop(0, `rgba(255, 93, 108, ${0.45 + pulse * 0.35})`);
-  grad.addColorStop(0.7, 'rgba(120, 20, 30, 0.1)');
-  grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-  ctx.fillStyle = grad;
+  // ball-like specular highlight, top-left, very subtle
+  const hl = ctx.createRadialGradient(cx - r * 0.45, cy - r * 0.45, 0, cx - r * 0.45, cy - r * 0.45, r * 0.6);
+  hl.addColorStop(0, 'rgba(255, 255, 255, 0.10)');
+  hl.addColorStop(1, 'rgba(255, 255, 255, 0)');
+  ctx.fillStyle = hl;
   ctx.beginPath();
   ctx.arc(cx, cy, r - 1, 0, Math.PI * 2);
   ctx.fill();
 
-  // X danger mark
-  ctx.strokeStyle = '#ff5d6c';
-  ctx.lineWidth = 1.8;
+  // dull-red X danger mark, low saturation
+  ctx.strokeStyle = '#6a2026';
+  ctx.lineWidth = 1.6;
   ctx.lineCap = 'round';
   const xr = 4;
   ctx.beginPath();
@@ -636,14 +638,25 @@ function drawBomb(ctx, cap) {
   ctx.stroke();
   ctx.lineCap = 'butt';
 
-  // fuse spark at top (small flicker)
-  if (pulse > 0.6) {
-    ctx.fillStyle = '#ffd070';
-    ctx.fillRect(cx - 1, cy - r - 6, 2, 3);
-  }
+  // fuse — short stalk + flickering ember (the ONLY bright detail).
+  const fuseTop = cy - r - 4;
+  ctx.strokeStyle = '#3a3a40';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - r + 1);
+  ctx.lineTo(cx - 1, fuseTop + 2);
+  ctx.lineTo(cx + 1, fuseTop);
+  ctx.stroke();
+  // ember
+  const t = (performance.now() % 700) / 700;
+  const ember = 0.6 + 0.4 * Math.sin(t * Math.PI * 2);
+  ctx.fillStyle = `rgba(255, 180, 70, ${ember})`;
+  ctx.fillRect(cx, fuseTop - 1, 2, 2);
+  ctx.fillStyle = `rgba(255, 240, 200, ${ember * 0.8})`;
+  ctx.fillRect(cx + 0.3, fuseTop - 0.5, 1, 1);
 
-  // tiny phrase label below the orb
-  ctx.fillStyle = 'rgba(255, 93, 108, 0.78)';
+  // tiny phrase label below the orb (dim grey-red)
+  ctx.fillStyle = 'rgba(180, 90, 95, 0.65)';
   ctx.font = '8px "Space Mono", monospace';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'top';
@@ -792,25 +805,12 @@ function drawWaveBanner(ctx, eng) {
 // ============================================================
 
 function drawTitleOverlay(ctx, eng) {
+  // The actual title content (heading, legend, tag input, START) is
+  // a DOM overlay in PromptPatrol.js — keep this canvas pass to just
+  // a dim veil so the gameplay backdrop reads through subtly.
   const { W, H } = eng;
-  ctx.fillStyle = 'rgba(2, 5, 10, 0.78)';
+  ctx.fillStyle = 'rgba(2, 5, 10, 0.7)';
   ctx.fillRect(0, 0, W, H);
-
-  ctx.fillStyle = C.crt;
-  ctx.font = '28px "Press Start 2P", monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText('PROMPT PATROL', W / 2, H / 2 - 36);
-
-  ctx.fillStyle = C.crtDim;
-  ctx.font = '9px "Space Mono", monospace';
-  ctx.fillText('AIM ▸ TAP ▸ HOLD TO CHARGE ▸ DON\'T POP BLACK', W / 2, H / 2 - 6);
-
-  // blinking start hint
-  if (Math.floor(eng.time * 1.5) % 2 === 0) {
-    ctx.fillStyle = C.crt;
-    ctx.font = '10px "Press Start 2P", monospace';
-    ctx.fillText('▸ CLICK TO INSERT COIN ◂', W / 2, H / 2 + 32);
-  }
 }
 
 // ============================================================

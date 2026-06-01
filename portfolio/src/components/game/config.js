@@ -87,6 +87,15 @@ export const CONFIG = {
     capsuleMaxChars:      14,
     capsulePadding:       10,
     aimIndicatorPx:       160,
+    // Per-class collision hitbox multiplier. >1 expands the hit area
+    // (more forgiving), <1 shrinks it. Tuned so reds are easiest to
+    // nail, blues are baseline, and grey/bomb demand more accuracy.
+    hitboxMult: {
+      red:   1.35,
+      blue:  1.00,
+      grey:  0.85,
+      black: 0.85,
+    },
     chargeRingSegments:   5,
     heartCount:           3,
     screenShakePx:        4,

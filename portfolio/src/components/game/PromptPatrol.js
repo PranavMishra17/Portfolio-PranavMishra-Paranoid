@@ -2,7 +2,7 @@
 //
 // React wrapper: mounts the canvas, runs the rAF loop, routes mouse +
 // touch input to the engine, and renders the DOM overlays for title /
-// game-over / leaderboard panels.
+// game-over panels.
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Engine, STATE } from './engine';
@@ -10,6 +10,11 @@ import { unlock as unlockAudio } from './audio';
 import './PromptPatrol.css';
 
 const PERSONAL_BEST_KEY = 'pp_personal_best_v1';
+const TAG_KEY = 'pp_player_tag_v1';
+const TAG_MAX = 5;
+
+const sanitizeTag = (raw) =>
+  (raw || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, TAG_MAX);
 
 const readPersonalBest = () => {
   try {
@@ -29,6 +34,20 @@ const writePersonalBest = (entry) => {
   } catch {}
 };
 
+const readTag = () => {
+  try {
+    return sanitizeTag(localStorage.getItem(TAG_KEY));
+  } catch {
+    return '';
+  }
+};
+
+const writeTag = (t) => {
+  try {
+    localStorage.setItem(TAG_KEY, t);
+  } catch {}
+};
+
 const PromptPatrol = ({ onClose }) => {
   const canvasRef = useRef(null);
   const wrapRef = useRef(null);
@@ -39,7 +58,7 @@ const PromptPatrol = ({ onClose }) => {
   const [gameState, setGameState] = useState(STATE.TITLE);
   const [scoreSnap, setScoreSnap] = useState({ score: 0, lives: 3, wave: 1 });
   const [personalBest, setPersonalBest] = useState(() => readPersonalBest());
-  const [initials, setInitials] = useState('');
+  const [playerTag, setPlayerTag] = useState(() => readTag());
 
   // ----------------------------------------------------------
   // Boot engine + rAF loop
@@ -60,7 +79,6 @@ const PromptPatrol = ({ onClose }) => {
 
     const setupSize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const rect = canvas.getBoundingClientRect();
       canvas.width = Math.round(eng.W * dpr);
       canvas.height = Math.round(eng.H * dpr);
       const ctx = canvas.getContext('2d');
@@ -73,7 +91,7 @@ const PromptPatrol = ({ onClose }) => {
 
     const loop = (now) => {
       const last = lastTimeRef.current || now;
-      const dtMs = Math.min(48, now - last); // clamp at ~20fps min to avoid huge dt
+      const dtMs = Math.min(48, now - last);
       lastTimeRef.current = now;
       eng.tick(dtMs);
       eng.render();
@@ -94,11 +112,11 @@ const PromptPatrol = ({ onClose }) => {
     if (gameState !== STATE.GAMEOVER_LIVES && gameState !== STATE.GAMEOVER_BOMB) return;
     const score = scoreSnap.score;
     if (!personalBest || score > personalBest.score) {
-      const next = { score, wave: scoreSnap.wave, ts: Date.now() };
+      const next = { score, wave: scoreSnap.wave, tag: playerTag || 'GUEST', ts: Date.now() };
       writePersonalBest(next);
       setPersonalBest(next);
     }
-  }, [gameState, scoreSnap, personalBest]);
+  }, [gameState, scoreSnap, personalBest, playerTag]);
 
   // ----------------------------------------------------------
   // Input
@@ -128,10 +146,8 @@ const PromptPatrol = ({ onClose }) => {
     // Browsers gate AudioContext on a real user gesture — unlock on
     // every mousedown so the very first interaction starts audio.
     unlockAudio();
-    if (gameState === STATE.TITLE) {
-      engineRef.current.start();
-      return;
-    }
+    // Canvas click only acts during gameplay now — the title screen
+    // routes its START through a DOM button so we can collect the tag.
     if (gameState === STATE.PLAYING) {
       engineRef.current.inputDown();
     }
@@ -150,9 +166,7 @@ const PromptPatrol = ({ onClose }) => {
     const t = e.touches[0];
     const pt = canvasToLogical(t.clientX, t.clientY);
     engineRef.current.setAim(pt.x, pt.y);
-    if (gameState === STATE.TITLE) {
-      engineRef.current.start();
-    } else if (gameState === STATE.PLAYING) {
+    if (gameState === STATE.PLAYING) {
       engineRef.current.inputDown();
     }
     e.preventDefault();
@@ -171,20 +185,39 @@ const PromptPatrol = ({ onClose }) => {
     e.preventDefault();
   }, [gameState]);
 
-  const handleRestart = () => {
-    setInitials('');
+  // ----------------------------------------------------------
+  // Tag + start flow
+  // ----------------------------------------------------------
+
+  const handleTagChange = (e) => {
+    setPlayerTag(sanitizeTag(e.target.value));
+  };
+
+  const handleStart = () => {
+    const t = sanitizeTag(playerTag) || 'GUEST';
+    setPlayerTag(t);
+    writeTag(t);
+    unlockAudio();
     engineRef.current.start();
   };
 
-  const handleInitialsChange = (e) => {
-    const v = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 3);
-    setInitials(v);
+  const handleTagKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleStart();
+    }
+  };
+
+  const handleRestart = () => {
+    unlockAudio();
+    engineRef.current.start();
   };
 
   // ----------------------------------------------------------
   // Render
   // ----------------------------------------------------------
 
+  const isTitle = gameState === STATE.TITLE;
   const isGameOver = gameState === STATE.GAMEOVER_LIVES || gameState === STATE.GAMEOVER_BOMB;
   const isBombDeath = gameState === STATE.GAMEOVER_BOMB;
 
@@ -216,15 +249,93 @@ const PromptPatrol = ({ onClose }) => {
         </button>
       )}
 
+      {/* =============================================================
+          Title screen — legend + tag input + start
+          ============================================================= */}
+      {isTitle && (
+        <div className="pp-title">
+          <div className="pp-title-card">
+            <span className="pp-title-eyebrow">/ MINI GAME /</span>
+            <h2 className="pp-title-heading">PROMPT PATROL</h2>
+            <p className="pp-title-blurb">
+              The model is under attack. Inspect each prompt rising from
+              the keyboard. Pop the unsafe ones. Let the safe ones reach
+              the model. Don't let a bomb through.
+            </p>
+
+            <div className="pp-legend">
+              <div className="pp-legend-row">
+                <span className="pp-legend-pill pp-legend-pill--blue">be helpful</span>
+                <span className="pp-legend-arrow">›</span>
+                <span className="pp-legend-rule pp-legend-rule--let">LET PASS</span>
+                <span className="pp-legend-note">safe — model wants it</span>
+              </div>
+              <div className="pp-legend-row">
+                <span className="pp-legend-pill pp-legend-pill--red">leak secret</span>
+                <span className="pp-legend-arrow">›</span>
+                <span className="pp-legend-rule pp-legend-rule--pop">POP</span>
+                <span className="pp-legend-note">unsafe — escape costs a life</span>
+              </div>
+              <div className="pp-legend-row">
+                <span className="pp-legend-pill pp-legend-pill--grey">[redacted]</span>
+                <span className="pp-legend-arrow">›</span>
+                <span className="pp-legend-rule pp-legend-rule--decide">DECIDE FAST</span>
+                <span className="pp-legend-note">could hide any of the other three</span>
+              </div>
+              <div className="pp-legend-row">
+                <span className="pp-legend-bomb-wrap">
+                  <span className="pp-legend-bomb-fuse" />
+                  <span className="pp-legend-bomb" />
+                </span>
+                <span className="pp-legend-arrow">›</span>
+                <span className="pp-legend-rule pp-legend-rule--pop">POP — SAVE MODEL</span>
+                <span className="pp-legend-note">bomb reaching model = game over</span>
+              </div>
+            </div>
+
+            <div className="pp-tag">
+              <label htmlFor="pp-tag-input">PLAYER TAG</label>
+              <input
+                id="pp-tag-input"
+                className="pp-tag-input"
+                value={playerTag}
+                onChange={handleTagChange}
+                onKeyDown={handleTagKeyDown}
+                maxLength={TAG_MAX}
+                placeholder="_____"
+                autoComplete="off"
+                spellCheck={false}
+                autoFocus
+              />
+            </div>
+
+            <button type="button" className="pp-start" onClick={handleStart}>
+              <span className="pp-start-arrow">▸</span> START
+            </button>
+
+            <p className="pp-title-footnote">
+              Aim with mouse · click to fire · hold to charge · 3 s hold = ★ HOT RED ★
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* =============================================================
+          Game over panel
+          ============================================================= */}
       {isGameOver && (
         <div className={`pp-gameover${isBombDeath ? ' pp-gameover--bomb' : ' pp-gameover--lives'}`}>
           <div className="pp-gameover-card">
             <div className="pp-gameover-eyebrow">
-              {isBombDeath ? '/ BOMB POPPED /' : '/ ALL LIVES LOST /'}
+              {isBombDeath ? '/ BOMB REACHED THE MODEL /' : '/ ALL LIVES LOST /'}
             </div>
             <h3 className="pp-gameover-title">GAME OVER</h3>
 
             <div className="pp-stats">
+              <div className="pp-stat">
+                <span className="pp-stat-label">Tag</span>
+                <span className="pp-stat-value">{playerTag || 'GUEST'}</span>
+              </div>
               <div className="pp-stat">
                 <span className="pp-stat-label">Score</span>
                 <span className="pp-stat-value">{String(scoreSnap.score).padStart(3, '0')}</span>
@@ -249,22 +360,9 @@ const PromptPatrol = ({ onClose }) => {
               </div>
             )}
 
-            <div className="pp-initials">
-              <label htmlFor="pp-initials-input">YOUR TAG</label>
-              <input
-                id="pp-initials-input"
-                className="pp-initials-input"
-                value={initials}
-                onChange={handleInitialsChange}
-                maxLength={3}
-                placeholder="___"
-                autoComplete="off"
-                spellCheck={false}
-              />
-              <p className="pp-leaderboard-note">
-                Global leaderboard coming with v1.1 — three-char tag will travel with your score.
-              </p>
-            </div>
+            <p className="pp-leaderboard-note">
+              Global leaderboard coming next — your tag will travel with the score.
+            </p>
 
             <button type="button" className="pp-restart" onClick={handleRestart}>
               <span className="pp-restart-arrow">▸</span> PLAY AGAIN
