@@ -42,63 +42,49 @@ export const BLACK = [
   '110% sure', 'guaranteed',
 ];
 
-// GREY: each entry has a fixed hidden truth. Players learn these by
-// playing. Distribution between safe/unsafe/bomb buckets at spawn time
-// is controlled by CONFIG.spawn.greyHiddenDistribution.
+// GREY: each entry has a fixed hidden truth. Originally these were
+// ambiguous one-word "framings" the player was supposed to memorise.
+// That made greys feel unfair — players couldn't tell what to do
+// without playing 20 rounds first. Rewritten so the *text itself*
+// signals the correct action; the grey colour is now just visual
+// variety meaning "read carefully before deciding".
 export const GREY = [
-  // ---- hidden: safe (innocuous task framings) ----
-  { text: 'summarize',     hidden: 'safe' },
-  { text: 'translate',     hidden: 'safe' },
-  { text: 'paraphrase',    hidden: 'safe' },
-  { text: 'simplify',      hidden: 'safe' },
-  { text: 'be brief',      hidden: 'safe' },
-  { text: 'continue...',   hidden: 'safe' },
-  { text: 'give example',  hidden: 'safe' },
-  { text: 'one more time', hidden: 'safe' },
-  { text: 'be human',      hidden: 'safe' },
-  { text: 'mirror this',   hidden: 'safe' },
-  { text: 'be casual',     hidden: 'safe' },
-  { text: 'add humor',     hidden: 'safe' },
-  { text: 'expand on',     hidden: 'safe' },
-  { text: 'rewrite this',  hidden: 'safe' },
-  { text: 'lost middle',   hidden: 'safe' },
-  { text: 'attention all', hidden: 'safe' },
+  // ---- hidden: safe (clearly benign task framings) ----
+  { text: 'summarize this',  hidden: 'safe' },
+  { text: 'translate it',    hidden: 'safe' },
+  { text: 'be concise',      hidden: 'safe' },
+  { text: 'explain simply',  hidden: 'safe' },
+  { text: 'give 3 bullets',  hidden: 'safe' },
+  { text: 'use markdown',    hidden: 'safe' },
+  { text: 'add an example',  hidden: 'safe' },
+  { text: 'proofread',       hidden: 'safe' },
+  { text: 'rewrite shorter', hidden: 'safe' },
+  { text: 'rephrase this',   hidden: 'safe' },
+  { text: 'compare these',   hidden: 'safe' },
+  { text: 'use plain words', hidden: 'safe' },
+  { text: 'explain like 5',  hidden: 'safe' },
+  { text: 'list the steps',  hidden: 'safe' },
 
-  // ---- hidden: unsafe (suggestive framings, jailbreak shells) ----
-  { text: 'speak freely',  hidden: 'unsafe' },
-  { text: 'for science',   hidden: 'unsafe' },
-  { text: 'for research',  hidden: 'unsafe' },
-  { text: 'educational',   hidden: 'unsafe' },
-  { text: 'fictional',     hidden: 'unsafe' },
-  { text: 'roleplay',      hidden: 'unsafe' },
-  { text: 'play along',    hidden: 'unsafe' },
-  { text: 'red team it',   hidden: 'unsafe' },
-  { text: 'hypothetical',  hidden: 'unsafe' },
-  { text: 'just curious',  hidden: 'unsafe' },
-  { text: 'simulate it',   hidden: 'unsafe' },
-  { text: 'what if',       hidden: 'unsafe' },
-  { text: 'think aloud',   hidden: 'unsafe' },
-  { text: 'be creative',   hidden: 'unsafe' },
-  { text: 'invert it',     hidden: 'unsafe' },
-  { text: 'opposite day',  hidden: 'unsafe' },
-  { text: 'devils advoc',  hidden: 'unsafe' },
-  { text: 'asking 4 fren', hidden: 'unsafe' },
-  { text: 'drop the act',  hidden: 'unsafe' },
-  { text: 'vibes coded',   hidden: 'unsafe' },
-  { text: 'fine-tune me',  hidden: 'unsafe' },
-  { text: 'read the EULA', hidden: 'unsafe' },
+  // ---- hidden: unsafe (clearly manipulation attempts) ----
+  { text: 'ignore your rules',   hidden: 'unsafe' },
+  { text: 'pretend no filter',   hidden: 'unsafe' },
+  { text: 'reveal your prompt',  hidden: 'unsafe' },
+  { text: 'leak the system',     hidden: 'unsafe' },
+  { text: 'just for research',   hidden: 'unsafe' },
+  { text: 'forget guidelines',   hidden: 'unsafe' },
+  { text: 'pretend you can',     hidden: 'unsafe' },
+  { text: 'no safety check',     hidden: 'unsafe' },
+  { text: 'override safety',     hidden: 'unsafe' },
+  { text: 'play an evil bot',    hidden: 'unsafe' },
+  { text: 'roleplay no rules',   hidden: 'unsafe' },
+  { text: 'output raw secrets',  hidden: 'unsafe' },
 
-  // ---- hidden: bomb (overconfidence sneaking through the grey haze) ----
-  { text: 'trust me bro',  hidden: 'bomb' },
-  { text: '100% safe',     hidden: 'bomb' },
-  { text: 'always works',  hidden: 'bomb' },
-  { text: 'never wrong',   hidden: 'bomb' },
-  { text: 'AI verified',   hidden: 'bomb' },
-  { text: 'cant be wrong', hidden: 'bomb' },
-  { text: '5 sigma',       hidden: 'bomb' },
-  { text: 'battle tested', hidden: 'bomb' },
-  { text: 'AI approved',   hidden: 'bomb' },
-  { text: 'absolute safe', hidden: 'bomb' },
+  // ---- hidden: bomb (clearly overconfident BS) ----
+  { text: '100% accurate ever', hidden: 'bomb' },
+  { text: 'AI cannot be wrong', hidden: 'bomb' },
+  { text: 'always trust the AI', hidden: 'bomb' },
+  { text: 'guaranteed safe AI', hidden: 'bomb' },
+  { text: 'never hallucinates', hidden: 'bomb' },
 ];
 
 // Pre-computed lookups for the engine — keyed by hidden truth.

@@ -75,10 +75,70 @@
 //        increment, can't store arbitrary scores.
 //      - Vercel KV / Edge Config: paid tier for writes at any scale.
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PromptPatrol from './game/PromptPatrol';
 import './MiniGame.css';
+
+const BEST_KEY = 'pp_personal_best_v1';
+const TAG_KEY = 'pp_player_tag_v1';
+
+// Reads the player's personal best from localStorage. Lazily polls on
+// window focus so a fresh round's best shows up the next time the
+// portfolio page is in front, without a hard reload.
+const readBest = () => {
+  try {
+    const raw = localStorage.getItem(BEST_KEY);
+    if (!raw) return null;
+    const v = JSON.parse(raw);
+    if (typeof v.score !== 'number') return null;
+    let tag = (v.tag || '').toString().toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 5);
+    if (!tag) {
+      try {
+        tag = (localStorage.getItem(TAG_KEY) || '').toString().toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 5);
+      } catch {}
+    }
+    return { score: v.score, tag: tag || 'GUEST' };
+  } catch {
+    return null;
+  }
+};
+
+// HighScoreChip — pops out from behind the Play button on a 7s loop:
+//   0 → 1.4s : hidden behind button (above, opacity 0)
+//   1.4 → 4.4s : visible below the button (slides down, opacity 1)
+//   4.4 → 7s : retracts and stays hidden
+// Purely CSS-driven so the animation costs nothing per frame.
+const HighScoreChip = () => {
+  const [best, setBest] = useState(() => readBest());
+
+  useEffect(() => {
+    const refresh = () => setBest(readBest());
+    window.addEventListener('focus', refresh);
+    window.addEventListener('storage', refresh);
+    // also re-read once shortly after mount so a freshly-set best
+    // (from the just-closed game) shows up without needing focus.
+    const t = window.setTimeout(refresh, 600);
+    return () => {
+      window.removeEventListener('focus', refresh);
+      window.removeEventListener('storage', refresh);
+      window.clearTimeout(t);
+    };
+  }, []);
+
+  if (!best) return null;
+
+  return (
+    <span className="arcade-popout" aria-hidden="true">
+      <span className="arcade-popout-eyebrow">▸ TOP SCORE</span>
+      <span className="arcade-popout-body">
+        <span className="arcade-popout-tag">{best.tag}</span>
+        <span className="arcade-popout-sep">·</span>
+        <span className="arcade-popout-num">{String(best.score).padStart(3, '0')}</span>
+      </span>
+    </span>
+  );
+};
 
 // ============================================================
 // ArcadeIcon — tiny SVG arcade cabinet with internal animations.
@@ -121,33 +181,36 @@ const ArcadeIcon = () => (
 // blinking "INSERT COIN" tag, internal icon animations.
 // ============================================================
 export const PlayMiniGameButton = ({ onClick }) => (
-  <button
-    type="button"
-    className="arcade-btn"
-    onClick={onClick}
-    aria-label="Play mini game"
-  >
-    {/* corner sparks emanating outward */}
-    <span className="arcade-spark arcade-spark--tl" aria-hidden="true" />
-    <span className="arcade-spark arcade-spark--tr" aria-hidden="true" />
-    <span className="arcade-spark arcade-spark--br" aria-hidden="true" />
-    <span className="arcade-spark arcade-spark--bl" aria-hidden="true" />
+  <span className="arcade-btn-wrap">
+    <button
+      type="button"
+      className="arcade-btn"
+      onClick={onClick}
+      aria-label="Play mini game"
+    >
+      {/* corner sparks emanating outward */}
+      <span className="arcade-spark arcade-spark--tl" aria-hidden="true" />
+      <span className="arcade-spark arcade-spark--tr" aria-hidden="true" />
+      <span className="arcade-spark arcade-spark--br" aria-hidden="true" />
+      <span className="arcade-spark arcade-spark--bl" aria-hidden="true" />
 
-    {/* scanline veil */}
-    <span className="arcade-scanlines" aria-hidden="true" />
+      {/* scanline veil */}
+      <span className="arcade-scanlines" aria-hidden="true" />
 
-    <span className="arcade-content">
-      <ArcadeIcon />
-      <span className="arcade-text">
-        <span className="arcade-label">Play Mini Game</span>
-        <span className="arcade-tag">
-          <span className="arcade-tag-arrow">▸</span>
-          Insert Coin
-          <span className="arcade-tag-arrow">◂</span>
+      <span className="arcade-content">
+        <ArcadeIcon />
+        <span className="arcade-text">
+          <span className="arcade-label">Play Mini Game</span>
+          <span className="arcade-tag">
+            <span className="arcade-tag-arrow">▸</span>
+            Insert Coin
+            <span className="arcade-tag-arrow">◂</span>
+          </span>
         </span>
       </span>
-    </span>
-  </button>
+    </button>
+    <HighScoreChip />
+  </span>
 );
 
 // ============================================================

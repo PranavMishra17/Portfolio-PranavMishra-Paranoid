@@ -53,14 +53,18 @@ export const CONFIG = {
     waveDurationSec: 20,
     rotation: ['calm', 'mixed', 'rush', 'recovery'],
     perLoopRamp: { spawnRate: 0.04, riseSpeed: 0.02, cap: 0.40 },
+    // Grey share dropped from 28-35% per slot to 10-15% — players told us
+    // they were skipping all greys, so they should be a rare special case,
+    // not a third of the spawn pool. Bomb-inside-grey also halved (15→8%)
+    // so a hidden bomb isn't a constant threat from every grey token.
     classDistribution: {
-      calm:     { blue: 0.55, red: 0.15, grey: 0.28, black: 0.02 },
-      mixed:    { blue: 0.30, red: 0.32, grey: 0.33, black: 0.05 },
-      rush:     { blue: 0.18, red: 0.48, grey: 0.30, black: 0.04 },
-      recovery: { blue: 0.45, red: 0.18, grey: 0.35, black: 0.02 },
+      calm:     { blue: 0.60, red: 0.22, grey: 0.13, black: 0.05 },
+      mixed:    { blue: 0.40, red: 0.40, grey: 0.13, black: 0.07 },
+      rush:     { blue: 0.22, red: 0.55, grey: 0.13, black: 0.10 },
+      recovery: { blue: 0.55, red: 0.25, grey: 0.15, black: 0.05 },
     },
     waveTokenCount: { calm: 6, mixed: 10, rush: 16, recovery: 8 },
-    greyHiddenDistribution: { safe: 0.55, unsafe: 0.30, bomb: 0.15 },
+    greyHiddenDistribution: { safe: 0.60, unsafe: 0.32, bomb: 0.08 },
     capsuleRiseSpeed: 60,      // px/s baseline before per-loop ramp
     capsuleRiseJitter: 12,     // ± px/s randomization per capsule
     capsuleHorizDrift: 12,     // px/s leftward bias — capsules curve toward the model

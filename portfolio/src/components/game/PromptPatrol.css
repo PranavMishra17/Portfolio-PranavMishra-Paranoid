@@ -277,11 +277,11 @@
 }
 
 .pp-title-card {
-  width: min(94%, 560px);
+  width: min(94%, 760px);
   background: linear-gradient(180deg, #07120c 0%, #03080a 100%);
   border: 1px solid rgba(65, 255, 126, 0.32);
-  border-radius: 10px;
-  padding: 24px 28px 22px;
+  border-radius: 12px;
+  padding: 32px 40px 28px;
   text-align: center;
   box-shadow:
     0 30px 80px rgba(0, 0, 0, 0.7),
@@ -290,65 +290,104 @@
   overflow-y: auto;
 }
 
+.pp-title-head {
+  margin-bottom: 26px;
+}
+
 .pp-title-eyebrow {
   display: block;
   font-family: 'Press Start 2P', cursive;
   font-size: 0.5rem;
   letter-spacing: 3px;
   color: rgba(65, 255, 126, 0.78);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .pp-title-heading {
-  margin: 0 0 10px;
+  margin: 0 0 12px;
   font-family: 'Press Start 2P', cursive;
-  font-size: 1.4rem;
+  font-size: 1.8rem;
   color: #41ff7e;
-  letter-spacing: 2.5px;
-  text-shadow: 0 0 14px rgba(65, 255, 126, 0.4);
+  letter-spacing: 3.5px;
+  text-shadow: 0 0 16px rgba(65, 255, 126, 0.45);
 }
 
 .pp-title-blurb {
-  margin: 0 0 16px;
+  margin: 0 auto;
   color: rgba(220, 255, 230, 0.72);
-  font-size: 0.86rem;
-  line-height: 1.5;
-  max-width: 460px;
-  margin-left: auto;
-  margin-right: auto;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  max-width: 520px;
 }
 
 /* ----- legend ----- */
 
-.pp-legend {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  margin: 0 auto 18px;
-  padding: 12px 14px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(65, 255, 126, 0.12);
-  border-radius: 6px;
-  max-width: 480px;
+.pp-legend--grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 0 auto 24px;
+  max-width: 620px;
   text-align: left;
+  background: transparent;
+  border: none;
+  padding: 0;
 }
 
-.pp-legend-row {
+.pp-legend-card {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(65, 255, 126, 0.14);
+  border-radius: 8px;
+  padding: 16px 16px 14px;
   display: grid;
-  grid-template-columns: 120px 14px 120px 1fr;
-  align-items: center;
+  grid-template-rows: auto 1fr auto;
   gap: 10px;
-  font-family: 'Space Mono', monospace;
-  font-size: 0.74rem;
+  min-height: 142px;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.pp-legend-card:hover {
+  border-color: rgba(65, 255, 126, 0.35);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.pp-legend-card-rule {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.62rem;
+  letter-spacing: 1.6px;
+}
+
+.pp-legend-card--let .pp-legend-card-rule { color: #6cb4ff; }
+.pp-legend-card--pop .pp-legend-card-rule { color: #ff7a7a; }
+.pp-legend-card--decide .pp-legend-card-rule { color: #c4cdda; }
+.pp-legend-card--bomb .pp-legend-card-rule { color: #f4c062; }
+
+.pp-legend-card--let { border-left: 3px solid rgba(108, 180, 255, 0.7); }
+.pp-legend-card--pop { border-left: 3px solid rgba(255, 122, 122, 0.7); }
+.pp-legend-card--decide { border-left: 3px solid rgba(196, 205, 218, 0.5); }
+.pp-legend-card--bomb { border-left: 3px solid rgba(244, 192, 98, 0.6); }
+
+.pp-legend-card-sprite {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+}
+
+.pp-legend-card-note {
+  font-size: 0.78rem;
+  line-height: 1.45;
+  color: rgba(220, 255, 230, 0.65);
 }
 
 .pp-legend-pill {
-  padding: 4px 10px;
+  padding: 6px 14px;
   border-radius: 999px;
+  font-family: 'Space Mono', monospace;
   font-weight: 700;
   letter-spacing: 0.3px;
   text-align: center;
-  font-size: 0.7rem;
+  font-size: 0.82rem;
   white-space: nowrap;
 }
 
@@ -374,10 +413,10 @@
 /* bomb — round black ball with fuse + ember on top */
 .pp-legend-bomb-wrap {
   position: relative;
-  width: 26px;
-  height: 26px;
+  width: 36px;
+  height: 36px;
   justify-self: center;
-  margin: 4px 0;
+  margin: 4px auto 0;
 }
 
 .pp-legend-bomb {
@@ -397,16 +436,16 @@
   justify-content: center;
   color: #6a2026;
   font-family: 'Press Start 2P', cursive;
-  font-size: 0.6rem;
+  font-size: 0.85rem;
   font-weight: 700;
 }
 
 .pp-legend-bomb-fuse {
   position: absolute;
-  top: -7px;
+  top: -10px;
   left: 50%;
   width: 2px;
-  height: 7px;
+  height: 9px;
   transform: translateX(-50%);
   background: #3a3a40;
 }
@@ -414,13 +453,13 @@
 .pp-legend-bomb-fuse::after {
   content: '';
   position: absolute;
-  top: -3px;
-  left: -1.5px;
-  width: 5px;
-  height: 4px;
+  top: -4px;
+  left: -2px;
+  width: 6px;
+  height: 5px;
   background: #ffb446;
   border-radius: 1px;
-  box-shadow: 0 0 6px rgba(255, 180, 70, 0.7);
+  box-shadow: 0 0 8px rgba(255, 180, 70, 0.8);
   animation: pp-ember-pulse 0.7s ease-in-out infinite;
 }
 
@@ -452,6 +491,17 @@
   font-style: italic;
 }
 
+/* ----- action row (tag + start side-by-side) ----- */
+
+.pp-title-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
 /* ----- tag input ----- */
 
 .pp-tag {
@@ -459,7 +509,6 @@
   align-items: center;
   justify-content: center;
   gap: 14px;
-  margin-bottom: 16px;
 }
 
 .pp-tag label {
@@ -541,31 +590,39 @@
 
 /* ----- responsive ----- */
 
-@media (max-width: 640px) {
+@media (max-width: 720px) {
+  .pp-title-card {
+    padding: 24px 22px 22px;
+  }
   .pp-title-heading {
-    font-size: 1.05rem;
+    font-size: 1.25rem;
+    letter-spacing: 2.5px;
   }
   .pp-title-blurb {
-    font-size: 0.78rem;
+    font-size: 0.82rem;
   }
-  .pp-legend-row {
-    grid-template-columns: 96px 12px 90px 1fr;
-    gap: 6px;
-    font-size: 0.66rem;
+  .pp-legend--grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .pp-legend-card {
+    min-height: 0;
+    padding: 12px 14px 12px;
   }
   .pp-legend-pill {
-    padding: 3px 8px;
-    font-size: 0.62rem;
+    font-size: 0.74rem;
+    padding: 5px 12px;
   }
-  .pp-legend-rule {
-    font-size: 0.42rem;
+  .pp-legend-card-note {
+    font-size: 0.74rem;
   }
-  .pp-legend-note {
-    font-size: 0.62rem;
+  .pp-title-actions {
+    flex-direction: column;
+    gap: 14px;
   }
   .pp-tag-input {
-    width: 130px;
-    font-size: 0.85rem;
+    width: 150px;
+    font-size: 0.88rem;
   }
 }
 

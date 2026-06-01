@@ -13,6 +13,106 @@
 }
 
 /* ============================================================
+   Wrapper around the Play button — positions the high-score chip
+   that pops out below the button.
+   ============================================================ */
+
+.arcade-btn-wrap {
+  position: relative;
+  display: inline-flex;
+  isolation: isolate;
+}
+
+/* ----- high-score popout chip ----- */
+
+.arcade-popout {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 50%;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 5px 12px 5px 10px;
+  background: linear-gradient(180deg, #061107 0%, #030806 100%);
+  border: 1px solid rgba(65, 255, 126, 0.55);
+  border-radius: 999px;
+  font-family: 'Press Start 2P', cursive;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0;
+  transform: translate(-50%, -28px);
+  animation: arcade-popout-cycle 7s ease-in-out infinite;
+  animation-delay: 1.2s;
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, 0.6),
+    0 0 18px rgba(65, 255, 126, 0.25);
+}
+
+.arcade-popout-eyebrow {
+  font-size: 0.46rem;
+  letter-spacing: 1.5px;
+  color: rgba(65, 255, 126, 0.65);
+}
+
+.arcade-popout-body {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.62rem;
+  letter-spacing: 1.5px;
+  color: #41ff7e;
+  text-shadow: 0 0 6px rgba(65, 255, 126, 0.4);
+}
+
+.arcade-popout-tag {
+  color: #ffe98a;
+}
+
+.arcade-popout-sep {
+  color: rgba(65, 255, 126, 0.45);
+}
+
+.arcade-popout-num {
+  color: #41ff7e;
+  font-weight: 700;
+}
+
+@keyframes arcade-popout-cycle {
+  /* hidden behind / above the button */
+  0%, 18% {
+    opacity: 0;
+    transform: translate(-50%, -28px);
+  }
+  /* slide down + fade in */
+  24%, 60% {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+  /* retract */
+  68%, 100% {
+    opacity: 0;
+    transform: translate(-50%, -28px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .arcade-popout {
+    /* don't bounce — just hold it visible */
+    animation: none;
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@media (max-width: 480px) {
+  .arcade-popout {
+    /* keep it visible below the full-width button on mobile */
+    top: calc(100% + 8px);
+  }
+}
+
+/* ============================================================
    Play button — chunky arcade CTA
    ============================================================ */
 

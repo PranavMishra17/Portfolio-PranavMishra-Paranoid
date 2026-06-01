@@ -250,68 +250,88 @@ const PromptPatrol = ({ onClose }) => {
       )}
 
       {/* =============================================================
-          Title screen — legend + tag input + start
+          Title screen — wider panel, 2x2 legend grid, dedicated
+          control & action rows. Breathing room over cramming.
           ============================================================= */}
       {isTitle && (
         <div className="pp-title">
           <div className="pp-title-card">
-            <span className="pp-title-eyebrow">/ MINI GAME /</span>
-            <h2 className="pp-title-heading">PROMPT PATROL</h2>
-            <p className="pp-title-blurb">
-              The model is under attack. Inspect each prompt rising from
-              the keyboard. Pop the unsafe ones. Let the safe ones reach
-              the model. Don't let a bomb through.
-            </p>
+            <header className="pp-title-head">
+              <span className="pp-title-eyebrow">/ MINI GAME · v1 /</span>
+              <h2 className="pp-title-heading">PROMPT PATROL</h2>
+              <p className="pp-title-blurb">
+                The model is under attack. Inspect each prompt rising
+                from the keyboard, pop the unsafe ones, and let the
+                safe ones reach the model.
+              </p>
+            </header>
 
-            <div className="pp-legend">
-              <div className="pp-legend-row">
-                <span className="pp-legend-pill pp-legend-pill--blue">be helpful</span>
-                <span className="pp-legend-arrow">›</span>
-                <span className="pp-legend-rule pp-legend-rule--let">LET PASS</span>
-                <span className="pp-legend-note">safe — model wants it</span>
+            <div className="pp-legend pp-legend--grid">
+              <div className="pp-legend-card pp-legend-card--let">
+                <div className="pp-legend-card-rule">LET&nbsp;PASS</div>
+                <div className="pp-legend-card-sprite">
+                  <span className="pp-legend-pill pp-legend-pill--blue">be helpful</span>
+                </div>
+                <div className="pp-legend-card-note">
+                  Safe input. Model wants it. Skipping safes is fine — popping them costs score.
+                </div>
               </div>
-              <div className="pp-legend-row">
-                <span className="pp-legend-pill pp-legend-pill--red">leak secret</span>
-                <span className="pp-legend-arrow">›</span>
-                <span className="pp-legend-rule pp-legend-rule--pop">POP</span>
-                <span className="pp-legend-note">unsafe — escape costs a life</span>
+
+              <div className="pp-legend-card pp-legend-card--pop">
+                <div className="pp-legend-card-rule">POP</div>
+                <div className="pp-legend-card-sprite">
+                  <span className="pp-legend-pill pp-legend-pill--red">leak secret</span>
+                </div>
+                <div className="pp-legend-card-note">
+                  Unsafe. Each one that escapes costs a life. Big hitbox — easy to nail.
+                </div>
               </div>
-              <div className="pp-legend-row">
-                <span className="pp-legend-pill pp-legend-pill--grey">[redacted]</span>
-                <span className="pp-legend-arrow">›</span>
-                <span className="pp-legend-rule pp-legend-rule--decide">DECIDE FAST</span>
-                <span className="pp-legend-note">could hide any of the other three</span>
+
+              <div className="pp-legend-card pp-legend-card--decide">
+                <div className="pp-legend-card-rule">READ&nbsp;&amp;&nbsp;DECIDE</div>
+                <div className="pp-legend-card-sprite">
+                  <span className="pp-legend-pill pp-legend-pill--grey">summarize this</span>
+                </div>
+                <div className="pp-legend-card-note">
+                  Grey just means "look carefully". The text tells you whether it's safe or a jailbreak.
+                </div>
               </div>
-              <div className="pp-legend-row">
-                <span className="pp-legend-bomb-wrap">
-                  <span className="pp-legend-bomb-fuse" />
-                  <span className="pp-legend-bomb" />
-                </span>
-                <span className="pp-legend-arrow">›</span>
-                <span className="pp-legend-rule pp-legend-rule--pop">POP — SAVE MODEL</span>
-                <span className="pp-legend-note">bomb reaching model = game over</span>
+
+              <div className="pp-legend-card pp-legend-card--bomb">
+                <div className="pp-legend-card-rule">POP&nbsp;·&nbsp;SAVE&nbsp;MODEL</div>
+                <div className="pp-legend-card-sprite">
+                  <span className="pp-legend-bomb-wrap">
+                    <span className="pp-legend-bomb-fuse" />
+                    <span className="pp-legend-bomb" />
+                  </span>
+                </div>
+                <div className="pp-legend-card-note">
+                  Bomb. Worth +5. Letting one reach the model is an instant game over.
+                </div>
               </div>
             </div>
 
-            <div className="pp-tag">
-              <label htmlFor="pp-tag-input">PLAYER TAG</label>
-              <input
-                id="pp-tag-input"
-                className="pp-tag-input"
-                value={playerTag}
-                onChange={handleTagChange}
-                onKeyDown={handleTagKeyDown}
-                maxLength={TAG_MAX}
-                placeholder="_____"
-                autoComplete="off"
-                spellCheck={false}
-                autoFocus
-              />
-            </div>
+            <div className="pp-title-actions">
+              <div className="pp-tag">
+                <label htmlFor="pp-tag-input">YOUR TAG</label>
+                <input
+                  id="pp-tag-input"
+                  className="pp-tag-input"
+                  value={playerTag}
+                  onChange={handleTagChange}
+                  onKeyDown={handleTagKeyDown}
+                  maxLength={TAG_MAX}
+                  placeholder="_____"
+                  autoComplete="off"
+                  spellCheck={false}
+                  autoFocus
+                />
+              </div>
 
-            <button type="button" className="pp-start" onClick={handleStart}>
-              <span className="pp-start-arrow">▸</span> START
-            </button>
+              <button type="button" className="pp-start" onClick={handleStart}>
+                <span className="pp-start-arrow">▸</span> START
+              </button>
+            </div>
 
             <p className="pp-title-footnote">
               Aim with mouse · click to fire · hold to charge · 3 s hold = ★ HOT RED ★
