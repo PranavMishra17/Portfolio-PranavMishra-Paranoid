@@ -14,6 +14,7 @@ import CollapsibleSectionTabs from './components/CollapsibleSectionTabs';
 import ExperienceModal from './components/ExperienceModal';
 import { projects, contactInfo, getImageWithFallback } from './data/projects';
 import ConnectSlate, { ConnectButton } from './components/ConnectSlate';
+import ViewCounter from './components/ViewCounter';
 import './styles/About.css';
 
 function MainPortfolio() {
@@ -109,6 +110,7 @@ function MainPortfolio() {
             <span className="logo-first">Pranav P. Mishra</span>
             <span className="logo-last"> | Founding LLM Engineer @ Alfred_</span>
           </div>
+          <ViewCounter />
         </div>
         <div
           className={`mobile-menu-button ${menuOpen ? 'active' : ''}`}
