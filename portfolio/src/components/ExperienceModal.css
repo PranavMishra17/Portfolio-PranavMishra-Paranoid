@@ -399,8 +399,20 @@
 }
 
 .workbay-loc {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: rgba(255, 255, 255, 0.62);
   font-weight: 400;
+}
+
+.workbay-flag {
+  width: 16px;
+  height: 11px;
+  border-radius: 1.5px;
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.25);
+  flex-shrink: 0;
+  display: block;
 }
 
 /* bullets */

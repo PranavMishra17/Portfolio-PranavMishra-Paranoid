@@ -19,6 +19,28 @@ import './ExperienceModal.css';
 
 const FALLBACK_LOGO = '/assets/images/default/company_default.png';
 
+// Small inline SVG flag icons — sharp at any zoom, no external assets.
+const Flag = {
+  us: (
+    <svg className="workbay-flag" viewBox="0 0 19 10" aria-hidden="true" focusable="false">
+      <rect width="19" height="10" fill="#ffffff" />
+      {[0, 1, 2, 3, 4, 5, 6].map((i) => (
+        <rect key={i} y={i * 1.538} width="19" height="0.77" fill="#b22234" />
+      ))}
+      <rect width="7.6" height="5.38" fill="#3c3b6e" />
+    </svg>
+  ),
+  in: (
+    <svg className="workbay-flag" viewBox="0 0 18 12" aria-hidden="true" focusable="false">
+      <rect width="18" height="4" fill="#ff9933" />
+      <rect y="4" width="18" height="4" fill="#ffffff" />
+      <rect y="8" width="18" height="4" fill="#138808" />
+      <circle cx="9" cy="6" r="1.3" fill="none" stroke="#000080" strokeWidth="0.3" />
+      <circle cx="9" cy="6" r="0.25" fill="#000080" />
+    </svg>
+  ),
+};
+
 const Icons = {
   website: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -177,7 +199,10 @@ const ExperienceModal = ({ isOpen, onClose }) => {
                           <div className="workbay-meta-row">
                             <span className="workbay-company">{exp.company}</span>
                             <span className="workbay-loc-sep" aria-hidden="true">·</span>
-                            <span className="workbay-loc">{exp.location}</span>
+                            <span className="workbay-loc">
+                              {exp.country && Flag[exp.country]}
+                              {exp.location}
+                            </span>
                           </div>
                         </div>
 
