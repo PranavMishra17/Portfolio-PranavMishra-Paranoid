@@ -16,8 +16,8 @@ export const CONFIG = {
   },
 
   physics: {
-    gravity: 620,              // px/s²
-    baseProjectileSpeed: 720,  // px/s at charge=0
+    gravity: 440,              // px/s² — softer than earlier 620, lets the arc reach top corners
+    baseProjectileSpeed: 1050, // px/s at charge=0 — strong enough to traverse the wider 960-wide field
     projectileSize: 6,         // chevron px (scales up to 10 at full charge)
     cooldownMs: 250,
   },
@@ -57,9 +57,9 @@ export const CONFIG = {
     },
     waveTokenCount: { calm: 6, mixed: 10, rush: 16, recovery: 8 },
     greyHiddenDistribution: { safe: 0.55, unsafe: 0.30, bomb: 0.15 },
-    capsuleRiseSpeed: 55,      // px/s baseline before per-loop ramp
+    capsuleRiseSpeed: 60,      // px/s baseline before per-loop ramp
     capsuleRiseJitter: 12,     // ± px/s randomization per capsule
-    capsuleHorizDrift: 6,      // px/s, slight upward-left bias
+    capsuleHorizDrift: 12,     // px/s leftward bias — capsules curve toward the model
   },
 
   scoring: {
@@ -78,7 +78,7 @@ export const CONFIG = {
     capsuleWidthCap:      140,
     capsuleMaxChars:      14,
     capsulePadding:       10,
-    aimIndicatorPx:       120,
+    aimIndicatorPx:       160,
     chargeRingSegments:   5,
     heartCount:           3,
     screenShakePx:        4,

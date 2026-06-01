@@ -307,14 +307,22 @@
     inset 0 0 0 1px rgba(65, 255, 126, 0.08);
 }
 
-/* when hosting the live game, give it more room and drop the inner glow */
+/* when hosting the live game, push it close to full-bleed but leave
+   a small breathing margin around the canvas so the backdrop still
+   reads as a focus dim */
 .game-modal--play {
-  width: min(96vw, 780px);
+  width: 95vw;
+  max-width: 1280px;
+  height: 90vh;
+  max-height: none;
   background: transparent;
   border: none;
   box-shadow: none;
   border-radius: 0;
-  max-height: 92vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
 }
 
 .game-modal-scanlines {

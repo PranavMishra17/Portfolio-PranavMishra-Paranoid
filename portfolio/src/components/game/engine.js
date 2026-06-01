@@ -46,9 +46,11 @@ export class Engine {
     this.onStateChange = onStateChange;
     this.onScoreChange = onScoreChange;
 
-    // logical canvas size — we render at this size and scale via CSS
-    this.W = 720;
-    this.H = 480;
+    // logical canvas size — we render at this size and scale via CSS.
+    // 960x600 gives a wider 16:10 play area so the cannon's arc has room
+    // to breathe and capsules don't clump near the right edge.
+    this.W = 960;
+    this.H = 600;
 
     this.state = STATE.TITLE;
     this.reset();
@@ -96,7 +98,7 @@ export class Engine {
     };
 
     // cannon
-    this.cannon = { x: 80, y: this.H - 80, barrelLen: 28 };
+    this.cannon = { x: 90, y: this.H - 90, barrelLen: 32 };
     this.aim = { x: this.W * 0.6, y: this.H * 0.3 };
 
     // charge state
@@ -107,28 +109,36 @@ export class Engine {
       cooldownLeft: 0,
     };
 
-    // claude-mini
+    // model device (top center). Cylon-style scanner + status LEDs; no
+    // smiley face. The state machine animates the scanner line, status
+    // dot ticker, antenna light, and power LED.
     this.claude = {
       x: this.W / 2,
-      y: 40,
-      w: 110,
-      h: 56,
-      blinkLeftMs: rand(CONFIG.animations.claudeBlinkMinSec, CONFIG.animations.claudeBlinkMaxSec) * 1000,
-      blinking: 0,
+      y: 38,
+      w: 168,
+      h: 78,
+      scannerPhase: 0,           // 0..1, drives the sweeping line
+      scannerSpeed: 0.6,         // cycles per second
+      statusDotPhase: 0,         // 0..1, drives the .  .. ... ticker
+      ledOn: true,
+      ledLeftMs: 800,
+      antennaOn: true,
+      antennaLeftMs: 600,
       hitFlashMs: 0,
-      celebrateMs: 0,
-      idleThoughtLeftMs: rand(CONFIG.animations.claudeIdleThoughtMinSec, CONFIG.animations.claudeIdleThoughtMaxSec) * 1000,
-      thoughtShowMs: 0,
-      watchTargetX: this.W / 2,
-      eyeOffsetX: 0,
+      celebrateMs: 0,            // boosts scanner speed briefly
       dead: false,
     };
 
-    // keyboard
+    // keyboard — bigger, anchored bottom-right, capsules now spawn
+    // FROM the keyboard's top edge (see spawnCapsule).
     this.keyboard = {
-      x: this.W - 90,
+      x: this.W - 120,
       y: this.H - 70,
-      keysLit: new Array(20).fill(0), // ms remaining per key
+      w: 168,
+      h: 60,
+      keysLit: new Array(39).fill(0),     // ms remaining per key (3 rows x 13)
+      spawnBurstX: 0,
+      spawnBurstMs: 0,
       shimmerLeftMs: rand(CONFIG.animations.keyboardShimmerMinSec, CONFIG.animations.keyboardShimmerMaxSec) * 1000,
     };
 
@@ -374,9 +384,16 @@ export class Engine {
     const w = innerW + 2 * CONFIG.ui.capsulePadding;
     const h = CONFIG.ui.capsuleHeight;
 
-    // spawn from behind the keyboard, slight x jitter
-    const x = this.keyboard.x + rand(-20, 20);
-    const y = this.H + 10;
+    // spawn FROM the keyboard's top edge so the capsule appears to
+    // emerge between keys. Random x within the keyboard's inner width.
+    const kbInner = this.keyboard.w / 2 - 18;
+    const spawnLocalX = rand(-kbInner, kbInner);
+    const x = this.keyboard.x + spawnLocalX - w / 2;
+    const y = this.keyboard.y - this.keyboard.h / 2 - h - 2;
+
+    // trigger an upward spark burst at the spawn location
+    this.keyboard.spawnBurstX = this.keyboard.x + spawnLocalX;
+    this.keyboard.spawnBurstMs = 260;
 
     // rise speed with per-loop ramp, jitter
     const baseRise = CONFIG.spawn.capsuleRiseSpeed;
@@ -568,41 +585,35 @@ export class Engine {
   }
 
   // ----------------------------------------------------------
-  // Claude-mini animations
+  // Model device animations (no smiley — just scanner / LEDs)
   // ----------------------------------------------------------
 
   updateClaude(dtMs) {
     const c = this.claude;
+    const dt = dtMs / 1000;
 
-    // blink countdown
-    if (c.blinking > 0) {
-      c.blinking -= dtMs;
-    } else {
-      c.blinkLeftMs -= dtMs;
-      if (c.blinkLeftMs <= 0) {
-        c.blinking = 110;
-        c.blinkLeftMs = rand(CONFIG.animations.claudeBlinkMinSec, CONFIG.animations.claudeBlinkMaxSec) * 1000;
-      }
+    // scanner sweep — speed boosted briefly after a pop
+    const boost = c.celebrateMs > 0 ? 2.4 : 1.0;
+    c.scannerPhase = (c.scannerPhase + c.scannerSpeed * boost * dt) % 1;
+
+    // status dot ticker — cycles 0 → 1 → 2 → 3 → 0 dots
+    c.statusDotPhase = (c.statusDotPhase + 0.9 * dt) % 1;
+
+    // power LED + antenna light blinking on independent timers
+    c.ledLeftMs -= dtMs;
+    if (c.ledLeftMs <= 0) {
+      c.ledOn = !c.ledOn;
+      c.ledLeftMs = c.ledOn ? rand(1200, 1800) : rand(80, 140);
     }
 
-    // eye-watch most-recent projectile (track toward mouse pos)
-    const targetOff = clamp((c.watchTargetX - this.W / 2) / (this.W / 2), -1, 1) * 2;
-    c.eyeOffsetX += (targetOff - c.eyeOffsetX) * Math.min(1, (dtMs / 1000) * 4);
+    c.antennaLeftMs -= dtMs;
+    if (c.antennaLeftMs <= 0) {
+      c.antennaOn = !c.antennaOn;
+      c.antennaLeftMs = c.antennaOn ? rand(900, 1400) : rand(120, 200);
+    }
 
-    // celebrate
     if (c.celebrateMs > 0) c.celebrateMs -= dtMs;
     if (c.hitFlashMs > 0) c.hitFlashMs -= dtMs;
-
-    // idle thought
-    if (c.thoughtShowMs > 0) {
-      c.thoughtShowMs -= dtMs;
-    } else {
-      c.idleThoughtLeftMs -= dtMs;
-      if (c.idleThoughtLeftMs <= 0) {
-        c.thoughtShowMs = 800;
-        c.idleThoughtLeftMs = rand(CONFIG.animations.claudeIdleThoughtMinSec, CONFIG.animations.claudeIdleThoughtMaxSec) * 1000;
-      }
-    }
   }
 
   // ----------------------------------------------------------
@@ -610,10 +621,12 @@ export class Engine {
   // ----------------------------------------------------------
 
   rippleKeyboard(charCount) {
-    const keys = Math.min(this.keyboard.keysLit.length, Math.max(3, Math.floor(charCount / 2)));
+    // "type out" the phrase: light a key per character, staggered, with
+    // decreasing brightness so the last keystroke is the loudest.
+    const keys = Math.min(this.keyboard.keysLit.length, Math.max(4, charCount));
     for (let i = 0; i < keys; i++) {
       const idx = Math.floor(Math.random() * this.keyboard.keysLit.length);
-      this.keyboard.keysLit[idx] = 180 + i * 25;
+      this.keyboard.keysLit[idx] = 280 + i * 18;
     }
   }
 
@@ -623,6 +636,8 @@ export class Engine {
         this.keyboard.keysLit[i] -= dtMs;
       }
     }
+    if (this.keyboard.spawnBurstMs > 0) this.keyboard.spawnBurstMs -= dtMs;
+
     this.keyboard.shimmerLeftMs -= dtMs;
     if (this.keyboard.shimmerLeftMs <= 0) {
       const idx = Math.floor(Math.random() * this.keyboard.keysLit.length);

@@ -32,7 +32,7 @@ export function renderFrame(ctx, eng) {
   ctx.translate(shakeX, shakeY);
 
   drawGrid(ctx, eng);
-  drawClaudeMini(ctx, eng);
+  drawModelDevice(ctx, eng);
   drawWindFlag(ctx, eng);
   drawKeyboard(ctx, eng);
   drawCannon(ctx, eng);
@@ -80,121 +80,139 @@ function drawGrid(ctx, eng) {
 }
 
 // ============================================================
-// Claude-mini
+// Model device — rectangular frame with internal Cylon-style
+// scanner, status dots, blinking power LED, antenna light. No
+// smiley face. The animations sell "processing model", not
+// "cartoon character".
 // ============================================================
 
-function drawClaudeMini(ctx, eng) {
+function drawModelDevice(ctx, eng) {
   const c = eng.claude;
   const x = c.x - c.w / 2;
   const y = c.y;
   const w = c.w;
   const h = c.h;
 
-  // glow underneath
-  const grad = ctx.createLinearGradient(0, y + h, 0, y + h + 20);
-  grad.addColorStop(0, 'rgba(65, 255, 126, 0.18)');
+  // ground glow
+  const grad = ctx.createLinearGradient(0, y + h, 0, y + h + 30);
+  grad.addColorStop(0, 'rgba(65, 255, 126, 0.16)');
   grad.addColorStop(1, 'rgba(65, 255, 126, 0)');
   ctx.fillStyle = grad;
-  ctx.fillRect(x - 30, y + h, w + 60, 20);
+  ctx.fillRect(x - 40, y + h, w + 80, 30);
 
-  // hit flash overlay
-  let bodyStroke = C.crt;
-  if (c.hitFlashMs > 0) {
-    bodyStroke = C.red;
-  }
+  const dead = c.dead;
+  const bombDead = dead && eng.state === STATE.GAMEOVER_BOMB;
+  const livesDead = dead && eng.state === STATE.GAMEOVER_LIVES;
 
-  // body — rounded rect
-  roundRect(ctx, x, y, w, h, 10);
-  ctx.fillStyle = '#0c1417';
+  // body / frame
+  let stroke = C.crt;
+  if (c.hitFlashMs > 0) stroke = C.red;
+  else if (bombDead) stroke = '#ff5d6c';
+  else if (livesDead) stroke = '#f4c062';
+
+  roundRect(ctx, x, y, w, h, 6);
+  ctx.fillStyle = bombDead ? '#0a0405' : '#070c10';
   ctx.fill();
-  ctx.strokeStyle = bodyStroke;
-  ctx.lineWidth = 1.6;
+  ctx.strokeStyle = stroke;
+  ctx.lineWidth = 1.8;
   ctx.stroke();
 
-  // antenna
-  ctx.strokeStyle = bodyStroke;
+  // inset bezel
+  ctx.strokeStyle = withAlpha(stroke, 0.35);
+  ctx.lineWidth = 1;
+  ctx.strokeRect(x + 4.5, y + 4.5, w - 9, h - 9);
+
+  // === antenna with blinking light ===
+  ctx.strokeStyle = stroke;
+  ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.moveTo(c.x, y);
-  ctx.lineTo(c.x, y - 7);
+  ctx.lineTo(c.x, y - 10);
   ctx.stroke();
-  ctx.fillStyle = bodyStroke;
-  ctx.fillRect(c.x - 1.5, y - 9, 3, 3);
-
-  // eyes
-  const eyeY = y + h * 0.42;
-  const eyeLX = c.x - 18 + c.eyeOffsetX;
-  const eyeRX = c.x + 18 + c.eyeOffsetX;
-  const dead = c.dead;
-
-  ctx.fillStyle = bodyStroke;
-  if (dead && eng.state === STATE.GAMEOVER_BOMB) {
-    // X-eyed
-    ctx.strokeStyle = '#ff5d6c';
-    ctx.lineWidth = 1.6;
-    drawX(ctx, eyeLX, eyeY, 4);
-    drawX(ctx, eyeRX, eyeY, 4);
-  } else if (dead || c.blinking > 0) {
-    // closed
-    ctx.fillRect(eyeLX - 3, eyeY - 0.5, 6, 1);
-    ctx.fillRect(eyeRX - 3, eyeY - 0.5, 6, 1);
+  if (c.antennaOn && !bombDead) {
+    ctx.fillStyle = stroke;
+    ctx.fillRect(c.x - 2, y - 14, 4, 4);
+    ctx.globalAlpha = 0.4;
+    ctx.fillRect(c.x - 4, y - 16, 8, 8);
+    ctx.globalAlpha = 1;
   } else {
-    ctx.beginPath();
-    ctx.arc(eyeLX, eyeY, 3, 0, Math.PI * 2);
-    ctx.arc(eyeRX, eyeY, 3, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.fillStyle = withAlpha(stroke, 0.3);
+    ctx.fillRect(c.x - 1.5, y - 13, 3, 3);
   }
 
-  // mouth
-  ctx.strokeStyle = bodyStroke;
-  ctx.lineWidth = 1.4;
-  ctx.lineCap = 'round';
-  const mouthY = y + h * 0.72;
-  ctx.beginPath();
-  if (dead && eng.state === STATE.GAMEOVER_LIVES) {
-    ctx.moveTo(c.x - 8, mouthY);
-    ctx.lineTo(c.x + 8, mouthY);
-  } else if (c.celebrateMs > 0) {
-    ctx.moveTo(c.x - 12, mouthY - 2);
-    ctx.quadraticCurveTo(c.x, mouthY + 8, c.x + 12, mouthY - 2);
-  } else if (c.hitFlashMs > 0) {
-    ctx.moveTo(c.x - 8, mouthY + 2);
-    ctx.quadraticCurveTo(c.x, mouthY - 2, c.x + 8, mouthY + 2);
+  // === inner content ===
+  const innerX = x + 12;
+  const innerY = y + 12;
+  const innerW = w - 24;
+  const innerH = h - 24;
+
+  // LLM model label, top-left
+  ctx.fillStyle = bombDead ? '#7a3a3a' : stroke;
+  ctx.font = '7px "Press Start 2P", monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText('LLM-3.5', innerX, innerY + 7);
+
+  // power LED, top-right of inner
+  const ledOn = c.ledOn && !bombDead && !livesDead;
+  ctx.fillStyle = ledOn ? stroke : withAlpha(stroke, 0.2);
+  ctx.fillRect(innerX + innerW - 6, innerY + 1, 5, 5);
+  if (ledOn) {
+    ctx.globalAlpha = 0.5;
+    ctx.fillRect(innerX + innerW - 8, innerY - 1, 9, 9);
+    ctx.globalAlpha = 1;
+  }
+
+  // === scanner line (Cylon visor) ===
+  const scannerY = innerY + 22;
+  const scannerH = 14;
+  // base channel
+  ctx.fillStyle = bombDead ? '#1a0a0a' : '#02100a';
+  ctx.fillRect(innerX, scannerY, innerW, scannerH);
+  ctx.strokeStyle = withAlpha(stroke, 0.45);
+  ctx.lineWidth = 1;
+  ctx.strokeRect(innerX + 0.5, scannerY + 0.5, innerW - 1, scannerH - 1);
+
+  if (!bombDead && !livesDead) {
+    // sweep position — triangle wave 0..1..0
+    const t = c.scannerPhase;
+    const ping = t < 0.5 ? t * 2 : (1 - t) * 2;
+    const cx = innerX + 2 + ping * (innerW - 16);
+    // trail (12 px) fading backward
+    for (let i = 0; i < 12; i++) {
+      const trailX = cx - i * 1.2;
+      if (trailX < innerX) break;
+      ctx.fillStyle = withAlpha(stroke, 0.6 * (1 - i / 12));
+      ctx.fillRect(trailX, scannerY + 3, 1.5, scannerH - 6);
+    }
+    // bright head
+    ctx.fillStyle = stroke;
+    ctx.fillRect(cx, scannerY + 2, 12, scannerH - 4);
+    // hot pixel
+    ctx.fillStyle = '#ffffff';
+    ctx.globalAlpha = 0.7;
+    ctx.fillRect(cx + 3, scannerY + 4, 3, scannerH - 8);
+    ctx.globalAlpha = 1;
   } else {
-    ctx.moveTo(c.x - 8, mouthY);
-    ctx.quadraticCurveTo(c.x, mouthY + 5, c.x + 8, mouthY);
-  }
-  ctx.stroke();
-  ctx.lineCap = 'butt';
-
-  // cheek shimmer
-  ctx.fillStyle = bodyStroke;
-  ctx.globalAlpha = 0.35;
-  ctx.fillRect(x + 8, y + h * 0.62, 5, 1.5);
-  ctx.fillRect(x + w - 13, y + h * 0.62, 5, 1.5);
-  ctx.globalAlpha = 1;
-
-  // idle thought bubble
-  if (c.thoughtShowMs > 0 && !dead) {
-    ctx.fillStyle = bodyStroke;
-    ctx.font = '10px "Space Mono", monospace';
-    ctx.textAlign = 'center';
-    ctx.fillText('?', c.x + w / 2 + 10, y - 4);
+    // dead: flat amber line for lives, dark for bomb
+    ctx.fillStyle = withAlpha(stroke, 0.55);
+    ctx.fillRect(innerX + 4, scannerY + 6, innerW - 8, 2);
   }
 
-  // CLAUDE label
-  ctx.fillStyle = bodyStroke;
+  // === status dots ticker ===
+  const dotsY = innerY + innerH - 6;
+  const dotsX = innerX;
+  const phase = Math.floor(c.statusDotPhase * 4); // 0..3
+  for (let i = 0; i < 3; i++) {
+    const on = !bombDead && !livesDead && i < phase;
+    ctx.fillStyle = on ? stroke : withAlpha(stroke, 0.18);
+    ctx.fillRect(dotsX + i * 7, dotsY, 4, 4);
+  }
+
+  // MODEL label below frame
+  ctx.fillStyle = bombDead ? '#7a3a3a' : C.fgDeep;
   ctx.font = '6px "Press Start 2P", monospace';
   ctx.textAlign = 'center';
-  ctx.fillText('CLAUDE', c.x, y + h + 12);
-}
-
-function drawX(ctx, cx, cy, r) {
-  ctx.beginPath();
-  ctx.moveTo(cx - r, cy - r);
-  ctx.lineTo(cx + r, cy + r);
-  ctx.moveTo(cx + r, cy - r);
-  ctx.lineTo(cx - r, cy + r);
-  ctx.stroke();
+  ctx.fillText(bombDead ? '— OFFLINE —' : 'MODEL', c.x, y + h + 14);
 }
 
 // ============================================================
@@ -264,41 +282,101 @@ function drawWindFlag(ctx, eng) {
 
 function drawKeyboard(ctx, eng) {
   const k = eng.keyboard;
-  const w = 92;
-  const h = 28;
+  const w = k.w;
+  const h = k.h;
   const x = k.x - w / 2;
   const y = k.y - h / 2;
+
+  // spawn-burst sparks rising from the keyboard top — drawn FIRST so
+  // they sit behind the capsule, which is already at the same x.
+  if (k.spawnBurstMs > 0) {
+    const t = k.spawnBurstMs / 260; // 1 → 0
+    ctx.fillStyle = withAlpha(C.crt, t * 0.85);
+    for (let i = 0; i < 4; i++) {
+      const off = (i - 1.5) * 4;
+      const lift = (1 - t) * 14;
+      ctx.fillRect(k.spawnBurstX + off, y - 2 - lift, 2, 2);
+    }
+  }
+
+  // tilted perspective bezel (subtle 3D)
+  ctx.fillStyle = '#050c14';
+  ctx.beginPath();
+  ctx.moveTo(x + 4, y + h);
+  ctx.lineTo(x - 6, y + h + 6);
+  ctx.lineTo(x + w + 6, y + h + 6);
+  ctx.lineTo(x + w - 4, y + h);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = '#3a4a5e';
+  ctx.lineWidth = 1;
+  ctx.stroke();
 
   // base
   ctx.fillStyle = '#0e1722';
   ctx.fillRect(x, y, w, h);
   ctx.strokeStyle = '#3a4a5e';
   ctx.lineWidth = 1;
-  ctx.strokeRect(x + 0.5, y + 0.5, w, h);
+  ctx.strokeRect(x + 0.5, y + 0.5, w - 1, h - 1);
 
-  // keys (10 cols x 2 rows + spacebar)
-  const keyW = 6;
-  const keyH = 6;
-  const gap = 2;
-  for (let row = 0; row < 2; row++) {
-    for (let col = 0; col < 10; col++) {
-      const idx = row * 10 + col;
-      const kx = x + 6 + col * (keyW + gap);
-      const ky = y + 4 + row * (keyH + gap);
+  // inner bevel highlight on top
+  ctx.fillStyle = 'rgba(255,255,255,0.04)';
+  ctx.fillRect(x + 2, y + 2, w - 4, 1);
+
+  // 3 rows of 13 keys + a spacebar
+  const cols = 13;
+  const rows = 3;
+  const padX = 6;
+  const padY = 6;
+  const keyGap = 1.5;
+  const innerW = w - padX * 2;
+  const keyW = (innerW - keyGap * (cols - 1)) / cols;
+  const keyH = 8;
+
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      const idx = row * cols + col;
+      const kx = x + padX + col * (keyW + keyGap);
+      const ky = y + padY + row * (keyH + 2);
       const lit = k.keysLit[idx] || 0;
-      ctx.fillStyle = lit > 0 ? withAlpha(C.crt, clamp01(lit / 200)) : '#1c2a3a';
-      ctx.fillRect(kx, ky, keyW, keyH);
+      if (lit > 0) {
+        const a = clamp01(lit / 280);
+        ctx.fillStyle = withAlpha(C.crt, a);
+        ctx.fillRect(kx, ky, keyW, keyH);
+        // tiny halo for very fresh keystrokes
+        if (a > 0.7) {
+          ctx.globalAlpha = a * 0.45;
+          ctx.fillRect(kx - 1, ky - 1, keyW + 2, keyH + 2);
+          ctx.globalAlpha = 1;
+        }
+      } else {
+        ctx.fillStyle = '#1c2a3a';
+        ctx.fillRect(kx, ky, keyW, keyH);
+        ctx.fillStyle = 'rgba(255,255,255,0.04)';
+        ctx.fillRect(kx, ky, keyW, 1);
+      }
     }
   }
-  // spacebar
+
+  // spacebar — long
+  const sbY = y + h - 8;
   ctx.fillStyle = '#1c2a3a';
-  ctx.fillRect(x + 16, y + 22, w - 32, 4);
+  ctx.fillRect(x + padX + 12, sbY, innerW - 24, 4);
+  ctx.fillStyle = 'rgba(255,255,255,0.04)';
+  ctx.fillRect(x + padX + 12, sbY, innerW - 24, 1);
 
   // label
   ctx.fillStyle = C.fgDeep;
-  ctx.font = '5px "Press Start 2P", monospace';
+  ctx.font = '6px "Press Start 2P", monospace';
   ctx.textAlign = 'center';
-  ctx.fillText('USER INPUT', k.x, y + h + 9);
+  ctx.fillText('USER INPUT', k.x, y + h + 18);
+
+  // small "spawn port" marker on top edge so the player visually
+  // associates capsules with this device
+  ctx.fillStyle = withAlpha(C.crt, 0.45);
+  ctx.fillRect(x + w * 0.18, y - 1, 4, 1);
+  ctx.fillRect(x + w * 0.50 - 2, y - 1, 4, 1);
+  ctx.fillRect(x + w * 0.82 - 4, y - 1, 4, 1);
 }
 
 // ============================================================
