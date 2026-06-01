@@ -8,9 +8,9 @@
 .experience-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(4, 6, 12, 0.78);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(4, 6, 12, 0.88);
+  /* backdrop-filter blur dropped — was expensive when heavy images sit
+     under the modal; the higher-opacity color alone reads as a focus dim */
   z-index: 1000;
 }
 
@@ -153,6 +153,9 @@
   border: 1px solid rgba(255, 255, 255, 0.06);
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.025) 0%, rgba(255, 255, 255, 0.01) 100%);
   transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  /* let the browser skip painting off-screen cards during scroll */
+  content-visibility: auto;
+  contain-intrinsic-size: 0 480px;
 }
 
 .workbay:hover {
@@ -180,14 +183,33 @@
   background-size: cover;
   background-position: center;
   overflow: hidden;
+  isolation: isolate;
 }
 
-.workbay--photo .workbay-hero {
-  /* heroImage style is set inline; clear the gradient so the photo
-     can show through, but keep a slight veil overlay applied inline. */
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
+/* real <img> instead of background-image: gets native loading="lazy" +
+   decoding="async" so heros load one-by-one as the user scrolls instead
+   of all four pumping the network thread the moment the modal opens. */
+.workbay-hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  z-index: 0;
+}
+
+/* dark veil over the photo so title text stays readable */
+.workbay-hero-veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(8, 8, 14, 0.3) 0%,
+    rgba(8, 8, 14, 0.75) 100%
+  );
+  z-index: 1;
+  pointer-events: none;
 }
 
 /* line grid pattern over the hero — adds workshop / blueprint feel */
@@ -202,6 +224,7 @@
   pointer-events: none;
   mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.2) 100%);
   -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.2) 100%);
+  z-index: 2;
 }
 
 /* corner glow */
@@ -215,12 +238,8 @@
   background: radial-gradient(circle, color-mix(in srgb, var(--brand) 55%, transparent) 0%, transparent 60%);
   pointer-events: none;
   opacity: 0.6;
-  transition: opacity 0.4s ease, transform 0.4s ease;
-}
-
-.workbay:hover .workbay-hero-glow {
-  opacity: 0.85;
-  transform: scale(1.05);
+  z-index: 2;
+  /* drop the hover transform animation — was triggering layer repaints */
 }
 
 /* "Current Role" pill anchored in hero */
@@ -228,11 +247,12 @@
   position: absolute;
   top: 14px;
   left: 14px;
+  z-index: 3;
   display: inline-flex;
   align-items: center;
   gap: 7px;
   padding: 5px 11px;
-  background: rgba(8, 10, 16, 0.7);
+  background: rgba(8, 10, 16, 0.85);
   border: 1px solid color-mix(in srgb, var(--brand) 55%, transparent);
   border-radius: 999px;
   font-family: 'Space Mono', monospace;
@@ -241,7 +261,7 @@
   letter-spacing: 1.5px;
   text-transform: uppercase;
   color: #ffffff;
-  backdrop-filter: blur(4px);
+  /* backdrop-filter dropped — too many of them in the modal stack jank scroll */
 }
 
 .workbay-now-dot {
@@ -263,6 +283,7 @@
   position: absolute;
   top: 14px;
   right: 14px;
+  z-index: 3;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -277,12 +298,6 @@
   letter-spacing: 0.4px;
   white-space: nowrap;
   transform: rotate(-1.5deg);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.workbay:hover .workbay-tag {
-  transform: rotate(0deg) translateY(-1px);
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.45);
 }
 
 /* "punch hole" at the left edge of the sticker for the tag aesthetic */
@@ -324,24 +339,19 @@
     0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
+/* static gradient ring — was an animated spinning conic-gradient that
+   triggered constant per-frame repaints on every card simultaneously */
 .workbay-badge-ring {
   position: absolute;
-  inset: -4px;
+  inset: -2px;
   border-radius: 50%;
-  background: conic-gradient(
-    from 180deg,
-    color-mix(in srgb, var(--brand) 70%, transparent),
-    color-mix(in srgb, var(--brand) 15%, transparent),
-    color-mix(in srgb, var(--brand) 70%, transparent)
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--brand) 80%, transparent) 0%,
+    color-mix(in srgb, var(--brand) 20%, transparent) 100%
   );
   z-index: -1;
-  filter: blur(0.5px);
-  opacity: 0.7;
-  animation: workbay-ring-spin 8s linear infinite;
-}
-
-@keyframes workbay-ring-spin {
-  to { transform: rotate(360deg); }
+  opacity: 0.85;
 }
 
 .workbay--current .workbay-badge-ring {
@@ -488,7 +498,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .workbay-badge-ring,
   .workbay-now-dot {
     animation: none;
   }

@@ -116,11 +116,9 @@ const ExperienceModal = ({ isOpen, onClose }) => {
                 {experiences.map((exp, i) => {
                   const links = exp.links || {};
                   const hasLinks = links.website || links.github || links.demo;
-                  const heroStyle = exp.heroImage
-                    ? {
-                        backgroundImage: `linear-gradient(180deg, rgba(8,8,14,0.35) 0%, rgba(8,8,14,0.75) 100%), url(/${exp.heroImage.replace(/^\//, '')})`,
-                      }
-                    : undefined;
+                  const heroImgSrc = exp.heroImage
+                    ? `/${exp.heroImage.replace(/^\//, '')}`
+                    : null;
                   const brand = exp.heroColor || '#3d5afe';
 
                   return (
@@ -134,7 +132,18 @@ const ExperienceModal = ({ isOpen, onClose }) => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.26, delay: 0.05 + i * 0.08, ease: 'easeOut' }}
                     >
-                      <div className="workbay-hero" style={heroStyle}>
+                      <div className="workbay-hero">
+                        {heroImgSrc && (
+                          <img
+                            className="workbay-hero-img"
+                            src={heroImgSrc}
+                            alt=""
+                            loading="lazy"
+                            decoding="async"
+                            aria-hidden="true"
+                          />
+                        )}
+                        <div className="workbay-hero-veil" aria-hidden="true" />
                         <div className="workbay-hero-grid" aria-hidden="true" />
                         <div className="workbay-hero-glow" aria-hidden="true" />
 
