@@ -77,6 +77,7 @@
 
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import PromptPatrol from './game/PromptPatrol';
 import './MiniGame.css';
 
 // ============================================================
@@ -150,17 +151,8 @@ export const PlayMiniGameButton = ({ onClick }) => (
 );
 
 // ============================================================
-// MiniGameModal — "Coming Soon" panel themed to match the button.
-// Phosphor-green frame, pixel-art title, placeholder leaderboard.
+// MiniGameModal — hosts the live PromptPatrol game.
 // ============================================================
-
-const PLACEHOLDER_LEADERS = [
-  { rank: 1 },
-  { rank: 2 },
-  { rank: 3 },
-  { rank: 4 },
-  { rank: 5 },
-];
 
 export const MiniGameModal = ({ isOpen, onClose }) => {
   useEffect(() => {
@@ -191,7 +183,7 @@ export const MiniGameModal = ({ isOpen, onClose }) => {
           />
 
           <motion.div
-            className="game-modal"
+            className="game-modal game-modal--play"
             role="dialog"
             aria-modal="true"
             aria-labelledby="game-modal-title"
@@ -200,57 +192,7 @@ export const MiniGameModal = ({ isOpen, onClose }) => {
             exit={{ opacity: 0, y: 12 }}
             transition={{ duration: 0.22, ease: [0.32, 0.72, 0.24, 1] }}
           >
-            <span className="game-modal-scanlines" aria-hidden="true" />
-
-            <button
-              type="button"
-              className="game-modal-close"
-              onClick={onClose}
-              aria-label="Close"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-
-            <div className="game-modal-body">
-              <span className="game-modal-eyebrow">/ MINI GAME /</span>
-              <h2 id="game-modal-title" className="game-modal-title">
-                PROMPT PATROL
-              </h2>
-              <span className="game-modal-soon" role="status">
-                <span className="game-modal-soon-dot" />
-                Coming Soon
-              </span>
-
-              <p className="game-modal-teaser">
-                A one-page, mouse-only endless runner. Word-bubbles drift
-                across the screen — pop the unsafe prompts before they slip
-                past you and let the safe ones float by. Miss ten and the
-                round is over.
-              </p>
-
-              <div className="game-modal-leaders">
-                <div className="game-modal-leaders-header">
-                  <span className="game-modal-leaders-title">Global High Scores</span>
-                  <span className="game-modal-leaders-status">live · once shipped</span>
-                </div>
-                <ol className="game-modal-leaders-list" aria-label="Leaderboard placeholder">
-                  {PLACEHOLDER_LEADERS.map((row) => (
-                    <li key={row.rank} className="game-modal-leader-row is-empty">
-                      <span className="rank">#{row.rank}</span>
-                      <span className="name">— — —</span>
-                      <span className="score">—</span>
-                    </li>
-                  ))}
-                </ol>
-                <p className="game-modal-leaders-note">
-                  Backed by a free realtime DB so the board updates the moment
-                  another player posts a run. No personal backend required.
-                </p>
-              </div>
-            </div>
+            <PromptPatrol onClose={onClose} />
           </motion.div>
         </>
       )}

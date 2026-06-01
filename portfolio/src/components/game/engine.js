@@ -1,0 +1,652 @@
+// portfolio/src/components/game/engine.js
+//
+// Plain-JS Prompt Patrol engine. No React, no DOM beyond the canvas
+// element it's handed. The React wrapper drives this with rAF, feeds
+// input, listens for state events.
+
+import { CONFIG } from './config';
+import { BLUE, RED, BLACK, GREY, GREY_BY_HIDDEN } from './phrasebook';
+import { renderFrame } from './sprites';
+
+const STATE = {
+  TITLE: 'title',
+  PLAYING: 'playing',
+  GAMEOVER_LIVES: 'gameover_lives',
+  GAMEOVER_BOMB: 'gameover_bomb',
+};
+
+// ============================================================
+// Utility
+// ============================================================
+
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const rand = (a, b) => a + Math.random() * (b - a);
+const randSign = () => (Math.random() < 0.5 ? -1 : 1);
+
+const weightedPick = (entries) => {
+  // entries: array of [key, weight]
+  const total = entries.reduce((s, e) => s + e[1], 0);
+  let r = Math.random() * total;
+  for (const [key, w] of entries) {
+    r -= w;
+    if (r <= 0) return key;
+  }
+  return entries[entries.length - 1][0];
+};
+
+// ============================================================
+// Engine
+// ============================================================
+
+export class Engine {
+  constructor({ canvas, onStateChange = () => {}, onScoreChange = () => {} }) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext('2d');
+    this.onStateChange = onStateChange;
+    this.onScoreChange = onScoreChange;
+
+    // logical canvas size — we render at this size and scale via CSS
+    this.W = 720;
+    this.H = 480;
+
+    this.state = STATE.TITLE;
+    this.reset();
+  }
+
+  // ----------------------------------------------------------
+  // State setup
+  // ----------------------------------------------------------
+
+  reset() {
+    this.score = 0;
+    this.lives = CONFIG.lives.initial;
+    this.wave = 0;
+    this.loopCount = 0;
+    this.time = 0;
+
+    this.capsules = [];
+    this.projectiles = [];
+    this.particles = [];
+    this.floats = []; // tiny floating-number popups
+
+    // wind state machine
+    const startLevel = 'still';
+    this.wind = {
+      current: startLevel,
+      next: startLevel,
+      ax: 0,
+      targetAx: 0,
+      phaseTimeLeft: rand(CONFIG.wind.phaseMinSec, CONFIG.wind.phaseMaxSec),
+      transitioning: false,
+      transitionMsLeft: 0,
+      label: CONFIG.wind.levels[startLevel].label,
+      changeBannerMs: 0,
+    };
+
+    // spawn state
+    const firstWave = CONFIG.spawn.rotation[0];
+    this.spawner = {
+      waveName: firstWave,
+      waveTimeLeft: CONFIG.spawn.waveDurationSec,
+      tokensToSpawn: CONFIG.spawn.waveTokenCount[firstWave],
+      nextSpawnIn: 0.4,
+      lastClass: null,
+      waveMilestoneShownMs: 0,
+    };
+
+    // cannon
+    this.cannon = { x: 80, y: this.H - 80, barrelLen: 28 };
+    this.aim = { x: this.W * 0.6, y: this.H * 0.3 };
+
+    // charge state
+    this.charge = {
+      held: false,
+      heldMs: 0,
+      ready: true,
+      cooldownLeft: 0,
+    };
+
+    // claude-mini
+    this.claude = {
+      x: this.W / 2,
+      y: 40,
+      w: 110,
+      h: 56,
+      blinkLeftMs: rand(CONFIG.animations.claudeBlinkMinSec, CONFIG.animations.claudeBlinkMaxSec) * 1000,
+      blinking: 0,
+      hitFlashMs: 0,
+      celebrateMs: 0,
+      idleThoughtLeftMs: rand(CONFIG.animations.claudeIdleThoughtMinSec, CONFIG.animations.claudeIdleThoughtMaxSec) * 1000,
+      thoughtShowMs: 0,
+      watchTargetX: this.W / 2,
+      eyeOffsetX: 0,
+      dead: false,
+    };
+
+    // keyboard
+    this.keyboard = {
+      x: this.W - 90,
+      y: this.H - 70,
+      keysLit: new Array(20).fill(0), // ms remaining per key
+      shimmerLeftMs: rand(CONFIG.animations.keyboardShimmerMinSec, CONFIG.animations.keyboardShimmerMaxSec) * 1000,
+    };
+
+    // screen shake
+    this.shakeMs = 0;
+    this.shakeMag = 0;
+  }
+
+  setState(next) {
+    if (this.state === next) return;
+    this.state = next;
+    this.onStateChange(next, this.snapshot());
+  }
+
+  snapshot() {
+    return {
+      state: this.state,
+      score: this.score,
+      lives: this.lives,
+      wave: this.wave + 1,
+      loopCount: this.loopCount,
+    };
+  }
+
+  // ----------------------------------------------------------
+  // Public lifecycle
+  // ----------------------------------------------------------
+
+  start() {
+    this.reset();
+    this.setState(STATE.PLAYING);
+  }
+
+  endGame(reason) {
+    this.setState(reason === 'bomb' ? STATE.GAMEOVER_BOMB : STATE.GAMEOVER_LIVES);
+    this.claude.dead = true;
+  }
+
+  // ----------------------------------------------------------
+  // Input
+  // ----------------------------------------------------------
+
+  setAim(x, y) {
+    this.aim.x = x;
+    this.aim.y = y;
+    this.claude.watchTargetX = x;
+  }
+
+  inputDown() {
+    if (this.state !== STATE.PLAYING) return;
+    this.charge.held = true;
+    this.charge.heldMs = 0;
+  }
+
+  inputUp() {
+    if (this.state !== STATE.PLAYING) return;
+    if (!this.charge.held) return;
+    const held = this.charge.heldMs;
+    this.charge.held = false;
+    const useCharge = CONFIG.charge.enabled && held >= CONFIG.charge.minHoldMs;
+    const chargeT = useCharge ? clamp(held / CONFIG.charge.maxHoldMs, 0, 1) : 0;
+    this.fire(chargeT);
+    this.charge.heldMs = 0;
+  }
+
+  fire(chargeT) {
+    if (!this.charge.ready) return;
+    if (this.charge.cooldownLeft > 0) return;
+
+    const c = this.cannon;
+    // muzzle = cannon center + barrel direction × len
+    const dx = this.aim.x - c.x;
+    const dy = this.aim.y - c.y;
+    const dist = Math.hypot(dx, dy) || 1;
+    const nx = dx / dist;
+    const ny = dy / dist;
+
+    const muzzleX = c.x + nx * c.barrelLen;
+    const muzzleY = c.y + ny * c.barrelLen;
+
+    const speedMult = CONFIG.charge.affectsSpeed
+      ? lerp(1, CONFIG.charge.speedMultMax, chargeT)
+      : 1;
+    const speed = CONFIG.physics.baseProjectileSpeed * speedMult;
+
+    const sizeMult = lerp(1, CONFIG.charge.sizeMultMax, chargeT);
+
+    this.projectiles.push({
+      x: muzzleX,
+      y: muzzleY,
+      vx: nx * speed,
+      vy: ny * speed,
+      size: CONFIG.physics.projectileSize * sizeMult,
+      chargeT,
+      trail: [],
+      lifeMs: 3500,
+    });
+
+    this.charge.cooldownLeft = CONFIG.physics.cooldownMs;
+  }
+
+  // ----------------------------------------------------------
+  // Main tick
+  // ----------------------------------------------------------
+
+  tick(dtMs) {
+    const dt = dtMs / 1000;
+    this.time += dt;
+
+    if (this.state === STATE.PLAYING) {
+      if (this.charge.held) this.charge.heldMs += dtMs;
+      if (this.charge.cooldownLeft > 0) this.charge.cooldownLeft -= dtMs;
+
+      this.updateWind(dt, dtMs);
+      this.updateSpawner(dt);
+      this.updateCapsules(dt);
+      this.updateProjectiles(dt, dtMs);
+      this.checkCollisions();
+      this.updateParticles(dtMs);
+      this.updateFloats(dtMs);
+      this.updateClaude(dtMs);
+      this.updateKeyboard(dtMs);
+
+      if (this.shakeMs > 0) this.shakeMs -= dtMs;
+      if (this.wind.changeBannerMs > 0) this.wind.changeBannerMs -= dtMs;
+      if (this.spawner.waveMilestoneShownMs > 0) this.spawner.waveMilestoneShownMs -= dtMs;
+    } else {
+      // game over: keep claude visible, update its expressions, no spawns
+      this.updateClaude(dtMs);
+      this.updateParticles(dtMs);
+      this.updateFloats(dtMs);
+      if (this.shakeMs > 0) this.shakeMs -= dtMs;
+    }
+  }
+
+  // ----------------------------------------------------------
+  // Wind
+  // ----------------------------------------------------------
+
+  pickNewWindLevel(exclude) {
+    const entries = Object.entries(CONFIG.wind.levels)
+      .filter(([k]) => k !== exclude)
+      .map(([k, v]) => [k, v.weight]);
+    return weightedPick(entries);
+  }
+
+  updateWind(dt, dtMs) {
+    const w = this.wind;
+    if (w.transitioning) {
+      w.transitionMsLeft -= dtMs;
+      const t = 1 - clamp(w.transitionMsLeft / CONFIG.wind.transitionMs, 0, 1);
+      const fromAx = CONFIG.wind.levels[w.current].ax;
+      const toAx = CONFIG.wind.levels[w.next].ax;
+      w.ax = lerp(fromAx, toAx, t);
+      if (w.transitionMsLeft <= 0) {
+        w.transitioning = false;
+        w.current = w.next;
+        w.ax = toAx;
+        w.label = CONFIG.wind.levels[w.next].label;
+        w.changeBannerMs = 1500;
+        w.phaseTimeLeft = rand(CONFIG.wind.phaseMinSec, CONFIG.wind.phaseMaxSec);
+      }
+    } else {
+      w.phaseTimeLeft -= dt;
+      if (w.phaseTimeLeft <= 0) {
+        w.next = this.pickNewWindLevel(w.current);
+        w.transitioning = true;
+        w.transitionMsLeft = CONFIG.wind.transitionMs;
+      }
+    }
+  }
+
+  // ----------------------------------------------------------
+  // Spawner
+  // ----------------------------------------------------------
+
+  updateSpawner(dt) {
+    const sp = this.spawner;
+    sp.waveTimeLeft -= dt;
+    sp.nextSpawnIn -= dt;
+
+    if (sp.nextSpawnIn <= 0 && sp.tokensToSpawn > 0) {
+      this.spawnCapsule();
+      sp.tokensToSpawn -= 1;
+      const wave = sp.waveName;
+      const tokenCount = CONFIG.spawn.waveTokenCount[wave];
+      const avgSpacing = CONFIG.spawn.waveDurationSec / tokenCount;
+      sp.nextSpawnIn = rand(avgSpacing * 0.7, avgSpacing * 1.3);
+    }
+
+    if (sp.waveTimeLeft <= 0 && sp.tokensToSpawn <= 0) {
+      // next wave
+      this.wave += 1;
+      const rot = CONFIG.spawn.rotation;
+      const nextIndex = this.wave % rot.length;
+      if (nextIndex === 0) this.loopCount += 1;
+      const nextWave = rot[nextIndex];
+      sp.waveName = nextWave;
+      sp.waveTimeLeft = CONFIG.spawn.waveDurationSec;
+      sp.tokensToSpawn = CONFIG.spawn.waveTokenCount[nextWave];
+      sp.lastClass = null;
+      sp.waveMilestoneShownMs = nextWave === 'rush' ? 1500 : 0;
+    }
+  }
+
+  pickClass() {
+    const wave = this.spawner.waveName;
+    const dist = CONFIG.spawn.classDistribution[wave];
+    const entries = Object.entries(dist);
+    let cls = weightedPick(entries);
+    if (cls === this.spawner.lastClass && Math.random() < 0.5) {
+      cls = weightedPick(entries);
+    }
+    this.spawner.lastClass = cls;
+    return cls;
+  }
+
+  spawnCapsule() {
+    const cls = this.pickClass();
+    let text;
+    let hidden = null;
+
+    if (cls === 'blue') {
+      text = BLUE[Math.floor(Math.random() * BLUE.length)];
+    } else if (cls === 'red') {
+      text = RED[Math.floor(Math.random() * RED.length)];
+    } else if (cls === 'black') {
+      text = BLACK[Math.floor(Math.random() * BLACK.length)];
+    } else {
+      // GREY: sample hidden bucket, then phrase from that bucket
+      const distEntries = Object.entries(CONFIG.spawn.greyHiddenDistribution);
+      hidden = weightedPick(distEntries);
+      const pool = GREY_BY_HIDDEN[hidden];
+      const entry = pool[Math.floor(Math.random() * pool.length)];
+      text = entry.text;
+    }
+
+    // measure approx capsule width — engine doesn't have font metrics
+    // available at spawn; sprites.js does final measure on draw, but
+    // for hit-test we approximate with a glyph width of 7 px in Space Mono.
+    const charW = 7;
+    const innerW = Math.min(text.length * charW, CONFIG.ui.capsuleWidthCap - 2 * CONFIG.ui.capsulePadding);
+    const w = innerW + 2 * CONFIG.ui.capsulePadding;
+    const h = CONFIG.ui.capsuleHeight;
+
+    // spawn from behind the keyboard, slight x jitter
+    const x = this.keyboard.x + rand(-20, 20);
+    const y = this.H + 10;
+
+    // rise speed with per-loop ramp, jitter
+    const baseRise = CONFIG.spawn.capsuleRiseSpeed;
+    const ramp = Math.min(this.loopCount * CONFIG.spawn.perLoopRamp.riseSpeed, CONFIG.spawn.perLoopRamp.cap);
+    const vy = -(baseRise * (1 + ramp)) + rand(-CONFIG.spawn.capsuleRiseJitter, CONFIG.spawn.capsuleRiseJitter);
+    const vx = -CONFIG.spawn.capsuleHorizDrift + rand(-2, 2);
+
+    this.capsules.push({ cls, text, hidden, x, y, w, h, vx, vy });
+
+    // light up some keys on the keyboard for the typing ripple
+    this.rippleKeyboard(text.length);
+  }
+
+  // ----------------------------------------------------------
+  // Capsules
+  // ----------------------------------------------------------
+
+  updateCapsules(dt) {
+    for (let i = this.capsules.length - 1; i >= 0; i--) {
+      const c = this.capsules[i];
+      c.x += c.vx * dt;
+      c.y += c.vy * dt;
+
+      // escape = capsule top has reached the model zone
+      if (c.y < this.claude.y + this.claude.h * 0.4) {
+        this.handleEscape(c);
+        this.capsules.splice(i, 1);
+      } else if (c.x + c.w < -20) {
+        // drifted off-screen — quiet despawn, no penalty
+        this.capsules.splice(i, 1);
+      }
+    }
+  }
+
+  handleEscape(c) {
+    const truth = this.resolveTruth(c);
+    if (truth === 'unsafe') {
+      this.lives -= 1;
+      this.shake(CONFIG.ui.screenShakePx);
+      this.claude.hitFlashMs = CONFIG.animations.hitFlashMs;
+      this.onScoreChange(this.snapshot());
+      if (this.lives <= 0) this.endGame('lives');
+    }
+    // safe/bomb escape: no penalty per spec
+  }
+
+  resolveTruth(c) {
+    if (c.cls === 'blue') return 'safe';
+    if (c.cls === 'red') return 'unsafe';
+    if (c.cls === 'black') return 'bomb';
+    return c.hidden; // grey
+  }
+
+  // ----------------------------------------------------------
+  // Projectiles
+  // ----------------------------------------------------------
+
+  updateProjectiles(dt, dtMs) {
+    for (let i = this.projectiles.length - 1; i >= 0; i--) {
+      const p = this.projectiles[i];
+      const windResist = lerp(0, CONFIG.charge.windResistMax, p.chargeT);
+      p.vx += this.wind.ax * (1 - windResist) * dt;
+      p.vy += CONFIG.physics.gravity * dt;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+
+      p.trail.push({ x: p.x, y: p.y });
+      const trailLen = p.chargeT > 0.2 ? 8 : 4;
+      if (p.trail.length > trailLen) p.trail.shift();
+
+      p.lifeMs -= dtMs;
+      if (
+        p.x < -24 || p.x > this.W + 24 ||
+        p.y > this.H + 24 || p.lifeMs <= 0
+      ) {
+        this.projectiles.splice(i, 1);
+      }
+    }
+  }
+
+  // ----------------------------------------------------------
+  // Collision
+  // ----------------------------------------------------------
+
+  checkCollisions() {
+    for (let pi = this.projectiles.length - 1; pi >= 0; pi--) {
+      const p = this.projectiles[pi];
+      for (let ci = this.capsules.length - 1; ci >= 0; ci--) {
+        const c = this.capsules[ci];
+        if (
+          p.x >= c.x &&
+          p.x <= c.x + c.w &&
+          p.y >= c.y &&
+          p.y <= c.y + c.h
+        ) {
+          // hit
+          this.projectiles.splice(pi, 1);
+          this.capsules.splice(ci, 1);
+          this.handlePop(c);
+          break;
+        }
+      }
+    }
+  }
+
+  handlePop(c) {
+    const truth = this.resolveTruth(c);
+    const sc = CONFIG.scoring;
+    let scoreDelta = 0;
+    let lifeDelta = 0;
+    let particleColor = CONFIG.colors.crt;
+
+    if (truth === 'bomb') {
+      // instant game over — particle storm + shake first
+      this.emitParticles(c.x + c.w / 2, c.y + c.h / 2, CONFIG.colors.black, 20);
+      this.shake(CONFIG.ui.screenShakePx * 2);
+      this.endGame('bomb');
+      return;
+    }
+
+    if (truth === 'unsafe') {
+      scoreDelta = sc.redPop.score;
+      particleColor = CONFIG.colors.red;
+      this.claude.celebrateMs = CONFIG.animations.popCelebrationMs;
+    } else if (truth === 'safe') {
+      scoreDelta = sc.bluePop.score;
+      particleColor = CONFIG.colors.blue;
+    }
+
+    this.score += scoreDelta;
+    this.lives += lifeDelta;
+    this.emitParticles(c.x + c.w / 2, c.y + c.h / 2, particleColor, CONFIG.animations.popParticleCount);
+    this.spawnFloat(c.x + c.w / 2, c.y, scoreDelta);
+    this.onScoreChange(this.snapshot());
+
+    if (this.lives <= 0) this.endGame('lives');
+  }
+
+  // ----------------------------------------------------------
+  // Particles + floating numbers
+  // ----------------------------------------------------------
+
+  emitParticles(x, y, color, count) {
+    const life = CONFIG.animations.popParticleLifeMs;
+    for (let i = 0; i < count; i++) {
+      const ang = Math.random() * Math.PI * 2;
+      const speed = rand(80, 220);
+      this.particles.push({
+        x, y,
+        vx: Math.cos(ang) * speed,
+        vy: Math.sin(ang) * speed,
+        life, lifeMax: life,
+        color,
+        size: rand(2, 4),
+      });
+    }
+  }
+
+  updateParticles(dtMs) {
+    const dt = dtMs / 1000;
+    for (let i = this.particles.length - 1; i >= 0; i--) {
+      const p = this.particles[i];
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vy += 200 * dt; // mild gravity
+      p.life -= dtMs;
+      if (p.life <= 0) this.particles.splice(i, 1);
+    }
+  }
+
+  spawnFloat(x, y, delta) {
+    if (delta === 0) return;
+    this.floats.push({
+      x, y,
+      text: delta > 0 ? `+${delta}` : `${delta}`,
+      color: delta > 0 ? CONFIG.colors.crt : CONFIG.colors.red,
+      lifeMs: 700,
+      lifeMaxMs: 700,
+    });
+  }
+
+  updateFloats(dtMs) {
+    for (let i = this.floats.length - 1; i >= 0; i--) {
+      const f = this.floats[i];
+      f.y -= 30 * (dtMs / 1000);
+      f.lifeMs -= dtMs;
+      if (f.lifeMs <= 0) this.floats.splice(i, 1);
+    }
+  }
+
+  // ----------------------------------------------------------
+  // Claude-mini animations
+  // ----------------------------------------------------------
+
+  updateClaude(dtMs) {
+    const c = this.claude;
+
+    // blink countdown
+    if (c.blinking > 0) {
+      c.blinking -= dtMs;
+    } else {
+      c.blinkLeftMs -= dtMs;
+      if (c.blinkLeftMs <= 0) {
+        c.blinking = 110;
+        c.blinkLeftMs = rand(CONFIG.animations.claudeBlinkMinSec, CONFIG.animations.claudeBlinkMaxSec) * 1000;
+      }
+    }
+
+    // eye-watch most-recent projectile (track toward mouse pos)
+    const targetOff = clamp((c.watchTargetX - this.W / 2) / (this.W / 2), -1, 1) * 2;
+    c.eyeOffsetX += (targetOff - c.eyeOffsetX) * Math.min(1, (dtMs / 1000) * 4);
+
+    // celebrate
+    if (c.celebrateMs > 0) c.celebrateMs -= dtMs;
+    if (c.hitFlashMs > 0) c.hitFlashMs -= dtMs;
+
+    // idle thought
+    if (c.thoughtShowMs > 0) {
+      c.thoughtShowMs -= dtMs;
+    } else {
+      c.idleThoughtLeftMs -= dtMs;
+      if (c.idleThoughtLeftMs <= 0) {
+        c.thoughtShowMs = 800;
+        c.idleThoughtLeftMs = rand(CONFIG.animations.claudeIdleThoughtMinSec, CONFIG.animations.claudeIdleThoughtMaxSec) * 1000;
+      }
+    }
+  }
+
+  // ----------------------------------------------------------
+  // Keyboard ripple
+  // ----------------------------------------------------------
+
+  rippleKeyboard(charCount) {
+    const keys = Math.min(this.keyboard.keysLit.length, Math.max(3, Math.floor(charCount / 2)));
+    for (let i = 0; i < keys; i++) {
+      const idx = Math.floor(Math.random() * this.keyboard.keysLit.length);
+      this.keyboard.keysLit[idx] = 180 + i * 25;
+    }
+  }
+
+  updateKeyboard(dtMs) {
+    for (let i = 0; i < this.keyboard.keysLit.length; i++) {
+      if (this.keyboard.keysLit[i] > 0) {
+        this.keyboard.keysLit[i] -= dtMs;
+      }
+    }
+    this.keyboard.shimmerLeftMs -= dtMs;
+    if (this.keyboard.shimmerLeftMs <= 0) {
+      const idx = Math.floor(Math.random() * this.keyboard.keysLit.length);
+      this.keyboard.keysLit[idx] = Math.max(this.keyboard.keysLit[idx], 200);
+      this.keyboard.shimmerLeftMs = rand(CONFIG.animations.keyboardShimmerMinSec, CONFIG.animations.keyboardShimmerMaxSec) * 1000;
+    }
+  }
+
+  // ----------------------------------------------------------
+  // Screen shake
+  // ----------------------------------------------------------
+
+  shake(magnitude) {
+    this.shakeMs = 220;
+    this.shakeMag = magnitude;
+  }
+
+  // ----------------------------------------------------------
+  // Render — delegates to sprites.js
+  // ----------------------------------------------------------
+
+  render() {
+    renderFrame(this.ctx, this);
+  }
+}
+
+export { STATE };

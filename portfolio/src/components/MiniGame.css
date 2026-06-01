@@ -307,6 +307,16 @@
     inset 0 0 0 1px rgba(65, 255, 126, 0.08);
 }
 
+/* when hosting the live game, give it more room and drop the inner glow */
+.game-modal--play {
+  width: min(96vw, 780px);
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+  max-height: 92vh;
+}
+
 .game-modal-scanlines {
   position: absolute;
   inset: 0;
