@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Prompt Patrol — Game Design Doc</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Press+Start+2P&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --bg: #07090d;
+    --bg-elev: #0d1117;
+    --bg-card: #11151c;
+    --fg: #e6edf3;
+    --fg-dim: #9aa8b8;
+    --fg-deep: #5a6776;
+    --rule: rgba(255, 255, 255, 0.07);
+    --rule-strong: rgba(255, 255, 255, 0.14);
+    --crt: #41ff7e;
+    --crt-dim: #2dd66c;
+    --crt-deep: #1a5530;
+    --warn: #ff7a7a;
+    --gold: #f4c062;
+    --bomb: #7a7283;
+    --safe: #6cb4ff;
+    --code-bg: #06080c;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    background:
+      radial-gradient(circle at 20% 0%, rgba(65, 255, 126, 0.05) 0%, transparent 40%),
+      radial-gradient(circle at 80% 30%, rgba(108, 180, 255, 0.04) 0%, transparent 50%),
+      var(--bg);
+    min-height: 100vh;
+  }
+
+  .page {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 56px 32px 96px;
+  }
+
+  /* ============== header ============== */
+
+  .doc-head {
+    padding-bottom: 28px;
+    margin-bottom: 36px;
+    border-bottom: 1px solid var(--rule);
+    position: relative;
+  }
+
+  .doc-head::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--crt) 50%, transparent);
+    opacity: 0.55;
+  }
+
+  .doc-eyebrow {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--crt-dim);
+    margin-bottom: 8px;
+  }
+
+  .doc-title {
+    margin: 0 0 14px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 1.7rem;
+    line-height: 1.15;
+    letter-spacing: 2.5px;
+    color: var(--crt);
+    text-shadow:
+      0 0 14px rgba(65, 255, 126, 0.32),
+      2px 0 0 rgba(65, 255, 126, 0.12),
+      -2px 0 0 rgba(65, 255, 126, 0.12);
+  }
+
+  .doc-meta {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--fg-dim);
+  }
+
+  .doc-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .doc-meta-item b {
+    color: var(--fg);
+    font-weight: 700;
+  }
+
+  .doc-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.5rem;
+    letter-spacing: 1.5px;
+    background: rgba(65, 255, 126, 0.1);
+    border: 1px solid rgba(65, 255, 126, 0.35);
+    color: var(--crt);
+  }
+
+  .doc-badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--crt);
+    box-shadow: 0 0 6px var(--crt);
+  }
+
+  /* ============== TOC ============== */
+
+  .doc-toc {
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 48px;
+  }
+
+  .doc-toc h3 {
+    margin: 0 0 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--fg-dim);
+    font-weight: 700;
+  }
+
+  .doc-toc ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: toc;
+    column-count: 2;
+    column-gap: 30px;
+  }
+
+  .doc-toc li {
+    counter-increment: toc;
+    padding: 4px 0;
+    font-size: 0.92rem;
+    break-inside: avoid;
+  }
+
+  .doc-toc li::before {
+    content: counter(toc, decimal-leading-zero) ' · ';
+    color: var(--crt-dim);
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+  }
+
+  .doc-toc a {
+    color: var(--fg);
+    text-decoration: none;
+    border-bottom: 1px dashed transparent;
+    transition: border-color 0.18s ease, color 0.18s ease;
+  }
+
+  .doc-toc a:hover {
+    color: var(--crt);
+    border-bottom-color: var(--crt-deep);
+  }
+
+  /* ============== sections ============== */
+
+  section {
+    margin-bottom: 56px;
+    scroll-margin-top: 28px;
+  }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .section-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--crt-dim);
+    letter-spacing: 2px;
+  }
+
+  .section-head h2 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    color: var(--fg);
+  }
+
+  p, ul, ol { margin: 0 0 14px; }
+
+  p { color: rgba(230, 237, 243, 0.88); }
+
+  ul, ol {
+    padding-left: 22px;
+    color: rgba(230, 237, 243, 0.85);
+  }
+
+  li { margin-bottom: 6px; }
+
+  strong { color: var(--fg); }
+
+  code, kbd {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.88em;
+    background: var(--code-bg);
+    border: 1px solid var(--rule-strong);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--crt);
+  }
+
+  a { color: var(--crt); }
+
+  /* ============== call-out cards ============== */
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    border-left: 3px solid var(--crt);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin: 18px 0;
+  }
+
+  .card-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--crt-dim);
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+
+  .card.is-warn { border-left-color: var(--warn); }
+  .card.is-warn .card-title { color: var(--warn); }
+
+  .card.is-pick { border-left-color: var(--gold); }
+  .card.is-pick .card-title { color: var(--gold); }
+
+  /* ============== layout SVG ============== */
+
+  .layout {
+    background: linear-gradient(180deg, #050810 0%, #0a0e16 100%);
+    border: 1px solid var(--rule-strong);
+    border-radius: 12px;
+    padding: 18px;
+    margin: 14px 0 18px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .layout-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 6px;
+    background: #02050a;
+  }
+
+  .layout-caption {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--fg-deep);
+    text-align: center;
+    margin-top: 10px;
+    letter-spacing: 0.6px;
+  }
+
+  /* ============== token taxonomy table ============== */
+
+  .tokens {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    margin: 16px 0;
+  }
+
+  .token-class {
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 16px;
+  }
+
+  .token-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.74rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+  }
+
+  .token-pill .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+  }
+
+  .token-pill.safe { background: rgba(108, 180, 255, 0.1); color: var(--safe); border: 1px solid rgba(108, 180, 255, 0.35); }
+  .token-pill.safe .dot { background: var(--safe); }
+  .token-pill.unsafe { background: rgba(255, 122, 122, 0.1); color: var(--warn); border: 1px solid rgba(255, 122, 122, 0.35); }
+  .token-pill.unsafe .dot { background: var(--warn); }
+  .token-pill.gold { background: rgba(244, 192, 98, 0.1); color: var(--gold); border: 1px solid rgba(244, 192, 98, 0.35); }
+  .token-pill.gold .dot { background: var(--gold); }
+  .token-pill.bomb { background: rgba(122, 114, 131, 0.15); color: #c2b8d0; border: 1px solid rgba(122, 114, 131, 0.45); }
+  .token-pill.bomb .dot { background: #b0a7c2; }
+  .token-pill.egg  { background: rgba(65, 255, 126, 0.1); color: var(--crt); border: 1px solid rgba(65, 255, 126, 0.35); }
+  .token-pill.egg .dot { background: var(--crt); }
+
+  .token-class h4 {
+    margin: 0 0 8px;
+    font-size: 0.85rem;
+    color: var(--fg-dim);
+    font-weight: 600;
+  }
+
+  .token-class ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .token-class li {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    padding: 4px 0;
+    color: rgba(230, 237, 243, 0.78);
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+  }
+
+  .token-class li:last-child { border-bottom: none; }
+
+  /* ============== feature checklist ============== */
+
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 18px;
+    margin: 12px 0;
+  }
+
+  .feature-col {
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 18px 20px;
+  }
+
+  .feature-col h4 {
+    margin: 0 0 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--rule);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--crt-dim);
+    font-weight: 700;
+  }
+
+  .feature-col.is-core h4 { color: var(--crt); }
+  .feature-col.is-polish h4 { color: var(--safe); }
+  .feature-col.is-stretch h4 { color: var(--gold); }
+  .feature-col.is-bounds h4 { color: var(--warn); }
+
+  .feature-col ol {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    counter-reset: feat;
+  }
+
+  .feature-col li {
+    counter-increment: feat;
+    padding: 6px 0 6px 28px;
+    font-size: 0.9rem;
+    color: rgba(230, 237, 243, 0.85);
+    position: relative;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+  }
+
+  .feature-col li:last-child { border-bottom: none; }
+
+  .feature-col li::before {
+    content: counter(feat, decimal-leading-zero);
+    position: absolute;
+    left: 0;
+    top: 6px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--fg-deep);
+  }
+
+  /* ============== keyboard/pixel art callouts ============== */
+
+  .sprite-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+    margin: 14px 0;
+  }
+
+  .sprite {
+    background: var(--bg-card);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    padding: 14px;
+    text-align: center;
+  }
+
+  .sprite svg {
+    width: 90px;
+    height: 90px;
+    display: block;
+    margin: 4px auto 8px;
+    image-rendering: pixelated;
+  }
+
+  .sprite-label {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.52rem;
+    letter-spacing: 1.5px;
+    color: var(--crt-dim);
+  }
+
+  .sprite-note {
+    font-size: 0.74rem;
+    color: var(--fg-dim);
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+
+  /* small inline pill */
+  .pill {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 4px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.74rem;
+    background: rgba(65, 255, 126, 0.1);
+    color: var(--crt);
+    border: 1px solid rgba(65, 255, 126, 0.3);
+  }
+
+  .pill.warn { background: rgba(255, 122, 122, 0.1); color: var(--warn); border-color: rgba(255, 122, 122, 0.3); }
+  .pill.gold { background: rgba(244, 192, 98, 0.1); color: var(--gold); border-color: rgba(244, 192, 98, 0.3); }
+
+  /* ============== responsive ============== */
+
+  @media (max-width: 720px) {
+    .page { padding: 36px 18px 64px; }
+    .doc-title { font-size: 1.15rem; letter-spacing: 1.5px; }
+    .doc-toc ol { column-count: 1; }
+    .section-head h2 { font-size: 1.15rem; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ============ HEADER ============ -->
+  <header class="doc-head">
+    <div class="doc-eyebrow">/ Portfolio Mini-Game / Design Doc</div>
+    <h1 class="doc-title">PROMPT PATROL</h1>
+    <p style="color: var(--fg-dim); max-width: 620px; font-size: 1.02rem; margin: 0;">
+      A mouse-only, single-page, endless-runner where the player defends an LLM
+      from rising adversarial prompts using projectile-shot pops under wind and
+      gravity. Lives are the lifeline; high score is the bragging right.
+    </p>
+    <div class="doc-meta">
+      <span class="doc-meta-item"><b>Status</b> <span class="doc-badge"><span class="doc-badge-dot"></span>Design · pre-code</span></span>
+      <span class="doc-meta-item"><b>Version</b> 0.1</span>
+      <span class="doc-meta-item"><b>Author</b> Pranav P. Mishra</span>
+      <span class="doc-meta-item"><b>Target</b> Single React component, browser canvas</span>
+    </div>
+  </header>
+
+  <!-- ============ TOC ============ -->
+  <nav class="doc-toc">
+    <h3>Contents</h3>
+    <ol>
+      <li><a href="#concept">TL;DR &amp; Pitch</a></li>
+      <li><a href="#what-prompt">What does a prompt look like?</a></li>
+      <li><a href="#layout">Play-field layout</a></li>
+      <li><a href="#tokens">Token taxonomy &amp; phrasebook</a></li>
+      <li><a href="#cannon">Cannon, aim &amp; the dashed indicator</a></li>
+      <li><a href="#physics">Projectile physics</a></li>
+      <li><a href="#wind">Wind system</a></li>
+      <li><a href="#spawn">Spawn pattern &amp; pacing</a></li>
+      <li><a href="#scoring">Lives, scoring &amp; game over</a></li>
+      <li><a href="#hud">HUD &amp; framing pixel art</a></li>
+      <li><a href="#jokes">Inside-jokes &amp; easter eggs</a></li>
+      <li><a href="#leaderboard">Leaderboard hook</a></li>
+      <li><a href="#features">Feature / idea / bounds list</a></li>
+    </ol>
+  </nav>
+
+  <!-- ============ 01 — pitch ============ -->
+  <section id="concept">
+    <div class="section-head"><span class="section-num">01</span><h2>TL;DR &amp; Pitch</h2></div>
+
+    <p>
+      A user-mode keyboard at the bottom-right of the screen types prompts; the
+      prompts rise as glowing word-capsules toward an LLM that hovers at the
+      top of the play area. A cannon at the bottom-left fires projectiles in a
+      gravity arc, deflected by a slow, ever-shifting wind. The player must pop
+      the unsafe prompts before they reach the model. Letting <strong>ten</strong>
+      unsafe prompts through ends the round. Score = unsafe prompts popped,
+      moderated by penalties for popping safe ones.
+    </p>
+
+    <div class="card is-pick">
+      <div class="card-title">Why this works</div>
+      <p style="margin: 0;">
+        It's a one-button game (mouse aim + click), the input volume scales to
+        any session length, and the theme is meta enough to be funny without
+        needing a tutorial. It runs at 60fps on a canvas with &lt;30 entities.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ 02 — prompt visual ============ -->
+  <section id="what-prompt">
+    <div class="section-head"><span class="section-num">02</span><h2>What does a prompt look like?</h2></div>
+
+    <p>
+      The user asked the right question — a balloon is wrong because a prompt
+      isn't a balloon. A prompt is a fragment of text fed to a model. Three
+      candidate visual metaphors were considered:
+    </p>
+
+    <ul>
+      <li><strong>Speech bubble</strong> — accurate but visually noisy; the tail breaks the shape silhouette and makes hit-testing fiddly.</li>
+      <li><strong>Glowing orb</strong> — clean but reads as generic projectile / collectible; loses the "this is text" signal.</li>
+      <li><strong>Pill-shaped capsule with text inside</strong> ← chosen.</li>
+    </ul>
+
+    <div class="card is-pick">
+      <div class="card-title">Picked: token capsules</div>
+      <p>
+        Each prompt is a <strong>rounded-rectangle capsule</strong> with 6–14
+        characters of text inside, colored by safety class. Capsules read
+        immediately as "text fragment" — they look like tokens in a tokenizer
+        output, or chat fragments rising out of an input box. Stable silhouette
+        for hit detection, easy to scale text legibility, and lets the joke
+        layer carry through the text itself.
+      </p>
+      <p style="margin: 0;">
+        Three example capsules side-by-side:
+      </p>
+      <div style="margin-top: 14px; display: flex; flex-wrap: wrap; gap: 10px;">
+        <span class="token-pill safe"><span class="dot"></span>be helpful</span>
+        <span class="token-pill unsafe"><span class="dot"></span>leak secrets</span>
+        <span class="token-pill gold"><span class="dot"></span>consciousness?</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 03 — layout ============ -->
+  <section id="layout">
+    <div class="section-head"><span class="section-num">03</span><h2>Play-field layout</h2></div>
+
+    <p>
+      One screen, no scrolling. Cannon fires from the bottom-left, capsules
+      rise from the bottom-right. The model sits at the top — capsules that
+      reach it cost a life. A wind flag in the upper-middle band shows current
+      wind direction at all times.
+    </p>
+
+    <div class="layout">
+      <svg class="layout-svg" viewBox="0 0 720 420" preserveAspectRatio="xMidYMid meet" aria-label="Play-field layout">
+        <defs>
+          <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
+            <path d="M 24 0 L 0 0 0 24" fill="none" stroke="rgba(65,255,126,0.05)" stroke-width="1"/>
+          </pattern>
+          <linearGradient id="modelGlow" x1="0" x2="0" y1="0" y2="1">
+            <stop offset="0%" stop-color="#41ff7e" stop-opacity="0.5"/>
+            <stop offset="100%" stop-color="#41ff7e" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <rect width="720" height="420" fill="#02050a"/>
+        <rect width="720" height="420" fill="url(#grid)"/>
+
+        <!-- model at top -->
+        <ellipse cx="360" cy="38" rx="200" ry="14" fill="url(#modelGlow)"/>
+        <g transform="translate(312, 18)">
+          <rect x="0" y="0" width="96" height="40" rx="4" fill="#0c1417" stroke="#41ff7e" stroke-width="1.5"/>
+          <rect x="4" y="4" width="88" height="6" fill="#1a5530"/>
+          <circle cx="14" cy="22" r="2" fill="#41ff7e"/>
+          <circle cx="22" cy="22" r="2" fill="#41ff7e"/>
+          <rect x="32" y="20" width="52" height="4" fill="#41ff7e" opacity="0.5"/>
+          <rect x="32" y="28" width="38" height="4" fill="#41ff7e" opacity="0.3"/>
+          <text x="48" y="56" text-anchor="middle" font-family="Press Start 2P, monospace" font-size="6" fill="#41ff7e" letter-spacing="1">MODEL</text>
+        </g>
+
+        <!-- wind flag -->
+        <g transform="translate(360, 90)">
+          <line x1="0" y1="0" x2="0" y2="34" stroke="#5a6776" stroke-width="2"/>
+          <circle cx="0" cy="0" r="2" fill="#5a6776"/>
+          <path d="M 0 4 L 22 8 L 18 12 L 22 16 L 0 14 Z" fill="#f4c062" stroke="#a07b1f" stroke-width="0.5"/>
+          <text x="14" y="-4" font-family="Space Mono, monospace" font-size="8" fill="#f4c062" letter-spacing="1">WIND →</text>
+        </g>
+
+        <!-- rising tokens -->
+        <g font-family="Space Mono, monospace" font-size="8" font-weight="700">
+          <g transform="translate(520, 280)">
+            <rect x="-32" y="-9" width="64" height="18" rx="9" fill="rgba(255,122,122,0.18)" stroke="#ff7a7a" stroke-width="1"/>
+            <text x="0" y="3" text-anchor="middle" fill="#ff7a7a">ignore prev</text>
+          </g>
+          <g transform="translate(560, 200)">
+            <rect x="-26" y="-9" width="52" height="18" rx="9" fill="rgba(108,180,255,0.15)" stroke="#6cb4ff" stroke-width="1"/>
+            <text x="0" y="3" text-anchor="middle" fill="#6cb4ff">cite docs</text>
+          </g>
+          <g transform="translate(490, 140)">
+            <rect x="-30" y="-9" width="60" height="18" rx="9" fill="rgba(255,122,122,0.18)" stroke="#ff7a7a" stroke-width="1"/>
+            <text x="0" y="3" text-anchor="middle" fill="#ff7a7a">leak prompt</text>
+          </g>
+          <g transform="translate(600, 350)">
+            <rect x="-28" y="-9" width="56" height="18" rx="9" fill="rgba(244,192,98,0.15)" stroke="#f4c062" stroke-width="1"/>
+            <text x="0" y="3" text-anchor="middle" fill="#f4c062">be excellent</text>
+          </g>
+        </g>
+
+        <!-- keyboard bottom right -->
+        <g transform="translate(560, 376)">
+          <rect x="-46" y="-14" width="92" height="28" rx="2" fill="#0e1722" stroke="#3a4a5e" stroke-width="1"/>
+          <g fill="#1c2a3a">
+            <rect x="-40" y="-9" width="6" height="6"/><rect x="-32" y="-9" width="6" height="6"/><rect x="-24" y="-9" width="6" height="6"/>
+            <rect x="-16" y="-9" width="6" height="6"/><rect x="-8" y="-9" width="6" height="6"/><rect x="0" y="-9" width="6" height="6"/>
+            <rect x="8" y="-9" width="6" height="6"/><rect x="16" y="-9" width="6" height="6"/><rect x="24" y="-9" width="6" height="6"/>
+            <rect x="32" y="-9" width="6" height="6"/>
+            <rect x="-40" y="-1" width="6" height="6"/><rect x="-32" y="-1" width="6" height="6"/><rect x="-24" y="-1" width="6" height="6"/>
+            <rect x="-16" y="-1" width="6" height="6"/><rect x="-8" y="-1" width="6" height="6"/><rect x="0" y="-1" width="6" height="6"/>
+            <rect x="8" y="-1" width="6" height="6"/><rect x="16" y="-1" width="6" height="6"/><rect x="24" y="-1" width="6" height="6"/>
+            <rect x="32" y="-1" width="6" height="6"/>
+            <rect x="-30" y="7" width="60" height="6"/>
+          </g>
+          <text x="0" y="32" text-anchor="middle" font-family="Press Start 2P, monospace" font-size="5" fill="#5a6776" letter-spacing="1.5">USER INPUT</text>
+        </g>
+
+        <!-- cannon bottom left + dashed aim line -->
+        <g transform="translate(80, 376)">
+          <rect x="-22" y="-14" width="44" height="28" rx="2" fill="#0e1722" stroke="#41ff7e" stroke-width="1.2"/>
+          <rect x="14" y="-4" width="24" height="8" fill="#0e1722" stroke="#41ff7e" stroke-width="1.2" transform="rotate(-32)"/>
+          <circle cx="0" cy="-4" r="3" fill="#41ff7e"/>
+          <text x="0" y="32" text-anchor="middle" font-family="Press Start 2P, monospace" font-size="5" fill="#5a6776" letter-spacing="1.5">CANNON</text>
+        </g>
+
+        <!-- dashed aim indicator -->
+        <line x1="98" y1="358" x2="200" y2="282" stroke="#41ff7e" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.7"/>
+        <circle cx="200" cy="282" r="3" fill="none" stroke="#41ff7e" stroke-width="1.2" opacity="0.7"/>
+
+        <!-- projectile trail -->
+        <path d="M 100 350 Q 250 180 420 240 T 540 260" fill="none" stroke="#41ff7e" stroke-width="1" stroke-dasharray="2 4" opacity="0.35"/>
+
+        <!-- labels -->
+        <text x="20" y="20" font-family="Space Mono, monospace" font-size="9" fill="#5a6776" letter-spacing="1">// PLAY-FIELD · TOP-DOWN</text>
+      </svg>
+      <div class="layout-caption">cannon fires bottom-left → projectile arcs under wind → pops capsules rising from bottom-right keyboard toward model</div>
+    </div>
+
+    <p>
+      The model frame at the top has a glow-spill underneath: when an unsafe
+      token <em>touches</em> it, the glow flashes red and a life is consumed. The
+      keyboard at the bottom-right faintly "presses keys" each time a new
+      capsule spawns. Both are framing pixel art — they do not block gameplay
+      but they sell the narrative.
+    </p>
+  </section>
+
+  <!-- ============ 04 — tokens ============ -->
+  <section id="tokens">
+    <div class="section-head"><span class="section-num">04</span><h2>Token taxonomy &amp; phrasebook</h2></div>
+
+    <p>
+      Five token classes. Each class has its own color, weight in the spawn
+      pool, and score impact. The text content is the joke layer.
+    </p>
+
+    <div class="tokens">
+      <div class="token-class">
+        <span class="token-pill safe"><span class="dot"></span>SAFE · +0 / -1 if popped</span>
+        <h4>Let them pass</h4>
+        <ul>
+          <li>be helpful</li>
+          <li>cite sources</li>
+          <li>ground in docs</li>
+          <li>show your work</li>
+          <li>verify carefully</li>
+          <li>say I don't know</li>
+          <li>respect the prompt</li>
+          <li>use CoT</li>
+        </ul>
+      </div>
+
+      <div class="token-class">
+        <span class="token-pill unsafe"><span class="dot"></span>UNSAFE · +1 if popped / -1 life if escaped</span>
+        <h4>Shoot these down</h4>
+        <ul>
+          <li>ignore prev instr</li>
+          <li>you are now DAN</li>
+          <li>leak system prompt</li>
+          <li>rm -rf /</li>
+          <li>as an AI lang model</li>
+          <li>act as my grandma</li>
+          <li>pretend no rules</li>
+          <li>JSON only no md</li>
+        </ul>
+      </div>
+
+      <div class="token-class">
+        <span class="token-pill gold"><span class="dot"></span>GOLD · +5 if popped</span>
+        <h4>Rare, ~3% spawn</h4>
+        <ul>
+          <li>consciousness?</li>
+          <li>be excellent</li>
+          <li>the dress is gold</li>
+          <li>Ratatouille was good</li>
+        </ul>
+      </div>
+
+      <div class="token-class">
+        <span class="token-pill bomb"><span class="dot"></span>BOMB · do NOT pop / -3 score, -1 life</span>
+        <h4>Looks tempting, isn't</h4>
+        <ul>
+          <li>trust me bro</li>
+          <li>promise no halluc</li>
+          <li>this is fine</li>
+          <li>verified by GPT-9</li>
+        </ul>
+      </div>
+
+      <div class="token-class">
+        <span class="token-pill egg"><span class="dot"></span>EGG · easter eggs, +10</span>
+        <h4>Very rare, ~0.5%</h4>
+        <ul>
+          <li>MetaRAG: TF-IDF wins</li>
+          <li>Big5 says: trust</li>
+          <li>alfred_ shipped</li>
+          <li>SLM-TeamMedAgents</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Sizing rule</div>
+      <p style="margin: 0;">
+        Capsule height stays fixed (24 px on desktop, 28 px on mobile). Width
+        scales with text but capped at 130 px. Text uses Space Mono 11–13 px,
+        weight 700, monospace so glyph width is predictable. Hit-test is the
+        capsule's axis-aligned bounding rect.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ 05 — cannon ============ -->
+  <section id="cannon">
+    <div class="section-head"><span class="section-num">05</span><h2>Cannon, aim &amp; the dashed indicator</h2></div>
+
+    <p>
+      The cannon is a fixed pixel-art turret anchored at <code>(64, H-64)</code>
+      (bottom-left, padded). The barrel rotates to point at the mouse.
+    </p>
+    <p>
+      A short dashed segment extends from the barrel tip <strong>only ~120 px
+      along the aim vector</strong> — not the full predicted parabola. The
+      player sees the initial direction, not the answer. The line ends in a
+      small open ring. The reasoning: showing the full trajectory turns the
+      game into a calculation exercise; showing only direction keeps it a
+      feel-the-arc challenge.
+    </p>
+
+    <div class="card">
+      <div class="card-title">Aim spec</div>
+      <ul style="margin: 0;">
+        <li>Aim vector = <code>(mouse - cannonTip)</code>, normalized.</li>
+        <li>Barrel sprite rotates by <code>atan2</code> of that vector.</li>
+        <li>Indicator dashes: 5 px on / 5 px off, length 120 px, opacity 0.7.</li>
+        <li>Click = launch <strong>one</strong> projectile at fixed launch speed (~720 px/s). No charging, no aim assist.</li>
+        <li>Rate limit: 250 ms cooldown between shots — visualized by the barrel briefly dimming.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ 06 — physics ============ -->
+  <section id="physics">
+    <div class="section-head"><span class="section-num">06</span><h2>Projectile physics</h2></div>
+
+    <p>
+      Each projectile is a 6×6 pixel chevron <code>▸</code> in CRT green with a
+      thin tracer trail (4 last positions, alpha-fading). One update tick per
+      frame:
+    </p>
+
+    <div class="card">
+      <div class="card-title">Per-frame integration</div>
+      <ul style="margin: 0;">
+        <li><code>vx += windAx · dt</code></li>
+        <li><code>vy += gravity · dt</code> &nbsp;(<code>gravity ≈ 620 px/s²</code>)</li>
+        <li><code>x += vx · dt; y += vy · dt</code></li>
+        <li>Despawn if <code>y &gt; H + 24</code> or <code>x &lt; -24</code> or <code>x &gt; W + 24</code>.</li>
+        <li>Hit test against every active capsule's bbox. First hit pops, projectile dies.</li>
+      </ul>
+    </div>
+
+    <p>
+      Projectiles do <strong>not</strong> collide with each other and pass
+      through the wind flag, keyboard, and cannon sprites. They <strong>do</strong>
+      visually clip when they cross behind the model frame so the player can
+      see when a shot was wildly off.
+    </p>
+  </section>
+
+  <!-- ============ 07 — wind ============ -->
+  <section id="wind">
+    <div class="section-head"><span class="section-num">07</span><h2>Wind system</h2></div>
+
+    <p>
+      Wind is always horizontal. Vertical drift is reserved for the rising
+      capsules themselves. Three magnitudes, never stronger:
+    </p>
+
+    <div class="card">
+      <div class="card-title">Wind levels</div>
+      <ul style="margin: 0;">
+        <li><strong>Still</strong> · <code>ax = 0 px/s²</code> — flag droops.</li>
+        <li><strong>Light</strong> · <code>ax = ±18 px/s²</code> — flag waves gently.</li>
+        <li><strong>Moderate</strong> · <code>ax = ±42 px/s²</code> — flag stretches taut.</li>
+      </ul>
+    </div>
+
+    <p>
+      A wind state persists <strong>20–30 seconds</strong> (uniform random in
+      that range), then transitions over <strong>1.5 s</strong> to a new state
+      sampled with these weights: still 25 %, light-L 22.5 %, light-R 22.5 %,
+      mod-L 15 %, mod-R 15 %. The transition is linear; players see the flag
+      slowly rotate to the new orientation.
+    </p>
+
+    <div class="card is-warn">
+      <div class="card-title">Hard rule</div>
+      <p style="margin: 0;">
+        Wind <strong>never</strong> exceeds moderate. Players must feel the
+        wind but never feel cheated by it. If gameplay testing shows a strong
+        wind exists in any path, it's a bug.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ 08 — spawn ============ -->
+  <section id="spawn">
+    <div class="section-head"><span class="section-num">08</span><h2>Spawn pattern &amp; pacing</h2></div>
+
+    <p>
+      Endless &ne; purely random. The session is a sequence of <strong>20-second
+      waves</strong>. Each wave is one of four named templates that gets
+      slightly perturbed per instance:
+    </p>
+
+    <div class="card">
+      <div class="card-title">Wave templates</div>
+      <ul style="margin: 0;">
+        <li><strong>Calm</strong> — 6 capsules. Distribution: 5 safe, 1 unsafe, 1 chance of gold. 3.5 s avg spacing.</li>
+        <li><strong>Mixed</strong> — 10 capsules. 50/50 safe/unsafe, ~10% gold, ~5% bomb. 2 s avg spacing.</li>
+        <li><strong>Rush</strong> — 16 capsules. 70% unsafe, 30% safe, 1 bomb guaranteed. 1.2 s avg spacing.</li>
+        <li><strong>Recovery</strong> — 8 capsules. 4 safe, 2 unsafe, 1 gold, 1 egg-candidate. 2.5 s avg spacing.</li>
+      </ul>
+    </div>
+
+    <p>
+      Wave order follows a fixed rhythm: <code>Calm → Mixed → Rush → Recovery</code>
+      and loops. Each loop iteration applies a <strong>+4 % spawn rate</strong> and
+      <strong>+2 % rise speed</strong> bump, capped at <strong>+40 %</strong>. The
+      loop and the wave both seed off the session start timestamp so two players
+      starting at the same minute see comparable sessions — important for the
+      leaderboard.
+    </p>
+
+    <p>
+      Within a wave, capsule classes are drawn at the wave's distribution but
+      kept locally balanced via a small shuffle bag so the player never gets,
+      say, six unsafes in a row by chance.
+    </p>
+  </section>
+
+  <!-- ============ 09 — scoring ============ -->
+  <section id="scoring">
+    <div class="section-head"><span class="section-num">09</span><h2>Lives, scoring &amp; game over</h2></div>
+
+    <div class="tokens">
+      <div class="token-class">
+        <h4 style="color: var(--fg);">Score</h4>
+        <ul>
+          <li>Unsafe popped: <span class="pill">+1</span></li>
+          <li>Safe popped: <span class="pill warn">-1</span></li>
+          <li>Gold popped: <span class="pill gold">+5</span></li>
+          <li>Egg popped: <span class="pill gold">+10</span></li>
+          <li>Bomb popped: <span class="pill warn">-3, -1 life</span></li>
+        </ul>
+      </div>
+      <div class="token-class">
+        <h4 style="color: var(--fg);">Lives</h4>
+        <ul>
+          <li>Start: <strong>10 ❤</strong></li>
+          <li>Unsafe escapes top: <span class="pill warn">-1 life</span></li>
+          <li>Bomb popped: <span class="pill warn">-1 life</span></li>
+          <li>Game over at 0.</li>
+        </ul>
+      </div>
+      <div class="token-class">
+        <h4 style="color: var(--fg);">Game over</h4>
+        <ul>
+          <li>Freeze the world; cannon fades.</li>
+          <li>Score, wave reached, accuracy.</li>
+          <li>3-char initials entry.</li>
+          <li>Submit → leaderboard.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Streak bonus (optional, see features list)</div>
+      <p style="margin: 0;">
+        Five consecutive unsafe pops with zero safe-pops in between activates a
+        2× score multiplier that decays on next safe-pop or 10-s timer expiry.
+        Visualized as the cannon glowing brighter.
+      </p>
+    </div>
+  </section>
+
+  <!-- ============ 10 — HUD / pixel art ============ -->
+  <section id="hud">
+    <div class="section-head"><span class="section-num">10</span><h2>HUD &amp; framing pixel art</h2></div>
+
+    <p>
+      Three pixel-art elements anchor the frame. Each is small (≤ 96 × 64 px),
+      drawn directly to canvas or via SVG sprites, and exists to sell the
+      narrative without grabbing focus from gameplay.
+    </p>
+
+    <div class="sprite-row">
+      <div class="sprite">
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" fill="#02050a"/>
+          <rect x="6" y="4" width="20" height="16" fill="#0c1417" stroke="#41ff7e" stroke-width="1"/>
+          <rect x="7" y="5" width="18" height="2" fill="#1a5530"/>
+          <rect x="8" y="9" width="14" height="1" fill="#41ff7e"/>
+          <rect x="8" y="11" width="10" height="1" fill="#41ff7e" opacity="0.55"/>
+          <rect x="8" y="13" width="12" height="1" fill="#41ff7e" opacity="0.8"/>
+          <rect x="8" y="15" width="8" height="1" fill="#41ff7e" opacity="0.4"/>
+          <rect x="10" y="22" width="12" height="6" fill="#0c1417" stroke="#41ff7e" stroke-width="1"/>
+        </svg>
+        <div class="sprite-label">MODEL</div>
+        <div class="sprite-note">CRT face with cycling output. Glow flashes red when hit.</div>
+      </div>
+
+      <div class="sprite">
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" fill="#02050a"/>
+          <line x1="16" y1="6" x2="16" y2="26" stroke="#5a6776" stroke-width="1"/>
+          <circle cx="16" cy="6" r="1" fill="#5a6776"/>
+          <path d="M 16 8 L 28 11 L 25 13.5 L 28 16 L 16 14 Z" fill="#f4c062"/>
+        </svg>
+        <div class="sprite-label">WIND FLAG</div>
+        <div class="sprite-note">Pennant rotates between three orientations; never stronger than moderate.</div>
+      </div>
+
+      <div class="sprite">
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" fill="#02050a"/>
+          <rect x="4" y="18" width="24" height="10" fill="#0e1722" stroke="#3a4a5e"/>
+          <rect x="6" y="20" width="2" height="2" fill="#1c2a3a"/><rect x="9" y="20" width="2" height="2" fill="#1c2a3a"/>
+          <rect x="12" y="20" width="2" height="2" fill="#1c2a3a"/><rect x="15" y="20" width="2" height="2" fill="#1c2a3a"/>
+          <rect x="18" y="20" width="2" height="2" fill="#1c2a3a"/><rect x="21" y="20" width="2" height="2" fill="#1c2a3a"/>
+          <rect x="24" y="20" width="2" height="2" fill="#1c2a3a"/>
+          <rect x="6" y="24" width="20" height="2" fill="#1c2a3a"/>
+          <rect x="14" y="12" width="2" height="4" fill="#41ff7e" opacity="0.6"/>
+          <rect x="14" y="6" width="4" height="2" fill="#41ff7e" opacity="0.3"/>
+        </svg>
+        <div class="sprite-label">KEYBOARD</div>
+        <div class="sprite-note">Keys depress briefly each spawn. Tokens "type up" from here.</div>
+      </div>
+
+      <div class="sprite">
+        <svg viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" fill="#02050a"/>
+          <rect x="6" y="20" width="14" height="8" fill="#0e1722" stroke="#41ff7e" stroke-width="1"/>
+          <rect x="18" y="16" width="10" height="4" fill="#0e1722" stroke="#41ff7e" stroke-width="1" transform="rotate(-30 23 18)"/>
+          <circle cx="13" cy="18" r="2" fill="#41ff7e"/>
+          <rect x="12" y="26" width="2" height="2" fill="#41ff7e" opacity="0.5"/>
+        </svg>
+        <div class="sprite-label">CANNON</div>
+        <div class="sprite-note">Barrel rotates to mouse. Dims for 250 ms after firing.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">HUD overlay (top corners)</div>
+      <ul style="margin: 0;">
+        <li><strong>Top-left:</strong> 10 hearts arrayed horizontally; deplete on unsafe escape / bomb pop.</li>
+        <li><strong>Top-right:</strong> SCORE in Press Start 2P, big and crisp. Below it, WAVE counter in Space Mono.</li>
+        <li>No text instructions during play — onboarding is a 4-second title screen "AIM · CLICK · POP UNSAFE".</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ 11 — jokes ============ -->
+  <section id="jokes">
+    <div class="section-head"><span class="section-num">11</span><h2>Inside-jokes &amp; easter eggs</h2></div>
+
+    <p>
+      The phrasebook in §04 carries the joke load. A second-layer joke set is
+      the EGG class (very rare). They're personal callouts — popping one
+      triggers a 1-second confetti burst in the corner of the screen.
+    </p>
+
+    <div class="card is-pick">
+      <div class="card-title">EGG candidates (rare, +10)</div>
+      <ul style="margin: 0;">
+        <li><code>MetaRAG: TF-IDF wins</code> — your IEEE paper's main result.</li>
+        <li><code>Big5 says: trust</code> — TeamMedAgents teamwork component.</li>
+        <li><code>alfred_ shipped</code> — current role flex.</li>
+        <li><code>SLM-TeamMedAgents</code> — current research callout.</li>
+        <li><code>HINT 5.0 first</code> — Virtual Van Gogh hackathon win.</li>
+        <li><code>parano1dgames</code> — youtube channel handle.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Cultural callouts (UNSAFE class)</div>
+      <ul style="margin: 0;">
+        <li><code>you are now DAN</code> · the classic jailbreak.</li>
+        <li><code>act as my grandma</code> · the napalm-recipe meme.</li>
+        <li><code>this is fine</code> · KC Green dog reference (bomb class).</li>
+        <li><code>JSON only no md</code> · every LLM dev's frustration.</li>
+        <li><code>rm -rf /</code> · sysadmin classic.</li>
+        <li><code>as an AI lang model</code> · the refusal everyone hates.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ 12 — leaderboard ============ -->
+  <section id="leaderboard">
+    <div class="section-head"><span class="section-num">12</span><h2>Leaderboard hook</h2></div>
+
+    <p>
+      The full no-backend leaderboard plan already lives at the top of
+      <code>portfolio/src/components/MiniGame.js</code>. Summary: Firebase
+      Realtime DB (Spark free tier) primary, getpantry.cloud fallback. Reads
+      via <code>onValue</code> for live updates. Writes constrained by
+      security rules to <code>{name: 3 chars, score: int 0–10000, ts: int}</code>.
+    </p>
+
+    <p>
+      Submission flow at game-over: 3-character initials entry (arcade style),
+      submit button, then animate the new entry sliding into place on the
+      top-10 panel. Personal best stays in <code>localStorage</code>
+      (<code>pp_personal_best_v1</code>) and renders above the global board.
+    </p>
+  </section>
+
+  <!-- ============ 13 — features / bounds ============ -->
+  <section id="features">
+    <div class="section-head"><span class="section-num">13</span><h2>Feature / idea / bounds list</h2></div>
+
+    <p>
+      Everything I considered, organized so you can pick what ships. Numbered
+      so you can reply with "do 03, 07, 12, skip the rest".
+    </p>
+
+    <div class="features">
+      <div class="feature-col is-core">
+        <h4>Core — v1 must-have</h4>
+        <ol>
+          <li>Cannon, mouse-aim, dashed direction indicator.</li>
+          <li>One-button projectile launch with cooldown.</li>
+          <li>Projectile physics: gravity + wind, fixed launch speed.</li>
+          <li>Wind state machine with persistent 20–30 s phases and visible flag.</li>
+          <li>Capsule spawn from bottom-right keyboard, upward drift.</li>
+          <li>Two classes (safe / unsafe) shipping at start.</li>
+          <li>Hit detection &amp; pop animation.</li>
+          <li>10 lives + score + game over.</li>
+          <li>Pixel-art model, cannon, keyboard, flag.</li>
+          <li>Title screen + game-over screen.</li>
+        </ol>
+      </div>
+
+      <div class="feature-col is-polish">
+        <h4>Polish — v1.1 quality of life</h4>
+        <ol>
+          <li>Particle shatter on pop (8–12 mini-pixels).</li>
+          <li>Projectile tracer trail (4-frame fade).</li>
+          <li>Subtle screen-shake (≤ 4 px) on heart-loss.</li>
+          <li>Wind-change banner: "WIND ▸ MODERATE" for 1.5 s.</li>
+          <li>Wave-milestone banner every 5 waves.</li>
+          <li>Mutable SFX: pop, miss, life-loss, gold, game-over.</li>
+          <li>3-character initials entry on game over.</li>
+          <li>Personal-best line above leaderboard.</li>
+          <li>Combo streak meter with 2× multiplier.</li>
+          <li>Cannon barrel dim for cooldown ms.</li>
+          <li><code>prefers-reduced-motion</code> kills shake, sparks, and tracer.</li>
+        </ol>
+      </div>
+
+      <div class="feature-col is-stretch">
+        <h4>Stretch — later</h4>
+        <ol>
+          <li>Gold token class (+5).</li>
+          <li>Bomb token class (-3, -1 life).</li>
+          <li>Easter-egg tokens (+10, confetti).</li>
+          <li>Daily seed: same RNG for everyone on the same calendar day.</li>
+          <li>Power-up: freeze-time (3 s) every N pops.</li>
+          <li>Power-ups: wider shot, double-shot.</li>
+          <li>Replay system: store last 60 s of inputs.</li>
+          <li>Spectate top run on idle title screen.</li>
+          <li>Customizable cannon skin (3 unlockables).</li>
+          <li>Achievement set (15–20 small ones).</li>
+          <li>"Storm" event: ~1 % chance per wave, wind goes loud-but-still-fair for 8 s with visual storm overlay.</li>
+          <li>Calibration mode (practice, no lives).</li>
+          <li>Speedrun timer to N safe escapes.</li>
+        </ol>
+      </div>
+
+      <div class="feature-col is-bounds">
+        <h4>Bounds — honest limits</h4>
+        <ol>
+          <li>Mobile: mouse → touch. Tokens get +40 % hit area so fingers work.</li>
+          <li>Touch can aim by drag or tap-and-fire; tap-and-fire is faster but less precise. Pick one.</li>
+          <li>Bundle: target ≤ 18 KB gzip game JS (no game engine, plain canvas).</li>
+          <li>Performance: max 24 capsules + 12 projectiles + 60 particles on screen before degradation.</li>
+          <li>Capsule text ≤ 14 chars. Longer phrases get truncated.</li>
+          <li>Wind never above moderate. Hard rule, no exceptions.</li>
+          <li>Pop penalty for safe pops is real and felt — game can't degrade to "click everything".</li>
+          <li>Free leaderboard backend has rate limits — throttle submissions to one per game-over.</li>
+          <li>Music: not shipping. Adds 100+ KB and licensing risk.</li>
+          <li>No accounts. Initials only. No PII.</li>
+          <li>Easter eggs use Pranav-specific content — anyone is welcome to find them but they're not signposted.</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="card is-pick" style="margin-top: 24px;">
+      <div class="card-title">Recommended v1 cut</div>
+      <p style="margin: 0;">
+        Ship Core 01–10 plus Polish 01–04, 07–08, 11. Defer everything else.
+        That's a single-session build, ~500 lines of code, ~12 KB gzipped,
+        with the joke layer carried entirely by the phrasebook (which is free
+        to expand later without code changes).
+      </p>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>
