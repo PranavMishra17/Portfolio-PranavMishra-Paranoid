@@ -1,13 +1,24 @@
 // src/components/ResumeViewer.js
+//
+// The live resume is hosted on Pranav's profile repo and is the source
+// of truth. Local PDFs in /resumes/{ai,game} are fallbacks; their
+// filenames are discovered at build time by
+// scripts/generate-resume-manifest.js, so any PDF dropped into either
+// folder is picked up without code changes.
+//
+// === Why the live PDF goes through a blob URL ===
+// raw.githubusercontent.com serves PDFs with `Content-Disposition:
+// attachment`, which makes Chrome trigger an auto-download instead of
+// rendering inline when set as an iframe src. To force inline render
+// we fetch the PDF as a Blob client-side, re-tag it as
+// application/pdf, and hand a same-origin object URL to the iframe.
+// The browser then renders it in its built-in viewer the same way it
+// would a local PDF.
+
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './ResumeViewer.css';
 
-// Live resume: single source of truth lives on Pranav's profile repo.
-// Local PDFs in /resumes/{ai,game} are fallbacks for when the live PDF
-// is unavailable. The manifest is generated at build/start time by
-// scripts/generate-resume-manifest.js so any PDF dropped in those
-// folders is picked up regardless of filename.
 const GITHUB_PDF_URL =
   'https://raw.githubusercontent.com/PranavMishra17/PranavMishra17/main/RESUME%20Pranav_Mishra.pdf';
 const GITHUB_VIEW_URL =
@@ -19,6 +30,8 @@ const localPath = (folder, file) =>
 const ResumeViewer = () => {
   const [manifest, setManifest] = useState({ ai: null, game: null });
   const [liveAvailable, setLiveAvailable] = useState(null); // null = probing
+  const [liveBlobUrl, setLiveBlobUrl] = useState(null);
+  const [liveFetchError, setLiveFetchError] = useState(false);
   const [activeKey, setActiveKey] = useState('live');
 
   // Load the build-time manifest (whatever PDF lives in each folder).
@@ -35,8 +48,8 @@ const ResumeViewer = () => {
     };
   }, []);
 
-  // Probe the GitHub-hosted PDF. raw.githubusercontent.com sends CORS
-  // headers so a HEAD request succeeds when the file exists.
+  // Probe the GitHub-hosted PDF with a HEAD so the tab knows whether to
+  // even attempt the live source.
   useEffect(() => {
     let cancelled = false;
     fetch(GITHUB_PDF_URL, { method: 'HEAD', mode: 'cors' })
@@ -51,28 +64,60 @@ const ResumeViewer = () => {
     };
   }, []);
 
-  // If live fails, auto-switch to the first available backup.
+  // Fetch the live PDF as a Blob and hand the iframe a same-origin
+  // object URL — bypasses GitHub's attachment disposition.
   useEffect(() => {
-    if (liveAvailable === false && activeKey === 'live') {
+    if (liveAvailable !== true) return;
+    let cancelled = false;
+    let createdUrl = null;
+
+    fetch(GITHUB_PDF_URL, { mode: 'cors' })
+      .then((r) => (r.ok ? r.blob() : Promise.reject(new Error('bad status'))))
+      .then((blob) => {
+        if (cancelled) return;
+        const pdfBlob =
+          blob.type === 'application/pdf'
+            ? blob
+            : new Blob([blob], { type: 'application/pdf' });
+        createdUrl = URL.createObjectURL(pdfBlob);
+        setLiveBlobUrl(createdUrl);
+      })
+      .catch(() => {
+        if (!cancelled) setLiveFetchError(true);
+      });
+
+    return () => {
+      cancelled = true;
+      if (createdUrl) URL.revokeObjectURL(createdUrl);
+    };
+  }, [liveAvailable]);
+
+  // If live fails (probe or blob fetch), auto-switch to the first
+  // available backup.
+  useEffect(() => {
+    const liveBroken = liveAvailable === false || liveFetchError;
+    if (liveBroken && activeKey === 'live') {
       if (manifest.ai) setActiveKey('ai');
       else if (manifest.game) setActiveKey('game');
     }
-  }, [liveAvailable, manifest, activeKey]);
+  }, [liveAvailable, liveFetchError, manifest, activeKey]);
 
   const sources = {
     live: {
       label: 'Live Resume',
       sublabel: 'GitHub',
-      src: GITHUB_PDF_URL,
+      // iframe gets the blob URL (renders inline); download/external
+      // still point at GitHub so the user can grab the canonical file.
+      iframeSrc: liveBlobUrl,
       downloadHref: GITHUB_PDF_URL,
       externalHref: GITHUB_VIEW_URL,
       externalLabel: 'Open on GitHub',
-      available: liveAvailable !== false,
+      available: liveAvailable !== false && !liveFetchError,
     },
     ai: {
       label: 'AI / ML',
       sublabel: 'Local backup',
-      src: localPath('ai', manifest.ai),
+      iframeSrc: localPath('ai', manifest.ai),
       downloadHref: localPath('ai', manifest.ai),
       externalHref: localPath('ai', manifest.ai),
       externalLabel: 'Open in new tab',
@@ -81,7 +126,7 @@ const ResumeViewer = () => {
     game: {
       label: 'Game Design',
       sublabel: 'Local backup',
-      src: localPath('game', manifest.game),
+      iframeSrc: localPath('game', manifest.game),
       downloadHref: localPath('game', manifest.game),
       externalHref: localPath('game', manifest.game),
       externalLabel: 'Open in new tab',
@@ -92,6 +137,11 @@ const ResumeViewer = () => {
   const tabOrder = ['live', 'ai', 'game'];
   const active = sources[activeKey];
   const probing = liveAvailable === null && activeKey === 'live';
+  const liveLoading =
+    activeKey === 'live' &&
+    liveAvailable === true &&
+    !liveBlobUrl &&
+    !liveFetchError;
 
   return (
     <div className="resume-page">
@@ -125,29 +175,31 @@ const ResumeViewer = () => {
         </div>
 
         <div className="resume-status">
-          {activeKey === 'live' && liveAvailable === true && (
+          {activeKey === 'live' && liveAvailable === true && liveBlobUrl && (
             <span className="resume-status-pill live">
               <span className="resume-status-dot" /> Live · streaming from GitHub
             </span>
           )}
-          {activeKey === 'live' && probing && (
-            <span className="resume-status-pill">Checking live resume…</span>
+          {(probing || liveLoading) && (
+            <span className="resume-status-pill">Loading live resume…</span>
           )}
-          {liveAvailable === false && (
+          {(liveAvailable === false || liveFetchError) && (
             <span className="resume-status-pill warn">
               Live resume unreachable — showing local backup
             </span>
           )}
-          {activeKey !== 'live' && liveAvailable !== false && (
+          {activeKey !== 'live' && !liveFetchError && liveAvailable !== false && (
             <span className="resume-status-pill">Local backup</span>
           )}
         </div>
 
         <div className="resume-content">
-          {active.src ? (
+          {liveLoading ? (
+            <div className="resume-empty">Fetching the latest resume…</div>
+          ) : active.iframeSrc ? (
             <iframe
-              key={activeKey}
-              src={active.src}
+              key={activeKey + (active.iframeSrc || '')}
+              src={active.iframeSrc}
               title={`${active.label} Resume`}
               className="resume-frame"
             />

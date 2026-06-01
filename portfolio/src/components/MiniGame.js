@@ -3,8 +3,7 @@
 // Entry point for an upcoming portfolio mini-game. Right now this ships
 // only the CTA button + a "Coming Soon" panel. The actual game is
 // deferred. The notes below capture the agreed concept so a future
-// session (or future me) can pick it up without re-running the
-// brainstorming pass.
+// session can pick it up without re-running the brainstorming pass.
 //
 // ============================================================
 // Concept — working title "Prompt Patrol"
@@ -25,7 +24,9 @@
 //   (a) pastel balloons + blue glow — matches the AI section
 //   (b) pixel-retro Press Start 2P arcade vibe — matches Game Design
 //   (c) plain floating word-tags, no balloon graphic at all
-// User will pick when the game itself is built.
+// User will pick when the game itself is built. The Play button and
+// Coming-Soon panel already lean (b) so future visuals should align
+// unless the user opts otherwise.
 //
 // ============================================================
 // Mechanics
@@ -73,47 +74,85 @@
 //      - abacus.jasoncameron.dev (the view-counter API): only supports
 //        increment, can't store arbitrary scores.
 //      - Vercel KV / Edge Config: paid tier for writes at any scale.
-//
-// Either Firebase or Pantry satisfies "live + no backend we host."
-// Default plan is Firebase for the security-rule validation; switch to
-// Pantry if Firebase setup feels heavy.
 
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './MiniGame.css';
 
-// ---------------- CTA button ----------------
-
-export const PlayMiniGameButton = ({ onClick }) => (
-  <motion.button
-    type="button"
-    className="play-game-btn"
-    onClick={onClick}
-    whileHover={{ scale: 1.04, y: -2 }}
-    whileTap={{ scale: 0.98 }}
-    aria-label="Play mini game"
+// ============================================================
+// ArcadeIcon — tiny SVG arcade cabinet with internal animations.
+// The pixel inside the screen "dances", joystick wobbles, and the
+// three buttons pulse in sequence. All driven by CSS keyframes so
+// it costs nothing per-frame from React.
+// ============================================================
+const ArcadeIcon = () => (
+  <svg
+    className="arcade-icon"
+    viewBox="0 0 24 24"
+    aria-hidden="true"
+    focusable="false"
   >
-    <svg
-      className="play-game-icon"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <rect x="2" y="6" width="20" height="12" rx="4" />
-      <path d="M6 12h4M8 10v4" />
-      <circle cx="15" cy="11" r="1.2" fill="currentColor" />
-      <circle cx="17.5" cy="13.5" r="1.2" fill="currentColor" />
-    </svg>
-    <span>Play Mini Game</span>
-    <span className="play-game-tag">Soon</span>
-  </motion.button>
+    {/* cabinet body */}
+    <rect x="4" y="2" width="16" height="20" rx="0.5" className="ac-body" />
+    {/* marquee strip */}
+    <rect x="5" y="3" width="14" height="1.5" className="ac-marquee" />
+    {/* screen */}
+    <rect x="6" y="6" width="12" height="8" className="ac-screen" />
+    {/* dancing pixel inside the screen */}
+    <rect x="11" y="9" width="2" height="2" className="ac-pixel" />
+    {/* control deck */}
+    <rect x="5" y="15" width="14" height="6" className="ac-deck" />
+    {/* joystick stalk */}
+    <line x1="8" y1="20" x2="8" y2="17" className="ac-stick-stalk" />
+    {/* joystick ball */}
+    <circle cx="8" cy="16.5" r="1" className="ac-stick-ball" />
+    {/* three buttons */}
+    <circle cx="13" cy="17" r="0.9" className="ac-btn ac-btn--a" />
+    <circle cx="15.5" cy="18" r="0.9" className="ac-btn ac-btn--b" />
+    <circle cx="17" cy="17" r="0.9" className="ac-btn ac-btn--c" />
+  </svg>
 );
 
-// ---------------- Coming-soon modal ----------------
+// ============================================================
+// PlayMiniGameButton — chunky pixel-arcade CTA.
+// Phosphor-green CRT palette so it doesn't fight the gold trophy.
+// All animation is CSS — marching pixel border, corner sparks,
+// blinking "INSERT COIN" tag, internal icon animations.
+// ============================================================
+export const PlayMiniGameButton = ({ onClick }) => (
+  <button
+    type="button"
+    className="arcade-btn"
+    onClick={onClick}
+    aria-label="Play mini game"
+  >
+    {/* corner sparks emanating outward */}
+    <span className="arcade-spark arcade-spark--tl" aria-hidden="true" />
+    <span className="arcade-spark arcade-spark--tr" aria-hidden="true" />
+    <span className="arcade-spark arcade-spark--br" aria-hidden="true" />
+    <span className="arcade-spark arcade-spark--bl" aria-hidden="true" />
+
+    {/* scanline veil */}
+    <span className="arcade-scanlines" aria-hidden="true" />
+
+    <span className="arcade-content">
+      <ArcadeIcon />
+      <span className="arcade-text">
+        <span className="arcade-label">Play Mini Game</span>
+        <span className="arcade-tag">
+          <span className="arcade-tag-arrow">▸</span>
+          Insert Coin
+          <span className="arcade-tag-arrow">◂</span>
+        </span>
+      </span>
+    </span>
+  </button>
+);
+
+// ============================================================
+// MiniGameModal — "Coming Soon" panel themed to match the button.
+// Phosphor-green frame, pixel-art title, placeholder leaderboard.
+// ============================================================
 
 const PLACEHOLDER_LEADERS = [
   { rank: 1 },
@@ -161,6 +200,8 @@ export const MiniGameModal = ({ isOpen, onClose }) => {
             exit={{ opacity: 0, y: 12 }}
             transition={{ duration: 0.22, ease: [0.32, 0.72, 0.24, 1] }}
           >
+            <span className="game-modal-scanlines" aria-hidden="true" />
+
             <button
               type="button"
               className="game-modal-close"
@@ -174,9 +215,9 @@ export const MiniGameModal = ({ isOpen, onClose }) => {
             </button>
 
             <div className="game-modal-body">
-              <span className="game-modal-eyebrow">Mini Game</span>
+              <span className="game-modal-eyebrow">/ MINI GAME /</span>
               <h2 id="game-modal-title" className="game-modal-title">
-                Prompt Patrol
+                PROMPT PATROL
               </h2>
               <span className="game-modal-soon" role="status">
                 <span className="game-modal-soon-dot" />
@@ -186,8 +227,8 @@ export const MiniGameModal = ({ isOpen, onClose }) => {
               <p className="game-modal-teaser">
                 A one-page, mouse-only endless runner. Word-bubbles drift
                 across the screen — pop the unsafe prompts before they slip
-                past you and let the safe ones float by. Miss ten unsafe
-                bubbles and the round is over.
+                past you and let the safe ones float by. Miss ten and the
+                round is over.
               </p>
 
               <div className="game-modal-leaders">

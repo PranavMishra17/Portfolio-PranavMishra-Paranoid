@@ -3,17 +3,18 @@
 // No-backend live view counter for the header.
 //
 // Hits abacus.jasoncameron.dev — a free, open-source, no-auth atomic
-// counter API. First call to /hit creates the counter and returns 1;
-// every subsequent call increments and returns the new value.
+// counter API. Every page load increments and displays the new value.
 //
-// To make the displayed number start at 1,001 (per the original launch
-// baseline) we add a static OFFSET on top of the API value. A localStorage
-// timestamp throttles increments to once every SESSION_HOURS per browser
-// so refresh-spam doesn't inflate the count — refreshes within the window
-// read via /get without bumping.
+// The displayed number is offset by REACT_APP_VIEW_OFFSET so the
+// counter's "starting" baseline isn't visible as a literal in this
+// public repo. The env var is set in `.env.local` (gitignored) for
+// dev and in the Vercel dashboard for prod. If the var is missing the
+// component falls back to the raw API value with no offset — so a
+// fresh clone still shows a working counter, just one that starts at 1.
 //
-// If the API is blocked (ad-blocker, network) the component silently
-// renders nothing — no broken UI in the header.
+// Caveat the user explicitly accepted: the build bundle is shipped to
+// the browser, so anyone reading the minified JS could still discover
+// the offset. The env-var split only hides it from casual repo readers.
 
 import React, { useEffect, useState } from 'react';
 import './ViewCounter.css';
@@ -21,9 +22,12 @@ import './ViewCounter.css';
 const API = 'https://abacus.jasoncameron.dev';
 const NAMESPACE = 'pranavmishra-portfolio';
 const KEY = 'site-views';
-const OFFSET = 1000;
-const SESSION_STORAGE_KEY = 'pmportfolio_vc_lasthit_v1';
-const SESSION_HOURS = 6;
+
+const RAW_OFFSET = process.env.REACT_APP_VIEW_OFFSET;
+const OFFSET = (() => {
+  const n = parseInt(RAW_OFFSET, 10);
+  return Number.isFinite(n) ? n : 0;
+})();
 
 const formatCount = (n) => n.toLocaleString('en-US');
 
@@ -32,32 +36,13 @@ const ViewCounter = () => {
 
   useEffect(() => {
     let cancelled = false;
-
-    let lastHitTs = null;
-    try {
-      const raw = localStorage.getItem(SESSION_STORAGE_KEY);
-      const ts = raw ? parseInt(raw, 10) : NaN;
-      if (!Number.isNaN(ts)) lastHitTs = ts;
-    } catch {
-      // localStorage may be unavailable (private mode); fall through
-    }
-
-    const sessionFresh =
-      !lastHitTs || Date.now() - lastHitTs > SESSION_HOURS * 3600 * 1000;
-
-    const endpoint = sessionFresh ? 'hit' : 'get';
-    const url = `${API}/${endpoint}/${NAMESPACE}/${KEY}`;
+    const url = `${API}/hit/${NAMESPACE}/${KEY}`;
 
     fetch(url, { mode: 'cors' })
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (cancelled || !data || typeof data.value !== 'number') return;
         setCount(OFFSET + data.value);
-        if (sessionFresh) {
-          try {
-            localStorage.setItem(SESSION_STORAGE_KEY, String(Date.now()));
-          } catch {}
-        }
       })
       .catch(() => {
         // silent — counter just doesn't render
@@ -73,8 +58,8 @@ const ViewCounter = () => {
   return (
     <div
       className="view-counter"
-      title={`${formatCount(count)} unique views since launch`}
-      aria-label={`${formatCount(count)} unique views`}
+      title={`${formatCount(count)} views since launch`}
+      aria-label={`${formatCount(count)} views`}
     >
       <span className="view-counter-dot" aria-hidden="true" />
       <span className="view-counter-num">{formatCount(count)}</span>
