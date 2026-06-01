@@ -1,129 +1,283 @@
-/* src/components/ResumeViewer.css (updated) */
+/* src/components/ResumeViewer.css */
+
 .resume-page {
-    min-height: 100vh;
-    background-color: #0a0a0a;
-    color: #f5f5f5;
-    padding: 2rem 1rem;
-    font-family: 'Roboto', sans-serif;
+  min-height: 100vh;
+  background-color: #0a0a0a;
+  color: #f5f5f5;
+  padding: 2rem 1rem;
+  font-family: 'Roboto', sans-serif;
+}
+
+.resume-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  color: #f5f5f5;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  font-size: 1rem;
+}
+
+.back-button:hover {
+  color: #3d5afe;
+}
+
+.back-icon {
+  margin-right: 0.5rem;
+  font-size: 1.2rem;
+}
+
+.resume-viewer {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  background-color: rgba(30, 30, 30, 0.8);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+}
+
+/* ----- tabs ----- */
+
+.resume-tabs {
+  display: flex;
+  background-color: rgba(20, 20, 20, 0.9);
+  border-bottom: 1px solid #333333;
+}
+
+.resume-tab {
+  flex: 1;
+  padding: 0.85rem 1rem;
+  background: none;
+  border: none;
+  color: #f5f5f5;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-family: 'Inter', sans-serif;
+}
+
+.resume-tab-label {
+  font-size: 0.95rem;
+  letter-spacing: 0.2px;
+}
+
+.resume-tab-sub {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.resume-tab::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: #3d5afe;
+  transition: width 0.3s ease;
+}
+
+.resume-tab:hover:not(.disabled)::after {
+  width: 100%;
+}
+
+.resume-tab.active {
+  color: #3d5afe;
+}
+
+.resume-tab.active .resume-tab-sub {
+  color: rgba(61, 90, 254, 0.7);
+}
+
+.resume-tab.active::after {
+  width: 100%;
+}
+
+.resume-tab.disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ----- status pill row ----- */
+
+.resume-status {
+  display: flex;
+  justify-content: center;
+  padding: 10px 12px 0;
+  background-color: rgba(20, 20, 20, 0.9);
+  font-family: 'Inter', sans-serif;
+}
+
+.resume-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+.resume-status-pill.live {
+  color: #6c7dff;
+  background: rgba(61, 90, 254, 0.1);
+  border-color: rgba(61, 90, 254, 0.32);
+}
+
+.resume-status-pill.warn {
+  color: #ffb454;
+  background: rgba(255, 180, 84, 0.08);
+  border-color: rgba(255, 180, 84, 0.3);
+}
+
+.resume-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #3d5afe;
+  box-shadow: 0 0 0 0 rgba(61, 90, 254, 0.7);
+  animation: resume-live-pulse 1.8s ease-out infinite;
+}
+
+@keyframes resume-live-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(61, 90, 254, 0.65);
   }
-  
-  .resume-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    max-width: 900px;
-    margin-left: auto;
-    margin-right: auto;
+  100% {
+    box-shadow: 0 0 0 8px rgba(61, 90, 254, 0);
   }
-  
-  .back-button {
-    display: flex;
-    align-items: center;
-    color: #f5f5f5;
-    text-decoration: none;
-    transition: color 0.2s ease;
-    font-size: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .resume-status-dot {
+    animation: none;
   }
-  
-  .back-button:hover {
-    color: #3d5afe;
-  }
-  
-  .back-icon {
-    margin-right: 0.5rem;
-    font-size: 1.2rem;
-  }
-  
-  .resume-viewer {
-    width: 100%;
-    max-width: 900px;
-    margin: 0 auto;
-    background-color: rgba(30, 30, 30, 0.8);
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
-  }
-  
-  .resume-tabs {
-    display: flex;
-    background-color: rgba(20, 20, 20, 0.9);
-    border-bottom: 1px solid #333333;
-  }
-  
-  .resume-tab {
-    flex: 1;
-    padding: 1rem;
-    background: none;
-    border: none;
-    color: #f5f5f5;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    position: relative;
-  }
-  
-  .resume-tab::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background-color: #3d5afe;
-    transition: width 0.3s ease;
-  }
-  
-  .resume-tab:hover::after {
-    width: 100%;
-  }
-  
-  .resume-tab.active {
-    color: #3d5afe;
-  }
-  
-  .resume-tab.active::after {
-    width: 100%;
-  }
-  
+}
+
+/* ----- viewer ----- */
+
+.resume-content {
+  height: 80vh;
+  max-height: 700px;
+  background: #1a1a1a;
+}
+
+.resume-frame {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.resume-empty {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  color: rgba(255, 255, 255, 0.65);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.resume-empty code {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.85em;
+  margin: 0 4px;
+  color: #6c7dff;
+}
+
+/* ----- actions ----- */
+
+.resume-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  padding: 1rem;
+  background-color: rgba(20, 20, 20, 0.9);
+  flex-wrap: wrap;
+}
+
+.download-button,
+.ghost-button {
+  padding: 0.55rem 1.1rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.2px;
+}
+
+.download-button {
+  background-color: #3d5afe;
+  color: white;
+  border: 1px solid #3d5afe;
+}
+
+.download-button:hover {
+  background-color: #304ffe;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(61, 90, 254, 0.25);
+}
+
+.ghost-button {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.ghost-button:hover {
+  color: #ffffff;
+  border-color: rgba(61, 90, 254, 0.55);
+  background: rgba(61, 90, 254, 0.06);
+}
+
+@media (max-width: 768px) {
   .resume-content {
-    height: 80vh;
-    max-height: 700px;
+    height: 60vh;
   }
-  
-  .resume-frame {
-    width: 100%;
-    height: 100%;
-    border: none;
+
+  .resume-tab {
+    padding: 0.7rem 0.5rem;
   }
-  
-  .resume-actions {
-    display: flex;
-    justify-content: center;
-    padding: 1rem;
-    background-color: rgba(20, 20, 20, 0.9);
+
+  .resume-tab-label {
+    font-size: 0.82rem;
   }
-  
-  .download-button {
-    padding: 0.5rem 1rem;
-    background-color: #3d5afe;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-decoration: none;
+
+  .resume-tab-sub {
+    font-size: 0.58rem;
   }
-  
-  .download-button:hover {
-    background-color: #304ffe;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
-  }
-  
-  @media (max-width: 768px) {
-    .resume-content {
-      height: 60vh;
-    }
-  }
+}

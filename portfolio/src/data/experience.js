@@ -1,6 +1,23 @@
 // src/data/experience.js
 const experiences = [
   {
+    id: "alfred-founding-llm",
+    company: "Alfred_",
+    title: "Founding LLM Engineer",
+    duration: "April 2026 - Present",
+    location: "Remote",
+    isCurrent: true,
+    companyLogo: "assets/images/companies/alfred.jpg",
+    description: [
+      "Founding engineer on Agent Eval Harness — designing the evaluation infrastructure for LLM-driven agent systems: task scoring, trajectory replay, regression detection, and multi-model benchmark orchestration",
+      "Owning the end-to-end pipeline from eval task authoring through production telemetry, building tools that let researchers iterate on agent prompts and tool-use policies with measurable, reproducible signal"
+    ],
+    techStack: ["Python", "LLM Evaluation", "Agentic Systems", "Multi-Agent Systems", "Anthropic API", "OpenAI", "Async Orchestration", "Telemetry", "Trajectory Analysis"],
+    links: {
+      website: "https://get-alfred.ai/"
+    }
+  },
+  {
     id: "wheelprice-intern",
     company: "WheelPrice",
     title: "AI Engineer",
@@ -8,7 +25,7 @@ const experiences = [
     location: "Charlotte, NC",
     companyLogo: "assets/images/companies/wheelprice.jpg",
     description: [
-      "Building end-to-end ML prototype for automotive part fitment prediction using PyTorch and computer vision models",
+      "Built end-to-end ML prototype for automotive part fitment prediction using PyTorch and computer vision models",
       "Deployed production-grade CMS blog system using React TypeScript with Node.js backend, MongoDB database, and RESTful APIs, scaling daily webapp viewership by 10-20k through enhanced content delivery and SEO implementation"
     ],
     techStack: ["PyTorch", "Computer Vision", "React", "TypeScript", "Node.js", "MongoDB", "RESTful APIs", "SEO"],

@@ -1,61 +1,98 @@
 // src/components/ResumeViewer.js
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { contactInfo } from '../data/projects';
 import './ResumeViewer.css';
 
+// Live resume: single source of truth lives on Pranav's profile repo.
+// Local PDFs in /resumes/{ai,game} are fallbacks for when the live PDF
+// is unavailable. The manifest is generated at build/start time by
+// scripts/generate-resume-manifest.js so any PDF dropped in those
+// folders is picked up regardless of filename.
+const GITHUB_PDF_URL =
+  'https://raw.githubusercontent.com/PranavMishra17/PranavMishra17/main/RESUME%20Pranav_Mishra.pdf';
+const GITHUB_VIEW_URL =
+  'https://github.com/PranavMishra17/PranavMishra17/blob/main/RESUME%20Pranav_Mishra.pdf';
+
+const localPath = (folder, file) =>
+  file ? `/resumes/${folder}/${encodeURIComponent(file)}` : null;
+
 const ResumeViewer = () => {
-  const [activeResume, setActiveResume] = useState('ai'); // AI as default
-  const [resumePaths, setResumePaths] = useState({
-    ai: '/resumes/ai/RESUMEai Pranav Mishra.pdf',
-    game: '/resumes/game/RESUMEgd Pranav Mishra.pdf'
-  });
+  const [manifest, setManifest] = useState({ ai: null, game: null });
+  const [liveAvailable, setLiveAvailable] = useState(null); // null = probing
+  const [activeKey, setActiveKey] = useState('live');
 
-  // Function to find the first PDF in a folder
-  const findPdfInFolder = async (folderPath) => {
-    // Try the actual PDF filenames first
-    const commonFilenames = [
-      'RESUMEai Pranav Mishra.pdf', // AI resume
-      'RESUMEgd Pranav Mishra.pdf', // Game design resume  
-      'resume.pdf', 'cv.pdf', 'Resume.pdf', 'CV.pdf',
-      'resume_ai.pdf', 'resume_game.pdf', 'ai_resume.pdf', 'game_resume.pdf',
-      'Pranav_Resume.pdf', 'Pranav_CV.pdf', 'latest_resume.pdf'
-    ];
+  // Load the build-time manifest (whatever PDF lives in each folder).
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/resumes/manifest.json', { cache: 'no-store' })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!cancelled && data) setManifest(data);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-    for (const filename of commonFilenames) {
-      const fullPath = `${folderPath}/${filename}`;
-      try {
-        const response = await fetch(fullPath, { method: 'HEAD' });
-        if (response.ok) {
-          return fullPath;
-        }
-      } catch (error) {
-        continue;
-      }
+  // Probe the GitHub-hosted PDF. raw.githubusercontent.com sends CORS
+  // headers so a HEAD request succeeds when the file exists.
+  useEffect(() => {
+    let cancelled = false;
+    fetch(GITHUB_PDF_URL, { method: 'HEAD', mode: 'cors' })
+      .then((r) => {
+        if (!cancelled) setLiveAvailable(r.ok);
+      })
+      .catch(() => {
+        if (!cancelled) setLiveAvailable(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // If live fails, auto-switch to the first available backup.
+  useEffect(() => {
+    if (liveAvailable === false && activeKey === 'live') {
+      if (manifest.ai) setActiveKey('ai');
+      else if (manifest.game) setActiveKey('game');
     }
-    return `${folderPath}/resume.pdf`; // fallback
+  }, [liveAvailable, manifest, activeKey]);
+
+  const sources = {
+    live: {
+      label: 'Live Resume',
+      sublabel: 'GitHub',
+      src: GITHUB_PDF_URL,
+      downloadHref: GITHUB_PDF_URL,
+      externalHref: GITHUB_VIEW_URL,
+      externalLabel: 'Open on GitHub',
+      available: liveAvailable !== false,
+    },
+    ai: {
+      label: 'AI / ML',
+      sublabel: 'Local backup',
+      src: localPath('ai', manifest.ai),
+      downloadHref: localPath('ai', manifest.ai),
+      externalHref: localPath('ai', manifest.ai),
+      externalLabel: 'Open in new tab',
+      available: !!manifest.ai,
+    },
+    game: {
+      label: 'Game Design',
+      sublabel: 'Local backup',
+      src: localPath('game', manifest.game),
+      downloadHref: localPath('game', manifest.game),
+      externalHref: localPath('game', manifest.game),
+      externalLabel: 'Open in new tab',
+      available: !!manifest.game,
+    },
   };
 
-  // Load resume paths on component mount
-  useEffect(() => {
-    const loadResumePaths = async () => {
-      try {
-        const aiPath = await findPdfInFolder('/resumes/ai');
-        const gamePath = await findPdfInFolder('/resumes/game');
-        
-        setResumePaths({
-          ai: aiPath,
-          game: gamePath
-        });
-      } catch (error) {
-        console.log('Using default resume paths');
-        // Keep default paths if detection fails
-      }
-    };
+  const tabOrder = ['live', 'ai', 'game'];
+  const active = sources[activeKey];
+  const probing = liveAvailable === null && activeKey === 'live';
 
-    loadResumePaths();
-  }, []);
-  
   return (
     <div className="resume-page">
       <header className="resume-header">
@@ -64,39 +101,80 @@ const ResumeViewer = () => {
         </Link>
         <h1>My Resume</h1>
       </header>
-      
+
       <div className="resume-viewer">
         <div className="resume-tabs">
-          <button 
-            className={`resume-tab ${activeResume === 'ai' ? 'active' : ''}`}
-            onClick={() => setActiveResume('ai')}
-          >
-            AI/ML Resume
-          </button>
-          <button 
-            className={`resume-tab ${activeResume === 'game' ? 'active' : ''}`}
-            onClick={() => setActiveResume('game')}
-          >
-            Game Design Resume
-          </button>
+          {tabOrder.map((key) => {
+            const s = sources[key];
+            const disabled = !s.available;
+            return (
+              <button
+                key={key}
+                className={`resume-tab${activeKey === key ? ' active' : ''}${
+                  disabled ? ' disabled' : ''
+                }`}
+                onClick={() => !disabled && setActiveKey(key)}
+                disabled={disabled}
+                type="button"
+              >
+                <span className="resume-tab-label">{s.label}</span>
+                <span className="resume-tab-sub">{s.sublabel}</span>
+              </button>
+            );
+          })}
         </div>
-        
+
+        <div className="resume-status">
+          {activeKey === 'live' && liveAvailable === true && (
+            <span className="resume-status-pill live">
+              <span className="resume-status-dot" /> Live · streaming from GitHub
+            </span>
+          )}
+          {activeKey === 'live' && probing && (
+            <span className="resume-status-pill">Checking live resume…</span>
+          )}
+          {liveAvailable === false && (
+            <span className="resume-status-pill warn">
+              Live resume unreachable — showing local backup
+            </span>
+          )}
+          {activeKey !== 'live' && liveAvailable !== false && (
+            <span className="resume-status-pill">Local backup</span>
+          )}
+        </div>
+
         <div className="resume-content">
-          <iframe 
-            src={resumePaths[activeResume]} 
-            title={`${activeResume === 'ai' ? 'AI/ML' : 'Game Design'} Resume`}
-            className="resume-frame"
-          />
+          {active.src ? (
+            <iframe
+              key={activeKey}
+              src={active.src}
+              title={`${active.label} Resume`}
+              className="resume-frame"
+            />
+          ) : (
+            <div className="resume-empty">
+              No PDF available for this tab. Drop a .pdf file into
+              <code> public/resumes/{activeKey}/</code> and restart the dev server.
+            </div>
+          )}
         </div>
-        
+
         <div className="resume-actions">
-          <a 
-            href={resumePaths[activeResume]} 
-            download
-            className="download-button"
-          >
-            Download {activeResume === 'ai' ? 'AI/ML' : 'Game Design'} Resume
-          </a>
+          {active.externalHref && (
+            <a
+              href={active.externalHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ghost-button"
+            >
+              {active.externalLabel}
+            </a>
+          )}
+          {active.downloadHref && (
+            <a href={active.downloadHref} download className="download-button">
+              Download {active.label}
+            </a>
+          )}
         </div>
       </div>
     </div>

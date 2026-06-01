@@ -15,6 +15,9 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
+    "resume-manifest": "node scripts/generate-resume-manifest.js",
+    "prestart": "npm run resume-manifest",
+    "prebuild": "npm run resume-manifest",
     "start": "react-scripts start",
     "build": "CI=false react-scripts build",
     "test": "react-scripts test",
