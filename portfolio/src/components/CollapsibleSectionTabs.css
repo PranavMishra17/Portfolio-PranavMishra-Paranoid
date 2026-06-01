@@ -1,7 +1,10 @@
-/* src/components/CollapsibleSectionTabs.css */
+/* src/components/CollapsibleSectionTabs.css
+   Experience launcher. Themed as a manilla folder tab — warm dark
+   parchment surface, cream folded corner that physically peels back
+   on hover, googly eyes that follow the cursor and blink on idle. */
 
 .collapsible-tabs-container {
-  margin: 40px 0;
+  margin: 28px 0;
   position: relative;
   z-index: 2;
 }
@@ -21,96 +24,126 @@
 }
 
 .collapsible-tab-wrapper:hover::after {
-  content: 'Click to open';
+  content: 'open the dossier';
   position: absolute;
-  bottom: -30px;
+  bottom: -28px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 6px 12px;
-  border-radius: 4px;
-  font-size: 0.8rem;
+  background: rgba(0, 0, 0, 0.75);
+  color: #d4b988;
+  padding: 5px 11px;
+  border-radius: 3px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
   white-space: nowrap;
   pointer-events: none;
   z-index: 10;
+  border: 1px solid rgba(212, 185, 136, 0.35);
 }
 
 .collapsible-tab {
-  padding: 14px 28px;
+  padding: 12px 24px;
   border: none;
   border-radius: 2px;
   cursor: pointer;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: visible;
-  backdrop-filter: blur(10px);
   width: fit-content;
-  min-width: 280px;
+  min-width: 240px;
 }
 
-/* Experience button - Document/Resume style */
+/* ============================================================
+   Experience tab — manilla folder aesthetic
+   ============================================================ */
+
 .collapsible-tab-wrapper:first-child .collapsible-tab {
-  background: linear-gradient(135deg, #1a1625 0%, #2d2640 50%, #1a1625 100%) !important;
-  border: 1px solid rgba(139, 92, 246, 0.3);
+  background:
+    linear-gradient(135deg, #2c2418 0%, #3a2f20 50%, #2c2418 100%);
+  border: 1px solid #6b5a3e;
+  color: #ece2cd;
   box-shadow:
-    0 4px 20px rgba(139, 92, 246, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    0 4px 14px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 230, 180, 0.08),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
 }
 
-/* Folded corner effect */
+/* tiny paper-grain texture via repeating gradient (very subtle) */
+.collapsible-tab-wrapper:first-child .collapsible-tab {
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 230, 180, 0.015) 0,
+      rgba(255, 230, 180, 0.015) 1px,
+      transparent 1px,
+      transparent 3px
+    ),
+    linear-gradient(135deg, #2c2418 0%, #3a2f20 50%, #2c2418 100%);
+}
+
+/* === folded corner: the cream "page peel" ===
+   ::before is the cream front face; ::after is the dark cavity that
+   shows when the corner lifts on hover. */
+
 .collapsible-tab-wrapper:first-child .collapsible-tab::before {
   content: '';
   position: absolute;
   top: 0;
   right: 0;
-  width: 0;
-  height: 0;
-  border-style: solid;
-  border-width: 0 24px 24px 0;
-  border-color: transparent #8b5cf6 transparent transparent;
-  transition: all 0.3s ease;
+  width: 26px;
+  height: 26px;
+  background: linear-gradient(135deg, #d4b988 0%, #b89a6a 60%, #8a7245 100%);
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+  transform-origin: 0% 100%;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+              filter 0.3s ease;
+  filter: drop-shadow(-1px 1px 2px rgba(0, 0, 0, 0.5));
   z-index: 3;
 }
 
-/* Corner fold shadow */
 .collapsible-tab-wrapper:first-child .collapsible-tab::after {
+  /* the dark recess that's revealed when the corner peels */
   content: '';
   position: absolute;
   top: 0;
-  right: 24px;
-  width: 24px;
-  height: 24px;
-  background: linear-gradient(135deg, transparent 50%, rgba(0, 0, 0, 0.3) 50%);
-  clip-path: polygon(100% 0, 0 100%, 100% 100%);
+  right: 0;
+  width: 26px;
+  height: 26px;
+  background: linear-gradient(135deg, #0e0a05 0%, #1a1410 70%);
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
   z-index: 2;
 }
 
+.collapsible-tab-wrapper:first-child .collapsible-tab:hover::before {
+  transform: rotate(-22deg) translate(-2px, 2px);
+  filter: drop-shadow(-3px 4px 6px rgba(0, 0, 0, 0.6));
+}
 
-/* Hover state */
+/* hover: warmer border + lifted card */
+
 .collapsible-tab-wrapper:first-child .collapsible-tab:hover {
-  border-color: rgba(139, 92, 246, 0.6);
+  border-color: #a98a55;
   transform: translateY(-2px);
   box-shadow:
-    0 8px 30px rgba(139, 92, 246, 0.25),
-    0 0 0 1px rgba(139, 92, 246, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    0 10px 28px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(212, 185, 136, 0.2),
+    inset 0 1px 0 rgba(255, 230, 180, 0.14),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
 }
 
-.collapsible-tab-wrapper:first-child .collapsible-tab:hover::before {
-  border-color: transparent #a78bfa transparent transparent;
-}
-
-/* Left accent line */
+/* warm left-edge accent line */
 .collapsible-tab-wrapper:first-child .collapsible-tab .collapsible-tab-content::after {
   content: '';
   position: absolute;
-  left: 0;
-  top: 20%;
-  height: 60%;
-  width: 3px;
-  background: linear-gradient(180deg, transparent, #8b5cf6, transparent);
+  left: -2px;
+  top: 18%;
+  height: 64%;
+  width: 2px;
+  background: linear-gradient(180deg, transparent, #d4b988 50%, transparent);
   border-radius: 2px;
+  opacity: 0.55;
 }
 
 .collapsible-tab-content {
@@ -119,90 +152,119 @@
   align-items: center;
   position: relative;
   z-index: 2;
-  gap: 20px;
-  padding-left: 12px;
+  gap: 18px;
+  padding-left: 10px;
 }
 
-/* Googly Eyes */
+/* ============================================================
+   Googly eyes (cursor-follow already wired in JS)
+   ============================================================ */
+
 .googly-eyes {
   display: flex;
-  gap: 10px;
+  gap: 9px;
   align-items: center;
 }
 
 .eye {
-  width: 22px;
-  height: 30px;
-  background: white;
+  width: 21px;
+  height: 28px;
+  background: #f6efe1;
   border-radius: 50%;
   position: relative;
-  box-shadow: 
+  box-shadow:
     inset 0 2px 4px rgba(0, 0, 0, 0.1),
-    0 2px 8px rgba(0, 0, 0, 0.2);
+    0 2px 5px rgba(0, 0, 0, 0.25);
   overflow: hidden;
+  /* idle blink, plays on its own when nothing else is going on */
+  animation: eye-idle-blink 7s infinite ease-in-out;
 }
 
-.eyeball {
-  width: 15px;
-  height: 15px;
-  background: radial-gradient(circle at 30% 30%, #333, #000);
-  border-radius: 50%;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  transition: transform 0.1s ease-out;
-  box-shadow: 
-    0 1px 2px rgba(0, 0, 0, 0.4),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.2);
-}
-
-/* Eye highlight */
-.eyeball::after {
-  content: '';
-  width: 3px;
-  height: 3px;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 50%;
-  position: absolute;
-  top: 20%;
-  left: 25%;
-  box-shadow: 0 0 1px rgba(255, 255, 255, 0.6);
-}
-
-/* Eye positioning */
 .eye-left {
   --eye-rotation: -5deg;
   transform: rotate(-5deg);
+  animation-delay: 0.05s;
 }
 
 .eye-right {
   --eye-rotation: 5deg;
   transform: rotate(5deg);
+  animation-delay: 0s;
 }
 
-/* Hover effects for eyes */
-.collapsible-tab:hover .eye {
-  animation: blink 4s infinite ease-in-out;
+.eyeball {
+  width: 14px;
+  height: 14px;
+  background: radial-gradient(circle at 30% 30%, #444, #050505);
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform 0.08s ease-out;
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.4),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.18);
 }
 
-@keyframes blink {
+/* tiny highlight catch-light */
+.eyeball::after {
+  content: '';
+  width: 3px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 50%;
+  position: absolute;
+  top: 22%;
+  left: 26%;
+  box-shadow: 0 0 1px rgba(255, 255, 255, 0.7);
+}
+
+/* idle blink: most of the cycle eyes are open, brief shut at 92-96% */
+@keyframes eye-idle-blink {
   0%, 92%, 100% {
     transform: scaleY(1) rotate(var(--eye-rotation, 0deg));
   }
   94%, 96% {
-    transform: scaleY(0.05) rotate(var(--eye-rotation, 0deg));
+    transform: scaleY(0.08) rotate(var(--eye-rotation, 0deg));
   }
 }
 
+/* on hover, blink faster — the tab "noticed" you */
+.collapsible-tab-wrapper:first-child .collapsible-tab:hover .eye {
+  animation: eye-attentive-blink 3.5s infinite ease-in-out;
+}
+
+@keyframes eye-attentive-blink {
+  0%, 90%, 100% {
+    transform: scaleY(1) rotate(var(--eye-rotation, 0deg));
+  }
+  92%, 95% {
+    transform: scaleY(0.06) rotate(var(--eye-rotation, 0deg));
+  }
+}
+
+/* ============================================================
+   Label + indicators
+   ============================================================ */
+
 .collapsible-tab-label {
+  font-family: 'Inter', sans-serif;
   font-weight: 700;
-  font-size: 1.1rem;
-  letter-spacing: 1.5px;
+  font-size: 0.95rem;
+  letter-spacing: 2.5px;
   text-transform: uppercase;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
   flex: 1;
   text-align: center;
+  color: #ece2cd;
+}
+
+.collapsible-tab-wrapper:first-child .collapsible-tab:hover .collapsible-tab-label {
+  color: #faf2dd;
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.6),
+    0 0 12px rgba(212, 185, 136, 0.25);
 }
 
 .collapsible-tab-arrow {
@@ -218,13 +280,16 @@
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 3px;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 2px;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+  height: 2px;
+  background: #d4b988;
+  border-radius: 0;
+  box-shadow: 0 0 10px rgba(212, 185, 136, 0.5);
 }
 
-/* Collapsible Content */
+/* ============================================================
+   Collapsible content (unused right now — modal handles experience)
+   ============================================================ */
+
 .collapsible-content {
   overflow: hidden;
   background: rgba(13, 13, 13, 0.7);
@@ -240,64 +305,80 @@
   padding: 24px 16px 16px;
 }
 
-/* Responsive Design */
+/* ============================================================
+   Reduced motion + responsive
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .eye,
+  .collapsible-tab-wrapper:first-child .collapsible-tab:hover .eye {
+    animation: none;
+  }
+  .collapsible-tab-wrapper:first-child .collapsible-tab:hover::before {
+    transform: rotate(-12deg);
+  }
+}
+
 @media (max-width: 768px) {
   .collapsible-tab {
-    padding: 16px 20px;
+    padding: 12px 18px;
+    min-width: 220px;
   }
-  
+
   .collapsible-tab-label {
-    font-size: 1rem;
-    letter-spacing: 1px;
+    font-size: 0.85rem;
+    letter-spacing: 1.6px;
   }
-  
+
   .collapsible-content-inner {
     padding: 20px 15px 15px;
   }
-  
+
   .eye {
-    width: 20px;
-    height: 25px;
+    width: 19px;
+    height: 24px;
   }
-  
+
   .eyeball {
-    width: 8px;
-    height: 8px;
+    width: 10px;
+    height: 10px;
   }
-  
+
   .googly-eyes {
-    gap: 10px;
+    gap: 8px;
   }
 }
 
 @media (max-width: 480px) {
   .collapsible-tabs-wrapper {
-    padding: 0 10px;
+    padding: 0 12px;
   }
-  
+
   .collapsible-tab {
-    padding: 14px 16px;
+    padding: 11px 14px;
+    min-width: 200px;
   }
-  
+
   .collapsible-tab-label {
-    font-size: 0.9rem;
+    font-size: 0.78rem;
+    letter-spacing: 1.4px;
   }
-  
+
   .eye {
-    width: 18px;
-    height: 22px;
+    width: 17px;
+    height: 21px;
   }
-  
+
   .eyeball {
-    width: 7px;
-    height: 7px;
+    width: 9px;
+    height: 9px;
   }
-  
+
   .googly-eyes {
-    gap: 8px;
+    gap: 7px;
   }
-  
+
   .collapsible-tab-content {
-    gap: 15px;
+    gap: 12px;
   }
 }

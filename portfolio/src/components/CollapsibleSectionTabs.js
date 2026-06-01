@@ -3,13 +3,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import './CollapsibleSectionTabs.css';
 
-const CollapsibleSectionTabs = ({ 
-  experienceSection, 
-  publicationsSection, 
-  onExperienceToggle, 
-  onPublicationsToggle 
+const CollapsibleSectionTabs = ({
+  experienceSection,
+  publicationsSection,
+  onExperienceToggle,
+  onPublicationsToggle
 }) => {
-  const [hoveredTab, setHoveredTab] = useState(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const experienceButtonRef = useRef(null);
 
@@ -63,21 +62,16 @@ const CollapsibleSectionTabs = ({
               ref={section.id === 'experience' ? experienceButtonRef : null}
               className={`collapsible-tab ${section.isOpen ? 'open' : ''}`}
               onClick={section.onToggle}
-              onMouseEnter={() => setHoveredTab(section.id)}
-              onMouseLeave={() => setHoveredTab(null)}
-              whileHover={{ 
-                scale: 1.02,
-                boxShadow: `0 8px 20px ${section.color}40`
-              }}
-              style={{
-                background: section.id === 'experience' ? 
-                  `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.5)), url('/assets/images/ex_back.png')` :
-                  section.color,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                boxShadow: section.isOpen ? `0 4px 12px ${section.color}60` : 'none',
-                color: section.id === 'publications' ? 'black' : 'white'
-              }}
+              whileHover={{ scale: 1.015 }}
+              style={
+                section.id === 'experience'
+                  ? undefined
+                  : {
+                      background: section.color,
+                      boxShadow: section.isOpen ? `0 4px 12px ${section.color}60` : 'none',
+                      color: 'black',
+                    }
+              }
             >
               <div className="collapsible-tab-content">
                 {section.id === 'experience' && (
