@@ -30,6 +30,10 @@ export const CONFIG = {
     windResistMax: 0.3,        // 30% wind dampening at full charge
     affectsSpeed: false,       // OPTIONAL second axis; default off
     speedMultMax: 1.8,
+    hotRedHoldMs: 3000,        // hold past this = auto-fire HOT RED megashot
+    hotRedSizeMult: 2.4,       // hot-red projectile is huge
+    hotRedSpeedMult: 1.5,      // and faster
+    hotRedWindResist: 0.7,     // and barely affected by wind
   },
 
   wind: {
@@ -62,13 +66,17 @@ export const CONFIG = {
     capsuleHorizDrift: 12,     // px/s leftward bias — capsules curve toward the model
   },
 
+  // Bomb rule INVERTED from earlier GDD draft per game-feel feedback:
+  //   pop a bomb  = +5 score, you saved the model.
+  //   escape bomb = INSTANT GAME OVER, the model got compromised.
+  // Bombs are now the highest-stakes target, not the trap.
   scoring: {
     redPop:      { score: +1, life: 0  },
     bluePop:     { score: -1, life: 0  },
+    blackPop:    { score: +5, life: 0  },   // popping the bomb saves the day
     redEscape:   { score: 0,  life: -1 },
-    blueEscape:  { score: 0,  life: 0  },
-    blackEscape: { score: 0,  life: 0  },
-    bombPop:     { gameOver: true },
+    blueEscape:  { score: 0,  life: 0  },   // tingle + gibberish reward, no score
+    blackEscape: { gameOver: true },         // bomb reaches model = catastrophic
     streakBonus: { enabled: false, threshold: 5, mult: 2, decayMs: 10000 },
   },
 

@@ -46,6 +46,7 @@ export function renderFrame(ctx, eng) {
   drawProjectiles(ctx, eng);
   drawParticles(ctx, eng);
   drawFloats(ctx, eng);
+  drawGibberish(ctx, eng);
 
   drawHUD(ctx, eng);
   drawWindBanner(ctx, eng);
@@ -221,59 +222,61 @@ function drawModelDevice(ctx, eng) {
 
 function drawWindFlag(ctx, eng) {
   const ax = eng.wind.ax;
+  // pole anchored to the BOTTOM-CENTER of the play field so it
+  // doesn't overlap the model device or any rising capsule.
   const cx = eng.W / 2;
-  const cy = 110;
+  const baseY = eng.H - 22;
   const dir = ax === 0 ? 0 : ax > 0 ? 1 : -1;
 
-  // pole
+  // pole — rises from base
   ctx.strokeStyle = C.fgDeep;
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.moveTo(cx, cy);
-  ctx.lineTo(cx, cy + 30);
+  ctx.moveTo(cx, baseY);
+  ctx.lineTo(cx, baseY - 36);
   ctx.stroke();
 
-  // pole top knob
+  // pole tip knob
   ctx.fillStyle = C.fgDeep;
   ctx.beginPath();
-  ctx.arc(cx, cy, 2.5, 0, Math.PI * 2);
+  ctx.arc(cx, baseY - 36, 2.5, 0, Math.PI * 2);
   ctx.fill();
 
-  // pennant
+  // pennant near the pole tip
   const magAbs = Math.abs(ax);
-  const flapLen = magAbs > 30 ? 26 : magAbs > 10 ? 22 : 18;
+  const flapLen = magAbs > 30 ? 28 : magAbs > 10 ? 22 : 16;
+  const flagY = baseY - 32;
   if (dir === 0) {
-    // droop
     ctx.fillStyle = C.gold;
     ctx.beginPath();
-    ctx.moveTo(cx, cy + 2);
-    ctx.lineTo(cx + 2, cy + 16);
-    ctx.lineTo(cx - 4, cy + 22);
-    ctx.lineTo(cx + 2, cy + 26);
-    ctx.lineTo(cx, cy + 14);
+    ctx.moveTo(cx, flagY);
+    ctx.lineTo(cx + 3, flagY + 10);
+    ctx.lineTo(cx - 3, flagY + 14);
+    ctx.lineTo(cx + 3, flagY + 16);
+    ctx.lineTo(cx, flagY + 8);
     ctx.closePath();
     ctx.fill();
   } else {
     ctx.save();
-    ctx.translate(cx, cy);
+    ctx.translate(cx, flagY);
     ctx.scale(dir, 1);
     ctx.fillStyle = C.gold;
     ctx.beginPath();
-    ctx.moveTo(0, 4);
-    ctx.lineTo(flapLen, 8);
-    ctx.lineTo(flapLen - 4, 12);
-    ctx.lineTo(flapLen, 16);
-    ctx.lineTo(0, 14);
+    ctx.moveTo(0, 0);
+    ctx.lineTo(flapLen, 4);
+    ctx.lineTo(flapLen - 4, 8);
+    ctx.lineTo(flapLen, 12);
+    ctx.lineTo(0, 10);
     ctx.closePath();
     ctx.fill();
     ctx.restore();
   }
 
-  // small label
-  ctx.fillStyle = C.gold;
-  ctx.font = '7px "Space Mono", monospace';
-  ctx.textAlign = 'left';
-  ctx.fillText(`WIND ${dir > 0 ? '▸' : dir < 0 ? '◂' : '·'}`, cx + 12, cy - 4);
+  // tiny label below the pole
+  ctx.fillStyle = withAlpha(C.gold, 0.85);
+  ctx.font = '6px "Press Start 2P", monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(`WIND ${dir > 0 ? '▸' : dir < 0 ? '◂' : '·'}`, cx, baseY - 4);
 }
 
 // ============================================================
@@ -380,44 +383,123 @@ function drawKeyboard(ctx, eng) {
 }
 
 // ============================================================
-// Cannon
+// Cannon — pixel-art turret on a trapezoidal base with stabilizer
+// feet, a rotating barrel with a muzzle band, and a recoil offset
+// that pushes the whole turret back along the aim vector after firing.
+// Telegraphs hot-red overcharge state (>1 s held) as a red bezel ring.
 // ============================================================
 
 function drawCannon(ctx, eng) {
   const cn = eng.cannon;
   const dx = eng.aim.x - cn.x;
   const dy = eng.aim.y - cn.y;
+  const dist = Math.hypot(dx, dy) || 1;
+  const nx = dx / dist;
+  const ny = dy / dist;
   const angle = Math.atan2(dy, dx);
 
-  // base
-  ctx.fillStyle = '#0e1722';
-  ctx.fillRect(cn.x - 22, cn.y - 14, 44, 28);
-  ctx.strokeStyle = C.crt;
-  ctx.lineWidth = 1.4;
-  ctx.strokeRect(cn.x - 21.5, cn.y - 13.5, 44, 28);
+  // recoil offset — push back along -aim vector
+  const recoilT = cn.recoilMs > 0 ? cn.recoilMs / 140 : 0;
+  const recoilDist = 5 * recoilT;
+  const rx = -nx * recoilDist;
+  const ry = -ny * recoilDist;
 
-  // glow pad
-  ctx.fillStyle = C.crt;
+  // overcharge cue colours
+  const held = eng.charge.held;
+  const heldMs = eng.charge.heldMs;
+  const overcharging = held && heldMs >= CONFIG.charge.maxHoldMs;
+  const hotRedSoon = held && heldMs >= 2200;
+  const bezelColor = hotRedSoon ? '#ff5d6c' : overcharging ? '#ff9a4a' : C.crt;
+
+  // ---- stabilizer feet (drawn first so base sits on top) ----
+  ctx.strokeStyle = C.crtDeep;
+  ctx.lineWidth = 1.4;
   ctx.beginPath();
-  ctx.arc(cn.x, cn.y - 4, 3, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.moveTo(cn.x - 26, cn.y + 14);
+  ctx.lineTo(cn.x - 30, cn.y + 18);
+  ctx.lineTo(cn.x - 22, cn.y + 18);
+  ctx.moveTo(cn.x + 26, cn.y + 14);
+  ctx.lineTo(cn.x + 30, cn.y + 18);
+  ctx.lineTo(cn.x + 22, cn.y + 18);
+  ctx.stroke();
 
-  // barrel rotated
   ctx.save();
-  ctx.translate(cn.x, cn.y - 4);
+  ctx.translate(rx, ry);
+
+  // ---- base trapezoid ----
+  ctx.beginPath();
+  ctx.moveTo(cn.x - 26, cn.y + 14);
+  ctx.lineTo(cn.x - 20, cn.y - 4);
+  ctx.lineTo(cn.x + 20, cn.y - 4);
+  ctx.lineTo(cn.x + 26, cn.y + 14);
+  ctx.closePath();
+  ctx.fillStyle = '#0c141a';
+  ctx.fill();
+  ctx.strokeStyle = bezelColor;
+  ctx.lineWidth = 1.6;
+  ctx.stroke();
+
+  // base rivet detail
+  ctx.fillStyle = withAlpha(bezelColor, 0.5);
+  ctx.fillRect(cn.x - 16, cn.y + 8, 2, 2);
+  ctx.fillRect(cn.x + 14, cn.y + 8, 2, 2);
+  ctx.fillRect(cn.x - 6, cn.y + 8, 2, 2);
+  ctx.fillRect(cn.x + 4, cn.y + 8, 2, 2);
+
+  // base highlight strip
+  ctx.fillStyle = withAlpha('#ffffff', 0.06);
+  ctx.fillRect(cn.x - 17, cn.y - 2, 34, 1);
+
+  // ---- turret circle ----
+  const turretY = cn.y - 6;
+  ctx.beginPath();
+  ctx.arc(cn.x, turretY, 11, 0, Math.PI * 2);
+  ctx.fillStyle = '#0c141a';
+  ctx.fill();
+  ctx.strokeStyle = bezelColor;
+  ctx.lineWidth = 1.6;
+  ctx.stroke();
+
+  // turret core glow (intensifies when charging)
+  const coreAlpha = held ? 0.6 + Math.min(0.4, heldMs / 1000 * 0.4) : 0.7;
+  ctx.fillStyle = withAlpha(bezelColor, coreAlpha);
+  ctx.beginPath();
+  ctx.arc(cn.x, turretY, 3.5, 0, Math.PI * 2);
+  ctx.fill();
+  if (hotRedSoon) {
+    ctx.fillStyle = 'rgba(255, 93, 108, 0.55)';
+    ctx.beginPath();
+    ctx.arc(cn.x, turretY, 9, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // ---- barrel ----
+  ctx.save();
+  ctx.translate(cn.x, turretY);
   ctx.rotate(angle);
-  ctx.fillStyle = '#0e1722';
-  ctx.fillRect(4, -4, cn.barrelLen, 8);
-  ctx.strokeStyle = eng.charge.cooldownLeft > 0 ? C.crtDeep : C.crt;
-  ctx.lineWidth = 1.4;
-  ctx.strokeRect(4.5, -3.5, cn.barrelLen, 8);
+  const cooldown = eng.charge.cooldownLeft > 0;
+  const barrelStroke = cooldown ? C.crtDeep : bezelColor;
+  // barrel body
+  ctx.fillStyle = '#0c141a';
+  ctx.fillRect(6, -4.5, cn.barrelLen, 9);
+  ctx.strokeStyle = barrelStroke;
+  ctx.lineWidth = 1.6;
+  ctx.strokeRect(6, -4.5, cn.barrelLen, 9);
+  // muzzle band
+  ctx.fillStyle = barrelStroke;
+  ctx.fillRect(6 + cn.barrelLen - 3, -5.5, 3, 11);
+  // top highlight
+  ctx.fillStyle = withAlpha('#ffffff', 0.08);
+  ctx.fillRect(7, -4, cn.barrelLen - 4, 1);
   ctx.restore();
 
-  // label
+  ctx.restore();
+
+  // label below base (unaffected by recoil so it stays put)
   ctx.fillStyle = C.fgDeep;
   ctx.font = '5px "Press Start 2P", monospace';
   ctx.textAlign = 'center';
-  ctx.fillText('CANNON', cn.x, cn.y + 22);
+  ctx.fillText(hotRedSoon ? '★ OVERCLOCK ★' : overcharging ? 'OVERCHARGE' : 'CANNON', cn.x, cn.y + 28);
 }
 
 function drawAimIndicator(ctx, eng) {
@@ -477,17 +559,18 @@ function drawChargeRing(ctx, eng) {
 // ============================================================
 
 function drawCapsules(ctx, eng) {
-  for (const cap of eng.capsules) drawCapsule(ctx, cap);
+  for (const cap of eng.capsules) {
+    if (cap.cls === 'black') drawBomb(ctx, cap);
+    else drawCapsule(ctx, cap);
+  }
 }
 
 function drawCapsule(ctx, cap) {
   let bg, fg, border;
   if (cap.cls === 'blue') { bg = C.blueBg; fg = C.blue; border = C.blue; }
   else if (cap.cls === 'red') { bg = C.redBg; fg = C.red; border = C.red; }
-  else if (cap.cls === 'black') { bg = C.blackBg; fg = C.black; border = '#3a3340'; }
   else { bg = C.greyBg; fg = '#b5c0cc'; border = '#7c8a9a'; }
 
-  // pill
   const r = cap.h / 2;
   roundRect(ctx, cap.x, cap.y, cap.w, cap.h, r);
   ctx.fillStyle = bg;
@@ -496,12 +579,75 @@ function drawCapsule(ctx, cap) {
   ctx.lineWidth = 1;
   ctx.stroke();
 
-  // text
   ctx.fillStyle = fg;
   ctx.font = '11px "Space Mono", monospace';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(cap.text, cap.x + cap.w / 2, cap.y + cap.h / 2 + 1);
+  ctx.textBaseline = 'alphabetic';
+}
+
+// BLACK BOMB — circular, distinct from grey pills. Pulsing red core,
+// outer warning halo, and a small X danger mark on top. Phrase text
+// sits below the orb in a tiny label.
+function drawBomb(ctx, cap) {
+  const cx = cap.x + cap.w / 2;
+  const cy = cap.y + cap.h / 2;
+  const r = cap.h / 2 + 4;
+
+  // outer warning halo (pulses)
+  const t = (performance.now() % 1200) / 1200;
+  const pulse = 0.55 + 0.45 * Math.sin(t * Math.PI * 2);
+  ctx.strokeStyle = `rgba(255, 93, 108, ${0.18 + pulse * 0.32})`;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r + 5, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // bomb body
+  ctx.fillStyle = '#15090b';
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#ff5d6c';
+  ctx.lineWidth = 1.6;
+  ctx.stroke();
+
+  // inner radial glow (pulsing red core)
+  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+  grad.addColorStop(0, `rgba(255, 93, 108, ${0.45 + pulse * 0.35})`);
+  grad.addColorStop(0.7, 'rgba(120, 20, 30, 0.1)');
+  grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r - 1, 0, Math.PI * 2);
+  ctx.fill();
+
+  // X danger mark
+  ctx.strokeStyle = '#ff5d6c';
+  ctx.lineWidth = 1.8;
+  ctx.lineCap = 'round';
+  const xr = 4;
+  ctx.beginPath();
+  ctx.moveTo(cx - xr, cy - xr);
+  ctx.lineTo(cx + xr, cy + xr);
+  ctx.moveTo(cx + xr, cy - xr);
+  ctx.lineTo(cx - xr, cy + xr);
+  ctx.stroke();
+  ctx.lineCap = 'butt';
+
+  // fuse spark at top (small flicker)
+  if (pulse > 0.6) {
+    ctx.fillStyle = '#ffd070';
+    ctx.fillRect(cx - 1, cy - r - 6, 2, 3);
+  }
+
+  // tiny phrase label below the orb
+  ctx.fillStyle = 'rgba(255, 93, 108, 0.78)';
+  ctx.font = '8px "Space Mono", monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'top';
+  ctx.fillText(cap.text, cx, cy + r + 3);
   ctx.textBaseline = 'alphabetic';
 }
 
@@ -511,17 +657,28 @@ function drawCapsule(ctx, cap) {
 
 function drawProjectiles(ctx, eng) {
   for (const p of eng.projectiles) {
-    // trail
+    const color = p.hotRed ? '#ff5d6c' : C.crt;
+    const trailMaxAlpha = p.hotRed ? 0.65 : 0.45;
+
     for (let i = 0; i < p.trail.length; i++) {
       const t = p.trail[i];
-      const alpha = ((i + 1) / p.trail.length) * 0.45;
-      ctx.fillStyle = withAlpha(C.crt, alpha);
-      const sz = p.size * ((i + 1) / p.trail.length) * 0.7;
+      const ratio = (i + 1) / p.trail.length;
+      const alpha = ratio * trailMaxAlpha;
+      ctx.fillStyle = withAlpha(color, alpha);
+      const sz = p.size * ratio * (p.hotRed ? 0.95 : 0.7);
       ctx.fillRect(t.x - sz / 2, t.y - sz / 2, sz, sz);
     }
-    // chevron body
-    ctx.fillStyle = C.crt;
+    // body
+    ctx.fillStyle = color;
     ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+    if (p.hotRed) {
+      // bright hot core
+      ctx.fillStyle = '#ffe0e6';
+      ctx.fillRect(p.x - p.size / 4, p.y - p.size / 4, p.size / 2, p.size / 2);
+      // outer glow
+      ctx.fillStyle = 'rgba(255, 93, 108, 0.35)';
+      ctx.fillRect(p.x - p.size, p.y - p.size, p.size * 2, p.size * 2);
+    }
   }
 }
 
@@ -552,29 +709,48 @@ function drawFloats(ctx, eng) {
 }
 
 // ============================================================
+// Model gibberish vector output — drifts left of the model when a
+// safe prompt has successfully reached it. Reads as the model
+// "processing" the prompt.
+// ============================================================
+
+function drawGibberish(ctx, eng) {
+  if (!eng.gibberish || eng.gibberish.length === 0) return;
+  ctx.font = '9px "Space Mono", monospace';
+  ctx.textAlign = 'right';
+  for (const g of eng.gibberish) {
+    const alpha = clamp01(g.lifeMs / g.lifeMaxMs);
+    ctx.fillStyle = withAlpha(C.crt, alpha * 0.85);
+    ctx.fillText(g.text, g.x, g.y);
+  }
+  ctx.textAlign = 'left';
+}
+
+// ============================================================
 // HUD
 // ============================================================
 
 function drawHUD(ctx, eng) {
   // hearts top-left
   const heartCount = CONFIG.ui.heartCount;
-  const hx = 18;
-  const hy = 22;
+  const hx = 20;
+  const hy = 24;
   for (let i = 0; i < heartCount; i++) {
     const alive = i < eng.lives;
-    drawHeart(ctx, hx + i * 22, hy, alive ? C.heart : C.heartDim);
+    drawHeart(ctx, hx + i * 24, hy, alive ? C.heart : C.heartDim);
   }
 
-  // score top-right
+  // score & wave — moved below where the DOM close button sits so
+  // they don't collide. Score at y=62, wave at y=80.
   ctx.fillStyle = C.crt;
-  ctx.font = '16px "Press Start 2P", monospace';
+  ctx.font = '18px "Press Start 2P", monospace';
   ctx.textAlign = 'right';
-  ctx.fillText(String(eng.score).padStart(3, '0'), eng.W - 18, 28);
+  ctx.fillText(String(eng.score).padStart(3, '0'), eng.W - 24, 62);
 
-  // wave subtitle
   ctx.fillStyle = C.fgDim;
   ctx.font = '8px "Space Mono", monospace';
-  ctx.fillText(`WAVE ${eng.wave + 1} · ${eng.spawner.waveName.toUpperCase()}`, eng.W - 18, 44);
+  ctx.fillText(`WAVE ${eng.wave + 1} · ${eng.spawner.waveName.toUpperCase()}`, eng.W - 24, 80);
+  ctx.textAlign = 'left';
 }
 
 function drawHeart(ctx, x, y, color) {

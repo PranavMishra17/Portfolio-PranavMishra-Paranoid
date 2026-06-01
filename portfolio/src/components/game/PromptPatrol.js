@@ -6,6 +6,7 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Engine, STATE } from './engine';
+import { unlock as unlockAudio } from './audio';
 import './PromptPatrol.css';
 
 const PERSONAL_BEST_KEY = 'pp_personal_best_v1';
@@ -124,6 +125,9 @@ const PromptPatrol = ({ onClose }) => {
   const onMouseDown = useCallback((e) => {
     if (!engineRef.current) return;
     if (e.button !== 0 && e.button !== undefined) return;
+    // Browsers gate AudioContext on a real user gesture — unlock on
+    // every mousedown so the very first interaction starts audio.
+    unlockAudio();
     if (gameState === STATE.TITLE) {
       engineRef.current.start();
       return;
@@ -142,6 +146,7 @@ const PromptPatrol = ({ onClose }) => {
 
   const onTouchStart = useCallback((e) => {
     if (e.touches.length === 0) return;
+    unlockAudio();
     const t = e.touches[0];
     const pt = canvasToLogical(t.clientX, t.clientY);
     engineRef.current.setAim(pt.x, pt.y);

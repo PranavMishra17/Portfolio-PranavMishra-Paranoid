@@ -7,6 +7,7 @@
 import { CONFIG } from './config';
 import { BLUE, RED, BLACK, GREY, GREY_BY_HIDDEN } from './phrasebook';
 import { renderFrame } from './sprites';
+import { sfx } from './audio';
 
 const STATE = {
   TITLE: 'title',
@@ -98,7 +99,7 @@ export class Engine {
     };
 
     // cannon
-    this.cannon = { x: 90, y: this.H - 90, barrelLen: 32 };
+    this.cannon = { x: 90, y: this.H - 90, barrelLen: 36, recoilMs: 0 };
     this.aim = { x: this.W * 0.6, y: this.H * 0.3 };
 
     // charge state
@@ -107,7 +108,11 @@ export class Engine {
       heldMs: 0,
       ready: true,
       cooldownLeft: 0,
+      lastChargeSoundMs: 0,
     };
+
+    // gibberish vector output emitted by the model on safe escapes
+    this.gibberish = [];
 
     // model device (top center). Cylon-style scanner + status LEDs; no
     // smiley face. The state machine animates the scanner line, status
@@ -170,11 +175,14 @@ export class Engine {
   start() {
     this.reset();
     this.setState(STATE.PLAYING);
+    sfx.start();
   }
 
   endGame(reason) {
     this.setState(reason === 'bomb' ? STATE.GAMEOVER_BOMB : STATE.GAMEOVER_LIVES);
     this.claude.dead = true;
+    if (reason === 'bomb') sfx.gameOverBomb();
+    else sfx.gameOverLives();
   }
 
   // ----------------------------------------------------------
@@ -200,16 +208,15 @@ export class Engine {
     this.charge.held = false;
     const useCharge = CONFIG.charge.enabled && held >= CONFIG.charge.minHoldMs;
     const chargeT = useCharge ? clamp(held / CONFIG.charge.maxHoldMs, 0, 1) : 0;
-    this.fire(chargeT);
+    this.fire(chargeT, /*hotRed=*/ false);
     this.charge.heldMs = 0;
   }
 
-  fire(chargeT) {
+  fire(chargeT, hotRed = false) {
     if (!this.charge.ready) return;
     if (this.charge.cooldownLeft > 0) return;
 
     const c = this.cannon;
-    // muzzle = cannon center + barrel direction × len
     const dx = this.aim.x - c.x;
     const dy = this.aim.y - c.y;
     const dist = Math.hypot(dx, dy) || 1;
@@ -219,12 +226,19 @@ export class Engine {
     const muzzleX = c.x + nx * c.barrelLen;
     const muzzleY = c.y + ny * c.barrelLen;
 
-    const speedMult = CONFIG.charge.affectsSpeed
-      ? lerp(1, CONFIG.charge.speedMultMax, chargeT)
-      : 1;
+    let speedMult, sizeMult, windResist;
+    if (hotRed) {
+      speedMult = CONFIG.charge.hotRedSpeedMult;
+      sizeMult = CONFIG.charge.hotRedSizeMult;
+      windResist = CONFIG.charge.hotRedWindResist;
+    } else {
+      speedMult = CONFIG.charge.affectsSpeed
+        ? lerp(1, CONFIG.charge.speedMultMax, chargeT)
+        : 1;
+      sizeMult = lerp(1, CONFIG.charge.sizeMultMax, chargeT);
+      windResist = lerp(0, CONFIG.charge.windResistMax, chargeT);
+    }
     const speed = CONFIG.physics.baseProjectileSpeed * speedMult;
-
-    const sizeMult = lerp(1, CONFIG.charge.sizeMultMax, chargeT);
 
     this.projectiles.push({
       x: muzzleX,
@@ -233,11 +247,16 @@ export class Engine {
       vy: ny * speed,
       size: CONFIG.physics.projectileSize * sizeMult,
       chargeT,
+      hotRed,
+      windResist,
       trail: [],
-      lifeMs: 3500,
+      lifeMs: 5000,
     });
 
     this.charge.cooldownLeft = CONFIG.physics.cooldownMs;
+    this.cannon.recoilMs = 140;
+    if (hotRed) sfx.launchHot();
+    else sfx.launch();
   }
 
   // ----------------------------------------------------------
@@ -249,8 +268,26 @@ export class Engine {
     this.time += dt;
 
     if (this.state === STATE.PLAYING) {
-      if (this.charge.held) this.charge.heldMs += dtMs;
+      if (this.charge.held) {
+        this.charge.heldMs += dtMs;
+        // 3-second overcharge auto-fire — HOT RED megashot
+        if (this.charge.heldMs >= CONFIG.charge.hotRedHoldMs) {
+          this.charge.held = false;
+          this.fire(1, /*hotRed=*/ true);
+          this.charge.heldMs = 0;
+        } else if (this.charge.heldMs > CONFIG.charge.maxHoldMs) {
+          // play a periodic overcharge whine past max charge
+          this.charge.lastChargeSoundMs += dtMs;
+          if (this.charge.lastChargeSoundMs > 280) {
+            sfx.overcharge();
+            this.charge.lastChargeSoundMs = 0;
+          }
+        }
+      } else {
+        this.charge.lastChargeSoundMs = 0;
+      }
       if (this.charge.cooldownLeft > 0) this.charge.cooldownLeft -= dtMs;
+      if (this.cannon.recoilMs > 0) this.cannon.recoilMs -= dtMs;
 
       this.updateWind(dt, dtMs);
       this.updateSpawner(dt);
@@ -259,6 +296,7 @@ export class Engine {
       this.checkCollisions();
       this.updateParticles(dtMs);
       this.updateFloats(dtMs);
+      this.updateGibberish(dtMs);
       this.updateClaude(dtMs);
       this.updateKeyboard(dtMs);
 
@@ -270,7 +308,9 @@ export class Engine {
       this.updateClaude(dtMs);
       this.updateParticles(dtMs);
       this.updateFloats(dtMs);
+      this.updateGibberish(dtMs);
       if (this.shakeMs > 0) this.shakeMs -= dtMs;
+      if (this.cannon.recoilMs > 0) this.cannon.recoilMs -= dtMs;
     }
   }
 
@@ -300,6 +340,7 @@ export class Engine {
         w.label = CONFIG.wind.levels[w.next].label;
         w.changeBannerMs = 1500;
         w.phaseTimeLeft = rand(CONFIG.wind.phaseMinSec, CONFIG.wind.phaseMaxSec);
+        sfx.windChange();
       }
     } else {
       w.phaseTimeLeft -= dt;
@@ -434,10 +475,21 @@ export class Engine {
       this.lives -= 1;
       this.shake(CONFIG.ui.screenShakePx);
       this.claude.hitFlashMs = CONFIG.animations.hitFlashMs;
+      sfx.hit();
       this.onScoreChange(this.snapshot());
       if (this.lives <= 0) this.endGame('lives');
+    } else if (truth === 'bomb') {
+      // BOMB ESCAPED = catastrophic. Big shake + game over.
+      this.shake(CONFIG.ui.screenShakePx * 3);
+      this.emitParticles(c.x + c.w / 2, c.y, CONFIG.colors.red, 28);
+      this.claude.hitFlashMs = CONFIG.animations.hitFlashMs * 2;
+      this.endGame('bomb');
+    } else if (truth === 'safe') {
+      // SAFE REACHED MODEL = good. Tingle + gibberish vector output.
+      this.spawnGibberish();
+      sfx.thinking();
+      this.claude.celebrateMs = CONFIG.animations.popCelebrationMs;
     }
-    // safe/bomb escape: no penalty per spec
   }
 
   resolveTruth(c) {
@@ -454,14 +506,14 @@ export class Engine {
   updateProjectiles(dt, dtMs) {
     for (let i = this.projectiles.length - 1; i >= 0; i--) {
       const p = this.projectiles[i];
-      const windResist = lerp(0, CONFIG.charge.windResistMax, p.chargeT);
+      const windResist = p.windResist != null ? p.windResist : 0;
       p.vx += this.wind.ax * (1 - windResist) * dt;
       p.vy += CONFIG.physics.gravity * dt;
       p.x += p.vx * dt;
       p.y += p.vy * dt;
 
       p.trail.push({ x: p.x, y: p.y });
-      const trailLen = p.chargeT > 0.2 ? 8 : 4;
+      const trailLen = p.hotRed ? 16 : (p.chargeT > 0.2 ? 8 : 4);
       if (p.trail.length > trailLen) p.trail.shift();
 
       p.lifeMs -= dtMs;
@@ -503,29 +555,30 @@ export class Engine {
     const truth = this.resolveTruth(c);
     const sc = CONFIG.scoring;
     let scoreDelta = 0;
-    let lifeDelta = 0;
     let particleColor = CONFIG.colors.crt;
+    let particleCount = CONFIG.animations.popParticleCount;
 
     if (truth === 'bomb') {
-      // instant game over — particle storm + shake first
-      this.emitParticles(c.x + c.w / 2, c.y + c.h / 2, CONFIG.colors.black, 20);
-      this.shake(CONFIG.ui.screenShakePx * 2);
-      this.endGame('bomb');
-      return;
-    }
-
-    if (truth === 'unsafe') {
+      // BOMB POPPED = saved the model. +5 score, big celebration.
+      scoreDelta = sc.blackPop.score;
+      particleColor = '#ff5d6c';
+      particleCount = 22;
+      this.claude.celebrateMs = CONFIG.animations.popCelebrationMs * 1.6;
+      this.shake(CONFIG.ui.screenShakePx * 0.6);
+      sfx.popBomb();
+    } else if (truth === 'unsafe') {
       scoreDelta = sc.redPop.score;
       particleColor = CONFIG.colors.red;
       this.claude.celebrateMs = CONFIG.animations.popCelebrationMs;
+      sfx.popUnsafe();
     } else if (truth === 'safe') {
       scoreDelta = sc.bluePop.score;
       particleColor = CONFIG.colors.blue;
+      sfx.popSafe();
     }
 
     this.score += scoreDelta;
-    this.lives += lifeDelta;
-    this.emitParticles(c.x + c.w / 2, c.y + c.h / 2, particleColor, CONFIG.animations.popParticleCount);
+    this.emitParticles(c.x + c.w / 2, c.y + c.h / 2, particleColor, particleCount);
     this.spawnFloat(c.x + c.w / 2, c.y, scoreDelta);
     this.onScoreChange(this.snapshot());
 
@@ -581,6 +634,49 @@ export class Engine {
       f.y -= 30 * (dtMs / 1000);
       f.lifeMs -= dtMs;
       if (f.lifeMs <= 0) this.floats.splice(i, 1);
+    }
+  }
+
+  // ----------------------------------------------------------
+  // Model gibberish (vector output on safe-through)
+  // ----------------------------------------------------------
+
+  genVector() {
+    const dims = 3;
+    const parts = [];
+    for (let i = 0; i < dims; i++) {
+      const v = (Math.random() - 0.5) * 1.9;
+      const s = (v >= 0 ? ' ' : '') + v.toFixed(3);
+      parts.push(s);
+    }
+    return '[' + parts.join('  ') + ']';
+  }
+
+  spawnGibberish() {
+    const c = this.claude;
+    // emit 1-2 lines just to the left of the model, drifting left
+    const lines = Math.random() < 0.7 ? 1 : 2;
+    for (let i = 0; i < lines; i++) {
+      this.gibberish.push({
+        text: this.genVector(),
+        x: c.x - c.w / 2 - 10,
+        y: c.y + 14 + i * 12,
+        vx: -34 + rand(-6, 6),
+        vy: -8,
+        lifeMs: 1500,
+        lifeMaxMs: 1500,
+      });
+    }
+  }
+
+  updateGibberish(dtMs) {
+    const dt = dtMs / 1000;
+    for (let i = this.gibberish.length - 1; i >= 0; i--) {
+      const g = this.gibberish[i];
+      g.x += g.vx * dt;
+      g.y += g.vy * dt;
+      g.lifeMs -= dtMs;
+      if (g.lifeMs <= 0 || g.x < -160) this.gibberish.splice(i, 1);
     }
   }
 
