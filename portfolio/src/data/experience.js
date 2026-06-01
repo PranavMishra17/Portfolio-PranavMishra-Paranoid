@@ -12,8 +12,8 @@ const experiences = [
     duration: "April 2026 - Present",
     location: "Remote",
     isCurrent: true,
-    companyLogo: "assets/images/companies/alfred.jpg",
-    heroImage: null,
+    companyLogo: "assets/images/companies/alfred.svg",
+    heroImage: "assets/images/companies/heros/alfred-founding-llm.jpg",
     heroColor: "#6c5ce7",
     description: [
       "Founding engineer on Agent Eval Harness — designing the evaluation infrastructure for LLM-driven agent systems: task scoring, trajectory replay, regression detection, and multi-model benchmark orchestration",
@@ -31,7 +31,7 @@ const experiences = [
     duration: "July 2025 - March 2026",
     location: "Charlotte, NC",
     companyLogo: "assets/images/companies/wheelprice.jpg",
-    heroImage: null,
+    heroImage: "assets/images/companies/heros/wheelprice-intern.jpg",
     heroColor: "#f97316",
     description: [
       "Built end-to-end ML prototype for automotive part fitment prediction using PyTorch and computer vision models",
@@ -49,7 +49,7 @@ const experiences = [
     duration: "Feb 2024 - Present",
     location: "Chicago, IL",
     companyLogo: "assets/images/companies/uic.jpg",
-    heroImage: null,
+    heroImage: "assets/images/companies/heros/research-software-engineer-uic.jpg",
     heroColor: "#d40028",
     description: [
       "Built virtual patient system using Unreal Engine and C++. Deployed REST APIs with Python backend for data analysis",
@@ -69,7 +69,7 @@ const experiences = [
     duration: "March 2023 - May 2023",
     location: "Bengaluru, Karnataka, India",
     companyLogo: "assets/images/companies/bpf.jpg",
-    heroImage: null,
+    heroImage: "assets/images/companies/heros/bipolar-factory-intern.jpg",
     heroColor: "#14b8a6",
     description: [
       "Developed data-driven streaming platform using MERN stack (MongoDB, Express.js, React, Node.js) with TypeScript. Established AWS cloud deployment pipeline following Agile methods, Jenkins CI/CD and Linux server management",
