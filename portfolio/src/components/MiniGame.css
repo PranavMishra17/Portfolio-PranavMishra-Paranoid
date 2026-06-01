@@ -1,0 +1,277 @@
+/* src/components/MiniGame.css */
+
+/* ---------------- CTA button ----------------
+   Third pill in the About section's CTA row, sitting next to
+   Primary "View Projects" and Secondary "Connect". Uses a violet
+   accent so it reads as something *playful* and distinct from the
+   serious primary/secondary actions. */
+
+.play-game-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 13px 22px 13px 18px;
+  border-radius: 30px;
+  background: rgba(108, 92, 231, 0.08);
+  color: #d6d0ff;
+  border: 1.5px dashed rgba(108, 92, 231, 0.55);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
+}
+
+.play-game-btn:hover {
+  border-style: solid;
+  background: rgba(108, 92, 231, 0.15);
+  color: #ffffff;
+}
+
+.play-game-icon {
+  width: 22px;
+  height: 22px;
+  color: #a594ff;
+}
+
+.play-game-tag {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(108, 92, 231, 0.18);
+  color: #b1a4ff;
+  border: 1px solid rgba(108, 92, 231, 0.35);
+  margin-left: 2px;
+}
+
+@media (max-width: 480px) {
+  .play-game-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ---------------- Coming-soon modal ---------------- */
+
+.game-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 6, 12, 0.78);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 1000;
+}
+
+.game-modal {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(92vw, 520px);
+  height: fit-content;
+  max-height: 88vh;
+  background: linear-gradient(180deg, #0e0c18 0%, #0a0912 100%);
+  border: 1px solid rgba(108, 92, 231, 0.22);
+  border-radius: 18px;
+  z-index: 1001;
+  overflow: hidden;
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(255, 255, 255, 0.02) inset;
+  font-family: 'Inter', sans-serif;
+}
+
+.game-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+  transition: border-color 0.18s ease, color 0.18s ease, background 0.18s ease;
+  z-index: 2;
+}
+
+.game-modal-close:hover {
+  color: #ffffff;
+  border-color: rgba(108, 92, 231, 0.55);
+  background: rgba(108, 92, 231, 0.1);
+}
+
+.game-modal-close svg {
+  width: 14px;
+  height: 14px;
+}
+
+.game-modal-body {
+  padding: 32px 28px 28px;
+  text-align: center;
+}
+
+.game-modal-eyebrow {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: rgba(108, 92, 231, 0.9);
+}
+
+.game-modal-title {
+  margin: 6px 0 10px;
+  font-size: 1.85rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  color: #ffffff;
+  background: linear-gradient(135deg, #b8a8ff 0%, #6c5ce7 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.game-modal-soon {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(108, 92, 231, 0.12);
+  color: #b1a4ff;
+  border: 1px solid rgba(108, 92, 231, 0.32);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  padding: 4px 11px;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+.game-modal-soon-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #6c5ce7;
+  animation: game-soon-pulse 1.8s ease-out infinite;
+}
+
+@keyframes game-soon-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.7); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-modal-soon-dot { animation: none; }
+}
+
+.game-modal-teaser {
+  margin: 20px auto 26px;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.78);
+  max-width: 420px;
+}
+
+/* leaderboard placeholder */
+
+.game-modal-leaders {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 16px 18px 14px;
+  text-align: left;
+}
+
+.game-modal-leaders-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.game-modal-leaders-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.game-modal-leaders-status {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: rgba(108, 92, 231, 0.78);
+}
+
+.game-modal-leaders-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.game-modal-leader-row {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 2px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8rem;
+}
+
+.game-modal-leader-row + .game-modal-leader-row {
+  border-top: 1px dashed rgba(255, 255, 255, 0.04);
+}
+
+.game-modal-leader-row.is-empty {
+  color: rgba(255, 255, 255, 0.32);
+}
+
+.game-modal-leader-row .rank {
+  color: rgba(108, 92, 231, 0.55);
+  font-weight: 700;
+}
+
+.game-modal-leader-row .name {
+  letter-spacing: 1.5px;
+}
+
+.game-modal-leader-row .score {
+  color: rgba(255, 255, 255, 0.45);
+  font-weight: 700;
+}
+
+.game-modal-leaders-note {
+  margin: 12px 0 0;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.45);
+  text-align: center;
+}
+
+@media (max-width: 480px) {
+  .game-modal {
+    width: 96vw;
+    border-radius: 14px;
+  }
+
+  .game-modal-body {
+    padding: 26px 20px 22px;
+  }
+
+  .game-modal-title {
+    font-size: 1.5rem;
+  }
+}

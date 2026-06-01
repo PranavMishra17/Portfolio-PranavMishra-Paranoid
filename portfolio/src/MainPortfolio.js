@@ -15,6 +15,7 @@ import ExperienceModal from './components/ExperienceModal';
 import { projects, contactInfo, getImageWithFallback } from './data/projects';
 import ConnectSlate, { ConnectButton } from './components/ConnectSlate';
 import ViewCounter from './components/ViewCounter';
+import { PlayMiniGameButton, MiniGameModal } from './components/MiniGame';
 import './styles/About.css';
 
 function MainPortfolio() {
@@ -24,6 +25,7 @@ function MainPortfolio() {
   const [storyOpen, setStoryOpen] = useState(false);
   const [experienceModalOpen, setExperienceModalOpen] = useState(false);
   const [connectSlateOpen, setConnectSlateOpen] = useState(false);
+  const [miniGameOpen, setMiniGameOpen] = useState(false);
 
   const toggleConnectSlate = useCallback(() => {
     console.log('[MainPortfolio] toggleConnectSlate called, current state:', connectSlateOpen);
@@ -255,6 +257,7 @@ function MainPortfolio() {
                   >
                     Connect
                   </motion.button>
+                  <PlayMiniGameButton onClick={() => setMiniGameOpen(true)} />
                 </motion.div>
               </div>
             </div>
@@ -361,6 +364,11 @@ function MainPortfolio() {
         <ExperienceModal
           isOpen={experienceModalOpen}
           onClose={() => setExperienceModalOpen(false)}
+        />
+
+        <MiniGameModal
+          isOpen={miniGameOpen}
+          onClose={() => setMiniGameOpen(false)}
         />
       </main>
 
