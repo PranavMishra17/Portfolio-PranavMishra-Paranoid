@@ -1,217 +1,130 @@
-# Portfolio-PranavMishra-Paranoid
- 
-# Pranav Pushkar Mishra - Portfolio Website
+# Portfolio — Pranav Pushkar Mishra
 
-A modern, responsive portfolio website showcasing game development, machine learning, and miscellaneous projects with distinctive visual themes for each category.
+Founding LLM Engineer @ Alfred\_. Single-page React portfolio with a built-in arcade mini-game and a few opinions baked in. No backend; everything that looks live runs on free third-party endpoints.
 
-![Portfolio Preview](./preview.png)
+![Preview](./preview.png)
 
-## Features
+## What's in it
 
-- **Responsive Design**: Fully responsive layout optimized for all screen sizes
-- **Distinct Visual Themes**:
-  - Game Design: Pixel-inspired typography with red color scheme
-  - AI/ML: Clean, professional typography with blue color scheme
-  - Miscellaneous: Monospace typography with green color scheme
-- **Interactive Elements**:
-  - Animated skill bars
-  - Particle background effect
-  - Project galleries with lightbox
-  - Smooth scrolling navigation
-  - Dark/light mode toggle
-- **SEO Optimized**: Proper metadata and semantic HTML structure
+- **Sections** — About · Work Experience modal · Research / Publications · AI · ML, Game Design, Misc project galleries
+- **Live view counter** in the header — abacus.jasoncameron.dev, no backend
+- **Live resume** fetched from a sibling GitHub repo, with a local-PDF fallback
+- **Prompt Patrol** — a mouse-only LLM-themed shooter with a real global leaderboard
 
-## Technologies Used
+## Stack
 
-- **React.js**: Core framework for building the UI
-- **CSS3**: Custom styling with CSS variables for theming
-- **JavaScript ES6+**: Modern JavaScript features
-- **Framer Motion**: (Optional) For enhanced animations
-- **Font Awesome**: For icons
+React 19 · react-router 7 · framer-motion 12 · react-scripts 5 · plain CSS · Canvas 2D + Web Audio API for the game · getpantry.cloud for the leaderboard · abacus.jasoncameron.dev for the view counter. No server.
 
-## Project Structure
+## File structure
 
 ```
 portfolio/
 ├── public/
-│   ├── index.html
-│   ├── favicon.ico
-│   └── assets/
-│       └── images/
-├── src/
-│   ├── App.js               # Main application component
-│   ├── index.js             # Entry point
-│   ├── App.css              # Main styles
-│   ├── index.css            # Global styles
-│   └── components/
-│       ├── ParticleBackground.js
-│       ├── PixelText.js
-│       ├── ThemeSwitch.js
-│       ├── TechStackBadge.js
-│       ├── ProjectGallery.js
-│       └── AnimatedSkillBar.js
-└── package.json
+│   ├── assets/images/
+│   │   ├── {ai_ml,game_design,misc}/        # project art
+│   │   ├── companies/heros/                 # workspace photos for exp modal
+│   │   └── default/                         # category fallbacks
+│   └── resumes/{ai,game}/                   # drop any .pdf here
+├── scripts/
+│   └── generate-resume-manifest.js          # runs via prestart / prebuild
+└── src/
+    ├── data/
+    │   ├── projects.js                      # all project entries + bio + contactInfo
+    │   ├── experience.js                    # work history
+    │   └── publications.js                  # research papers
+    ├── components/
+    │   ├── ExperienceModal.{js,css}         # workspace-bay launcher modal
+    │   ├── ProjectCard.{js,css}
+    │   ├── PublicationsSection.js
+    │   ├── ResumeViewer.{js,css}            # GitHub-live PDF + local fallback
+    │   ├── ConnectSlate.{js,css}            # floating socials slate
+    │   ├── TrophyButton.{js,css}            # achievements pop-up
+    │   ├── ParticleBackground.js            # About-section canvas
+    │   ├── ViewCounter.{js,css}             # header view-count pill
+    │   ├── MiniGame.{js,css}                # Play CTA + game host modal
+    │   └── game/                            # Prompt Patrol
+    │       ├── PromptPatrol.{js,css}        # React wrapper, title, game-over
+    │       ├── engine.js                    # physics, spawn, scoring, state
+    │       ├── sprites.js                   # canvas draw helpers
+    │       ├── config.js                    # tunable numbers
+    │       ├── phrasebook.js                # token text per class
+    │       ├── audio.js                     # Web Audio SFX synth
+    │       ├── leaderboard.js               # Pantry submit / fetch
+    │       └── profanity.js                 # tag-name banlist (base64)
+    ├── MainPortfolio.js                     # top-level page
+    └── App.js                               # routes: "/" and "/resume"
 ```
 
-## Getting Started
+Architecture details and the "where do I edit X" map live in [CLAUDE.md](./CLAUDE.md).
 
-### Prerequisites
+## Quick start
 
-- Node.js (v14.0.0 or higher)
-- npm or yarn
-
-### Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/PranavMishra17/Portfolio-PranavMishra-Paranoid
-   cd portfolio
-   ```
-
-2. Install dependencies:
-   ```bash
-   npm install
-   # or
-   yarn install
-   ```
-
-3. Start the development server:
-   ```bash
-   npm start
-   # or
-   yarn start
-   ```
-
-4. Open your browser and visit `http://localhost:3000`
-
-### Customization
-
-#### 1. Update Personal Information
-
-Edit the About section in `data/projects.js`:
-
-```jsx
-<div className="about-text">
-  <h1>Your Name</h1>
-  <h2>Your Title</h2>
-  <p>
-    Your bio here...
-  </p>
-</div>
+```bash
+cd portfolio
+npm install
+cp .env.example .env.local        # fill the values — see below
+npm start                         # http://localhost:3000
 ```
 
-#### 2. Update Projects
+Other scripts (run from `portfolio/`):
 
-Edit the project arrays in `data/projects.js`:
+| script | what it does |
+|---|---|
+| `npm run build` | Production build. Bash sets `CI=false`; on Windows CMD use `set CI=false && npx react-scripts build`. |
+| `npm run resume-manifest` | Scans `public/resumes/{ai,game}/` and writes `manifest.json`. Auto-runs on `prestart` / `prebuild`. |
+| `npm test` | Jest via react-scripts. |
+| `npm run check` | `npm install && npm run build` — CI sanity check. |
 
-```jsx
-const gameProjects = [
-  {
-    title: "Project Title",
-    category: "Category",
-    description: "Description...",
-    image: "/path/to/image.jpg",
-    githubLink: "https://github.com/...",
-    demoLink: "https://...",
-    techStack: ["Tech1", "Tech2"],
-    gallery: [
-      "/path/to/gallery1.jpg",
-      "/path/to/gallery2.jpg"
-    ]
-  },
-  // More projects...
-];
-```
+## Environment variables
 
-#### 3. Custom Styling
+| var | purpose |
+|---|---|
+| `REACT_APP_VIEW_OFFSET` | Added to the raw API counter so the header pill starts at a chosen baseline. Default 0. |
+| `REACT_APP_PANTRY_ID` | UUID from [getpantry.cloud](https://getpantry.cloud) — global leaderboard backend. If missing, leaderboard UI hides and the game still works. |
+| `REACT_APP_PANTRY_BASKET` | Basket name. Defaults to `prompt-patrol-scores`. |
 
-Modify CSS variables in `index.css` to customize colors and themes:
+`.env.local` is gitignored. For Vercel: set the same vars under Project Settings → Environment Variables.
 
-```css
-:root {
-  /* Base Colors */
-  --color-bg: #0a0a0a;
-  --color-text: #f5f5f5;
-  
-  /* Theme Colors */
-  --game-primary: #ff2d55;
-  --game-secondary: #b30021;
-  
-  --ai-primary: #3d5afe;
-  --ai-secondary: #0039cb;
-  
-  --misc-primary: #00c853;
-  --misc-secondary: #009624;
-  
-  /* More variables... */
-}
-```
+## Content updates
+
+| To change... | Edit |
+|---|---|
+| Projects | `src/data/projects.js` + drop images in `public/assets/images/<bucket>/` |
+| Experience | `src/data/experience.js` + hero photos in `public/assets/images/companies/heros/<id>.jpg` |
+| Publications | `src/data/publications.js` |
+| Resume | live PDF from `PranavMishra17/PranavMishra17`; local backup = any `.pdf` in `public/resumes/ai/` |
+| Game numbers | `src/components/game/config.js` |
+| Game phrases | `src/components/game/phrasebook.js` |
+
+## Prompt Patrol
+
+Mouse-only endless runner themed around LLM prompts. Phosphor-CRT aesthetic.
+
+**How it works**
+
+User prompts rise as token capsules from a keyboard at the bottom-right toward a model device at the top. Identify them on the fly. Pop the dangerous ones; let the safe ones reach the model.
+
+| Token | Color / shape | Action | Miss penalty |
+|---|---|---|---|
+| Safe prompts | Blue pill | let it pass | none — model "thinks" (gibberish vector output) |
+| Unsafe prompts | Red pill | pop it | −1 life |
+| Grey prompts | Grey pill | read the text + decide | varies (text always self-identifies as safe / unsafe / bomb) |
+| Bombs | Black orb with fuse | pop = +5 score | **instant game over** |
+
+A cannon at the bottom-left fires projectiles that arc under gravity + a wind field that shifts every 20–30 s. Hold the mouse for a charged shot (longer aim trail, more wind-resistant). Hold 3 s for an auto-fired **HOT RED** megashot. Reds have a forgiving hitbox; greys and bombs are tighter.
+
+Top 50 scores live in a free Pantry basket — top 5 shown on the title screen and game-over panel. 5-char tag, pre-filtered through a base64-encoded banlist with leetspeak normalization. Mobile play gets a built-in difficulty bump to match desktop intensity.
+
+Full design doc: [docs/prompt-patrol-gdd.html](./docs/prompt-patrol-gdd.html).
 
 ## Deployment
 
-### Option 1: GitHub Pages
-
-1. Install gh-pages:
-   ```bash
-   npm install --save-dev gh-pages
-   ```
-
-2. Add these scripts to `package.json`:
-   ```json
-   "predeploy": "npm run build",
-   "deploy": "gh-pages -d build"
-   ```
-
-3. Add homepage to `package.json`:
-   ```json
-   "homepage": "https://your-username.github.io/portfolio"
-   ```
-
-4. Deploy:
-   ```bash
-   npm run deploy
-   ```
-
-### Option 2: Netlify/Vercel
-
-1. Create an account on [Netlify](https://www.netlify.com/) or [Vercel](https://vercel.com/)
-2. Connect your GitHub repository
-3. Follow the deployment instructions
-
-## Performance Optimization Tips
-
-1. **Optimize Images**:
-   - Use modern formats (WebP)
-   - Compress images with tools like [TinyPNG](https://tinypng.com/)
-   - Use appropriate image dimensions
-
-2. **Code Splitting**:
-   - Use React.lazy() for component lazy loading
-   - Split code into smaller chunks
-
-3. **Preload Critical Assets**:
-   - Add preload tags for critical resources
-
-4. **Enable Caching**:
-   - Add appropriate cache headers in deployment
-
-## Browser Support
-
-- Chrome (latest)
-- Firefox (latest)
-- Safari (latest)
-- Edge (latest)
-- Opera (latest)
+Configured for Vercel via [portfolio/vercel.json](./portfolio/vercel.json). Build output is `portfolio/build/`. Push to `main` and Vercel rebuilds — make sure both `REACT_APP_*` env vars are set in the project dashboard or the view counter and leaderboard will silently disable in prod.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Credits
-
-- Fonts: Google Fonts (Press Start 2P, Inter, Space Mono, Roboto)
-- Icons: Font Awesome
+MIT — see [LICENSE](./LICENSE).
 
 ## Contact
 
-Pranav Pushkar Mishra - [pmishr23@uic.edu] - [[LinkedIn](https://www.linkedin.com/in/pranavgamedev/)] - [[Youtube](https://www.youtube.com/@parano1dgames)]
+Pranav Pushkar Mishra · [pmishr23@uic.edu](mailto:pmishr23@uic.edu) · [LinkedIn](https://www.linkedin.com/in/pranavgamedev/) · [GitHub](https://github.com/PranavMishra17) · [YouTube](https://www.youtube.com/@parano1dgames)
