@@ -502,6 +502,11 @@ function drawCannon(ctx, eng) {
   ctx.fillText(hotRedSoon ? '★ OVERCLOCK ★' : overcharging ? 'OVERCHARGE' : 'CANNON', cn.x, cn.y + 28);
 }
 
+// Aim indicator — a STRAIGHT dashed line from the muzzle along the
+// aim vector. Length scales with how long the trigger has been held
+// (visual feedback for charge). Stays straight even though the actual
+// projectile arcs under gravity + wind — the line is a "reach
+// preview", not a trajectory simulation, per user spec.
 function drawAimIndicator(ctx, eng) {
   const cn = eng.cannon;
   const dx = eng.aim.x - cn.x;
@@ -512,23 +517,49 @@ function drawAimIndicator(ctx, eng) {
 
   const startX = cn.x + nx * (cn.barrelLen + 4);
   const startY = cn.y - 4 + ny * (cn.barrelLen + 4);
-  const endX = startX + nx * CONFIG.ui.aimIndicatorPx;
-  const endY = startY + ny * CONFIG.ui.aimIndicatorPx;
 
-  ctx.strokeStyle = withAlpha(C.crt, 0.7);
-  ctx.lineWidth = 1.5;
-  ctx.setLineDash([5, 5]);
+  // length: baseline at idle, scales up the longer the trigger is held
+  const heldMs = eng.charge.held ? eng.charge.heldMs : 0;
+  const maxMs = CONFIG.charge.maxHoldMs;
+  const chargeT = Math.min(1, heldMs / maxMs);
+  const overT = Math.max(0, (heldMs - maxMs) / (CONFIG.charge.hotRedHoldMs - maxMs));
+  // 1x at idle, 3x at full charge, up to 4.5x at hot-red threshold
+  const lenMult = 1 + chargeT * 2 + overT * 1.5;
+  // cap so the line can't shoot past the diagonal of the canvas
+  const maxLen = Math.hypot(eng.W, eng.H);
+  const length = Math.min(CONFIG.ui.aimIndicatorPx * lenMult, maxLen);
+
+  // colour cue mirrors the cannon bezel
+  const hotRedSoon = heldMs >= 2200;
+  const overcharging = heldMs >= maxMs;
+  const baseColor = hotRedSoon ? '#ff5d6c' : overcharging ? '#ff9a4a' : C.crt;
+
+  const endX = startX + nx * length;
+  const endY = startY + ny * length;
+
+  // dashed straight preview. Slight fade toward the tip: draw two
+  // overlapping passes — solid mid, fading outer — for a soft taper.
+  ctx.strokeStyle = withAlpha(baseColor, 0.75);
+  ctx.lineWidth = 1.6;
+  // dash size grows a touch with hold so the line reads as "charged"
+  const dashLen = 5 + Math.round(chargeT * 3);
+  ctx.setLineDash([dashLen, dashLen]);
   ctx.beginPath();
   ctx.moveTo(startX, startY);
   ctx.lineTo(endX, endY);
   ctx.stroke();
   ctx.setLineDash([]);
 
-  ctx.strokeStyle = withAlpha(C.crt, 0.8);
-  ctx.lineWidth = 1.2;
+  // tip marker — small ring + crosshair tick when charged enough
+  ctx.strokeStyle = withAlpha(baseColor, 0.9);
+  ctx.lineWidth = 1.3;
   ctx.beginPath();
-  ctx.arc(endX, endY, 3.5, 0, Math.PI * 2);
+  ctx.arc(endX, endY, 3.5 + chargeT * 1.5, 0, Math.PI * 2);
   ctx.stroke();
+  if (hotRedSoon) {
+    ctx.fillStyle = baseColor;
+    ctx.fillRect(endX - 1, endY - 1, 2, 2);
+  }
 }
 
 function drawChargeRing(ctx, eng) {

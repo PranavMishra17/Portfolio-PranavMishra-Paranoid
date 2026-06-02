@@ -262,7 +262,10 @@
 }
 
 /* =====================================================================
-   Title screen — DOM overlay with legend + 5-char tag input + START
+   Title screen v3 — pure black, no card chrome, no panel.
+   Just centred typography + pill sprites + tag + START.
+   The full-bleed black covers the game backdrop so nothing fights for
+   attention with the intro content.
    ===================================================================== */
 
 .pp-title {
@@ -271,113 +274,160 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  background: #000000;
   z-index: 4;
   animation: pp-fade-in 0.32s ease-out;
-  padding: 16px;
+  padding: 32px 24px;
 }
 
-.pp-title-card {
-  width: min(94%, 760px);
-  background: linear-gradient(180deg, #07120c 0%, #03080a 100%);
-  border: 1px solid rgba(65, 255, 126, 0.32);
-  border-radius: 12px;
-  padding: 32px 40px 28px;
+.pp-title-inner {
+  width: 100%;
+  max-width: 520px;
   text-align: center;
-  box-shadow:
-    0 30px 80px rgba(0, 0, 0, 0.7),
-    0 0 60px rgba(65, 255, 126, 0.14);
-  max-height: 95%;
-  overflow-y: auto;
-}
-
-.pp-title-head {
-  margin-bottom: 26px;
-}
-
-.pp-title-eyebrow {
-  display: block;
-  font-family: 'Press Start 2P', cursive;
-  font-size: 0.5rem;
-  letter-spacing: 3px;
-  color: rgba(65, 255, 126, 0.78);
-  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
 }
 
 .pp-title-heading {
-  margin: 0 0 12px;
+  margin: 0;
   font-family: 'Press Start 2P', cursive;
-  font-size: 1.8rem;
+  font-size: 1.7rem;
   color: #41ff7e;
-  letter-spacing: 3.5px;
-  text-shadow: 0 0 16px rgba(65, 255, 126, 0.45);
+  letter-spacing: 4.5px;
+  text-shadow: 0 0 20px rgba(65, 255, 126, 0.45);
 }
 
 .pp-title-blurb {
-  margin: 0 auto;
-  color: rgba(220, 255, 230, 0.72);
+  margin: -16px auto 0;
+  color: rgba(220, 255, 230, 0.6);
   font-size: 0.92rem;
-  line-height: 1.55;
-  max-width: 520px;
+  line-height: 1.5;
+  max-width: 440px;
 }
 
-/* ----- legend ----- */
+/* ----- rules list — single column, no chrome ----- */
 
-.pp-legend--grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin: 0 auto 24px;
-  max-width: 620px;
-  text-align: left;
-  background: transparent;
-  border: none;
+.pp-rules {
+  list-style: none;
   padding: 0;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  text-align: left;
+  max-width: 420px;
 }
 
-.pp-legend-card {
-  background: rgba(255, 255, 255, 0.025);
-  border: 1px solid rgba(65, 255, 126, 0.14);
-  border-radius: 8px;
-  padding: 16px 16px 14px;
+.pp-rule {
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 152px 1fr;
+  align-items: center;
+  gap: 18px;
+}
+
+.pp-rule-pill,
+.pp-rule-bomb-wrap {
+  justify-self: end;
+}
+
+.pp-rule-text {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.85rem;
+  color: rgba(220, 255, 230, 0.55);
+  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
   gap: 10px;
-  min-height: 142px;
-  transition: border-color 0.2s ease, background 0.2s ease;
 }
 
-.pp-legend-card:hover {
-  border-color: rgba(65, 255, 126, 0.35);
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.pp-legend-card-rule {
+.pp-rule-tag {
   font-family: 'Press Start 2P', cursive;
-  font-size: 0.62rem;
-  letter-spacing: 1.6px;
+  font-size: 0.56rem;
+  letter-spacing: 1.5px;
+  font-weight: 400;
 }
 
-.pp-legend-card--let .pp-legend-card-rule { color: #6cb4ff; }
-.pp-legend-card--pop .pp-legend-card-rule { color: #ff7a7a; }
-.pp-legend-card--decide .pp-legend-card-rule { color: #c4cdda; }
-.pp-legend-card--bomb .pp-legend-card-rule { color: #f4c062; }
+.pp-rule-tag--blue { color: #6cb4ff; }
+.pp-rule-tag--red  { color: #ff7a7a; }
+.pp-rule-tag--grey { color: #c4cdda; }
+.pp-rule-tag--bomb { color: #f4c062; }
 
-.pp-legend-card--let { border-left: 3px solid rgba(108, 180, 255, 0.7); }
-.pp-legend-card--pop { border-left: 3px solid rgba(255, 122, 122, 0.7); }
-.pp-legend-card--decide { border-left: 3px solid rgba(196, 205, 218, 0.5); }
-.pp-legend-card--bomb { border-left: 3px solid rgba(244, 192, 98, 0.6); }
+/* sprite styling reused for rule pills */
 
-.pp-legend-card-sprite {
+.pp-rule-pill {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.pp-rule-pill--blue {
+  background: rgba(108, 180, 255, 0.1);
+  color: #6cb4ff;
+  border: 1px solid rgba(108, 180, 255, 0.35);
+}
+.pp-rule-pill--red {
+  background: rgba(255, 122, 122, 0.1);
+  color: #ff7a7a;
+  border: 1px solid rgba(255, 122, 122, 0.35);
+}
+.pp-rule-pill--grey {
+  background: rgba(124, 138, 154, 0.12);
+  color: #b5c0cc;
+  border: 1px solid rgba(124, 138, 154, 0.35);
+}
+
+.pp-rule-bomb-wrap {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  margin: 2px 0;
+}
+
+.pp-rule-bomb {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #14161a 0%, #050507 70%);
+  border: 1.5px solid #1d1f25;
+}
+
+.pp-rule-bomb::after {
+  content: '×';
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 36px;
+  color: #6a2026;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.74rem;
 }
 
-.pp-legend-card-note {
-  font-size: 0.78rem;
-  line-height: 1.45;
-  color: rgba(220, 255, 230, 0.65);
+.pp-rule-bomb-fuse {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  width: 2px;
+  height: 9px;
+  transform: translateX(-50%);
+  background: #3a3a40;
+}
+
+.pp-rule-bomb-fuse::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -2px;
+  width: 6px;
+  height: 5px;
+  background: #ffb446;
+  border-radius: 1px;
+  box-shadow: 0 0 8px rgba(255, 180, 70, 0.8);
+  animation: pp-ember-pulse 0.7s ease-in-out infinite;
 }
 
 .pp-legend-pill {
@@ -497,9 +547,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 22px;
+  gap: 14px;
   flex-wrap: wrap;
-  margin-bottom: 16px;
+  margin: 0;
 }
 
 /* ----- tag input ----- */
@@ -508,7 +558,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 12px;
 }
 
 .pp-tag label {
@@ -581,40 +631,42 @@
 }
 
 .pp-title-footnote {
-  margin: 14px 0 0;
-  color: rgba(220, 255, 230, 0.42);
+  margin: -8px 0 0;
+  color: rgba(220, 255, 230, 0.32);
   font-family: 'Space Mono', monospace;
-  font-size: 0.68rem;
-  letter-spacing: 0.4px;
+  font-size: 0.7rem;
+  letter-spacing: 0.6px;
 }
 
 /* ----- responsive ----- */
 
 @media (max-width: 720px) {
-  .pp-title-card {
-    padding: 24px 22px 22px;
+  .pp-title {
+    padding: 20px 16px;
+  }
+  .pp-title-inner {
+    gap: 22px;
   }
   .pp-title-heading {
-    font-size: 1.25rem;
-    letter-spacing: 2.5px;
+    font-size: 1.2rem;
+    letter-spacing: 3px;
   }
   .pp-title-blurb {
-    font-size: 0.82rem;
+    font-size: 0.84rem;
   }
-  .pp-legend--grid {
-    grid-template-columns: 1fr;
-    gap: 10px;
+  .pp-rule {
+    grid-template-columns: 130px 1fr;
+    gap: 12px;
   }
-  .pp-legend-card {
-    min-height: 0;
-    padding: 12px 14px 12px;
+  .pp-rule-pill {
+    font-size: 0.72rem;
+    padding: 5px 11px;
   }
-  .pp-legend-pill {
-    font-size: 0.74rem;
-    padding: 5px 12px;
+  .pp-rule-text {
+    font-size: 0.78rem;
   }
-  .pp-legend-card-note {
-    font-size: 0.74rem;
+  .pp-rule-tag {
+    font-size: 0.5rem;
   }
   .pp-title-actions {
     flex-direction: column;

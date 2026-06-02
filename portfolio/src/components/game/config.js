@@ -104,6 +104,13 @@ export const CONFIG = {
     heartCount:           3,
     screenShakePx:        4,
     reducedMotion:        'auto', // 'auto' | 'on' | 'off'
+    // Touch / narrow viewport gets a difficulty bump because the
+    // smaller render and less-precise input make desktop tuning feel
+    // too easy. Multipliers above 1 = harder.
+    mobileDifficultyMult: {
+      spawnRate: 1.4,  // capsules spawn 40% faster
+      riseSpeed: 1.3,  // and rise 30% faster
+    },
   },
 
   animations: {

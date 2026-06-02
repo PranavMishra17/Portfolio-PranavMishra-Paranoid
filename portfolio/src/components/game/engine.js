@@ -53,6 +53,20 @@ export class Engine {
     this.W = 960;
     this.H = 600;
 
+    // Detect mobile / touch + small viewport on construction. Used
+    // as a difficulty multiplier — touch input has lower precision
+    // and smaller render area, so the easier-by-accident difficulty
+    // gets pushed back up. See applyMobileDifficulty().
+    this.isMobile = (() => {
+      if (typeof window === 'undefined') return false;
+      const narrow = window.innerWidth < 720 || window.innerHeight < 540;
+      const touch = 'ontouchstart' in window || (navigator.maxTouchPoints || 0) > 0;
+      return narrow || touch;
+    })();
+    const mobileBoost = CONFIG.ui.mobileDifficultyMult || { spawnRate: 1, riseSpeed: 1 };
+    this.spawnRateMult = this.isMobile ? mobileBoost.spawnRate : 1;
+    this.riseSpeedMult = this.isMobile ? mobileBoost.riseSpeed : 1;
+
     this.state = STATE.TITLE;
     this.reset();
   }
@@ -98,8 +112,9 @@ export class Engine {
       waveMilestoneShownMs: 0,
     };
 
-    // cannon
-    this.cannon = { x: 90, y: this.H - 90, barrelLen: 36, recoilMs: 0 };
+    // cannon — elevated above the bottom edge so there's visible
+    // floor / ground space below it (was H-90, felt floor-anchored).
+    this.cannon = { x: 90, y: this.H - 130, barrelLen: 36, recoilMs: 0 };
     this.aim = { x: this.W * 0.6, y: this.H * 0.3 };
 
     // charge state
@@ -367,7 +382,9 @@ export class Engine {
       const wave = sp.waveName;
       const tokenCount = CONFIG.spawn.waveTokenCount[wave];
       const avgSpacing = CONFIG.spawn.waveDurationSec / tokenCount;
-      sp.nextSpawnIn = rand(avgSpacing * 0.7, avgSpacing * 1.3);
+      // mobile difficulty: divide the gap, so spawns come faster
+      const next = rand(avgSpacing * 0.7, avgSpacing * 1.3) / this.spawnRateMult;
+      sp.nextSpawnIn = next;
     }
 
     if (sp.waveTimeLeft <= 0 && sp.tokensToSpawn <= 0) {
@@ -436,8 +453,8 @@ export class Engine {
     this.keyboard.spawnBurstX = this.keyboard.x + spawnLocalX;
     this.keyboard.spawnBurstMs = 260;
 
-    // rise speed with per-loop ramp, jitter
-    const baseRise = CONFIG.spawn.capsuleRiseSpeed;
+    // rise speed with per-loop ramp, jitter, and mobile boost
+    const baseRise = CONFIG.spawn.capsuleRiseSpeed * this.riseSpeedMult;
     const ramp = Math.min(this.loopCount * CONFIG.spawn.perLoopRamp.riseSpeed, CONFIG.spawn.perLoopRamp.cap);
     const vy = -(baseRise * (1 + ramp)) + rand(-CONFIG.spawn.capsuleRiseJitter, CONFIG.spawn.capsuleRiseJitter);
     const vx = -CONFIG.spawn.capsuleHorizDrift + rand(-2, 2);
