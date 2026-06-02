@@ -2,7 +2,8 @@
 
 Founding LLM Engineer @ Alfred\_. Single-page React portfolio with a built-in arcade mini-game and a few opinions baked in. No backend; everything that looks live runs on free third-party endpoints.
 
-![Preview](./preview.png)
+![Portfolio preview](./preview.png)
+![Prompt Patrol gameplay](./preview-prompt-patrol.png)
 
 ## What's in it
 
@@ -77,13 +78,7 @@ Other scripts (run from `portfolio/`):
 
 ## Environment variables
 
-| var | purpose |
-|---|---|
-| `REACT_APP_VIEW_OFFSET` | Added to the raw API counter so the header pill starts at a chosen baseline. Default 0. |
-| `REACT_APP_PANTRY_ID` | UUID from [getpantry.cloud](https://getpantry.cloud) — global leaderboard backend. If missing, leaderboard UI hides and the game still works. |
-| `REACT_APP_PANTRY_BASKET` | Basket name. Defaults to `prompt-patrol-scores`. |
-
-`.env.local` is gitignored. For Vercel: set the same vars under Project Settings → Environment Variables.
+The app reads a few `REACT_APP_*` vars at build time. Names are listed in [`portfolio/.env.example`](./portfolio/.env.example) with empty placeholders — copy to `.env.local` (gitignored) and fill the values, or set them in Vercel → Project Settings → Environment Variables. Missing values fall back to safe defaults; nothing breaks.
 
 ## Content updates
 
