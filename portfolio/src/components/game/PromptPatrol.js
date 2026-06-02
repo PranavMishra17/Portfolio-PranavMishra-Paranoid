@@ -7,6 +7,8 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { Engine, STATE } from './engine';
 import { unlock as unlockAudio } from './audio';
+import { fetchTop, submitScore, PANTRY_CONFIGURED } from './leaderboard';
+import { isBannedTag } from './profanity';
 import './PromptPatrol.css';
 
 const PERSONAL_BEST_KEY = 'pp_personal_best_v1';
@@ -59,6 +61,17 @@ const PromptPatrol = ({ onClose }) => {
   const [scoreSnap, setScoreSnap] = useState({ score: 0, lives: 3, wave: 1 });
   const [personalBest, setPersonalBest] = useState(() => readPersonalBest());
   const [playerTag, setPlayerTag] = useState(() => readTag());
+  const [tagError, setTagError] = useState(null);
+
+  // Leaderboard state — null = not loaded / offline, [] = empty.
+  const [topScores, setTopScores] = useState(null);
+  const [submitState, setSubmitState] = useState({
+    status: 'idle', // 'idle' | 'submitting' | 'done' | 'failed'
+    rank: null,
+    total: null,
+    reason: null,
+  });
+  const submittedFor = useRef(null); // dedupe: ts of the game-over we already submitted
 
   // ----------------------------------------------------------
   // Boot engine + rAF loop
@@ -117,6 +130,62 @@ const PromptPatrol = ({ onClose }) => {
       setPersonalBest(next);
     }
   }, [gameState, scoreSnap, personalBest, playerTag]);
+
+  // ----------------------------------------------------------
+  // Title-screen leaderboard — fetch on mount, refresh every 15s.
+  // ----------------------------------------------------------
+  useEffect(() => {
+    if (!PANTRY_CONFIGURED) return;
+    if (gameState !== STATE.TITLE) return;
+    let alive = true;
+    const refresh = async () => {
+      const top = await fetchTop(5);
+      if (alive) setTopScores(top || []);
+    };
+    refresh();
+    const id = setInterval(refresh, 15000);
+    return () => {
+      alive = false;
+      clearInterval(id);
+    };
+  }, [gameState]);
+
+  // ----------------------------------------------------------
+  // Game-over: submit score exactly once per round.
+  // ----------------------------------------------------------
+  useEffect(() => {
+    if (!PANTRY_CONFIGURED) return;
+    if (gameState !== STATE.GAMEOVER_LIVES && gameState !== STATE.GAMEOVER_BOMB) {
+      // reset for next round
+      submittedFor.current = null;
+      if (submitState.status !== 'idle') setSubmitState({ status: 'idle', rank: null, total: null, reason: null });
+      return;
+    }
+    // dedupe per game-over instance
+    const key = `${gameState}:${scoreSnap.score}:${scoreSnap.wave}:${playerTag}`;
+    if (submittedFor.current === key) return;
+    submittedFor.current = key;
+
+    let alive = true;
+    (async () => {
+      setSubmitState({ status: 'submitting', rank: null, total: null, reason: null });
+      const res = await submitScore({
+        tag: playerTag || 'GUEST',
+        score: scoreSnap.score,
+        wave: scoreSnap.wave,
+      });
+      if (!alive) return;
+      if (res.ok) {
+        setSubmitState({ status: 'done', rank: res.rank, total: res.total, reason: null });
+        const top = await fetchTop(5);
+        if (alive) setTopScores(top || []);
+      } else {
+        setSubmitState({ status: 'failed', rank: null, total: null, reason: res.reason });
+      }
+    })();
+
+    return () => { alive = false; };
+  }, [gameState, scoreSnap.score, scoreSnap.wave, playerTag, submitState.status]);
 
   // ----------------------------------------------------------
   // Input
@@ -191,10 +260,16 @@ const PromptPatrol = ({ onClose }) => {
 
   const handleTagChange = (e) => {
     setPlayerTag(sanitizeTag(e.target.value));
+    if (tagError) setTagError(null);
   };
 
   const handleStart = () => {
     const t = sanitizeTag(playerTag) || 'GUEST';
+    if (isBannedTag(t)) {
+      setTagError('pick a different tag');
+      return;
+    }
+    setTagError(null);
     setPlayerTag(t);
     writeTag(t);
     unlockAudio();
@@ -300,7 +375,7 @@ const PromptPatrol = ({ onClose }) => {
                 <label htmlFor="pp-tag-input">TAG</label>
                 <input
                   id="pp-tag-input"
-                  className="pp-tag-input"
+                  className={`pp-tag-input${tagError ? ' pp-tag-input--bad' : ''}`}
                   value={playerTag}
                   onChange={handleTagChange}
                   onKeyDown={handleTagKeyDown}
@@ -315,6 +390,25 @@ const PromptPatrol = ({ onClose }) => {
                 START
               </button>
             </div>
+
+            {tagError && <div className="pp-tag-error">▴ {tagError}</div>}
+
+            {PANTRY_CONFIGURED && topScores && topScores.length > 0 && (
+              <div className="pp-leaderboard">
+                <div className="pp-leaderboard-title">▾ TOP RUNS</div>
+                <ol className="pp-leaderboard-list">
+                  {topScores.slice(0, 5).map((row, i) => (
+                    <li key={`${row.tag}-${row.ts}`} className="pp-leaderboard-row">
+                      <span className="pp-leaderboard-rank">#{i + 1}</span>
+                      <span className="pp-leaderboard-tag">{row.tag}</span>
+                      <span className="pp-leaderboard-score">
+                        {String(row.score).padStart(3, '0')}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
 
             <p className="pp-title-footnote">
               aim · click · hold to charge · 3 s = HOT RED
@@ -363,9 +457,44 @@ const PromptPatrol = ({ onClose }) => {
               </div>
             )}
 
-            <p className="pp-leaderboard-note">
-              Global leaderboard coming next — your tag will travel with the score.
-            </p>
+            {PANTRY_CONFIGURED && (
+              <div className="pp-submit">
+                {submitState.status === 'submitting' && (
+                  <span className="pp-submit-line">submitting score…</span>
+                )}
+                {submitState.status === 'done' && submitState.rank && (
+                  <span className="pp-submit-line pp-submit-line--ok">
+                    ✓ rank #{submitState.rank} of {submitState.total}
+                  </span>
+                )}
+                {submitState.status === 'failed' && (
+                  <span className="pp-submit-line pp-submit-line--warn">
+                    {submitState.reason === 'banned-tag'
+                      ? 'tag rejected · not submitted'
+                      : submitState.reason === 'throttled'
+                      ? 'too soon since last submit'
+                      : 'leaderboard unreachable'}
+                  </span>
+                )}
+              </div>
+            )}
+
+            {PANTRY_CONFIGURED && topScores && topScores.length > 0 && (
+              <div className="pp-leaderboard pp-leaderboard--gameover">
+                <div className="pp-leaderboard-title">▾ TOP RUNS</div>
+                <ol className="pp-leaderboard-list">
+                  {topScores.slice(0, 5).map((row, i) => (
+                    <li key={`${row.tag}-${row.ts}`} className="pp-leaderboard-row">
+                      <span className="pp-leaderboard-rank">#{i + 1}</span>
+                      <span className="pp-leaderboard-tag">{row.tag}</span>
+                      <span className="pp-leaderboard-score">
+                        {String(row.score).padStart(3, '0')}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            )}
 
             <button type="button" className="pp-restart" onClick={handleRestart}>
               <span className="pp-restart-arrow">▸</span> PLAY AGAIN

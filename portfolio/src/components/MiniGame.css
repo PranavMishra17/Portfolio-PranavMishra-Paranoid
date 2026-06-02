@@ -32,7 +32,7 @@
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  padding: 5px 12px 5px 10px;
+  padding: 5px 12px;
   background: linear-gradient(180deg, #061107 0%, #030806 100%);
   border: 1px solid rgba(65, 255, 126, 0.55);
   border-radius: 999px;
@@ -121,7 +121,7 @@
   isolation: isolate;
   display: inline-flex;
   align-items: center;
-  padding: 14px 22px 14px 18px;
+  padding: 14px 20px;
   background-color: var(--arc-bg);
   /* marching pixel-ants border via 4 edge gradients */
   background-image:

@@ -638,6 +638,115 @@
   letter-spacing: 0.6px;
 }
 
+/* ----- tag error ----- */
+
+.pp-tag-input--bad {
+  border-color: rgba(255, 122, 122, 0.72) !important;
+  box-shadow: 0 0 12px rgba(255, 122, 122, 0.32) !important;
+  color: #ff7a7a !important;
+}
+
+.pp-tag-error {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.5rem;
+  letter-spacing: 1.6px;
+  color: #ff7a7a;
+  margin: -16px 0 0;
+}
+
+/* ----- global leaderboard ----- */
+
+.pp-leaderboard {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0 auto;
+  max-width: 280px;
+  text-align: left;
+}
+
+.pp-leaderboard-title {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.5rem;
+  letter-spacing: 2px;
+  color: rgba(244, 192, 98, 0.85);
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.pp-leaderboard-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pp-leaderboard-row {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  font-family: 'Space Mono', monospace;
+  font-size: 0.78rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(244, 192, 98, 0.08);
+}
+
+.pp-leaderboard-row:first-child {
+  border-color: rgba(244, 192, 98, 0.3);
+  background: rgba(244, 192, 98, 0.04);
+}
+
+.pp-leaderboard-rank {
+  color: rgba(244, 192, 98, 0.7);
+  text-align: right;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.pp-leaderboard-tag {
+  color: #41ff7e;
+  letter-spacing: 2px;
+  font-weight: 700;
+}
+
+.pp-leaderboard-score {
+  color: rgba(220, 255, 230, 0.75);
+  font-weight: 700;
+}
+
+.pp-leaderboard--gameover {
+  max-width: 280px;
+  margin-top: 12px;
+}
+
+/* ----- submission status row on game-over ----- */
+
+.pp-submit {
+  margin: -4px 0 12px;
+  text-align: center;
+  min-height: 18px;
+}
+
+.pp-submit-line {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.5rem;
+  letter-spacing: 1.4px;
+  color: rgba(220, 255, 230, 0.55);
+}
+
+.pp-submit-line--ok {
+  color: #41ff7e;
+}
+
+.pp-submit-line--warn {
+  color: #ff7a7a;
+}
+
 /* ----- responsive ----- */
 
 @media (max-width: 720px) {
