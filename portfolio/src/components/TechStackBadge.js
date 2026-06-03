@@ -41,6 +41,23 @@ const TechStackBadge = ({ tech, theme }) => {
       'TensorFlow': '#ff6f00',
       LibTorch: '#ee4c2c',
 
+      // Server / runtime
+      Deno: '#101820',
+      'pg_cron': '#336791',
+      Postgres: '#336791',
+      Tailwind: '#06b6d4',
+
+      // Agentic / Eval
+      'LangGraph': '#1a5530',
+      'LLM Evaluation': '#7c3aed',
+      'Behavioral Eval': '#9c27b0',
+      'Production Monitoring': '#10b981',
+      'Cron Pipelines': '#2563eb',
+
+      // Provider APIs
+      'Google Calendar API': '#4285f4',
+      'Microsoft Graph': '#0078d4',
+
       // AI/ML - LLMs & APIs
       'OpenAI': '#10a37f',
       'Gemini': '#4285f4',

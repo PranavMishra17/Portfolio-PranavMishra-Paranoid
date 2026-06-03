@@ -17,10 +17,19 @@ const experiences = [
     heroImage: "assets/images/companies/heros/alfred-founding-llm.jpg",
     heroColor: "#6c5ce7",
     description: [
-      "Founding engineer on Agent Eval Harness — designing the evaluation infrastructure for LLM-driven agent systems: task scoring, trajectory replay, regression detection, and multi-model benchmark orchestration",
-      "Owning the end-to-end pipeline from eval task authoring through production telemetry, building tools that let researchers iterate on agent prompts and tool-use policies with measurable, reproducible signal"
+      "Built the team's behavioral-outcomes evaluation platform for an LLM-driven calendar/inbox agent — mock-provider layer (Gmail, Google Calendar, Microsoft Graph, messaging gateway), state-diff assertions over response text, multi-account multi-turn pass@k production-realism tier. Primary regression-protection layer for every agent change.",
+      "Shipped a 3-stage production-failure scanner (response-content classifiers, tool-trace detectors, silent-failure heuristics) on a recurring cron chain — auto-promotes high-confidence failures into a lifecycle-tracked triage queue, posts chunked Slack digests, drives a documented failure → root cause → fix → regression-test cycle weekly.",
+      "Owned an end-to-end calendar-change SMS pipeline (Google + Microsoft): per-minute diff with severity ladder, three-gate rollout (per-user opt-in, global kill switch, per-calendar opt-out), idempotent dispatch, latency halved via per-user cadence, burst-batching, sender-note extraction. Live for the internal cohort.",
+      "Closed multi-account / multi-timezone correctness gaps once live: self-create suppression across linked emails, all-day event rendering on the right calendar date, SMS↔web-chat formatting parity via a shared validator with a contract test, and Microsoft's personal-account identifier substitution. Each fix pinned by regression tests.",
+      "Bridged the agent platform's v5 → v6 transition on the eval side — built the web-adapter so eval coverage follows the agent across architecture versions without forking test cases; production-failure scanner reads detectors per version."
     ],
-    techStack: ["Python", "LLM Evaluation", "Agentic Systems", "Multi-Agent Systems", "Anthropic API", "OpenAI", "Async Orchestration", "Telemetry", "Trajectory Analysis"],
+    techStack: [
+      "TypeScript", "Deno", "Supabase", "Postgres", "pg_cron",
+      "React", "Tailwind", "LangGraph",
+      "LLM Evaluation", "Behavioral Eval", "Agentic Systems", "Multi-Agent Systems",
+      "Google Calendar API", "Microsoft Graph", "Anthropic API",
+      "Production Monitoring", "Cron Pipelines"
+    ],
     links: {
       website: "https://get-alfred.ai/"
     }

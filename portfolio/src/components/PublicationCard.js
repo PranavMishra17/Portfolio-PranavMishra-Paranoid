@@ -5,14 +5,34 @@ import TechStackBadge from './TechStackBadge';
 const PublicationCard = ({ publication }) => {
   const [isAbstractExpanded, setIsAbstractExpanded] = useState(false);
 
+  const normStatus = (publication.status || '').trim().toLowerCase();
+  const isAccepted = normStatus === 'accepted';
+
   const getStatusColor = (status) => {
+    // status strings in the data are mixed case (e.g. "ACCEPTED",
+    // "Under Review", "Under Preparation"). Normalize to lowercase
+    // here so the lookup actually hits, instead of falling through
+    // to the grey default.
     const colors = {
-      'Published': '#00c853',
-      'Accepted': '#3d5afe',
-      'Under Review': '#ff9800',
-      'In Preparation': '#9e9e9e'
+      'published':         '#00c853',
+      'accepted':          '#e0a020', // gold for accepted papers
+      'under review':      '#ff9800',
+      'in preparation':    '#9e9e9e',
+      'under preparation': '#9e9e9e',
     };
-    return colors[status] || '#9e9e9e';
+    return colors[(status || '').trim().toLowerCase()] || '#9e9e9e';
+  };
+
+  const acceptedBadgeStyle = {
+    backgroundColor: '#e0a020',
+    color: '#1a1206',
+    boxShadow: '0 0 18px rgba(224, 160, 32, 0.55), 0 0 0 1px rgba(255, 222, 130, 0.6) inset',
+    fontWeight: 700,
+  };
+
+  const standardBadgeStyle = {
+    backgroundColor: getStatusColor(publication.status),
+    color: 'white',
   };
 
   const formatAuthors = (authors) => {
@@ -31,14 +51,11 @@ const PublicationCard = ({ publication }) => {
     <div className="publication-card">
       <div className="publication-header">
         <div className="publication-status">
-          <span 
-            className="status-badge"
-            style={{ 
-              backgroundColor: getStatusColor(publication.status),
-              color: 'white'
-            }}
+          <span
+            className={`status-badge${isAccepted ? ' status-badge--accepted' : ''}`}
+            style={isAccepted ? acceptedBadgeStyle : standardBadgeStyle}
           >
-            {publication.status}
+            {isAccepted ? '★ ' : ''}{publication.status}
           </span>
         </div>
         
