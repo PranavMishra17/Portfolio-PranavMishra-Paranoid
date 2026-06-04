@@ -203,7 +203,18 @@ const ExperienceModal = ({ isOpen, onClose }) => {
                               {exp.country && Flag[exp.country]}
                               {exp.location}
                             </span>
+                            {exp.workMode && (
+                              <span className="workbay-mode">{exp.workMode}</span>
+                            )}
+                            {exp.employmentType && (
+                              <span className="workbay-mode workbay-mode--ghost">
+                                {exp.employmentType}
+                              </span>
+                            )}
                           </div>
+                          {exp.companyDescription && (
+                            <p className="workbay-desc">{exp.companyDescription}</p>
+                          )}
                         </div>
 
                         <ul className="workbay-bullets">
@@ -211,6 +222,24 @@ const ExperienceModal = ({ isOpen, onClose }) => {
                             <li key={j}>{bullet}</li>
                           ))}
                         </ul>
+
+                        {exp.projects && exp.projects.length > 0 && (
+                          <div className="workbay-projects">
+                            <div className="workbay-projects-eyebrow">
+                              Highlighted Work
+                            </div>
+                            {exp.projects.map((proj, p) => (
+                              <div key={p} className="workbay-project">
+                                <div className="workbay-project-name">{proj.name}</div>
+                                <ul className="workbay-project-bullets">
+                                  {proj.bullets.map((b, q) => (
+                                    <li key={q}>{b}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            ))}
+                          </div>
+                        )}
 
                         {exp.techStack && exp.techStack.length > 0 && (
                           <div className="workbay-tags">
