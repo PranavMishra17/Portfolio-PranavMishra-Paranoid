@@ -18,7 +18,7 @@ const experiences = [
     heroColor: "#6c5ce7",
     employmentType: "Full-time",
     workMode: "Hybrid",
-    companyDescription: "Techstars-backed consumer AI executive assistant. Multi-agent LLM system managing users' email, calendar, and daily obligations over SMS, web chat, and voice. 5,000+ active subscribers in production.",
+    companyDescription: "Consumer AI executive assistant. Multi-agent LLM system managing users' email, calendar, and daily obligations over SMS, web chat, and voice. 5,000+ active subscribers in production.",
     description: [
       "Own the reliability layer of the multi-agent assistant (5,000+ subscribers, TypeScript / Deno / Node.js) — risk-scored gating, a from-scratch eval harness, production-failure scanner over live conversations, and re-architected working memory so LLM fabrication is structurally impossible — enforced by tests, not probabilistic.",
       "Built and scaled the email-rules engine (product's stickiest feature). Replaced per-message LLM calls with a deterministic three-stage matcher — cut per-user LLM cost ~30% while keeping rule execution reliable at scale; ~98% of rules created from chat.",
