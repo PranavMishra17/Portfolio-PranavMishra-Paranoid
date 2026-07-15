@@ -169,13 +169,13 @@ const projects = {
 {
   id: "mockflow-ai",
   title: "MockFlow-AI: Real-Time Voice Interview Platform",
-  category: "AI/ML Full-Stack Application",
-  description: "AI-powered mock interview platform with real-time voice conversation. Features FSM-driven multi-stage interviews, Deepgram STT and OpenAI TTS integration, resume/JD parsing for tailored questions, performance feedback with competency scores, and BYOK architecture. Built on LiveKit Agents SDK for low-latency voice interaction.",
+  category: "Voice AI · Multi-Agent Orchestration",
+  description: "Real-time voice mock-interview platform with FSM-driven multi-agent orchestration across four tracks — Intro, Behavioral, Technical Voice, and Technical Coding. Sub-400 ms end-to-end latency (5× faster than polling baselines) via WebSocket-optimized STT → LLM → TTS streaming with Silero VAD; explicit tool-based stage transitions (LLM must call transition_stage, minimum-question gates, quality-driven exits, fallback timers as safety net); per-session subprocess-spawned workers for BYOK key isolation; resume / JD parsing for tailored questions; Monaco-editor coding track with 3-attempt AI evaluation and integrity guards.",
   mainImage: "assets/images/ai_ml/mf.png",
   gallery: [
     "assets/images/ai_ml/mf3.png",
   ],
-  techStack: ["Python", "Flask", "LiveKit", "OpenAI", "Deepgram", "Supabase", "WebRTC", "FSM", "Google OAuth", "Render"],
+  techStack: ["Python", "Flask", "LiveKit", "Deepgram", "OpenAI", "Silero VAD", "Supabase", "Monaco Editor", "WebRTC", "Multi-Agent Systems", "FSM Orchestration", "Google OAuth", "Render"],
   githubLink: "https://github.com/PranavMishra17/MockFlow-AI",
   demoLink: "https://www.youtube.com/watch?v=FUFKHy19oGA",
   websiteLink: "https://mockflow-ai.onrender.com"

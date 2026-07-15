@@ -18,17 +18,30 @@ const experiences = [
     heroColor: "#6c5ce7",
     employmentType: "Full-time",
     workMode: "Hybrid",
-    companyDescription: "Early-stage consumer AI startup building an AI executive assistant that runs entirely over SMS. Users text to manage email, calendar, tasks, and scheduling; alfred_ acts autonomously on their behalf. Multi-agent system routing requests to specialized agents across email triage, calendar management, and task coordination.",
+    companyDescription: "Techstars-backed consumer AI executive assistant. Multi-agent LLM system managing users' email, calendar, and daily obligations over SMS, web chat, and voice. 5,000+ active subscribers in production.",
     description: [
-      "Built evaluation, regression-testing, and reliability infrastructure for production LLM agents — automated validation of multi-turn workflows, tool execution, and cross-platform integrations.",
-      "Shipped AI-powered automation features and developed production-failure monitoring systems that transformed real user failures into actionable debugging insights and long-term regression coverage."
+      "Own the reliability layer of the multi-agent assistant (5,000+ subscribers, TypeScript / Deno / Node.js) — risk-scored gating, a from-scratch eval harness, production-failure scanner over live conversations, and re-architected working memory so LLM fabrication is structurally impossible — enforced by tests, not probabilistic.",
+      "Built and scaled the email-rules engine (product's stickiest feature). Replaced per-message LLM calls with a deterministic three-stage matcher — cut per-user LLM cost ~30% while keeping rule execution reliable at scale; ~98% of rules created from chat.",
+      "Notification-latency win: email → SMS delivery ~90 s → ~3 s (≈30×) by moving polling to event-triggered dispatch; extended to the security / OTP path (189 s p90 → instant). Fixed a class of notification-precision bugs along the way.",
+      "Shipped the Execution Decision Layer — five-verdict router (SILENT / NOTIFY / CONFIRM / CLARIFY / REFUSE) over every candidate action, deterministic risk scoring (not LLM-as-judge), pending-obligations queue, bounded undo window, anti-fabrication guards grounded on the real tool-execution ledger.",
+      "Postgres at production scale (Supabase) — RLS + SECURITY DEFINER RPC hardening (caught a cross-user data-leak class on default PUBLIC grants), collision-safe idempotent migrations, source-agnostic memory-store schema tuned for TOAST / autovacuum."
+    ],
+    projects: [
+      {
+        name: "Execution Decision Layer — take-home to production",
+        bullets: [
+          "Designed and shipped a Vercel-deployed prototype prior to founding-team join (Next.js 14 · TypeScript · MCP tool execution · Cartesia TTS voice surface).",
+          "Five-verdict pattern, deterministic risk scoring, MCP tool gating, pending-obligations queue, and bounded undo window — became the production pattern for the agent's decision logic."
+        ]
+      }
     ],
     techStack: [
-      "TypeScript", "Deno", "Supabase", "Postgres", "pg_cron",
-      "React", "Tailwind", "LangGraph",
-      "LLM Evaluation", "Agentic Systems", "Multi-Agent Systems",
+      "TypeScript", "Deno", "Node.js", "MCP",
+      "Supabase", "Postgres", "RLS", "pg_cron",
+      "React", "LangGraph",
+      "LLM Evaluation", "Multi-Agent Systems", "Agentic Systems",
       "Google Calendar API", "Microsoft Graph", "Anthropic API",
-      "Production Monitoring"
+      "Cartesia TTS", "Production Monitoring"
     ],
     links: {
       website: "https://get-alfred.ai/"

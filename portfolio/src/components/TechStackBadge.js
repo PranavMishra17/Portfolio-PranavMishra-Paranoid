@@ -58,6 +58,16 @@ const TechStackBadge = ({ tech, theme }) => {
       'Google Calendar API': '#4285f4',
       'Microsoft Graph': '#0078d4',
 
+      // Voice AI extras
+      'Silero VAD': '#4a5b6e',
+      'Cartesia TTS': '#f97316',
+      'FSM Orchestration': '#7c3aed',
+
+      // Security
+      'RLS': '#8b5cf6',
+      Vercel: '#000000',
+      'Monaco Editor': '#1e4d8c',
+
       // AI/ML - LLMs & APIs
       'OpenAI': '#10a37f',
       'Gemini': '#4285f4',
