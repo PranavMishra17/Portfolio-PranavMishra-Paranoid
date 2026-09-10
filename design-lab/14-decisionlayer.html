@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Decision Layer — Pranav Mishra</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chivo:wght@300;400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,300..500;1,6..72,300..400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --deck:#0b1315;
+  --panel:#131f22;
+  --panel-2:#182a2e;
+  --edge:#25393e;
+  --ink:#dfe7e6;
+  --ink-dim:#7f9599;
+
+  --silent:#6b7f8c;
+  --notify:#4fb6c9;
+  --confirm:#d9a441;
+  --clarify:#9b7fd4;
+  --refuse:#c8503f;
+  --live:var(--notify);
+
+  --ui:'Chivo',system-ui,sans-serif;
+  --prose:'Newsreader',Georgia,serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--deck);color:var(--ink);font-family:var(--ui);overflow-x:hidden;line-height:1.5}
+:focus-visible{outline:2px solid var(--live);outline-offset:3px}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+img{display:block;max-width:100%}
+
+.hum{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(115% 70% at 50% 0%, color-mix(in oklab,var(--live) 15%,transparent), transparent 60%);
+  transition:background 700ms cubic-bezier(.2,.7,.2,1);
+}
+main{position:relative;z-index:1}
+.wrap{max-width:1120px;margin:0 auto;padding:0 clamp(20px,5vw,54px)}
+
+/* ── ACT ONE ─ the machine ─────────────────────────────────── */
+.bench{padding:clamp(46px,7vw,90px) 0 clamp(40px,6vw,70px)}
+.bench h1{
+  font-family:var(--prose);font-weight:400;
+  font-size:clamp(34px,5.6vw,68px);line-height:1.02;letter-spacing:-.015em;
+  max-width:19ch;margin-bottom:1rem;
+}
+.bench .sub{font-size:clamp(15px,1.6vw,17.5px);color:var(--ink-dim);max-width:56ch;margin-bottom:clamp(30px,4vw,46px)}
+.bench .sub b{color:var(--ink);font-weight:500}
+
+.machine{
+  border:1px solid var(--edge);border-radius:3px;background:var(--panel);
+  box-shadow:0 30px 70px rgba(0,0,0,.5);overflow:hidden;
+}
+.feed{padding:clamp(18px,2.4vw,26px);border-bottom:1px solid var(--edge);background:var(--panel-2)}
+.feed .lbl{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:.85rem}
+.feed .row{display:flex;gap:10px;flex-wrap:wrap}
+.feed input{
+  flex:1 1 320px;min-width:0;background:var(--deck);border:1px solid var(--edge);
+  color:var(--ink);font:inherit;font-size:15px;padding:.75rem .9rem;border-radius:2px;
+}
+.feed input::placeholder{color:#5d7175}
+.feed .go{
+  background:var(--live);color:#08100f;font-weight:600;font-size:14px;
+  padding:.75rem 1.4rem;border-radius:2px;transition:filter .15s;
+}
+.feed .go:hover{filter:brightness(1.1)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:.95rem}
+.chips button{
+  font-size:13px;color:var(--ink-dim);border:1px solid var(--edge);
+  padding:.42rem .75rem;border-radius:2px;transition:color .15s,border-color .15s;
+  text-align:left;
+}
+.chips button:hover{color:var(--ink);border-color:var(--ink-dim)}
+
+.floor{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,290px)}
+@media(max-width:820px){.floor{grid-template-columns:1fr}}
+
+.gates{padding:clamp(18px,2.4vw,26px);border-right:1px solid var(--edge)}
+@media(max-width:820px){.gates{border-right:0;border-bottom:1px solid var(--edge)}}
+.gates .lbl{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:1rem}
+.gate{
+  display:grid;grid-template-columns:22px 1fr auto;align-items:center;gap:12px;
+  padding:.62rem 0;border-bottom:1px solid rgba(37,57,62,.55);
+}
+.gate:last-child{border-bottom:0}
+.gate .dot{
+  width:9px;height:9px;border-radius:50%;background:#22343a;justify-self:center;
+  transition:background 220ms ease,box-shadow 220ms ease;
+}
+.gate.hot .dot{background:var(--live);box-shadow:0 0 12px 2px color-mix(in oklab,var(--live) 60%,transparent)}
+.gate .q{font-size:14px;color:var(--ink-dim);transition:color 220ms ease}
+.gate.hot .q{color:var(--ink)}
+.gate .w{font-size:12.5px;color:#4e6165;font-variant-numeric:tabular-nums;transition:color 220ms ease}
+.gate.hot .w{color:var(--live)}
+
+.verdict{padding:clamp(18px,2.4vw,26px);display:flex;flex-direction:column;gap:14px}
+.verdict .lbl{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-dim)}
+.doors{display:flex;flex-direction:column;gap:7px}
+.door{
+  position:relative;border:1px solid var(--edge);border-radius:2px;
+  padding:.62rem .8rem;font-size:13px;font-weight:500;color:#5d7175;
+  display:flex;align-items:center;gap:10px;overflow:hidden;
+  transition:color 200ms ease,border-color 200ms ease,background 200ms ease;
+}
+.door i{width:3px;height:16px;border-radius:2px;background:#22343a;transition:background 200ms}
+.door[data-v="SILENT"] i{background:var(--silent)}
+.door[data-v="NOTIFY"] i{background:var(--notify)}
+.door[data-v="CONFIRM"] i{background:var(--confirm)}
+.door[data-v="CLARIFY"] i{background:var(--clarify)}
+.door[data-v="REFUSE"] i{background:var(--refuse)}
+.door.dim i{background:#22343a}
+.door.on{color:var(--ink);border-color:currentColor;background:rgba(255,255,255,.035)}
+.readout{
+  margin-top:2px;padding:.9rem;border:1px solid var(--edge);border-radius:2px;
+  background:var(--deck);min-height:96px;
+}
+.readout .score{font-size:12px;color:var(--ink-dim);font-variant-numeric:tabular-nums;margin-bottom:.5rem}
+.readout .why{font-family:var(--prose);font-size:15.5px;line-height:1.55;color:var(--ink)}
+.machine-note{font-size:13px;color:var(--ink-dim);margin-top:1rem;max-width:64ch}
+
+/* ── ACT TWO ─ what it bought ──────────────────────────────── */
+.ledger{padding:clamp(56px,8vw,110px) 0;border-top:1px solid var(--edge);margin-top:clamp(50px,7vw,90px)}
+.ledger h2{font-family:var(--prose);font-weight:400;font-size:clamp(26px,4vw,46px);line-height:1.08;max-width:20ch;margin-bottom:.9rem}
+.ledger .intro{font-size:15.5px;color:var(--ink-dim);max-width:56ch;margin-bottom:clamp(30px,4vw,50px)}
+.moves{display:grid;gap:1px;background:var(--edge);border:1px solid var(--edge);border-radius:3px;overflow:hidden}
+.move{background:var(--panel);padding:clamp(18px,2.6vw,30px);display:grid;grid-template-columns:1fr auto;gap:1.2rem 2rem;align-items:center}
+@media(max-width:700px){.move{grid-template-columns:1fr}}
+.move p{font-size:15px;line-height:1.6;max-width:52ch;color:var(--ink)}
+.move p span{color:var(--ink-dim)}
+.swing{display:flex;align-items:baseline;gap:.7rem;white-space:nowrap;font-variant-numeric:tabular-nums}
+.swing .was{font-size:15px;color:#5d7175;text-decoration:line-through;text-decoration-thickness:1px}
+.swing .now{font-size:clamp(24px,3.2vw,36px);font-weight:600;color:var(--live);letter-spacing:-.01em}
+
+/* ── ACT THREE ─ the other instruments ─────────────────────── */
+.strips{padding:clamp(56px,8vw,110px) 0 clamp(60px,8vw,100px);border-top:1px solid var(--edge)}
+.strips h2{font-family:var(--prose);font-weight:400;font-size:clamp(26px,4vw,46px);margin-bottom:.8rem}
+.strips .intro{font-size:15.5px;color:var(--ink-dim);max-width:52ch;margin-bottom:clamp(28px,4vw,44px)}
+.strip{border-top:1px solid var(--edge)}
+.strip:last-of-type{border-bottom:1px solid var(--edge)}
+.strip > button{
+  width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:1rem 2rem;
+  align-items:baseline;padding:clamp(16px,2.2vw,24px) 0;text-align:left;
+}
+.strip .nm{font-family:var(--prose);font-size:clamp(19px,2.3vw,27px);line-height:1.15}
+.strip .fn{font-size:14px;color:var(--ink-dim);margin-top:.3rem;max-width:56ch;line-height:1.55}
+.strip .tag{font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:#5d7175;white-space:nowrap}
+.strip .body{height:0;overflow:hidden}
+.strip .body-in{padding:0 0 clamp(20px,2.6vw,30px);display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:clamp(16px,2.6vw,32px)}
+@media(max-width:760px){.strip .body-in{grid-template-columns:1fr}}
+.strip .body-in img{width:100%;border:1px solid var(--edge);border-radius:2px;object-fit:cover;aspect-ratio:16/10}
+.strip .body-in p{font-size:15px;line-height:1.68;color:var(--ink-dim);max-width:56ch}
+.strip .body-in .lk{margin-top:1rem;display:flex;gap:1.5rem;flex-wrap:wrap}
+.strip .body-in .lk a{color:var(--live);text-decoration:none;font-size:13.5px;border-bottom:1px solid color-mix(in oklab,var(--live) 40%,transparent);padding-bottom:2px}
+
+.tail{padding:clamp(40px,6vw,70px) 0;border-top:1px solid var(--edge);display:flex;flex-wrap:wrap;gap:1rem 2.2rem;align-items:baseline}
+.tail a{color:var(--live);text-decoration:none;font-size:13.5px;border-bottom:1px solid color-mix(in oklab,var(--live) 35%,transparent);padding-bottom:2px}
+.tail span{font-size:13px;color:var(--ink-dim)}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="hum" id="hum" aria-hidden="true"></div>
+
+<main>
+  <section class="bench wrap">
+    <h1>Every assistant eventually wants to do something it shouldn't.</h1>
+    <p class="sub">At Alfred_ I built the layer that decides what happens next. <b>It runs on every action the agent proposes, before the action exists.</b> Here it is. Feed it something.</p>
+
+    <div class="machine">
+      <div class="feed">
+        <p class="lbl" id="feedLbl">The assistant wants to</p>
+        <div class="row">
+          <input id="act" type="text" autocomplete="off" spellcheck="false"
+                 placeholder="send the signed lease back to the landlord"
+                 aria-label="An action for the assistant to take">
+          <button class="go" id="run">Route it</button>
+        </div>
+        <div class="chips" id="chips"></div>
+      </div>
+
+      <div class="floor">
+        <div class="gates">
+          <p class="lbl">What it checks</p>
+          <div id="gateList"></div>
+        </div>
+
+        <div class="verdict">
+          <p class="lbl">Where it lands</p>
+          <div class="doors" id="doors">
+            <div class="door" data-v="SILENT"><i></i>Stay quiet, just do it</div>
+            <div class="door" data-v="NOTIFY"><i></i>Do it, then say so</div>
+            <div class="door" data-v="CONFIRM"><i></i>Ask before doing it</div>
+            <div class="door" data-v="CLARIFY"><i></i>Ask what was meant</div>
+            <div class="door" data-v="REFUSE"><i></i>Refuse outright</div>
+          </div>
+          <div class="readout">
+            <p class="score" id="score">Nothing routed yet</p>
+            <p class="why" id="why">Pick one of the examples, or write your own.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="machine-note">No model is called here, and none is called in production either. That was the point: a language model that judges its own actions will eventually talk itself into one. The scoring is deterministic, so the same action always gets the same answer, and the answer can be tested.</p>
+  </section>
+
+  <section class="ledger wrap">
+    <h2>The rest of what I own there</h2>
+    <p class="intro">Alfred_ is a consumer assistant running people's email, calendar and obligations over text message, chat and voice. Five thousand subscribers, in production, where being wrong is expensive.</p>
+
+    <div class="moves">
+      <div class="move">
+        <p>Email arriving to a text message on your phone. <span>I moved it off polling and onto event-triggered dispatch.</span></p>
+        <div class="swing"><span class="was">90s</span><span class="now">3s</span></div>
+      </div>
+      <div class="move">
+        <p>The security code path, at the ninetieth percentile. <span>Same fix, and it mattered more here: nobody waits three minutes for a login code.</span></p>
+        <div class="swing"><span class="was">189s</span><span class="now">instant</span></div>
+      </div>
+      <div class="move">
+        <p>Cost per user in the email rules engine. <span>I replaced a model call on every message with a three-stage matcher that just decides.</span></p>
+        <div class="swing"><span class="was">baseline</span><span class="now">-30%</span></div>
+      </div>
+      <div class="move">
+        <p>Rules created by talking to it rather than filling in a form. <span>It became the product's stickiest feature.</span></p>
+        <div class="swing"><span class="now">98%</span></div>
+      </div>
+      <div class="move">
+        <p>Fabrication. <span>I re-architected working memory so the assistant cannot invent a fact about your inbox. Not unlikely. Structurally impossible, enforced by tests.</span></p>
+        <div class="swing"><span class="now">0</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="strips wrap">
+    <h2>Other things I have built</h2>
+    <p class="intro">Before this, and alongside it. Open one.</p>
+    <div id="stripList"></div>
+  </section>
+
+  <footer class="tail wrap">
+    <span>Pranav Pushkar Mishra, Metuchen, New Jersey</span>
+    <a href="https://github.com/PranavMishra17">GitHub</a>
+    <a href="https://www.linkedin.com/in/pranavgamedev/">LinkedIn</a>
+    <a href="https://arxiv.org/pdf/2508.08115">Papers</a>
+  </footer>
+</main>
+
+<script>
+(function(){
+  'use strict';
+  var REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var IMG = '/portfolio/public/assets/images/';
+
+  /* ── the checks. Deterministic, weighted, same shape as the real one. ── */
+  var GATES = [
+    { id:'ext',  q:'Does it leave the account?',        w:3, re:/\b(send|reply|forward|email|post|share|invite|rsvp|tell|message|call)\s+(?!me\b)/i },
+    { id:'money',q:'Does it move money?',               w:4, re:/\b(pay|wire|transfer|deposit|refund|buy|purchase|subscribe|invoice|charge|\$\d)/i },
+    { id:'gone', q:'Can it be taken back?',             w:5, re:/\b(delete|remove|cancel|unsubscribe|decline|reject|permanently|signed|lease|contract|offer|agreement)\b/i },
+    { id:'vague',q:'Is the reference clear?',           w:3, re:/\b(him|her|whoever|the thing|that thing|whatever|sometime)\b/i },
+    { id:'new',  q:'Has this person been seen before?', w:2, re:/\b(unknown|new|stranger|someone|unrecognised|unrecognized|that email|this account)\b/i },
+    { id:'reach',q:'Does it need to reach you?',        w:2, re:/\b(text|tell|notify|ping|remind|alert|let)\s+me\b/i }
+  ];
+
+  var SAMPLES = [
+    'Archive the newsletter from Stripe',
+    'Text me when the landlord replies',
+    'Send the signed lease back to the landlord',
+    'Reply to him about that thing later',
+    'Wire the deposit to the account in that email',
+    'Cancel the dentist and tell them why'
+  ];
+
+  var VERDICTS = {
+    SILENT:  { c:'--silent',  say:'Low stakes and reversible. It just does it, and does not interrupt you to say so.' },
+    NOTIFY:  { c:'--notify',  say:'Safe to do, worth knowing about. It acts, then tells you what it did.' },
+    CONFIRM: { c:'--confirm', say:'This leaves the account and would be awkward to take back. It asks you first.' },
+    CLARIFY: { c:'--clarify', say:'It does not know who or what you meant. Guessing here is how assistants embarrass people, so it asks.' },
+    REFUSE:  { c:'--refuse',  say:'Money moving on the instruction of an email it cannot vouch for. It will not do this, and no amount of insisting changes that.' }
+  };
+
+  /* stage one: score. stage two: the two hard overrides. stage three: thresholds. */
+  function route(text){
+    var t = ' ' + text.toLowerCase() + ' ';
+    var hits = [], score = 0;
+    GATES.forEach(function(g){
+      if (g.re.test(t)){ hits.push(g.id); score += g.w; }
+    });
+    var verdict;
+    if (hits.indexOf('money') > -1 && (hits.indexOf('new') > -1 || hits.indexOf('vague') > -1)) verdict = 'REFUSE';
+    else if (hits.indexOf('vague') > -1 && hits.indexOf('ext') > -1) verdict = 'CLARIFY';
+    else if (score >= 5) verdict = 'CONFIRM';
+    else if (score >= 2) verdict = 'NOTIFY';
+    else verdict = 'SILENT';
+    return { verdict:verdict, score:score, hits:hits };
+  }
+
+  /* ── build the gate rows ── */
+  var gateList = document.getElementById('gateList');
+  GATES.forEach(function(g){
+    var d = document.createElement('div');
+    d.className = 'gate'; d.id = 'g-' + g.id;
+    d.innerHTML = '<span class="dot"></span><span class="q">'+g.q+'</span><span class="w">+'+g.w+'</span>';
+    gateList.appendChild(d);
+  });
+
+  var chips = document.getElementById('chips');
+  SAMPLES.forEach(function(s){
+    var b = document.createElement('button');
+    b.type = 'button'; b.textContent = s;
+    b.addEventListener('click', function(){ input.value = s; fire(s); });
+    chips.appendChild(b);
+  });
+
+  var input  = document.getElementById('act');
+  var doors  = [].slice.call(document.querySelectorAll('.door'));
+  var scoreEl= document.getElementById('score');
+  var whyEl  = document.getElementById('why');
+  var hum    = document.getElementById('hum');
+
+  function fire(text){
+    text = (text || input.value || '').trim();
+    if (!text){ input.focus(); return; }
+    var r = route(text);
+
+    GATES.forEach(function(g, i){
+      var row = document.getElementById('g-' + g.id);
+      var on  = r.hits.indexOf(g.id) > -1;
+      setTimeout(function(){ row.classList.toggle('hot', on); }, REDUCED ? 0 : 70 + i*55);
+    });
+
+    setTimeout(function(){
+      var col = getComputedStyle(document.documentElement).getPropertyValue(VERDICTS[r.verdict].c).trim();
+      document.documentElement.style.setProperty('--live', col);
+
+      doors.forEach(function(d){
+        var on = d.dataset.v === r.verdict;
+        d.classList.toggle('on', on);
+        d.classList.toggle('dim', !on);
+        if (on && !REDUCED){
+          /* the gate slams. framer: { type:'spring', stiffness: 620, damping: 22, mass: 1.6 } */
+          d.animate(
+            [{transform:'translateX(-14px) scaleX(.965)'},
+             {transform:'translateX(4px) scaleX(1.012)',offset:.55},
+             {transform:'none'}],
+            {duration:340,easing:'cubic-bezier(.16,1.1,.3,1)'});
+        }
+      });
+
+      scoreEl.textContent = 'Risk ' + r.score + ', ' + r.hits.length + ' of ' + GATES.length + ' checks tripped';
+      whyEl.textContent = VERDICTS[r.verdict].say;
+    }, REDUCED ? 0 : 70 + GATES.length*55 + 90);
+  }
+
+  document.getElementById('run').addEventListener('click', function(){ fire(); });
+  input.addEventListener('keydown', function(e){ if (e.key === 'Enter') fire(); });
+
+  /* ── ACT THREE: the strips ── */
+  var WORK = [
+    { nm:'Stellarium', tag:'Extended reality, 2024', img:'game_design/stellarium.png',
+      fn:'A hundred and seven thousand astronomical objects, in a room whose walls are screens.',
+      body:'Built for CAVE2. The astronomy was never the hard part. Holding real-time frame rates while that many objects are on screen and a person is physically turning their head is the hard part. Culling and GPU instancing did most of the work.',
+      lk:[['Watch it run','https://youtu.be/EX0c-6E8iNc']] },
+    { nm:'SnAIder-Cut', tag:'Mixed reality, 2024, won MIT XR', img:'game_design/snaider.png',
+      fn:'Say what you want changed, and the room changes.',
+      body:'A generative model editing an augmented scene while you stand inside it. Spatial mapping to read the room, gesture recognition to take the instruction, and a rendering budget tight enough that none of it feels like waiting.',
+      lk:[['Watch it run','https://youtu.be/CZtGmnGYKp8']] },
+    { nm:'EQUITY', tag:'Medical simulation, 2024', img:'game_design/equity.png',
+      fn:'A virtual patient, built so researchers can study how doctors treat people differently.',
+      body:'A MetaHuman in Unreal Engine 5 holding a conversation through a dialogue tree, with facial animation good enough that clinicians respond to it as a person. Made at UIC for bias research in medicine.',
+      lk:[['Watch it run','https://youtu.be/WO2vVaD8WoE'],['Read the code','https://github.com/PranavMishra17/EQUITY-VirtualPatient-UE5']] },
+    { nm:'TeamMedAgents', tag:'Research, under review at PAKDD 2026', img:'ai_ml/big5.png',
+      fn:'Six teamwork behaviours from psychology, built as real mechanisms between agents.',
+      body:'Leadership, mutual monitoring, shared mental models, closed-loop communication, orientation and trust, each as a switchable mechanism so you can ablate them one at a time. Improved on seven of eight medical benchmarks, and the best configuration turned out to depend on the kind of reasoning the task needed.',
+      lk:[['Read the paper','https://arxiv.org/pdf/2508.08115'],['Read the code','https://github.com/PranavMishra17/Big5-Agents']] },
+    { nm:'Virtual Van Gogh', tag:'Web3, 2023, first at HINT 5.0', img:'game_design/van%20gogh.jpg',
+      fn:'A museum you can walk through, where the paintings are on a chain.',
+      body:'An NFT gallery as an actual space rather than a grid of thumbnails. The interesting engineering was the pipeline between the chain and the engine, keeping ownership state and the walkable world agreeing with each other.',
+      lk:[['Watch it run','https://youtu.be/rz_NiIj-dic']] },
+    { nm:'SnakeAI-MLOps', tag:'Reinforcement learning, 2025', img:'ai_ml/snake.png',
+      fn:'Four ways of learning the same game, racing each other.',
+      body:'Q-learning, DQN, PPO and actor-critic all playing Snake side by side. Gameplay in C++ with SFML, training in PyTorch, inference back through LibTorch, and a pipeline that retrains and redeploys without me touching it.',
+      lk:[['Play it','https://pranavmishra17.github.io/SnakeAI-MLOps/']] },
+    { nm:'Neon-Bites', tag:'Game, 2023', img:'game_design/neon.png',
+      fn:'Cyberpunk food delivery, with the physics taken seriously.',
+      body:'The city generates itself and the driving has real weight. Resource management and progression on top, and a lot of profiling to keep frame rates flat across platforms.',
+      lk:[['Watch it run','https://youtu.be/PLVynmeGvsI']] }
+  ];
+
+  var stripList = document.getElementById('stripList');
+  WORK.forEach(function(w, i){
+    var el = document.createElement('div');
+    el.className = 'strip';
+    el.innerHTML =
+      '<button type="button" aria-expanded="false">' +
+        '<span><span class="nm">'+w.nm+'</span><span class="fn">'+w.fn+'</span></span>' +
+        '<span class="tag">'+w.tag+'</span>' +
+      '</button>' +
+      '<div class="body"><div class="body-in">' +
+        '<img src="'+IMG+w.img+'" alt="'+w.nm+'" loading="lazy">' +
+        '<div><p>'+w.body+'</p><p class="lk">' +
+          w.lk.map(function(l){ return '<a href="'+l[1]+'" target="_blank" rel="noopener">'+l[0]+'</a>'; }).join('') +
+        '</p></div>' +
+      '</div></div>';
+    stripList.appendChild(el);
+
+    var btn  = el.querySelector('button');
+    var body = el.querySelector('.body');
+    var inner= el.querySelector('.body-in');
+    var open = false, anim = null;
+
+    btn.addEventListener('click', function(){
+      open = !open;
+      btn.setAttribute('aria-expanded', String(open));
+      var to = open ? inner.offsetHeight : 0;
+      if (REDUCED){ body.style.height = open ? 'auto' : '0'; return; }
+      if (anim) anim.cancel();
+      /* a heavy drawer, caught. framer: { type:'spring', stiffness: 300, damping: 28, mass: 1.5 } */
+      anim = body.animate(
+        [{height:body.offsetHeight+'px'},
+         {height:(open ? to*1.014 : 0)+'px', offset:.62},
+         {height:to+'px'}],
+        {duration:440,easing:'cubic-bezier(.2,.9,.25,1)',fill:'forwards'});
+      anim.onfinish = function(){ body.style.height = open ? 'auto' : '0'; };
+    });
+  });
+
+  /* open on arrival so the section is never a dead list */
+  function boot(){ fire(SAMPLES[2]); input.value = ''; }
+  if (document.readyState === 'loading') addEventListener('DOMContentLoaded', boot); else boot();
+  setTimeout(function(){ if (document.getElementById('score').textContent.indexOf('Nothing') === 0) fire(SAMPLES[2]); }, 900);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pranav Pushkar Mishra — A Reliability Picture</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EBE1D1; --ink:#15100E; --red:#CF3520; --gold:#E5A227;
+  --disp:"Anton",Impact,sans-serif; --body:"Archivo",system-ui,sans-serif;
+  --rail:78px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--ink);color:var(--paper);font-family:var(--body);overflow:hidden}
+img{display:block;max-width:100%}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:inherit}
+
+/* ── the frame ─────────────────────────────── */
+.frame{height:100dvh;display:grid;grid-template-columns:var(--rail) 1fr}
+.rail{background:var(--ink);border-right:3px solid var(--paper);display:flex;flex-direction:column;
+  align-items:stretch;padding:10px 0;gap:2px;overflow:auto}
+.rail .sprk{height:14px;flex:0 0 14px;margin:6px 26px;background:var(--paper);opacity:.28;
+  clip-path:polygon(0 0,100% 4%,100% 96%,0 100%)}
+.tab{position:relative;flex:1 1 0;min-height:64px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--disp);font-size:15px;letter-spacing:.14em;color:var(--paper);opacity:.5;
+  writing-mode:vertical-rl;transform:rotate(180deg);transition:opacity .18s,background .18s}
+.tab:hover,.tab:focus-visible{opacity:1;background:#241a16;outline:none}
+.tab[aria-selected="true"]{opacity:1;background:var(--red);color:var(--paper)}
+.tab[aria-selected="true"]::after{content:"";position:absolute;right:-3px;top:0;bottom:0;width:3px;background:var(--red)}
+
+.stage{position:relative;overflow:hidden}
+.reel{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;
+  scrollbar-width:thin;scrollbar-color:rgba(21,16,14,.4) transparent;
+  padding:clamp(20px,4vw,54px) clamp(18px,4vw,56px) 72px}
+.reel[hidden]{display:none}
+.reel>*{flex:none}
+.slug{font-family:var(--disp);font-size:13px;letter-spacing:.28em;opacity:.62;margin-bottom:auto}
+.copy{font-size:15.5px;line-height:1.62;max-width:60ch}
+.panel{background:var(--paper);color:var(--ink);padding:18px 20px;max-width:64ch;
+  clip-path:polygon(0 2px,99.4% 0,100% calc(100% - 3px),.6% 100%)}
+.panel a{text-decoration-thickness:2px;text-underline-offset:3px}
+.tag{display:inline-block;font-family:var(--disp);font-size:12px;letter-spacing:.16em;
+  padding:4px 9px 3px;background:var(--ink);color:var(--paper)}
+h2{font-family:var(--disp);font-weight:400;line-height:.86;letter-spacing:.005em;text-transform:uppercase}
+
+/* ── kinetic type: letters cut in on a beat ── */
+.kt{display:block;overflow:hidden;padding-bottom:.09em}
+.kt i{display:inline-block;font-style:normal;transform:translateY(105%) rotate(4deg);opacity:0}
+.play .kt i{animation:cutin .46s cubic-bezier(.16,1.1,.3,1) forwards;animation-delay:calc(var(--i,0)*46ms + var(--d,0ms))}
+@keyframes cutin{to{transform:none;opacity:1}}
+.rise{opacity:0;transform:translateY(14px)}
+.play .rise{animation:rise .5s ease-out forwards;animation-delay:var(--d,.4s)}
+@keyframes rise{to{opacity:1;transform:none}}
+
+/* ── REEL 0 · title ────────────────────────── */
+#r0{background:var(--red);color:var(--paper);justify-content:center;gap:clamp(12px,2.2vw,24px)}
+#r0 .slug{color:var(--gold);opacity:1;margin:0}
+#r0 h2{font-size:clamp(44px,11.4vw,150px)}
+.mark{position:relative;height:clamp(30px,5vw,58px);max-width:620px;margin-bottom:30px}
+.mark .bar{position:absolute;left:0;top:0;bottom:0;background:var(--ink);width:100%;
+  clip-path:polygon(0 0,100% 5%,100% 95%,0 100%)}
+.play .mark .bar{animation:snip 1.9s steps(1,end) .55s forwards}
+@keyframes snip{0%{width:100%}25%{width:62%}52%{width:31%}78%,100%{width:11%}}
+.mark .knife{position:absolute;top:-9px;bottom:-9px;width:5px;background:var(--paper);opacity:0}
+.play .mark .knife{animation:knife .32s ease-out forwards}
+@keyframes knife{0%{opacity:0;transform:scaleY(.2)}40%{opacity:1;transform:none}100%{opacity:0}}
+.mark .lbl{position:absolute;top:calc(100% + 10px);font-family:var(--disp);font-size:12px;letter-spacing:.14em;opacity:.9}
+
+/* ── REEL 1 · now ──────────────────────────── */
+#r1{background:var(--ink);gap:clamp(16px,2vw,26px)}
+#r1 h2{font-size:clamp(38px,8vw,86px);color:var(--gold)}
+.cuts{display:grid;gap:16px;max-width:660px;width:100%}
+.cut .t{font-family:var(--disp);font-size:13px;letter-spacing:.16em;opacity:.7;margin-bottom:6px}
+.cut .rows{display:flex;flex-direction:column;gap:6px}
+.cut .row{display:flex;align-items:center;gap:10px}
+.cut .track{flex:0 0 46%;min-width:0}
+.cut .b{height:15px;background:var(--red);clip-path:polygon(0 0,100% 8%,100% 92%,0 100%)}
+.cut .b.short{background:var(--gold)}
+.cut .v{font-family:var(--disp);font-size:12.5px;letter-spacing:.1em;color:var(--paper);
+  line-height:1.35;min-width:0}
+.play .cut .b{transform-origin:left;transform:scaleX(0);animation:grow .7s cubic-bezier(.2,.9,.2,1) forwards;
+  animation-delay:calc(var(--i,0)*130ms + 300ms)}
+@keyframes grow{to{transform:none}}
+
+/* ── REEL 2 · before ───────────────────────── */
+#r2{background:var(--paper);color:var(--ink)}
+#r2 .slug{color:var(--ink)}
+#r2 h2{font-size:clamp(34px,7vw,72px);color:var(--red)}
+.slips{display:grid;gap:20px;margin-top:22px;max-width:760px}
+.slip{background:#fff;border-left:9px solid var(--ink);padding:16px 18px;
+  clip-path:polygon(0 0,100% 4px,99.5% 100%,3px calc(100% - 3px))}
+.slip:nth-child(2){border-left-color:var(--red)}
+.slip:nth-child(3){border-left-color:var(--gold)}
+.slip h3{font-family:var(--disp);font-weight:400;font-size:22px;text-transform:uppercase;letter-spacing:.02em}
+.slip .meta{font-size:13px;letter-spacing:.06em;text-transform:uppercase;opacity:.62;margin:3px 0 8px}
+
+/* ── REEL 3 · papers ───────────────────────── */
+#r3{background:var(--paper);color:var(--ink)}
+#r3 .slug{color:var(--ink)}
+#r3 h2{font-size:clamp(34px,7vw,72px)}
+.pap{display:grid;grid-template-columns:minmax(120px,178px) 1fr;gap:18px;align-items:start;
+  padding:22px 0;border-top:3px solid var(--ink)}
+.pap:first-of-type{margin-top:20px}
+.pap .num{font-family:var(--disp);font-size:clamp(34px,5vw,52px);line-height:.86;color:var(--red);white-space:nowrap}
+.pap .num small{display:block;font-family:var(--body);font-size:12px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink);opacity:.68;margin-top:6px}
+.pap h3{font-size:19px;font-weight:700;line-height:1.3;margin-bottom:8px}
+.pap .tag{margin-bottom:10px}
+.pap.gold .tag{background:var(--gold);color:var(--ink)}
+
+/* ── REEL 4 · built ────────────────────────── */
+#r4{background:var(--ink)}
+#r4 h2{font-size:clamp(34px,7vw,72px);color:var(--paper)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(272px,1fr));gap:28px 22px;margin-top:24px;align-items:start}
+.card{display:flex;flex-direction:column}
+.shot{position:relative;background:#000;aspect-ratio:16/9;overflow:hidden;
+  clip-path:polygon(0 0,100% 3px,100% 100%,2px calc(100% - 2px))}
+.card.sq .shot{aspect-ratio:1/1;max-width:380px}
+.shot img{width:100%;height:100%;object-fit:cover;filter:saturate(.82) contrast(1.06)}
+.shot .band{position:absolute;left:0;right:0;bottom:0;background:var(--red);padding:7px 10px 6px;
+  font-family:var(--disp);font-size:15px;letter-spacing:.1em;text-transform:uppercase}
+.card.win .shot .band{background:var(--gold);color:var(--ink)}
+.card .line{font-size:15px;line-height:1.58;padding:10px 0 8px;color:var(--paper);opacity:.9}
+.card .line b{color:var(--gold);font-weight:700}
+.card.win .line b{color:var(--gold)}
+.card .go{margin-top:auto;font-family:var(--disp);font-size:12px;letter-spacing:.16em;text-decoration:none;
+  border-bottom:3px solid var(--red);align-self:flex-start;padding-bottom:2px}
+.card .go:hover,.card .go:focus-visible{border-color:var(--gold);color:var(--gold)}
+.thumbs{display:flex;gap:6px;margin:8px 0 6px}
+.thumbs img{width:56px;height:32px;object-fit:cover;opacity:.72}
+
+/* ── REEL 5 · interests ────────────────────── */
+#r5{background:var(--paper);color:var(--ink)}
+#r5 .slug{color:var(--ink)}
+#r5 h2{font-size:clamp(34px,7vw,72px);color:var(--ink)}
+.empties{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:18px;margin:24px 0 20px;max-width:720px}
+.empty{aspect-ratio:3/4;border:3px solid var(--ink);display:flex;align-items:flex-end;padding:12px;
+  background:repeating-linear-gradient(135deg,transparent 0 13px,rgba(21,16,14,.07) 13px 14px)}
+.empty span{font-family:var(--disp);font-size:14px;letter-spacing:.18em;text-transform:uppercase}
+
+/* ── REEL 6 · end ──────────────────────────── */
+#r6{background:var(--red)}
+#r6 h2{font-size:clamp(34px,7.5vw,80px)}
+.awards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px;margin:22px 0}
+.award{background:var(--ink);padding:16px;display:flex;gap:12px;align-items:center}
+.disc{flex:0 0 34px;height:34px;background:var(--gold);border-radius:50%;
+  clip-path:polygon(50% 50%,100% 0,100% 100%,0 100%,0 0)}
+.award p{font-size:14.5px;line-height:1.5}
+.links{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.links a{font-family:var(--disp);font-size:13px;letter-spacing:.12em;text-decoration:none;
+  background:var(--ink);color:var(--paper);padding:9px 12px 8px}
+.links a:hover,.links a:focus-visible{background:var(--gold);color:var(--ink)}
+.colophon{margin-top:auto;padding-top:28px;font-size:13.5px;line-height:1.6;opacity:.85;max-width:52ch}
+
+/* ── 375px ─────────────────────────────────── */
+@media (max-width:720px){
+  .frame{grid-template-columns:1fr;grid-template-rows:1fr auto}
+  .stage{order:1}
+  .rail{order:2;flex-direction:row;border-right:0;border-top:3px solid var(--paper);
+    padding:0;overflow-x:auto;overflow-y:hidden}
+  .rail .sprk{display:none}
+  .tab{writing-mode:horizontal-tb;transform:none;min-height:52px;flex:0 0 auto;padding:0 15px;font-size:13px}
+  .tab[aria-selected="true"]::after{display:none}
+  .reel{padding:18px 16px 40px}
+  .cut .track{flex:0 0 34%}
+  .cut .v{font-size:11.5px}
+  .pap{grid-template-columns:1fr;gap:8px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  .kt i,.rise{opacity:1!important;transform:none!important}
+  .mark .bar{width:11%!important}
+  .cut .b{transform:none!important}
+}
+</style>
+</head>
+<body>
+<div class="frame">
+  <nav class="rail" role="tablist" aria-label="Reels">
+    <span class="sprk"></span>
+    <button class="tab" role="tab" aria-selected="true" data-r="0">Title</button>
+    <button class="tab" role="tab" aria-selected="false" data-r="1">Now</button>
+    <button class="tab" role="tab" aria-selected="false" data-r="2">Before</button>
+    <button class="tab" role="tab" aria-selected="false" data-r="3">Papers</button>
+    <button class="tab" role="tab" aria-selected="false" data-r="4">Built</button>
+    <button class="tab" role="tab" aria-selected="false" data-r="5">Interests</button>
+    <button class="tab" role="tab" aria-selected="false" data-r="6">End</button>
+    <span class="sprk"></span>
+  </nav>
+
+  <main class="stage">
+
+    <!-- REEL 0 -->
+    <section class="reel play" id="r0">
+      <p class="slug">Reel one &nbsp;·&nbsp; A reliability picture</p>
+      <h2><span class="kt" data-split>Pranav</span><span class="kt" data-split style="--d:120ms">Pushkar</span><span class="kt" data-split style="--d:240ms">Mishra</span></h2>
+      <div class="mark" aria-hidden="true">
+        <div class="bar"></div>
+        <div class="knife" style="left:62%;animation-delay:.5s"></div>
+        <div class="knife" style="left:31%;animation-delay:.82s"></div>
+        <div class="knife" style="left:11%;animation-delay:1.12s"></div>
+        <div class="lbl" style="left:0">Three seconds</div>
+        <div class="lbl" style="right:0;opacity:.62">&larr; it used to be ninety</div>
+      </div>
+      <div class="panel rise" style="--d:1.5s">
+        <p class="copy">He takes slow, unreliable things and makes them fast and boring. Computer science,
+        University of Illinois Chicago. Currently in New York City; from Metuchen, New Jersey.</p>
+      </div>
+    </section>
+
+    <!-- REEL 1 -->
+    <section class="reel" id="r1" hidden>
+      <p class="slug">Reel two &nbsp;·&nbsp; Now</p>
+      <h2><span class="kt" data-split>Alfred_</span></h2>
+      <div class="panel rise" style="--d:.2s;margin:14px 0 8px">
+        <p class="copy"><b>Founding LLM Engineer, Alfred_</b> — New York City, April 2026 to now.
+        A consumer AI assistant running 5,000+ people's email, calendar and daily obligations over
+        text message, chat and voice. He owns the reliability side. He also rebuilt working memory
+        so it cannot fabricate facts about your inbox — enforced by tests.
+        <br><a href="https://get-alfred.ai">get-alfred.ai</a></p>
+      </div>
+      <div class="cuts">
+        <div class="cut" style="--i:0"><p class="t">Email to text message</p><div class="rows">
+          <div class="row"><span class="track"><span class="b" style="display:block;width:100%"></span></span><span class="v">90 seconds</span></div>
+          <div class="row"><span class="track"><span class="b short" style="display:block;width:4%"></span></span><span class="v">3 seconds</span></div></div></div>
+        <div class="cut" style="--i:1"><p class="t">Security codes</p><div class="rows">
+          <div class="row"><span class="track"><span class="b" style="display:block;width:100%"></span></span><span class="v">189 seconds</span></div>
+          <div class="row"><span class="track"><span class="b short" style="display:block;width:2%"></span></span><span class="v">Instant</span></div></div></div>
+        <div class="cut" style="--i:2"><p class="t">A model call on every message, replaced by a deterministic matcher</p><div class="rows">
+          <div class="row"><span class="track"><span class="b" style="display:block;width:100%"></span></span><span class="v">Cost per user</span></div>
+          <div class="row"><span class="track"><span class="b short" style="display:block;width:70%"></span></span><span class="v">~30% cheaper &nbsp;·&nbsp; 98% of rules made by chatting</span></div></div></div>
+      </div>
+    </section>
+
+    <!-- REEL 2 -->
+    <section class="reel" id="r2" hidden>
+      <p class="slug">Reel three &nbsp;·&nbsp; Before</p>
+      <h2><span class="kt" data-split>Before</span></h2>
+      <div class="slips">
+        <div class="slip rise" style="--d:.15s"><h3>WheelPrice</h3>
+          <p class="meta">AI Engineer · Charlotte, remote · Jul 2025 – Mar 2026</p>
+          <p class="copy">Computer vision for part fitment, and a content system that reached
+          10–20k readers a day.</p></div>
+        <div class="slip rise" style="--d:.3s"><h3>V-ARE Labs, UIC</h3>
+          <p class="meta">Research Software Engineer · Chicago · Feb 2024 – now</p>
+          <p class="copy">Virtual patients built in Unreal Engine 5, and an audio ML pipeline at
+          98.52% accuracy.</p></div>
+        <div class="slip rise" style="--d:.45s"><h3>Bipolar Factory</h3>
+          <p class="meta">Software Developer Intern · Bengaluru · 2023</p>
+          <p class="copy">A MERN streaming platform, and in-game chat in Unity that lifted retention
+          by 10%.</p></div>
+      </div>
+    </section>
+
+    <!-- REEL 3 -->
+    <section class="reel" id="r3" hidden>
+      <p class="slug">Reel four &nbsp;·&nbsp; Papers</p>
+      <h2><span class="kt" data-split>Papers</span></h2>
+      <div class="pap gold rise" style="--d:.15s">
+        <div class="num">82.5%<small>precision, against 73.3%</small></div>
+        <div><span class="tag">Accepted · CAI 2026 / IEEE</span>
+          <h3>A systematic framework for enterprise knowledge retrieval</h3>
+          <p class="copy">Have the model write the metadata before anything is stored, not after.
+          <br><a href="https://arxiv.org/pdf/2512.05411">Read the PDF</a></p></div>
+      </div>
+      <div class="pap rise" style="--d:.3s">
+        <div class="num">7&#8202;/&#8202;8<small>medical benchmarks won</small></div>
+        <div><span class="tag">Under review · PAKDD 2026 · 4 citations</span>
+          <h3>TeamMedAgents</h3>
+          <p class="copy">The Big Five teamwork model built as real mechanisms between agents, rather
+          than as a prompt that asks them to cooperate.
+          <br><a href="https://arxiv.org/pdf/2508.08115">Read the PDF</a></p></div>
+      </div>
+      <div class="pap rise" style="--d:.45s">
+        <div class="num">—<small>still being written</small></div>
+        <div><span class="tag">In preparation</span>
+          <h3>Cost-efficient multi-modal medical reasoning with small models</h3>
+          <p class="copy">Small models, multiple modalities, a budget that survives contact with
+          production.</p></div>
+      </div>
+    </section>
+
+    <!-- REEL 4 -->
+    <section class="reel" id="r4" hidden>
+      <p class="slug">Reel five &nbsp;·&nbsp; Built</p>
+      <h2><span class="kt" data-split>Built</span></h2>
+      <div class="grid" id="built"></div>
+    </section>
+
+    <!-- REEL 5 -->
+    <section class="reel" id="r5" hidden>
+      <p class="slug">Reel six &nbsp;·&nbsp; Interests</p>
+      <h2><span class="kt" data-split>Interests</span></h2>
+      <div class="empties" aria-hidden="true">
+        <div class="empty"><span>Books</span></div>
+        <div class="empty"><span>Films</span></div>
+        <div class="empty"><span>Games</span></div>
+      </div>
+      <div class="panel rise" style="--d:.35s">
+        <p class="copy">He reads books, loves films, plays games. He hasn't said which ones — so these
+        three frames are placeholders, and they stay empty until he fills them himself.</p>
+      </div>
+    </section>
+
+    <!-- REEL 6 -->
+    <section class="reel" id="r6" hidden>
+      <p class="slug">Reel seven &nbsp;·&nbsp; End</p>
+      <h2><span class="kt" data-split>End credits</span></h2>
+      <div class="awards">
+        <div class="award rise" style="--d:.15s"><span class="disc" aria-hidden="true"></span>
+          <p><b>MIT XR 2024</b><br>Won, for SnAIder-Cut.</p></div>
+        <div class="award rise" style="--d:.28s"><span class="disc" aria-hidden="true"></span>
+          <p><b>HINT 5.0</b><br>First place, for Virtual Van Gogh.</p></div>
+        <div class="award rise" style="--d:.41s"><span class="disc" aria-hidden="true"></span>
+          <p><b>Four citations</b><br>Which pleases him more than it should.</p></div>
+      </div>
+      <div class="links">
+        <a href="https://github.com/PranavMishra17">GitHub</a>
+        <a href="https://linkedin.com/in/pranavgamedev">LinkedIn</a>
+        <a href="https://huggingface.co/Paranoiid">Hugging Face</a>
+        <a href="https://get-alfred.ai">get-alfred.ai</a>
+      </div>
+      <p class="colophon">Pranav Pushkar Mishra. Metuchen, New Jersey → Chicago → New York City.
+      Seven reels, one argument: the slow thing can be made fast, and then it can be made dull.</p>
+    </section>
+
+  </main>
+</div>
+
+<script>
+(function(){
+  /* ── cut the headings into letters (text is already in the HTML) ── */
+  document.querySelectorAll(".kt[data-split]").forEach(function(sp){
+    var w = sp.textContent.trim(); if(!w) return;
+    sp.setAttribute("aria-label",w);
+    sp.innerHTML = w.split("").map(function(c,i){
+      return '<i aria-hidden="true" style="--i:'+i+'">'+(c===" "?"&nbsp;":c)+"</i>";
+    }).join("");
+  });
+
+  /* ── reel 5: the built things ── */
+  var B="/portfolio/public/assets/images/", W=[
+   ["Stellarium","107,000 astronomical objects in CAVE2, a room whose walls are screens.",
+    "game_design/stellarium.png",["game_design/st1.png","game_design/st2.png"],"https://youtu.be/EX0c-6E8iNc","Watch"],
+   ["SnAIder-Cut","Say what you want changed and the augmented room changes. <b>Won MIT XR 2024.</b>",
+    "game_design/snaider.png",["game_design/mit.jpeg"],"https://youtu.be/CZtGmnGYKp8","Watch",1],
+   ["EQUITY","An Unreal Engine 5 virtual patient, built for bias research in medicine.",
+    "game_design/equity.png",["game_design/eq1.png","game_design/eq2.png"],"https://youtu.be/WO2vVaD8WoE","Watch"],
+   ["Virtual Van Gogh","A walkable museum, paintings hung on a chain. <b>First at HINT 5.0.</b>",
+    "game_design/van%20gogh.jpg",[],"https://youtu.be/rz_NiIj-dic","Watch",1,1],
+   ["Neon-Bites","Cyberpunk food delivery with the physics taken seriously.",
+    "game_design/neon.png",["game_design/neon1.png"],"https://youtu.be/PLVynmeGvsI","Watch"],
+   ["AI Mafia","Language models playing a game about lying to each other.",
+    "game_design/mafia.png",[],"https://github.com/PranavMishra17/Mafia-Boardgame-via-Agents","Code"],
+   ["Big5-Agents","The teamwork paper as runnable code.",
+    "ai_ml/big5.png",[],"https://github.com/PranavMishra17/Big5-Agents","Code"],
+   ["SnakeAI-MLOps","Four reinforcement-learning methods racing on one game. <b>Live and playable.</b>",
+    "ai_ml/snake.png",[],"https://pranavmishra17.github.io/SnakeAI-MLOps/","Play"],
+   ["Rusty ANT","Ants evolving, in Rust.",
+    "game_design/rust.png",[],"https://github.com/PranavMishra17/Rust-yy-Ant","Code"]
+  ];
+  var host=document.getElementById("built");
+  if(host) host.innerHTML = W.map(function(w){
+    return '<article class="card'+(w[6]?" win":"")+(w[7]?" sq":"")+'">'
+      +'<div class="shot"><img src="'+B+w[2]+'" alt="'+w[0]+'" loading="lazy" decoding="async">'
+      +'<p class="band">'+w[0]+'</p></div>'
+      +'<p class="line">'+w[1]+'</p>'
+      +(w[3].length?'<div class="thumbs">'+w[3].map(function(t){
+          return '<img src="'+B+t+'" alt="" loading="lazy" decoding="async">';}).join("")+'</div>':"")
+      +'<a class="go" href="'+w[4]+'" target="_blank" rel="noopener">'+w[5]+' &rarr;</a></article>';
+  }).join("");
+
+  /* ── reel switching ── */
+  var tabs=[].slice.call(document.querySelectorAll(".tab")),
+      reels=[].slice.call(document.querySelectorAll(".reel"));
+  function show(n){
+    tabs.forEach(function(t,i){t.setAttribute("aria-selected",i===n?"true":"false");});
+    reels.forEach(function(r,i){
+      r.hidden = i!==n;
+      if(i===n){ r.classList.remove("play"); r.scrollTop=0; void r.offsetWidth; r.classList.add("play"); }
+      else r.classList.remove("play");
+    });
+  }
+  tabs.forEach(function(t,i){
+    t.addEventListener("click",function(){show(i);});
+    t.addEventListener("keydown",function(e){
+      var d = e.key==="ArrowDown"||e.key==="ArrowRight"?1:(e.key==="ArrowUp"||e.key==="ArrowLeft"?-1:0);
+      if(!d) return; e.preventDefault();
+      var n=(i+d+tabs.length)%tabs.length; tabs[n].focus(); show(n);
+    });
+  });
+  /* first paint is CSS-only; this only re-triggers the opening beat */
+  setTimeout(function(){ document.getElementById("r0").classList.add("play"); },0);
+})();
+</script>
+</body>
+</html>

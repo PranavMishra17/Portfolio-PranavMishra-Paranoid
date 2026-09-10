@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Deep Field — Pranav Mishra</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..700&family=Spectral:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#dcdfe0;      /* far: an archival chart */
+  --dark:#0e1214;       /* near: a darkroom */
+  --ground:#dcdfe0;     /* JS lerps this along the zoom axis */
+  --ink:#12171a;
+  --ink-soft:#4b5559;
+  --mark:#1f5147;
+  --disp:'Bricolage Grotesque',system-ui,sans-serif;
+  --prose:'Spectral',Georgia,serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{
+  background:var(--ground); color:var(--ink);
+  font-family:var(--disp); overflow:hidden;
+  transition:background 260ms linear, color 260ms linear;
+}
+:focus-visible{outline:2px solid var(--mark);outline-offset:3px}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+img{display:block;max-width:100%}
+
+#stage{position:fixed;inset:0;overflow:hidden;cursor:grab;touch-action:none}
+#stage.drag{cursor:grabbing}
+#field{position:absolute;left:0;top:0;width:2400px;height:1600px;transform-origin:0 0;will-change:transform}
+
+/* ── a body of work, plotted ── */
+.obj{position:absolute;transform-origin:50% 50%}
+.obj .inner{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+.obj .dot{
+  width:9px;height:9px;border-radius:50%;background:var(--mark);
+  transform:translate(-50%,-50%);transition:box-shadow 200ms,background 200ms;
+}
+.obj.big .dot{width:14px;height:14px}
+.obj:hover .dot{box-shadow:0 0 0 6px color-mix(in oklab,var(--mark) 22%,transparent)}
+.obj .tag{
+  position:absolute;left:14px;top:-9px;white-space:nowrap;
+  font-size:12.5px;font-weight:500;letter-spacing:-.005em;color:var(--ink);
+  opacity:0;transition:opacity 200ms;pointer-events:none;
+}
+.obj .thumb{
+  position:absolute;left:-84px;top:-56px;width:168px;height:112px;
+  border-radius:2px;overflow:hidden;opacity:0;pointer-events:none;
+  box-shadow:0 10px 30px rgba(0,0,0,.34);border:1px solid rgba(255,255,255,.16);
+  transition:opacity 260ms;background:#1a2124;
+}
+.obj .thumb img{width:100%;height:100%;object-fit:cover}
+.obj .thumb .cap{
+  position:absolute;left:0;right:0;bottom:0;padding:7px 9px;
+  background:linear-gradient(to top,rgba(8,11,12,.92),transparent);
+  font-size:11.5px;font-weight:500;color:#f0efe9;
+}
+/* papers are not photographs, so they never become one */
+.obj.paper .thumb{background:#f2f0ea;border-color:rgba(0,0,0,.16)}
+.obj.paper .thumb .sheetface{
+  position:absolute;inset:0;padding:11px 12px;color:#14181a;
+  font-family:var(--prose);font-size:11px;line-height:1.42;
+}
+.obj.paper .thumb .sheetface b{display:block;font-size:12px;font-weight:500;margin-bottom:4px;line-height:1.25}
+
+/* register: chart → sheet → plate */
+body[data-reg="sheet"] .obj .tag,
+body[data-reg="plate"] .obj .tag{opacity:1}
+body[data-reg="sheet"] .obj .thumb,
+body[data-reg="plate"] .obj .thumb{opacity:1}
+body[data-reg="sheet"] .obj .dot,
+body[data-reg="plate"] .obj .dot{opacity:0}
+
+.cluster{
+  position:absolute;transform-origin:0 0;pointer-events:none;
+  font-size:13px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-soft);white-space:nowrap;transition:opacity 300ms;
+}
+body[data-reg="plate"] .cluster{opacity:0}
+
+/* ── fixed chrome ── */
+.plate-name{
+  position:fixed;left:clamp(18px,4vw,44px);top:clamp(18px,4vw,40px);z-index:5;
+  max-width:min(30ch,64vw);pointer-events:none;transition:opacity 320ms;
+}
+.plate-name h1{font-size:clamp(21px,2.6vw,30px);font-weight:600;letter-spacing:-.02em;line-height:1.1}
+.plate-name p{font-family:var(--prose);font-size:clamp(14px,1.5vw,16px);line-height:1.5;color:var(--ink-soft);margin-top:.45rem}
+body[data-reg="plate"] .plate-name{opacity:0}
+
+.scale{
+  position:fixed;left:clamp(18px,4vw,44px);bottom:clamp(18px,4vw,36px);z-index:5;
+  display:flex;align-items:center;gap:11px;pointer-events:none;
+}
+.scale .bar{width:112px;height:2px;background:color-mix(in oklab,var(--ink) 22%,transparent);position:relative}
+.scale .bar i{position:absolute;top:-3px;left:0;width:8px;height:8px;border-radius:50%;background:var(--mark);transition:left 220ms cubic-bezier(.2,.8,.2,1)}
+.scale span{font-size:11.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-soft)}
+
+.hint{
+  position:fixed;right:clamp(18px,4vw,44px);bottom:clamp(18px,4vw,36px);z-index:5;
+  font-size:12.5px;color:var(--ink-soft);text-align:right;pointer-events:none;transition:opacity 320ms;
+}
+.out{
+  position:fixed;right:clamp(18px,4vw,44px);top:clamp(18px,4vw,40px);z-index:7;
+  border:1px solid color-mix(in oklab,var(--ink) 26%,transparent);border-radius:2px;
+  padding:.5rem .95rem;font-size:12.5px;letter-spacing:.05em;
+  opacity:0;pointer-events:none;transition:opacity 260ms;background:color-mix(in oklab,var(--ground) 76%,transparent);
+}
+body[data-reg="plate"] .out{opacity:1;pointer-events:auto}
+
+/* ── the plate: one thing, filling the frame ── */
+.plate{
+  position:fixed;inset:0;z-index:6;display:none;
+  align-items:center;justify-content:center;padding:clamp(20px,5vw,70px);
+  pointer-events:none;
+}
+.plate.on{display:flex}
+.plate-in{
+  display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);
+  gap:clamp(22px,4vw,54px);align-items:center;max-width:1180px;width:100%;
+  pointer-events:auto;
+}
+@media(max-width:860px){.plate-in{grid-template-columns:1fr;gap:20px}}
+.plate-in .shot{border-radius:3px;overflow:hidden;box-shadow:0 34px 90px rgba(0,0,0,.6);background:#161c1f}
+.plate-in .shot img{width:100%;aspect-ratio:16/10;object-fit:cover}
+.plate-in h2{font-size:clamp(28px,4.4vw,52px);font-weight:600;letter-spacing:-.025em;line-height:1.02;margin-bottom:.5rem;color:#f2f0ea}
+.plate-in .kind{font-size:12px;letter-spacing:.13em;text-transform:uppercase;color:#8fb3a8;margin-bottom:1.1rem}
+.plate-in .say{font-family:var(--prose);font-size:clamp(15.5px,1.7vw,18px);line-height:1.62;color:#cfd6d5;max-width:46ch}
+.plate-in .made{font-size:13.5px;color:#8b979a;margin-top:1.2rem}
+.plate-in .go{display:flex;gap:1.5rem;flex-wrap:wrap;margin-top:1.4rem}
+.plate-in .go a{color:#9ed3c2;text-decoration:none;font-size:13.5px;border-bottom:1px solid rgba(158,211,194,.4);padding-bottom:2px}
+/* a paper gets typeset, never photographed */
+.plate-in.aspaper{grid-template-columns:minmax(0,1fr);max-width:680px}
+.plate-in.aspaper .say{font-size:clamp(16px,1.8vw,19px);max-width:56ch}
+
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
+</style>
+</head>
+<body data-reg="chart">
+
+<div class="plate-name">
+  <h1>Pranav Pushkar Mishra</h1>
+  <p>Everything I have built, plotted at a distance. Zoom in on any of it.</p>
+</div>
+
+<div id="stage">
+  <div id="field"></div>
+</div>
+
+<div class="scale" aria-hidden="true">
+  <span id="regName">Chart</span>
+  <span class="bar"><i id="scaleDot"></i></span>
+</div>
+<p class="hint" id="hint">Scroll to zoom. Click anything to go to it.</p>
+<button class="out" id="out">Back out</button>
+
+<div class="plate" id="plate" role="dialog" aria-modal="true" aria-label="Detail">
+  <div class="plate-in" id="plateIn"></div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var IMG = '/portfolio/public/assets/images/';
+  var W = 2400, H = 1600;
+
+  var CLUSTERS = [
+    { name:'Worlds',  x:430,  y:300 },
+    { name:'Agents',  x:1560, y:250 },
+    { name:'Papers',  x:1640, y:1050 },
+    { name:'Systems', x:520,  y:1080 }
+  ];
+
+  var OBJ = [
+    { n:'Alfred_', x:1620, y:400, big:true, kind:'Founding LLM Engineer, in production now',
+      img:'ai_ml/arch.png',
+      say:'A consumer assistant running five thousand people’s email, calendar and obligations over text, chat and voice. I own the layer that decides what it is allowed to do: risk scoring, a five-verdict router, an eval harness, and a working memory rebuilt so it cannot invent a fact about your inbox.',
+      made:'TypeScript, Deno, Supabase, Postgres, LangGraph',
+      go:[['Alfred_','https://get-alfred.ai/']] },
+
+    { n:'Stellarium', x:330, y:250, big:true, kind:'Extended reality, 2024',
+      img:'game_design/stellarium.png',
+      say:'A hundred and seven thousand astronomical objects, rendered in CAVE2, a room whose walls are screens. The astronomy was never the hard part. Holding frame rates while that many objects are up and a person is turning their head is the hard part.',
+      made:'Unity, C#, CAVE2, real-time rendering',
+      go:[['Watch it run','https://youtu.be/EX0c-6E8iNc']] },
+
+    { n:'SnAIder-Cut', x:600, y:190, kind:'Mixed reality, 2024. Won MIT XR',
+      img:'game_design/snaider.png',
+      say:'Say what you want changed, and the room changes. A generative model editing an augmented scene while you stand inside it, with a rendering budget tight enough that none of it feels like waiting.',
+      made:'Unity, mixed reality, generative AI, computer vision',
+      go:[['Watch it run','https://youtu.be/CZtGmnGYKp8']] },
+
+    { n:'EQUITY', x:250, y:520, kind:'Medical simulation, 2024',
+      img:'game_design/equity.png',
+      say:'A virtual patient built so researchers can study how doctors treat people differently. A MetaHuman holding a conversation, with facial animation good enough that clinicians respond to it as a person.',
+      made:'Unreal Engine 5, MetaHuman, C++, Python',
+      go:[['Watch it run','https://youtu.be/WO2vVaD8WoE'],['Read the code','https://github.com/PranavMishra17/EQUITY-VirtualPatient-UE5']] },
+
+    { n:'Virtual Van Gogh', x:640, y:520, kind:'Web3, 2023. First at HINT 5.0',
+      img:'game_design/van%20gogh.jpg',
+      say:'A museum you can walk through, where the paintings are on a chain. The interesting engineering was keeping ownership state and the walkable world agreeing with each other.',
+      made:'Unity, Web3, smart contracts',
+      go:[['Watch it run','https://youtu.be/rz_NiIj-dic']] },
+
+    { n:'Neon-Bites', x:430, y:700, kind:'Game, 2023',
+      img:'game_design/neon.png',
+      say:'Cyberpunk food delivery, with the physics taken seriously. The city generates itself and the driving has real weight.',
+      made:'Unity, C#, procedural generation, physics',
+      go:[['Watch it run','https://youtu.be/PLVynmeGvsI']] },
+
+    { n:'AI Mafia', x:1420, y:640, kind:'Multi-agent systems, 2025',
+      img:'game_design/mafia.png',
+      say:'Language models playing a game about lying to each other. Every player is an agent with a personality and private information, and nobody scripted the betrayals. They come out of the reasoning.',
+      made:'React, Python, LangChain',
+      go:[['Read the code','https://github.com/PranavMishra17/Mafia-Boardgame-via-Agents']] },
+
+    { n:'Big5-Agents', x:1820, y:660, kind:'Research code, 2025',
+      img:'ai_ml/big5.png',
+      say:'Six teamwork behaviours out of organisational psychology, each built as a switchable mechanism, so you can ablate them one at a time and see which ones actually carry the result.',
+      made:'Python, Google ADK, multi-agent systems',
+      go:[['Read the code','https://github.com/PranavMishra17/Big5-Agents']] },
+
+    { n:'SnakeAI-MLOps', x:430, y:1160, kind:'Reinforcement learning, 2025',
+      img:'ai_ml/snake.png',
+      say:'Four ways of learning the same game, racing each other. Q-learning, DQN, PPO and actor-critic, with gameplay in C++, training in PyTorch, and a pipeline that retrains and redeploys without me touching it.',
+      made:'C++, SFML, PyTorch, LibTorch, Docker',
+      go:[['Play it','https://pranavmishra17.github.io/SnakeAI-MLOps/']] },
+
+    { n:'Rusty ANT', x:760, y:1230, kind:'Systems, 2024',
+      img:'game_design/rust.png',
+      say:'Ants, evolving, in a language that will not let you leak memory. Mostly an excuse to live inside Rust’s ownership model for a while.',
+      made:'Rust',
+      go:[['Read the code','https://github.com/PranavMishra17/Rust-yy-Ant']] },
+
+    { n:'Metadata for retrieval', x:1520, y:1180, paper:true, kind:'Accepted, CAI 2026 at IEEE',
+      say:'Retrieval gets better when you let a model write metadata about each chunk before you store it. Recursive chunking with weighted embeddings landed at 82.5% precision against 73.3% for content alone.',
+      go:[['Read the paper','https://arxiv.org/pdf/2512.05411']] },
+
+    { n:'TeamMedAgents', x:1810, y:1290, paper:true, kind:'Under review, PAKDD 2026',
+      say:'I took the Big Five teamwork model out of organisational psychology and built each component as a real mechanism between agents. It improved on seven of eight medical benchmarks, and the best configuration turned out to depend on the kind of reasoning the task needed.',
+      go:[['Read the paper','https://arxiv.org/pdf/2508.08115']] },
+
+    { n:'Small models, medical images', x:1420, y:1400, paper:true, kind:'In preparation',
+      say:'Whether several small models talking to each other can stand in for one large one on medical images, and what that trade actually costs.',
+      go:[] }
+  ];
+
+  var field = document.getElementById('field');
+  var stage = document.getElementById('stage');
+
+  CLUSTERS.forEach(function(c){
+    var el = document.createElement('div');
+    el.className = 'cluster'; el.textContent = c.name;
+    el.style.left = c.x + 'px'; el.style.top = c.y + 'px';
+    field.appendChild(el);
+    c.el = el;
+  });
+
+  OBJ.forEach(function(o, i){
+    var el = document.createElement('button');
+    el.className = 'obj' + (o.big ? ' big' : '') + (o.paper ? ' paper' : '');
+    el.style.left = o.x + 'px'; el.style.top = o.y + 'px';
+    el.setAttribute('aria-label', o.n);
+    var face = o.paper
+      ? '<div class="sheetface"><b>' + o.n + '</b>' + o.say.slice(0,116) + '…</div>'
+      : '<img src="' + IMG + o.img + '" alt="" loading="lazy"><span class="cap">' + o.n + '</span>';
+    el.innerHTML =
+      '<span class="inner">' +
+        '<span class="dot"></span>' +
+        '<span class="tag">' + o.n + '</span>' +
+        '<span class="thumb">' + face + '</span>' +
+      '</span>';
+    el.addEventListener('click', function(e){ e.stopPropagation(); flyTo(i); });
+    field.appendChild(el);
+    o.el = el;
+    o.inner = el.querySelector('.inner');
+  });
+
+  /* ── the camera. z is the whole navigation model. ──
+     framer: { type:'spring', stiffness: 150, damping: 22, mass: 1.25 } */
+  var z = 0.62, cx = W/2, cy = H/2;
+  var tz = 0.62, tcx = W/2, tcy = H/2;
+  var vz = 0, vcx = 0, vcy = 0;
+  var K = 150, D = 22, M = 1.25;
+  var focus = -1;
+
+  var Z_MIN = 0.42, Z_MAX = 9;
+  var regName = document.getElementById('regName');
+  var scaleDot = document.getElementById('scaleDot');
+  var plate = document.getElementById('plate');
+  var plateIn = document.getElementById('plateIn');
+  var hint = document.getElementById('hint');
+
+  function lerp(a,b,t){ return a + (b-a)*t; }
+  function hex(h){ return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]; }
+  var PAPER = hex('#dcdfe0'), DARK = hex('#0e1214');
+
+  function register(){
+    if (z >= 5.2) return 'plate';
+    if (z >= 1.75) return 'sheet';
+    return 'chart';
+  }
+
+  var lastReg = '';
+  function paint(){
+    var vw = stage.clientWidth || window.innerWidth;
+    var vh = stage.clientHeight || window.innerHeight;
+    field.style.transform =
+      'translate(' + (vw/2 - cx*z) + 'px,' + (vh/2 - cy*z) + 'px) scale(' + z + ')';
+
+    /* counter-scale every label and thumbnail so type stays legible at any zoom */
+    var inv = 1/z;
+    for (var i=0;i<OBJ.length;i++) OBJ[i].inner.style.transform = 'scale(' + inv + ')';
+    for (var c=0;c<CLUSTERS.length;c++) CLUSTERS[c].el.style.transform = 'scale(' + (inv*1.6) + ')';
+
+    /* the medium changes with distance: chart on paper, then a darkroom */
+    var t = Math.max(0, Math.min(1, (z - 1.2) / 4.2));
+    var g = [0,1,2].map(function(k){ return Math.round(lerp(PAPER[k], DARK[k], t)); });
+    document.documentElement.style.setProperty('--ground','rgb('+g.join(',')+')');
+    document.documentElement.style.setProperty('--ink', t > .55 ? '#e8eceb' : '#12171a');
+    document.documentElement.style.setProperty('--ink-soft', t > .55 ? '#8b979a' : '#4b5559');
+    document.documentElement.style.setProperty('--mark', t > .55 ? '#7fc4ae' : '#1f5147');
+
+    var r = register();
+    if (r !== lastReg){
+      lastReg = r;
+      document.body.dataset.reg = r;
+      regName.textContent = r === 'chart' ? 'Chart' : (r === 'sheet' ? 'Contact sheet' : 'Plate');
+      if (r === 'plate' && focus > -1) showPlate(focus); else hidePlate();
+      hint.style.opacity = r === 'chart' ? '1' : '0';
+    }
+    scaleDot.style.left = Math.round(((z - Z_MIN)/(Z_MAX - Z_MIN)) * 104) + 'px';
+  }
+
+  var raf = null;
+  function tick(){
+    raf = null;
+    var dt = 1/60;
+    vz  += ((tz  - z ) * K - vz  * D) / M * dt;  z  += vz  * dt;
+    vcx += ((tcx - cx) * K - vcx * D) / M * dt;  cx += vcx * dt;
+    vcy += ((tcy - cy) * K - vcy * D) / M * dt;  cy += vcy * dt;
+    var done = Math.abs(tz-z)<0.0004 && Math.abs(vz)<0.0004 &&
+               Math.abs(tcx-cx)<0.3 && Math.abs(tcy-cy)<0.3;
+    if (done){ z=tz; cx=tcx; cy=tcy; vz=vcx=vcy=0; } else { raf = requestAnimationFrame(tick); }
+    paint();
+  }
+  function kick(){ if (raf === null) raf = requestAnimationFrame(tick); }
+  function snap(){ z=tz; cx=tcx; cy=tcy; vz=vcx=vcy=0; paint(); }
+
+  /* rAF does not run in a hidden or backgrounded document. If the spring never
+     converges, the camera must still arrive — it just arrives without the flourish. */
+  var NO_RAF = false, guard = null;
+  requestAnimationFrame(function(){ rafAlive = true; });
+  var rafAlive = false;
+  setTimeout(function(){ if (!rafAlive){ NO_RAF = true; snap(); } }, 700);
+
+  function settle(){
+    if (REDUCED || NO_RAF){ snap(); return; }
+    kick();
+    clearTimeout(guard);
+    guard = setTimeout(function(){
+      if (Math.abs(tz - z) > 0.01 || Math.abs(tcx - cx) > 1 || Math.abs(tcy - cy) > 1){
+        NO_RAF = true; snap();
+      }
+    }, 500);
+  }
+
+  function flyTo(i){
+    focus = i;
+    tcx = OBJ[i].x; tcy = OBJ[i].y; tz = 6.4;
+    settle();
+  }
+  function backOut(){
+    focus = -1; tz = 0.62; tcx = W/2; tcy = H/2; settle();
+  }
+  document.getElementById('out').addEventListener('click', backOut);
+  addEventListener('keydown', function(e){
+    if (e.key === 'Escape') backOut();
+    if (e.key === '+' || e.key === '='){ tz = Math.min(Z_MAX, tz*1.5); settle(); }
+    if (e.key === '-' || e.key === '_'){ tz = Math.max(Z_MIN, tz/1.5); settle(); }
+  });
+
+  /* wheel zooms toward the cursor, which is what makes it feel like a camera */
+  stage.addEventListener('wheel', function(e){
+    e.preventDefault();
+    var r = stage.getBoundingClientRect();
+    var mx = e.clientX - r.left, my = e.clientY - r.top;
+    var wx = cx + (mx - r.width/2)/z;
+    var wy = cy + (my - r.height/2)/z;
+    var nz = Math.max(Z_MIN, Math.min(Z_MAX, tz * (e.deltaY > 0 ? 0.86 : 1.16)));
+    tcx = wx - (mx - r.width/2)/nz;
+    tcy = wy - (my - r.height/2)/nz;
+    tz = nz;
+    if (nz < 5.2) focus = -1;
+    settle();
+  }, {passive:false});
+
+  var down=false, px=0, py=0;
+  stage.addEventListener('pointerdown', function(e){
+    down=true; px=e.clientX; py=e.clientY; stage.classList.add('drag');
+    try{ stage.setPointerCapture(e.pointerId); }catch(err){}
+  });
+  stage.addEventListener('pointermove', function(e){
+    if(!down) return;
+    tcx -= (e.clientX-px)/z; tcy -= (e.clientY-py)/z;
+    px=e.clientX; py=e.clientY; settle();
+  });
+  function up(){ down=false; stage.classList.remove('drag'); }
+  stage.addEventListener('pointerup', up);
+  stage.addEventListener('pointercancel', up);
+
+  function showPlate(i){
+    var o = OBJ[i]; if (!o) return;
+    plateIn.className = 'plate-in' + (o.paper ? ' aspaper' : '');
+    plateIn.innerHTML =
+      (o.paper ? '' : '<div class="shot"><img src="'+IMG+o.img+'" alt="'+o.n+'"></div>') +
+      '<div>' +
+        '<h2>'+o.n+'</h2>' +
+        '<p class="kind">'+o.kind+'</p>' +
+        '<p class="say">'+o.say+'</p>' +
+        (o.made ? '<p class="made">'+o.made+'</p>' : '') +
+        (o.go.length ? '<p class="go">'+o.go.map(function(g){
+          return '<a href="'+g[1]+'" target="_blank" rel="noopener">'+g[0]+'</a>';
+        }).join('')+'</p>' : '') +
+      '</div>';
+    plate.classList.add('on');
+    if (!REDUCED){
+      /* framer: { type:'spring', stiffness: 340, damping: 30, mass: 1.2 } */
+      plateIn.animate(
+        [{transform:'scale(.955) translateY(16px)',opacity:0},
+         {transform:'scale(1.006) translateY(-3px)',opacity:1,offset:.6},
+         {transform:'none',opacity:1}],
+        {duration:480,easing:'cubic-bezier(.2,.85,.25,1)'});
+    }
+  }
+  function hidePlate(){ plate.classList.remove('on'); }
+
+  addEventListener('resize', paint);
+  paint();
+  /* an opening push, so the field arrives rather than sits there */
+  if (!REDUCED){ z = 0.30; tz = 0.62; settle(); }
+  setTimeout(paint, 500);
+  setTimeout(paint, 1400);
+})();
+</script>
+</body>
+</html>

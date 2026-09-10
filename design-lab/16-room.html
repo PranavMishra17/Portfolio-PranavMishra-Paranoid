@@ -1,0 +1,982 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Room — Elevation A — Pranav Mishra</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;500;600&family=Spectral:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════════════════
+   THE ROOM — one wall, drawn as a measured architectural elevation.
+   Line weights are hierarchical (envelope 2.4 / object 1.5 / detail 1
+   / annotation 0.7) the way a real drawing's are. Nothing is seen from
+   above: no desk tops, no papers lying flat, no three-quarter view.
+   Every object is something you can see face-on from across the room.
+   Three colours only: paper, ink, ochre. Ochre is never decoration —
+   it means live, accepted, or awarded.
+   ═══════════════════════════════════════════════════════════════════ */
+:root{
+  --paper:#E4E2D9;      /* the sheet, and the wall */
+  --paper-2:#F1F0E9;  /* card and sheet stock, solid */
+  --fill-1:#D7D4C8;     /* flat fill: board, door panels */
+  --fill-2:#C7C4B5;     /* flat fill: shadowed faces */
+  --ink:#232A2C;        /* all line work and all lettering */
+  --ink-2:#5D6664;      /* annotation, dimensions */
+  --ink-3:#8B9291;      /* dotted leaders, hatch */
+  --ochre:#8A5E13;      /* status lettering */
+  --ochre-f:#BC8628;  /* status fills and pins */
+  --wash:rgba(228,226,217,.80);
+  --nar:'Archivo Narrow',Arial Narrow,Helvetica,sans-serif;
+  --ser:'Spectral',Georgia,serif;
+}
+:root[data-lights="off"]{
+  --paper:#14232B;
+  --paper-2:#1D3140;
+  --fill-1:#1A2B34;
+  --fill-2:#223945;
+  --ink:#D2DFE3;
+  --ink-2:#93A7AE;
+  --ink-3:#5D7280;
+  --ochre:#E8B460;
+  --ochre-f:#D9A24B;
+  --wash:rgba(20,35,43,.84);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{
+  background:var(--paper);color:var(--ink);
+  font-family:var(--ser);
+  transition:background 420ms ease;
+  min-height:100%;
+}
+img{display:block;max-width:100%}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:left}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--ochre-f);outline-offset:3px}
+
+/* ── the sheet ───────────────────────────────────────────── */
+#sheetwrap{overflow-x:auto;overflow-y:hidden;padding:10px}
+#stage{
+  position:relative;width:100%;max-width:1480px;min-width:1300px;
+  margin:0 auto;aspect-ratio:1480/880;
+}
+#lines{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+#ov{position:absolute;inset:0;font-family:var(--nar);font-size:16px}
+
+/* every interactive object in the room */
+.o{
+  position:absolute;box-sizing:border-box;
+  transition:outline-color 150ms ease, transform 180ms cubic-bezier(.2,.9,.25,1);
+  outline:2px solid transparent;outline-offset:2px;
+}
+.o:hover,.o:focus-visible{outline-color:var(--ochre-f)}
+.o:hover{transform:translateY(-1.5px)}
+
+/* the name card */
+#about{
+  background:var(--paper-2);border:1.5px solid var(--ink);
+  padding:.62em .78em .7em;display:flex;flex-direction:column;
+  box-shadow:0 2px 0 rgba(0,0,0,.10);
+}
+#about .who{
+  font-size:.78em;letter-spacing:.09em;color:var(--ink-2);
+  text-transform:uppercase;margin-bottom:.5em;
+  border-bottom:1px solid var(--ink-3);padding-bottom:.34em;
+}
+#about .say{
+  font-family:var(--ser);font-size:clamp(15px,1.16em,16px);line-height:1.56;
+  color:var(--ink);max-width:64ch;
+}
+#about .say b{font-weight:500}
+#about .sch{
+  margin-top:auto;padding-top:.5em;font-size:.74em;letter-spacing:.08em;
+  color:var(--ink-2);text-transform:uppercase;
+}
+
+/* four ID badges */
+.badge{
+  background:var(--paper-2);border:1.4px solid var(--ink);
+  padding:.34em .38em;display:flex;flex-direction:column;
+  box-shadow:0 2px 0 rgba(0,0,0,.09);
+}
+.badge .co{font-size:.78em;font-weight:600;letter-spacing:.045em;line-height:1.14;text-transform:uppercase}
+.badge .ro{font-size:.66em;line-height:1.2;color:var(--ink-2);margin-top:.3em}
+.badge .pl{font-size:.64em;line-height:1.2;color:var(--ink-2);margin-top:.14em}
+.badge .yr{
+  margin-top:auto;font-size:.8em;font-weight:500;letter-spacing:.03em;
+  border-top:1px solid var(--ink-3);padding-top:.24em;
+}
+.badge .hole{
+  position:absolute;left:50%;top:.34em;transform:translateX(-50%);
+  width:24%;height:.2em;background:var(--fill-2);border:1px solid var(--ink-3);
+}
+
+/* nine pinned prints */
+.print{padding:0;border:0;background:none}
+.print .im{
+  width:100%;aspect-ratio:16/9;object-fit:cover;
+  border:1.3px solid var(--ink);background:var(--fill-2);
+  filter:saturate(.84) contrast(.96);
+}
+:root[data-lights="off"] .print .im{filter:saturate(.8) brightness(.86)}
+.print .cap{
+  font-size:.68em;letter-spacing:.055em;text-transform:uppercase;
+  margin-top:.34em;line-height:1.16;color:var(--ink);
+}
+.print .cap i{font-style:normal;color:var(--ochre);letter-spacing:.05em}
+
+/* three papers */
+.paper-s{
+  background:var(--paper-2);border:1.4px solid var(--ink);
+  padding:.4em .42em;display:flex;flex-direction:column;
+}
+.paper-s.prep{border-style:dashed;background:none}
+.paper-s .stamp{
+  font-size:.62em;letter-spacing:.075em;text-transform:uppercase;
+  text-align:center;padding:.2em 0;margin-bottom:.5em;line-height:1.1;
+}
+.paper-s .stamp.acc{background:var(--ochre-f);color:#1B1508;font-weight:600}
+:root[data-lights="off"] .paper-s .stamp.acc{color:#14232B}
+.paper-s .stamp.rev{border:1px solid var(--ink-2);color:var(--ink-2)}
+.paper-s .stamp.non{border:1px dashed var(--ink-3);color:var(--ink-3)}
+.paper-s .ti{font-size:.7em;line-height:1.2;letter-spacing:.03em;text-transform:uppercase;font-weight:500}
+.paper-s .ve{font-size:.66em;line-height:1.22;color:var(--ink-2);margin-top:.42em}
+.paper-s .fg{
+  margin-top:auto;font-size:.74em;font-weight:500;
+  border-top:1px solid var(--ink-3);padding-top:.26em;letter-spacing:.02em;
+}
+
+/* two framed awards */
+.frame{border:1.6px solid var(--ink);background:var(--paper-2);padding:.16em}
+.frame img{width:100%;height:100%;object-fit:cover;border:1px solid var(--ink-3);filter:saturate(.84) contrast(.96)}
+:root[data-lights="off"] .frame img{filter:saturate(.8) brightness(.86)}
+
+/* the schedule of measured values */
+#sched{
+  background:var(--paper-2);border:1.5px solid var(--ink);
+  padding:.55em .62em .5em;display:flex;flex-direction:column;
+  box-shadow:0 2px 0 rgba(0,0,0,.10);
+}
+#sched .h{
+  font-size:.74em;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);
+  border-bottom:1.2px solid var(--ink);padding-bottom:.3em;margin-bottom:.42em;
+}
+#sched .r{display:flex;align-items:baseline;gap:.3em;font-size:.84em;line-height:1.86}
+#sched .r .k{white-space:nowrap;letter-spacing:.035em;text-transform:uppercase;color:var(--ink-2)}
+#sched .r .d{flex:1;border-bottom:1px dotted var(--ink-3);transform:translateY(-.22em)}
+#sched .r .v{white-space:nowrap;font-weight:600;letter-spacing:.01em}
+#sched .f{margin-top:auto;padding-top:.4em;font-size:.63em;color:var(--ink-2);letter-spacing:.05em;text-transform:uppercase}
+
+/* the bookshelf hit area */
+#shelfbtn{background:none;border:1px solid transparent}
+#shelfbtn:hover,#shelfbtn:focus-visible{border-color:transparent}
+
+/* the light switch — deliberately unannotated */
+#switch{background:none;border:0}
+#switch::after{content:"";position:absolute;inset:-14px}
+
+/* margin links */
+#margin-links{
+  position:absolute;font-family:var(--nar);display:flex;gap:1.6em;
+  font-size:.82em;letter-spacing:.075em;text-transform:uppercase;
+}
+#margin-links a{color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--ink-3);padding-bottom:1px}
+#margin-links a:hover{color:var(--ink);border-bottom-color:var(--ink)}
+
+/* ── the pinned sheet that opens over the wall ────────────── */
+#wash{position:absolute;inset:0;background:var(--wash);z-index:40}
+#pinsheet{
+  position:absolute;z-index:41;
+  left:25%;right:4%;top:3.2%;bottom:3.2%;
+  background:var(--paper-2);border:1.6px solid var(--ink);
+  box-shadow:0 22px 54px rgba(20,26,28,.30);
+  overflow-y:auto;overscroll-behavior:contain;
+  padding:30px 34px 34px;
+}
+:root[data-lights="off"] #pinsheet{box-shadow:0 22px 54px rgba(0,0,0,.55)}
+#pinsheet::before,#pinsheet::after{
+  content:"";position:absolute;top:11px;width:9px;height:9px;border-radius:50%;
+  background:var(--ochre-f);border:1px solid var(--ink);
+}
+#pinsheet::before{left:16px}
+#pinsheet::after{right:16px}
+#close{
+  position:absolute;top:14px;right:34px;
+  font-family:var(--nar);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink-2);border:1px solid var(--ink-3);padding:4px 9px;
+}
+#close:hover{color:var(--ink);border-color:var(--ink)}
+.ps{max-width:640px}
+.ps .kick{font-family:var(--nar);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);margin-bottom:14px}
+.ps h2{font-family:var(--ser);font-weight:500;font-size:27px;line-height:1.2;letter-spacing:-.01em;margin-bottom:6px;max-width:26ch}
+.ps .meta{font-family:var(--nar);font-size:13px;letter-spacing:.05em;color:var(--ink-2);margin-bottom:18px}
+.ps figure{margin:0 0 20px}
+.ps figure img{width:100%;aspect-ratio:16/9;object-fit:cover;border:1.3px solid var(--ink);background:var(--fill-2)}
+.ps figure.sm{max-width:360px}
+.ps figure.sm img{aspect-ratio:1/1}
+.ps .duo{display:flex;gap:14px;margin:0 0 20px;flex-wrap:wrap}
+.ps .duo figure{flex:1 1 200px;margin:0}
+.ps .duo figure img{aspect-ratio:4/3}
+.ps p{font-size:15.5px;line-height:1.62;max-width:66ch;margin-bottom:.85em;color:var(--ink)}
+.ps p:last-of-type{margin-bottom:0}
+.ps .tab{margin:22px 0 4px;border-top:1.2px solid var(--ink);padding-top:8px}
+.ps .tab .th{font-family:var(--nar);font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-2);margin-bottom:6px}
+.ps .tab .r{display:flex;align-items:baseline;gap:.4em;font-family:var(--nar);font-size:14px;line-height:2.05}
+.ps .tab .r .k{letter-spacing:.04em;text-transform:uppercase;color:var(--ink-2);white-space:nowrap}
+.ps .tab .r .d{flex:1;border-bottom:1px dotted var(--ink-3);transform:translateY(-.24em)}
+.ps .tab .r .v{font-weight:600;white-space:nowrap}
+.ps .slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin:20px 0 12px}
+.ps .slot{border:1px dashed var(--ink-3);padding:9px 11px}
+.ps .slot span{display:block;font-family:var(--nar);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);margin-bottom:3px}
+.ps .slot b{font-weight:400;font-size:16px;color:var(--ink-3)}
+.ps .note{font-size:14px;font-style:italic;color:var(--ink-2);max-width:52ch}
+.ps .lk{display:flex;gap:1.5rem;flex-wrap:wrap;margin-top:20px}
+.ps .lk a{
+  font-family:var(--nar);font-size:13.5px;letter-spacing:.06em;text-transform:uppercase;
+  text-decoration:none;border-bottom:1.4px solid var(--ochre-f);padding-bottom:2px;
+}
+.ps .lk a:hover{border-bottom-width:2.4px}
+
+/* ── the sheet index: the mobile interface ────────────────── */
+#index{display:none;padding:0 16px 40px;max-width:640px;margin:0 auto}
+#index h2{
+  font-family:var(--nar);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--ink-2);border-bottom:1.4px solid var(--ink);padding-bottom:7px;margin:22px 0 4px;
+}
+.ix{border-bottom:1px solid var(--ink-3);padding:15px 0 16px}
+.ix .nm{font-family:var(--nar);font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase}
+.ix .nt{font-family:var(--nar);font-size:12.5px;letter-spacing:.05em;color:var(--ink-2);margin-top:3px}
+.ix .say{font-family:var(--ser);font-size:15.5px;line-height:1.58;margin-top:10px}
+.ix .keys{display:flex;flex-wrap:wrap;gap:8px;margin-top:11px}
+.ix .keys button{
+  font-family:var(--nar);font-size:13px;letter-spacing:.055em;text-transform:uppercase;
+  border:1.2px solid var(--ink);padding:8px 11px;min-height:38px;
+  background:var(--paper-2);
+}
+.ix .keys button:hover{border-color:var(--ochre-f)}
+.ix .keys button i{font-style:normal;color:var(--ochre)}
+
+@media (max-width:860px){
+  #sheetwrap{overflow:hidden;padding:10px 10px 0}
+  #stage{min-width:0}
+  #ov{pointer-events:none}
+  #ov #switch{pointer-events:auto}
+  /* Below 860 the drawing is a quarter of full size, so its lettering
+     would be mush. It becomes a key drawing — line work, the nine prints
+     and the two framed awards — and the sheet index below carries the
+     words at full reading size. */
+  #callouts,#margin-links,#about .who,#about .say,#about .sch,
+  #sched .h,#sched .r,#sched .f,
+  .badge .co,.badge .ro,.badge .pl,.badge .yr,.badge .hole,
+  .paper-s .stamp,.paper-s .ti,.paper-s .ve,.paper-s .fg,
+  .print .cap{display:none}
+  .badge,.paper-s,#about,#sched{padding:0}
+  #index{display:block}
+  #pinsheet{
+    position:fixed;left:8px;right:8px;top:8px;bottom:8px;
+    padding:26px 20px 30px;
+  }
+  #wash{position:fixed}
+  #close{right:20px}
+  .ps h2{font-size:23px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition-duration:.01ms!important;animation-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<div id="sheetwrap">
+  <div id="stage">
+
+  <!-- ══ ALL LINE WORK. viewBox 1480 × 880. Wall x36→1444, ceiling y140,
+          finished floor y744. 1 px ≈ 4.47 mm, so the wall is 2700 mm. ══ -->
+  <svg id="lines" viewBox="0 0 1480 880" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+    <g fill="none" stroke="currentColor" vector-effect="non-scaling-stroke"
+       stroke-linecap="square" style="color:var(--ink)">
+
+      <!-- sheet border -->
+      <rect x="10" y="10" width="1460" height="860" stroke-width="1.1" style="color:var(--ink-2)"/>
+
+      <!-- ── floor hatch, drawn first so objects sit over it ── -->
+      <g stroke-width=".7" style="color:var(--ink-3)">
+        <line x1="36" y1="744" x2="1444" y2="744"/>
+        <path d="M36 756 44 744 M60 756 68 744 M84 756 92 744 M108 756 116 744 M132 756 140 744 M156 756 164 744 M180 756 188 744 M204 756 212 744 M228 756 236 744 M252 756 260 744 M276 756 284 744 M300 756 308 744 M324 756 332 744 M348 756 356 744 M372 756 380 744 M396 756 404 744 M420 756 428 744 M444 756 452 744 M468 756 476 744 M492 756 500 744 M516 756 524 744 M540 756 548 744 M564 756 572 744 M588 756 596 744 M612 756 620 744 M636 756 644 744 M660 756 668 744 M684 756 692 744 M708 756 716 744 M732 756 740 744 M756 756 764 744 M780 756 788 744 M804 756 812 744 M828 756 836 744 M852 756 860 744 M876 756 884 744 M900 756 908 744 M924 756 932 744 M948 756 956 744 M972 756 980 744 M996 756 1004 744 M1020 756 1028 744 M1044 756 1052 744 M1068 756 1076 744 M1092 756 1100 744 M1116 756 1124 744 M1140 756 1148 744 M1164 756 1172 744 M1188 756 1196 744 M1212 756 1220 744 M1236 756 1244 744 M1260 756 1268 744 M1284 756 1292 744 M1308 756 1316 744 M1332 756 1340 744 M1356 756 1364 744 M1380 756 1388 744 M1404 756 1412 744 M1428 756 1436 744"/>
+      </g>
+
+      <!-- ── room envelope: the heaviest line on the sheet ── -->
+      <path d="M36 140 H1444 M36 140 V744 M1444 140 V744" stroke-width="2.4"/>
+      <!-- skirting, interrupted by the door -->
+      <line x1="204" y1="730" x2="1444" y2="730" stroke-width="1"/>
+
+      <!-- ── DOOR. 715 × 2100. Gives the room its scale. ── -->
+      <g stroke-width="1.5">
+        <rect x="44" y="274" width="160" height="470" fill="var(--fill-1)"/>
+        <rect x="56" y="292" width="136" height="188" stroke-width="1" fill="none"/>
+        <rect x="56" y="494" width="136" height="234" stroke-width="1" fill="none"/>
+        <circle cx="184" cy="512" r="5" fill="var(--ink)"/>
+        <line x1="176" y1="498" x2="176" y2="526" stroke-width="1"/>
+      </g>
+
+      <!-- ── LIGHT SWITCH, 1030 a.f.f. No callout. ── -->
+      <g stroke-width="1.2">
+        <rect x="222" y="498" width="26" height="32" fill="var(--paper-2)"/>
+        <rect x="230" y="506" width="10" height="16" fill="var(--fill-2)"/>
+        <line id="sw-on" x1="230" y1="512" x2="240" y2="512" stroke-width="1"/>
+      </g>
+
+      <!-- ── HIGH SHELF above the door: the awards ── -->
+      <g stroke-width="1.5">
+        <line x1="38" y1="236" x2="210" y2="236" stroke-width="2.2"/>
+        <path d="M58 236 V250 M190 236 V250" stroke-width="1"/>
+      </g>
+
+      <!-- ── HOOK RAIL, 1080 a.f.f., and four lanyards ── -->
+      <g stroke-width="1.5">
+        <rect x="272" y="526" width="456" height="6" fill="var(--fill-2)"/>
+        <path d="M330 532 V556 M443 532 V562 M556 532 V552 M669 532 V560" stroke-width="1"/>
+        <rect x="321" y="556" width="18" height="10" fill="var(--paper-2)" stroke-width="1"/>
+        <rect x="434" y="562" width="18" height="10" fill="var(--paper-2)" stroke-width="1"/>
+        <rect x="547" y="552" width="18" height="10" fill="var(--paper-2)" stroke-width="1"/>
+        <rect x="660" y="560" width="18" height="10" fill="var(--paper-2)" stroke-width="1"/>
+      </g>
+
+      <!-- ── BULLDOG CLIP RAIL, and three clips ── -->
+      <g stroke-width="1.5">
+        <line x1="746" y1="180" x2="1014" y2="180" stroke-width="2.2"/>
+        <rect x="776" y="182" width="22" height="12" fill="var(--fill-2)" stroke-width="1"/>
+        <rect x="869" y="182" width="22" height="12" fill="var(--fill-2)" stroke-width="1"/>
+        <rect x="962" y="182" width="22" height="12" fill="var(--fill-2)" stroke-width="1"/>
+      </g>
+
+      <!-- ── PIN BOARD, frame and cork ── -->
+      <g stroke-width="1.6">
+        <rect x="1050" y="172" width="390" height="340" fill="var(--fill-2)"/>
+        <rect x="1062" y="184" width="366" height="316" fill="var(--fill-1)" stroke-width="1"/>
+      </g>
+
+      <!-- ── BOOK SHELF, 750 a.f.f. Six slots: three marked, three empty. ── -->
+      <g stroke-width="1.5">
+        <line x1="1046" y1="700" x2="1442" y2="700" stroke-width="2.2"/>
+        <path d="M1070 700 V716 M1418 700 V716" stroke-width="1"/>
+        <rect x="1050" y="610" width="58" height="88" stroke-width="1.2" stroke-dasharray="5 4" fill="none"/>
+        <rect x="1116" y="600" width="58" height="98" stroke-width="1.2" stroke-dasharray="5 4" fill="none"/>
+        <rect x="1248" y="606" width="58" height="92" stroke-width="1.2" stroke-dasharray="5 4" fill="none"/>
+      </g>
+      <g font-family="Archivo Narrow, sans-serif" font-size="11" letter-spacing="2.2"
+         fill="var(--ink-3)" stroke="none">
+        <text transform="translate(1084,690) rotate(-90)">BOOKS</text>
+        <text transform="translate(1150,690) rotate(-90)">FILM</text>
+        <text transform="translate(1282,690) rotate(-90)">GAMES</text>
+      </g>
+
+      <!-- ═══ DIMENSIONS. An architectural drawing is full of numbers;
+               these are the room's, and the badges' span is one of his. ═══ -->
+      <g stroke-width=".8" style="color:var(--ink-2)">
+        <!-- overall wall width -->
+        <path d="M36 748 V782 M1444 748 V782" stroke-width=".7" style="color:var(--ink-3)"/>
+        <line x1="36" y1="770" x2="1444" y2="770"/>
+        <path d="M30 776 42 764 M1438 776 1450 764"/>
+        <!-- badge span: his four jobs, measured -->
+        <path d="M280 702 V726 M720 702 V726" stroke-width=".7" style="color:var(--ink-3)"/>
+        <line x1="280" y1="716" x2="720" y2="716"/>
+        <path d="M274 722 286 710 M714 722 726 710"/>
+        <!-- eye level, to the centre of the name card -->
+        <line x1="262" y1="406" x2="262" y2="744"/>
+        <path d="M256 412 268 400 M256 738 268 726"/>
+        <line x1="268" y1="406" x2="280" y2="406" stroke-width=".7" style="color:var(--ink-3)"/>
+        <!-- wall height -->
+        <line x1="1458" y1="140" x2="1458" y2="744"/>
+        <path d="M1452 146 1464 134 M1452 738 1464 726"/>
+      </g>
+      <g font-family="Archivo Narrow, sans-serif" fill="var(--ink-2)" stroke="none"
+         font-size="12.5" letter-spacing="1.1">
+        <rect x="676" y="758" width="128" height="24" fill="var(--paper)" stroke="none"/>
+        <text x="700" y="775">6 300 OVERALL</text>
+        <rect x="440" y="704" width="122" height="24" fill="var(--paper)" stroke="none"/>
+        <text x="461" y="721">2023 TO 2026</text>
+        <text transform="translate(258,600) rotate(-90)">1 500 A.F.F.</text>
+        <text transform="translate(1454,470) rotate(-90)">2 700</text>
+      </g>
+
+      <!-- ── scale bar, top left margin ── -->
+      <g stroke-width="1">
+        <rect x="40" y="54" width="56" height="11" fill="var(--ink)"/>
+        <rect x="96" y="54" width="56" height="11" fill="none"/>
+        <rect x="152" y="54" width="56" height="11" fill="var(--ink)"/>
+        <rect x="208" y="54" width="56" height="11" fill="none"/>
+      </g>
+      <g font-family="Archivo Narrow, sans-serif" font-size="11.5" fill="var(--ink-2)"
+         stroke="none" letter-spacing="1.3">
+        <text x="40" y="82">0</text>
+        <text x="248" y="82">1 M</text>
+        <text x="40" y="40">SCALE</text>
+      </g>
+
+      <!-- ── title block, top right margin ── -->
+      <g stroke-width="1.1" style="color:var(--ink-2)">
+        <rect x="1180" y="24" width="264" height="66"/>
+        <line x1="1180" y1="48" x2="1444" y2="48"/>
+      </g>
+      <g font-family="Archivo Narrow, sans-serif" stroke="none" letter-spacing="1.6">
+        <text x="1190" y="41" font-size="13" fill="var(--ink)" letter-spacing="2.4">ELEVATION A</text>
+        <text x="1434" y="41" font-size="11" fill="var(--ink-2)" text-anchor="end">SHEET 1 OF 1</text>
+        <text x="1190" y="65" font-size="12" fill="var(--ink)">THE ROOM, ONE WALL</text>
+        <text x="1190" y="82" font-size="11" fill="var(--ink-2)">P. P. MISHRA</text>
+        <text x="1434" y="82" font-size="11" fill="var(--ink-2)" text-anchor="end">METUCHEN, NEW JERSEY</text>
+      </g>
+
+      <!-- ═══ CALLOUTS. Seven. Drawn at rest, in the same ink as the walls.
+               This is what makes the drawing readable without hovering. ═══ -->
+      <g id="callouts">
+        <g stroke-width=".9" style="color:var(--ink-2)" fill="none">
+          <!-- awards shelf -->
+          <path d="M124 104 V168 M124 104 H140"/><circle cx="124" cy="170" r="2.8" fill="var(--ink-2)"/>
+          <!-- name card -->
+          <path d="M350 56 V290 M350 56 H366"/><circle cx="350" cy="292" r="2.8" fill="var(--ink-2)"/>
+          <!-- paper rack -->
+          <path d="M800 56 V178 M800 56 H816"/><circle cx="800" cy="180" r="2.8" fill="var(--ink-2)"/>
+          <!-- pin board -->
+          <path d="M1104 104 V170 M1104 104 H1120"/><circle cx="1104" cy="172" r="2.8" fill="var(--ink-2)"/>
+          <!-- id badges, pointing at their dimension line -->
+          <path d="M430 812 V718 M430 812 H446"/><circle cx="430" cy="716" r="2.8" fill="var(--ink-2)"/>
+          <!-- schedule -->
+          <path d="M860 812 V710 M860 812 H876"/><circle cx="860" cy="708" r="2.8" fill="var(--ink-2)"/>
+          <!-- book shelf -->
+          <path d="M1200 812 V702 M1200 812 H1216"/><circle cx="1200" cy="700" r="2.8" fill="var(--ink-2)"/>
+        </g>
+        <g font-family="Archivo Narrow, sans-serif" stroke="none" letter-spacing="1.5">
+          <text x="146" y="99" font-size="13" fill="var(--ink)">AWARD SHELF</text>
+          <text x="146" y="113" font-size="11.5" fill="var(--ink-2)">2 no.  2023, 2024</text>
+
+          <text x="372" y="51" font-size="13" fill="var(--ink)">NAME CARD, PINNED</text>
+          <text x="372" y="65" font-size="11.5" fill="var(--ink-2)">1 500 above finished floor</text>
+
+          <text x="822" y="51" font-size="13" fill="var(--ink)">PAPER RACK</text>
+          <text x="822" y="65" font-size="11.5" fill="var(--ink-2)">3 no.  1 accepted</text>
+          <text x="822" y="79" font-size="11.5" fill="var(--ink-3)">dashed = not built yet</text>
+
+          <text x="1126" y="99" font-size="13" fill="var(--ink)">PIN BOARD, PROJECT PRINTS</text>
+          <text x="1126" y="113" font-size="11.5" fill="var(--ink-2)">9 no.  3 x 3</text>
+          <text x="1126" y="127" font-size="11.5" fill="var(--ochre)">ochre pin = live or awarded</text>
+
+          <text x="452" y="807" font-size="13" fill="var(--ink)">ID BADGES, HOOK RAIL</text>
+          <text x="452" y="821" font-size="11.5" fill="var(--ink-2)">4 no.  earliest at left</text>
+
+          <text x="882" y="807" font-size="13" fill="var(--ink)">SCHEDULE OF MEASURED VALUES</text>
+          <text x="882" y="821" font-size="11.5" fill="var(--ink-2)">pinned sheet, 8 entries</text>
+
+          <text x="1222" y="807" font-size="13" fill="var(--ink)">BOOK SHELF</text>
+          <text x="1222" y="821" font-size="11.5" fill="var(--ink-2)">3 slots marked, 3 empty</text>
+          <text x="1222" y="835" font-size="11.5" fill="var(--ink-3)">placeholders. swap for the real ones</text>
+        </g>
+      </g>
+    </g>
+  </svg>
+
+  <!-- ══ everything that carries lettering or an image ══ -->
+  <div id="ov"></div>
+
+  <div id="wash" hidden></div>
+  <div id="pinsheet" role="dialog" aria-modal="true" aria-labelledby="ps-title" hidden>
+    <button id="close" type="button">Close</button>
+    <div class="ps" id="ps-body"></div>
+  </div>
+
+  </div>
+</div>
+
+<div id="index"></div>
+
+<script>
+(function(){
+'use strict';
+
+var W = 1480, H = 880;
+var IMG = '/portfolio/public/assets/images/';
+var REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+var ov = document.getElementById('ov');
+
+/* ─────────────────────────────────────────────────────────────
+   CONTENT. Every fact here is his. Nothing is inferred from an
+   object: a badge says what is printed on a badge, a paper says
+   what is printed on a paper.
+   ───────────────────────────────────────────────────────────── */
+var C = {
+  about:{
+    kick:'NAME CARD, PINNED AT 1 500 A.F.F.',
+    t:'Pranav Pushkar Mishra',
+    meta:'Metuchen, New Jersey  Computer science, University of Illinois Chicago',
+    p:['I build the parts of AI systems that have to be right rather than impressive: how fast they answer, what they are allowed to do, and whether what they tell you about your own data is actually true.',
+       'Right now I am a founding LLM engineer at Alfred_ in New York, on a consumer assistant that runs five thousand people’s email, calendar and daily obligations over text message, chat and voice.',
+       'Before that, a research lab building virtual patients in Unreal Engine, and a long run of games and virtual worlds that taught me more about performance budgets than any course did.'],
+    lk:[['GitHub','https://github.com/PranavMishra17'],['LinkedIn','https://www.linkedin.com/in/pranavgamedev/'],['Hugging Face','https://huggingface.co/Paranoiid']]
+  },
+
+  alfred:{
+    kick:'ID BADGE, CURRENT',
+    t:'Founding LLM Engineer, Alfred_',
+    meta:'New York City  April 2026 to now',
+    p:['Alfred_ is a consumer AI assistant that manages people’s email, calendar and daily obligations over text message, chat and voice. Five thousand subscribers use it in production, and I own the side of it that has to be reliable.',
+       'I cut the gap between an email arriving and a text message going out from about ninety seconds to about three, and took the security-code path from 189 seconds at the ninetieth percentile down to instant. A login code that arrives after you have given up is worse than no code at all.',
+       'The email-rules engine used to call a model on every single message. I replaced that with a deterministic three-stage matcher, which took roughly thirty percent off the cost per user and still lets about ninety-eight percent of rules be created by chatting to it.',
+       'I rebuilt working memory so the assistant cannot invent a fact about your inbox, enforced by tests rather than by hoping the model behaves. Alongside that: an eval harness built from scratch, and a scanner that reads real production failures and turns them into cases.'],
+    tab:['MEASURED', [['Email to text alert','90 s to 3 s'],['Security code, p90','189 s to instant'],['Cost per user','−30 %'],['Rules made by chatting','98 %'],['Subscribers in production','5 000+']]],
+    lk:[['get-alfred.ai','https://get-alfred.ai/']]
+  },
+  wheel:{
+    kick:'ID BADGE',
+    t:'AI Engineer, WheelPrice',
+    meta:'Remote, Charlotte NC  July 2025 to March 2026',
+    p:['Computer vision for automotive part fitment, built end to end: whether this wheel goes on that car, answered from an image rather than from a spreadsheet somebody stopped maintaining.',
+       'Also the content system behind the public site, which took it to somewhere between ten and twenty thousand readers a day.'],
+    tab:['MEASURED', [['Daily readers','10–20 k']]]
+  },
+  vare:{
+    kick:'ID BADGE',
+    t:'Research Software Engineer, V-ARE Labs, UIC',
+    meta:'Chicago  February 2024 to now',
+    p:['Virtual patients in Unreal Engine 5, built so that researchers can study how clinicians treat different people differently, with a Python service sitting behind the conversation.',
+       'Also an audio machine-learning pipeline that put hand-built features up against convolutional and transformer models, and landed at 98.52 percent accuracy with inference fast enough to run live.'],
+    tab:['MEASURED', [['Audio pipeline accuracy','98.52 %']]]
+  },
+  bipolar:{
+    kick:'ID BADGE, EARLIEST',
+    t:'Software Developer Intern, Bipolar Factory',
+    meta:'Bengaluru  2023',
+    p:['A streaming platform on the MERN stack, with the deployment pipeline that carried it.',
+       'And in-game chat in Unity, which was the first thing I built that strangers talked to each other through.']
+  },
+
+  stellarium:{
+    kick:'PIN 1 OF 9',
+    t:'Stellarium',
+    meta:'Extended reality, CAVE2  2024',
+    img:'game_design/stellarium.png',
+    p:['A hundred and seven thousand astronomical objects, rendered inside CAVE2, a room whose walls and floor are all screens.',
+       'The astronomy was never the hard part. Holding a real-time frame rate while that many objects are drawn and a person is physically turning their head was. Culling and GPU instancing did most of the work.'],
+    tab:['MEASURED',[['Objects rendered','107 000']]],
+    lk:[['Watch it run','https://youtu.be/EX0c-6E8iNc']]
+  },
+  snaider:{
+    kick:'PIN 2 OF 9',
+    t:'SnAIder-Cut',
+    meta:'Mixed reality  Won MIT XR 2024',
+    img:'game_design/snaider.png',
+    p:['Say what you want changed, and the augmented scene changes around you while you are standing inside it.',
+       'Spatial mapping to read the room, gesture recognition to take the instruction, generation to make the change, and a rendering budget tight enough that none of it feels like waiting.'],
+    lk:[['Watch it run','https://youtu.be/CZtGmnGYKp8']]
+  },
+  equity:{
+    kick:'PIN 3 OF 9',
+    t:'EQUITY',
+    meta:'Unreal Engine 5, medical simulation  2024',
+    img:'game_design/equity.png',
+    p:['A virtual patient built so that researchers can study bias in how doctors treat people.',
+       'A MetaHuman holding a conversation through a dialogue tree, with facial animation good enough that clinicians respond to it as a person rather than as a demo.'],
+    lk:[['Watch it run','https://youtu.be/WO2vVaD8WoE'],['Code','https://github.com/PranavMishra17/EQUITY-VirtualPatient-UE5']]
+  },
+  vangogh:{
+    kick:'PIN 4 OF 9',
+    t:'Virtual Van Gogh',
+    meta:'Walkable museum  First at HINT 5.0',
+    img:'game_design/van%20gogh.jpg', small:true,
+    p:['A museum you can walk through, where the paintings are held on a chain.',
+       'The interesting engineering was the pipeline between the chain and the engine: keeping ownership state and the walkable world agreeing with each other.'],
+    lk:[['Watch it run','https://youtu.be/rz_NiIj-dic']]
+  },
+  neon:{
+    kick:'PIN 5 OF 9',
+    t:'Neon-Bites',
+    meta:'Game  2023',
+    img:'game_design/neon.png',
+    p:['Cyberpunk food delivery, with the physics taken seriously.',
+       'The city generates itself and the driving has real weight. Most of the actual work was profiling, to keep the frame rate flat across machines.'],
+    lk:[['Watch it run','https://youtu.be/PLVynmeGvsI']]
+  },
+  mafia:{
+    kick:'PIN 6 OF 9',
+    t:'AI Mafia',
+    meta:'Multi-agent systems  2025',
+    img:'game_design/mafia.png',
+    p:['Language models playing a game about lying to each other.',
+       'Every player is an agent with a personality and private information. Nobody scripted the betrayals; they fall out of the reasoning.'],
+    lk:[['Code','https://github.com/PranavMishra17/Mafia-Boardgame-via-Agents']]
+  },
+  big5:{
+    kick:'PIN 7 OF 9',
+    t:'Big5-Agents',
+    meta:'Research code  2025',
+    img:'ai_ml/Big5.png',
+    p:['The teamwork paper, as something you can actually run.',
+       'Six behaviours out of organisational psychology, each built as a switchable mechanism, so you can turn them off one at a time and see which ones are carrying the result.'],
+    lk:[['Code','https://github.com/PranavMishra17/Big5-Agents']]
+  },
+  snake:{
+    kick:'PIN 8 OF 9, LIVE',
+    t:'SnakeAI-MLOps',
+    meta:'Reinforcement learning  Playable right now',
+    img:'ai_ml/snake.png',
+    p:['Four ways of learning the same game, racing each other: Q-learning, deep Q-networks, PPO and actor-critic.',
+       'Gameplay in C++ with SFML, training in PyTorch, inference back through LibTorch, and a pipeline that retrains and redeploys without me touching it.'],
+    lk:[['Play it','https://pranavmishra17.github.io/SnakeAI-MLOps/'],['Code','https://github.com/PranavMishra17/SnakeAI-MLOps']]
+  },
+  rust:{
+    kick:'PIN 9 OF 9',
+    t:'Rusty ANT',
+    meta:'Systems, Rust  2024',
+    img:'game_design/rust.png',
+    p:['Ants evolving, in a language that will not let you leak memory.',
+       'A life simulation in Rust, mostly an excuse to live inside the ownership model for a while.'],
+    lk:[['Code','https://github.com/PranavMishra17/Rust-yy-Ant']]
+  },
+
+  paper1:{
+    kick:'PAPER, ACCEPTED',
+    t:'A systematic framework for enterprise knowledge retrieval',
+    meta:'CAI 2026, IEEE',
+    p:['Retrieval gets substantially better if you let a model write metadata about each chunk before you store it, rather than embedding the raw text and hoping.',
+       'Recursive chunking with weighted embeddings reached 82.5 percent precision, against 73.3 for the content alone.'],
+    tab:['MEASURED',[['Precision, metadata enriched','82.5 %'],['Precision, content only','73.3 %']]],
+    lk:[['Read it','https://arxiv.org/pdf/2512.05411'],['Code','https://github.com/PranavMishra17/Metadata-Enrichment-with-LLMs-for-RAGs-Internal-Knowledge-Retrieval']]
+  },
+  paper2:{
+    kick:'PAPER, UNDER REVIEW',
+    t:'TeamMedAgents',
+    meta:'PAKDD 2026',
+    p:['I took the Big Five teamwork model out of organisational psychology and built each of its components as a real mechanism between agents: leadership, mutual monitoring, shared mental models, closed-loop communication, orientation and trust.',
+       'It came out ahead on seven of eight medical benchmarks. Which configuration wins turns out to depend on the kind of reasoning the task needs, which was the more interesting result.'],
+    tab:['MEASURED',[['Benchmarks improved','7 of 8'],['Citations','4']]],
+    lk:[['Read it','https://arxiv.org/pdf/2508.08115'],['Code','https://github.com/PranavMishra17/Big5-Agents']]
+  },
+  paper3:{
+    kick:'PAPER, IN PREPARATION',
+    t:'Cost-efficient multi-modal medical reasoning with small models',
+    meta:'Manuscript',
+    p:['Whether several small models talking to each other can stand in for one large one on medical images, and what that trade actually costs.',
+       'It is drawn with a dashed outline on this sheet, which is how a drawing says something is not built yet.']
+  },
+
+  sched:{
+    kick:'SCHEDULE OF MEASURED VALUES',
+    t:'Every figure on this sheet, and what it is attached to',
+    meta:'Eight entries  all from shipped work',
+    p:['A drawing schedule lists quantities, so this one does. None of these are projections.'],
+    tab:['SCHEDULE',[
+      ['Email to text alert','90 s to 3 s'],
+      ['Security code, p90','189 s to instant'],
+      ['Cost per user, rules engine','−30 %'],
+      ['Rules created by chatting','98 %'],
+      ['Subscribers in production','5 000+'],
+      ['Retrieval precision, enriched','82.5 %'],
+      ['Retrieval precision, baseline','73.3 %'],
+      ['Audio pipeline accuracy','98.52 %'],
+      ['Objects rendered in CAVE2','107 000'],
+      ['Medical benchmarks improved','7 of 8']
+    ]],
+    p2:['The first five are Alfred_. The next two are the accepted retrieval paper. The audio figure is the UIC lab. The last two are Stellarium and the teamwork paper.']
+  },
+
+  awards:{
+    kick:'AWARD SHELF, 2 250 A.F.F.',
+    t:'Two things that were handed over in a room',
+    meta:'2024 and 2023',
+    duo:['achievements/mit.jpeg','achievements/hint.png'],
+    p:['MIT XR Hackathon, 2024, for SnAIder-Cut: generative editing of an augmented scene you are standing inside.',
+       'First place at HINT 5.0 for Virtual Van Gogh, the walkable museum with the paintings on a chain.',
+       'The teamwork paper has four citations. It is a small number and I am unreasonably pleased about it.']
+  },
+
+  shelf:{
+    kick:'BOOK SHELF, 750 A.F.F.',
+    t:'Books, films, games',
+    meta:'Three slots marked, three empty',
+    p:['He reads. He loves films. He loves games. That is genuinely everything I have been told, so the shelf is drawn with the slots set out and nothing standing in them.',
+       'A shelf of invented favourites would look full and be a lie. An empty shelf is at least accurate.'],
+    slots:[['Reading now','—'],['Last one finished','—'],['The film I return to','—'],['Playing now','—'],['The one that made me build','—'],['The one I push on people','—']],
+    note:'Placeholders. Swap these for the real ones.'
+  },
+
+  lights:{
+    kick:'NOT ON THE DRAWING',
+    t:'You found the switch',
+    meta:'Nobody annotates a light switch',
+    p:['The sheet is now a negative print, which is what you got back from the blueprint machine before anyone had a plotter. Same drawing, same lines, less daylight.',
+       'That is the whole trick. There is nothing else hidden in here, and I am not going to pretend otherwise.',
+       'Turn it back on with the same switch.']
+  }
+};
+
+/* ─────────────────────────────────────────────────────────────
+   THE OBJECTS, in drawing coordinates. Every one of them is a
+   thing you see face-on: nothing is viewed from above.
+   ───────────────────────────────────────────────────────────── */
+var PRINTS = [
+  ['stellarium','Stellarium','game_design/stellarium.png',0],
+  ['snaider','SnAIder-Cut','game_design/snaider.png',1],
+  ['equity','EQUITY','game_design/equity.png',0],
+  ['vangogh','Virtual Van Gogh','game_design/van%20gogh.jpg',1],
+  ['neon','Neon-Bites','game_design/neon.png',0],
+  ['mafia','AI Mafia','game_design/mafia.png',0],
+  ['big5','Big5-Agents','ai_ml/Big5.png',0],
+  ['snake','SnakeAI-MLOps','ai_ml/snake.png',2],
+  ['rust','Rusty ANT','game_design/rust.png',0]
+];
+var BADGES = [
+  ['bipolar','Bipolar Factory','SWE Intern','Bengaluru','2023',566],
+  ['vare','V-ARE Labs, UIC','Research SWE','Chicago','2024 —',572],
+  ['wheel','WheelPrice','AI Engineer','Remote','2025–26',562],
+  ['alfred','Alfred_','Founding LLM Eng','New York','2026 —',570]
+];
+var PAPERS = [
+  ['paper1','acc','ACCEPTED','Enterprise knowledge retrieval','CAI 2026, IEEE','82.5 %'],
+  ['paper2','rev','UNDER REVIEW','TeamMedAgents','PAKDD 2026','7 of 8'],
+  ['paper3','non','IN PREPARATION','Small-model medical reasoning','Manuscript','—']
+];
+var SCHEDROWS = [
+  ['Email to text alert','90 s to 3 s'],
+  ['Security code, p90','189 s to 0'],
+  ['Cost per user','−30 %'],
+  ['Rules made by chat','98 %'],
+  ['Subscribers','5 000+'],
+  ['Retrieval precision','82.5 %'],
+  ['Audio pipeline','98.52 %'],
+  ['Objects in CAVE2','107 000']
+];
+
+function put(el,x,y,w,h){
+  el.style.left=(x/W*100)+'%'; el.style.top=(y/H*100)+'%';
+  el.style.width=(w/W*100)+'%'; el.style.height=(h/H*100)+'%';
+  return el;
+}
+function mk(tag,cls){ var e=document.createElement(tag); if(cls) e.className=cls; return e; }
+function obj(cls,key,label){
+  var b=mk('button','o '+cls); b.type='button';
+  if(key){ b.setAttribute('aria-label',label); b.addEventListener('click',function(){ open(key); }); }
+  ov.appendChild(b); return b;
+}
+
+/* ── name card: two sentences, printed, readable with nothing open ── */
+var about = obj('','about','Name card: about Pranav Mishra');
+about.id='about';
+put(about,280,292,440,228);
+about.innerHTML =
+  '<div class="who">P. P. Mishra  Metuchen, New Jersey</div>' +
+  '<div class="say">I build the parts of AI systems that have to be right: how fast they ' +
+  'answer, and whether they are telling the truth. Founding engineer at Alfred_ in New York, ' +
+  'on an assistant five thousand people use.</div>' +
+  '<div class="sch">Computer science, University of Illinois Chicago</div>';
+
+/* ── four badges, earliest at left. The order is the chronology. ── */
+BADGES.forEach(function(b,i){
+  var x = 280 + i*113;
+  var e = obj('badge', b[0], 'Badge: ' + b[1] + ', ' + b[4]);
+  put(e, x, b[5], 101, 700 - b[5]);
+  e.innerHTML =
+    '<span class="hole"></span>' +
+    '<div class="co" style="margin-top:1.1em">'+b[1]+'</div>' +
+    '<div class="ro">'+b[2]+'</div>' +
+    '<div class="pl">'+b[3]+'</div>' +
+    '<div class="yr">'+b[4]+'</div>';
+});
+
+/* ── three papers under the clips. Dashed = not built yet. ── */
+PAPERS.forEach(function(p,i){
+  var x = 750 + i*93;
+  var e = obj('paper-s' + (p[1]==='non'?' prep':''), p[0], 'Paper: ' + p[3] + ', ' + p[2]);
+  put(e, x, 194, 74, 190);
+  e.innerHTML =
+    '<div class="stamp '+p[1]+'">'+p[2]+'</div>' +
+    '<div class="ti">'+p[3]+'</div>' +
+    '<div class="ve">'+p[4]+'</div>' +
+    '<div class="fg">'+p[5]+'</div>';
+});
+
+/* ── the schedule. His numbers, where numbers belong in a drawing. ── */
+var sc = obj('','sched','Schedule of measured values');
+sc.id='sched'; put(sc,750,400,260,306);
+sc.innerHTML = '<div class="h">Schedule of measured values</div>' +
+  SCHEDROWS.map(function(r){
+    return '<div class="r"><span class="k">'+r[0]+'</span><span class="d"></span><span class="v">'+r[1]+'</span></div>';
+  }).join('') +
+  '<div class="f">all from shipped work</div>';
+
+/* ── nine prints, 3 x 3, countable. Ochre pin = live or awarded. ── */
+PRINTS.forEach(function(p,i){
+  var col = i % 3, row = (i - col) / 3;
+  var x = 1076 + col*117, y = 210 + row*92;
+  var e = obj('print', p[0], 'Project print: ' + p[1]);
+  put(e, x, y, 104, 87);
+  var mark = p[3]===2 ? ' <i>live</i>' : (p[3]===1 ? ' <i>awarded</i>' : '');
+  e.innerHTML =
+    '<img class="im" src="'+IMG+p[2]+'" alt="'+p[1]+'">' +
+    '<div class="cap">'+p[1]+mark+'</div>';
+  /* the pin itself, drawn over the print's top edge */
+  var pin = mk('span'); pin.setAttribute('aria-hidden','true');
+  pin.style.cssText='position:absolute;width:.44em;height:.44em;border-radius:50%;border:1px solid var(--ink);'+
+    'background:'+(p[3]?'var(--ochre-f)':'var(--fill-2)')+';';
+  put(pin, x + 48, y - 4, 8, 8);
+  ov.appendChild(pin);
+});
+
+/* ── two framed awards on the high shelf ── */
+[['achievements/mit.jpeg','MIT XR Hackathon 2024',48],
+ ['achievements/hint.png','First place, HINT 5.0',128]].forEach(function(a){
+  var e = obj('frame','awards','Framed award: ' + a[1]);
+  put(e, a[2], 170, 74, 64);
+  e.innerHTML = '<img src="'+IMG+a[0]+'" alt="'+a[1]+'">';
+});
+
+/* ── the bookshelf: one hit area over three blank slots and three gaps ── */
+var sb = obj('','shelf','Book shelf: books, films, games');
+sb.id='shelfbtn'; put(sb,1046,596,396,106);
+
+/* ── the light switch. On no callout, by design. ── */
+var sw = mk('button','o'); sw.type='button'; sw.id='switch';
+sw.setAttribute('aria-label','Light switch');
+put(sw,222,498,26,32); ov.appendChild(sw);
+sw.addEventListener('click',function(){
+  var off = document.documentElement.getAttribute('data-lights')==='off';
+  document.documentElement.setAttribute('data-lights', off ? 'on' : 'off');
+  /* the toggle throw itself, drawn */
+  var t = document.getElementById('sw-on');
+  t.setAttribute('y1', off ? '512' : '518'); t.setAttribute('y2', off ? '512' : '518');
+  if(!off) open('lights');
+});
+
+/* ── links, in the sheet margin, as real links ── */
+var ml = mk('div'); ml.id='margin-links';
+put(ml,40,846,700,20);
+ml.innerHTML =
+  '<a href="https://github.com/PranavMishra17" target="_blank" rel="noopener">github.com/PranavMishra17</a>' +
+  '<a href="https://www.linkedin.com/in/pranavgamedev/" target="_blank" rel="noopener">linkedin.com/in/pranavgamedev</a>' +
+  '<a href="https://huggingface.co/Paranoiid" target="_blank" rel="noopener">huggingface.co/Paranoiid</a>';
+ov.appendChild(ml);
+
+/* ─────────────────────────────────────────────────────────────
+   THE PINNED SHEET. Long copy will not fit inside a room, so it
+   does not try: it pins over one region of the wall on a solid
+   ground, and the room dims behind it. No body text over artwork.
+   ───────────────────────────────────────────────────────────── */
+var wash = document.getElementById('wash');
+var sheet = document.getElementById('pinsheet');
+var psb = document.getElementById('ps-body');
+var lastFocus = null;
+
+function open(key){
+  var d = C[key]; if(!d) return;
+  lastFocus = document.activeElement;
+  var h = '<p class="kick">'+d.kick+'</p><h2 id="ps-title">'+d.t+'</h2>';
+  if(d.meta) h += '<p class="meta">'+d.meta+'</p>';
+  if(d.img)  h += '<figure'+(d.small?' class="sm"':'')+'><img src="'+IMG+d.img+'" alt="'+d.t+'"></figure>';
+  if(d.duo)  h += '<div class="duo">'+d.duo.map(function(s){
+                    return '<figure><img src="'+IMG+s+'" alt=""></figure>'; }).join('')+'</div>';
+  h += d.p.map(function(x){ return '<p>'+x+'</p>'; }).join('');
+  if(d.tab){
+    h += '<div class="tab"><div class="th">'+d.tab[0]+'</div>' + d.tab[1].map(function(r){
+      return '<div class="r"><span class="k">'+r[0]+'</span><span class="d"></span><span class="v">'+r[1]+'</span></div>';
+    }).join('') + '</div>';
+  }
+  if(d.p2) h += d.p2.map(function(x){ return '<p style="margin-top:1em">'+x+'</p>'; }).join('');
+  if(d.slots){
+    h += '<div class="slots">' + d.slots.map(function(s){
+      return '<div class="slot"><span>'+s[0]+'</span><b>'+s[1]+'</b></div>'; }).join('') + '</div>';
+  }
+  if(d.note) h += '<p class="note">'+d.note+'</p>';
+  if(d.lk){
+    h += '<p class="lk">' + d.lk.map(function(l){
+      return '<a href="'+l[1]+'" target="_blank" rel="noopener">'+l[0]+'</a>'; }).join('') + '</p>';
+  }
+  psb.innerHTML = h;
+  wash.hidden = false; sheet.hidden = false; sheet.scrollTop = 0;
+
+  if(!REDUCED){
+    /* one overshoot, one settle — the sheet is pushed onto the pins.
+       framer-motion equivalent at this call site:
+       { type:'spring', stiffness: 340, damping: 27, mass: 1.2 } */
+    sheet.animate(
+      [{transform:'translateY(20px) scale(.988)',opacity:0},
+       {transform:'translateY(-5px) scale(1.003)',opacity:1,offset:.6},
+       {transform:'none',opacity:1}],
+      {duration:400,easing:'cubic-bezier(.2,.85,.25,1)'});
+    wash.animate([{opacity:0},{opacity:1}],{duration:220,easing:'ease-out'});
+  }
+  document.getElementById('close').focus();
+}
+function shut(){
+  if(sheet.hidden) return;
+  wash.hidden = true; sheet.hidden = true;
+  if(lastFocus && lastFocus.focus) lastFocus.focus();
+}
+document.getElementById('close').addEventListener('click',shut);
+wash.addEventListener('click',shut);
+document.addEventListener('keydown',function(e){ if(e.key==='Escape') shut(); });
+sheet.addEventListener('keydown',function(e){
+  if(e.key!=='Tab') return;
+  var f = sheet.querySelectorAll('button,a[href]');
+  if(!f.length) return;
+  var first=f[0], last=f[f.length-1];
+  if(e.shiftKey && document.activeElement===first){ e.preventDefault(); last.focus(); }
+  else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
+});
+
+/* ─────────────────────────────────────────────────────────────
+   THE SHEET INDEX. Below 860 px the drawing is a quarter scale,
+   so its lettering would be unreadable — the index takes over
+   as the interface. It is the same seven callouts, set as type.
+   ───────────────────────────────────────────────────────────── */
+var IX = [
+  ['Name card, pinned','1 500 above finished floor',
+   'I build the parts of AI systems that have to be right: how fast they answer, and whether they are telling the truth. Founding engineer at Alfred_ in New York, on an assistant five thousand people use.',
+   [['Read the card','about',0]]],
+  ['ID badges, hook rail','4 no.  earliest first',null,
+   [['Bipolar Factory 2023','bipolar',0],['V-ARE Labs 2024','vare',0],['WheelPrice 2025','wheel',0],['Alfred_ 2026','alfred',0]]],
+  ['Pin board, project prints','9 no.',null,
+   PRINTS.map(function(p){ return [p[1],p[0],p[3]]; })],
+  ['Paper rack','3 no.  1 accepted',null,
+   [['Retrieval, accepted','paper1',1],['TeamMedAgents, under review','paper2',0],['Small models, in preparation','paper3',0]]],
+  ['Schedule of measured values','8 entries on the sheet',null,
+   [['Read the schedule','sched',0]]],
+  ['Award shelf','2 no.  2023, 2024',null,
+   [['MIT XR and HINT 5.0','awards',1]]],
+  ['Book shelf','3 slots marked, 3 empty. Placeholders.',null,
+   [['Open the shelf','shelf',0]]]
+];
+var ix = document.getElementById('index');
+var ixh = '<h2>Sheet index, elevation A</h2>';
+IX.forEach(function(g){
+  ixh += '<div class="ix"><div class="nm">'+g[0]+'</div><div class="nt">'+g[1]+'</div>' +
+    (g[2] ? '<div class="say">'+g[2]+'</div>' : '') +
+    '<div class="keys">' + g[3].map(function(k){
+      return '<button type="button" data-k="'+k[1]+'">'+k[0]+(k[2]===2?' <i>live</i>':(k[2]===1?' <i>*</i>':''))+'</button>';
+    }).join('') + '</div></div>';
+});
+ix.innerHTML = ixh;
+ix.addEventListener('click',function(e){
+  var b = e.target.closest('button[data-k]'); if(b) open(b.getAttribute('data-k'));
+});
+
+/* Overlay lettering scales with the drawing so it never overflows its
+   box; clamped at 0.8 so it never drops below annotation legibility.
+   Body copy on the name card is clamped in CSS to 15 px minimum.
+   Nothing here is gated on rAF, load or IntersectionObserver — the
+   drawing is in the DOM at first paint and this only sets a size. */
+function fit(){
+  var w = document.getElementById('stage').getBoundingClientRect().width || 1300;
+  ov.style.fontSize = (Math.max(0.87, Math.min(1, w / W)) * 13).toFixed(2) + 'px';
+}
+fit();
+addEventListener('resize',fit);
+if (window.ResizeObserver) new ResizeObserver(fit).observe(document.getElementById('stage'));
+setTimeout(fit,120);
+setTimeout(fit,600);
+setTimeout(fit,1600);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+})();
+</script>
+</body>
+</html>

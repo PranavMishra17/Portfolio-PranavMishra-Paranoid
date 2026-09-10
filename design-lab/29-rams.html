@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pranav Pushkar Mishra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f5f5f3; --card:#fff; --ink:#15171a; --ink2:#4a4e52; --ink3:#666b6f;
+  --rule:#dcdcd7; --rule2:#eaeae6; --accent:#c23c12;
+  --rail:172px; --gut:96px;
+  --pad:clamp(20px,4vw,56px);
+  --sans:'Inter',system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,'SFMono-Regular',Menlo,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 16px/1.62 var(--sans);
+  letter-spacing:-0.006em;-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+a{color:inherit}
+::selection{background:#e6e6e1}
+
+/* ---------- rail ---------- */
+.rail{position:fixed;inset:0 auto 0 0;width:var(--rail);border-right:1px solid var(--rule);
+  background:var(--paper);display:flex;flex-direction:column;padding:var(--pad) 0 20px;z-index:20}
+.mark{display:flex;align-items:center;gap:9px;padding:0 20px 26px}
+.mark i{width:11px;height:11px;background:var(--accent);flex:none}
+.mark b{font-weight:500;font-size:14.5px;letter-spacing:-0.02em}
+.mark span{display:block;font:400 11px/1.3 var(--mono);color:var(--ink3);letter-spacing:0}
+nav{display:flex;flex-direction:column;border-top:1px solid var(--rule2)}
+nav a{display:grid;grid-template-columns:26px 1fr;gap:10px;align-items:baseline;
+  padding:9px 20px;text-decoration:none;border-bottom:1px solid var(--rule2);
+  font-size:14.5px;color:var(--ink2);transition:color .18s,background .18s}
+nav a em{font:400 11px/1 var(--mono);color:var(--ink3);font-style:normal}
+nav a:hover{background:#efefec;color:var(--ink)}
+nav a[aria-current="true"]{color:var(--ink);font-weight:500}
+nav a[aria-current="true"] em{color:var(--accent)}
+.railfoot{margin-top:auto;padding:18px 20px 0;border-top:1px solid var(--rule2);
+  font:400 11.5px/1.9 var(--mono);letter-spacing:0}
+.railfoot a{color:var(--ink3);text-decoration:none;display:block}
+.railfoot a:hover{color:var(--accent)}
+.prog{position:fixed;left:0;top:0;width:2px;background:var(--accent);height:0;z-index:21}
+
+/* ---------- shell ---------- */
+main{margin-left:var(--rail)}
+section{border-bottom:1px solid var(--rule);padding:var(--pad) var(--pad) calc(var(--pad) + 12px);
+  display:grid;grid-template-columns:var(--gut) minmax(0,1fr);gap:0 24px}
+.tag{font:500 11px/1.5 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink3)}
+.tag u{display:block;text-decoration:none;color:var(--ink);margin-top:2px;letter-spacing:.06em}
+.body{min-width:0;max-width:74ch}
+.wide{max-width:none}
+h2{margin:0 0 14px;font-size:19px;font-weight:500;letter-spacing:-0.02em;line-height:1.45}
+p{margin:0 0 12px;color:var(--ink2)}
+p strong,li strong{color:var(--ink);font-weight:500}
+
+/* ---------- masthead ---------- */
+h1{margin:0;font-size:clamp(29px,4.6vw,58px);line-height:1.02;font-weight:500;letter-spacing:-0.035em}
+.sub{margin:16px 0 0;font-size:clamp(16px,1.5vw,19px);line-height:1.5;color:var(--ink);max-width:30ch}
+.where{margin:12px 0 0;font:400 13px/1.7 var(--mono);color:var(--ink3);letter-spacing:0}
+.mast{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(280px,.95fr);gap:clamp(24px,4vw,56px);align-items:end}
+.spec{border:1px solid var(--rule);background:var(--card);padding:18px 18px 12px;margin:0}
+.spec figcaption{font:500 10.5px/1.5 var(--mono);letter-spacing:.11em;text-transform:uppercase;color:var(--ink3);
+  display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--rule2);padding-bottom:10px;margin-bottom:14px}
+.spec svg{display:block;width:100%;height:auto}
+.spec p{margin:10px 0 0;font-size:15px;line-height:1.6;color:var(--ink3)}
+.facts{margin:clamp(26px,3vw,40px) 0 0;border-top:1px solid var(--rule);
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+.facts div{padding:14px 20px 4px;border-right:1px solid var(--rule2)}
+.facts div:first-child{padding-left:0}
+.facts div:last-child{border-right:0}
+.facts dt{font:500 10.5px/1.5 var(--mono);letter-spacing:.11em;text-transform:uppercase;color:var(--ink3)}
+.facts dd{margin:5px 0 0;font-size:15.5px;line-height:1.45}
+
+/* ---------- data rows ---------- */
+.rows{border-top:1px solid var(--rule2);margin:2px 0 0}
+.row{display:grid;grid-template-columns:1fr auto;gap:10px 20px;align-items:baseline;
+  padding:11px 0;border-bottom:1px solid var(--rule2)}
+.row span{color:var(--ink2);font-size:15.5px;line-height:1.55}
+.row b{font:500 15px/1.4 var(--mono);letter-spacing:-0.01em;white-space:nowrap;color:var(--ink)}
+.row b i{font-style:normal;color:var(--accent)}
+.meter{grid-column:1/-1;height:3px;background:var(--rule2);position:relative}
+.meter i{position:absolute;inset:0 auto 0 0;background:var(--accent)}
+
+/* ---------- roles ---------- */
+.role{padding:16px 0;border-top:1px solid var(--rule2);display:grid;
+  grid-template-columns:minmax(0,1fr) 178px;gap:4px 20px;align-items:baseline}
+.role:first-child{border-top:0;padding-top:2px}
+.role h3{margin:0;font-size:16.5px;font-weight:500;letter-spacing:-0.015em}
+.role .when{font:400 12.5px/1.6 var(--mono);color:var(--ink3);letter-spacing:0;text-align:right}
+.role p{grid-column:1/-1;margin:6px 0 0;font-size:15.5px}
+
+/* ---------- papers ---------- */
+.paper{padding:18px 0;border-top:1px solid var(--rule2)}
+.paper:first-child{border-top:0;padding-top:2px}
+.chip{display:inline-block;font:500 10.5px/1 var(--mono);letter-spacing:.11em;text-transform:uppercase;
+  border:1px solid var(--rule);padding:5px 8px;color:var(--ink3);margin-bottom:10px}
+.chip.on{border-color:var(--accent);color:var(--accent)}
+.paper h3{margin:0 0 6px;font-size:16.5px;font-weight:500;letter-spacing:-0.015em}
+.paper p{margin:0 0 8px;font-size:15.5px}
+.lk{font:400 12.5px/1.6 var(--mono);letter-spacing:0;color:var(--ink3);text-decoration:none;
+  border-bottom:1px solid var(--rule);padding-bottom:1px}
+.lk:hover{color:var(--accent);border-color:var(--accent)}
+
+/* ---------- built ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:1px;
+  background:var(--rule);border:1px solid var(--rule)}
+.item{background:var(--card);display:flex;flex-direction:column;text-decoration:none}
+.shot{aspect-ratio:16/9;background:#ececea;overflow:hidden;border-bottom:1px solid var(--rule2)}
+.shot img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.04);
+  transition:filter .45s ease}
+.item:hover .shot img,.item:focus-visible .shot img{filter:none}
+.item.sq .shot{aspect-ratio:1/1;max-width:380px;background:#f0f0ed}
+.item.sq .shot img{object-fit:contain}
+.cap{padding:13px 15px 16px;display:flex;flex-direction:column;gap:5px;flex:1}
+.cap .n{font:400 10.5px/1 var(--mono);color:var(--ink3);letter-spacing:.08em}
+.cap h3{margin:0;font-size:16px;font-weight:500;letter-spacing:-0.015em}
+.cap p{margin:0;font-size:15px;line-height:1.55;color:var(--ink2)}
+.cap .go{margin-top:auto;padding-top:9px;font:400 11.5px/1 var(--mono);color:var(--ink3);letter-spacing:.04em}
+.item:hover .go,.item:focus-visible .go{color:var(--accent)}
+.cap em{font-style:normal;color:var(--accent);font-weight:500}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---------- interests ---------- */
+.slots{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:4px 0 16px}
+.slot{border:1px dashed var(--rule);aspect-ratio:4/3;display:grid;place-items:center;
+  background:repeating-linear-gradient(135deg,transparent 0 9px,#f0f0ec 9px 10px)}
+.slot span{font:500 10.5px/1.5 var(--mono);letter-spacing:.11em;text-transform:uppercase;color:var(--ink3)}
+
+/* ---------- contact ---------- */
+.links{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));border-top:1px solid var(--rule2);margin-top:4px}
+.links a{padding:14px 20px 14px 0;border-bottom:1px solid var(--rule2);text-decoration:none;
+  font:400 14px/1.5 var(--mono);letter-spacing:0;color:var(--ink2);display:flex;
+  justify-content:space-between;gap:10px}
+.links a:hover{color:var(--accent)}
+.links a u{text-decoration:none;color:var(--ink3);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.creds{margin:22px 0 0;padding-top:16px;border-top:1px solid var(--rule);
+  font-size:15.5px;color:var(--ink2);max-width:56ch}
+
+/* ---------- entrance ---------- */
+.rise{animation:rise .7s cubic-bezier(.22,.61,.36,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:none}}
+.d1{animation-delay:.04s}.d2{animation-delay:.12s}.d3{animation-delay:.2s}.d4{animation-delay:.28s}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+
+/* ---------- narrow ---------- */
+@media (max-width:1000px){
+  :root{--rail:0px;--gut:64px}
+  .rail{inset:0 0 auto 0;width:100%;height:auto;flex-direction:row;align-items:center;
+    border-right:0;border-bottom:1px solid var(--rule);padding:0}
+  .mark{padding:10px 14px;border-right:1px solid var(--rule2);flex:none}
+  .mark span{display:none}
+  nav{flex-direction:row;border-top:0;overflow-x:auto;scrollbar-width:none;flex:1}
+  nav::-webkit-scrollbar{display:none}
+  nav a{border-bottom:0;border-right:1px solid var(--rule2);padding:12px 14px;white-space:nowrap;
+    grid-template-columns:auto auto;gap:7px}
+  .railfoot{display:none}
+  main{margin-left:0;padding-top:45px}
+  section{scroll-margin-top:45px}
+  .mast{grid-template-columns:1fr;align-items:start}
+}
+@media (max-width:720px){
+  section{grid-template-columns:1fr;gap:12px}
+  .tag{display:flex;gap:8px;align-items:baseline}
+  .tag u{margin-top:0}
+  .role{grid-template-columns:1fr}
+  .role .when{text-align:left}
+}
+</style>
+</head>
+<body>
+
+<div class="prog" id="prog" aria-hidden="true"></div>
+
+<aside class="rail">
+  <div class="mark"><i></i><b>Pranav Mishra<span>Metuchen, NJ</span></b></div>
+  <nav id="nav" aria-label="Sections">
+    <a href="#index"><em>01</em>Index</a>
+    <a href="#now"><em>02</em>Now</a>
+    <a href="#before"><em>03</em>Before</a>
+    <a href="#papers"><em>04</em>Papers</a>
+    <a href="#built"><em>05</em>Built</a>
+    <a href="#interests"><em>06</em>Interests</a>
+    <a href="#contact"><em>07</em>Contact</a>
+  </nav>
+  <div class="railfoot">
+    <a href="https://github.com/PranavMishra17">GitHub</a>
+    <a href="https://linkedin.com/in/pranavgamedev">LinkedIn</a>
+    <a href="https://huggingface.co/Paranoiid">Hugging Face</a>
+  </div>
+</aside>
+
+<main>
+
+<section id="index">
+  <div class="tag">01<u>Index</u></div>
+  <div class="body wide">
+    <div class="mast">
+      <div>
+        <h1 class="rise d1">Pranav<br>Pushkar<br>Mishra</h1>
+        <p class="sub rise d2">He makes language-model systems that can be relied on, and proves it with numbers.</p>
+        <p class="where rise d2">Metuchen, New Jersey · Computer science, University of Illinois Chicago</p>
+      </div>
+      <figure class="spec rise d3">
+        <figcaption><span>Email to text message</span><span>Seconds</span></figcaption>
+        <svg viewBox="0 0 400 140" role="img"
+             aria-label="Delivery time fell from 90 seconds to 3 seconds.">
+          <g stroke="#c9c9c3" stroke-width="1">
+            <line x1="8" y1="20" x2="8" y2="34"/><line x1="52" y1="26" x2="52" y2="34"/>
+            <line x1="95" y1="26" x2="95" y2="34"/><line x1="139" y1="20" x2="139" y2="34"/>
+            <line x1="182" y1="26" x2="182" y2="34"/><line x1="226" y1="26" x2="226" y2="34"/>
+            <line x1="269" y1="20" x2="269" y2="34"/><line x1="313" y1="26" x2="313" y2="34"/>
+            <line x1="356" y1="26" x2="356" y2="34"/><line x1="392" y1="20" x2="392" y2="34"/>
+            <line x1="8" y1="34" x2="392" y2="34"/>
+          </g>
+          <g font-family="IBM Plex Mono, monospace" font-size="9.5" fill="#666b6f">
+            <text x="8" y="14">0</text><text x="128" y="14">30</text>
+            <text x="258" y="14">60</text><text x="378" y="14">90</text>
+          </g>
+          <rect x="8" y="60" width="384" height="15" fill="#dcdcd7"/>
+          <rect x="8" y="104" width="12.8" height="15" fill="#c23c12"/>
+          <g font-family="IBM Plex Mono, monospace" font-size="11" fill="#4a4e52">
+            <text x="8" y="53">BEFORE</text><text x="392" y="53" text-anchor="end" fill="#15171a">90 s</text>
+            <text x="8" y="97">NOW</text><text x="392" y="97" text-anchor="end" fill="#c23c12">3 s</text>
+          </g>
+          <line x1="8" y1="133" x2="392" y2="133" stroke="#eaeae6"/>
+        </svg>
+        <p>Security codes went the same way: 189 seconds to instant.</p>
+      </figure>
+    </div>
+    <dl class="facts rise d4">
+      <div><dt>Now</dt><dd>Founding LLM Engineer, Alfred_</dd></div>
+      <div><dt>Since</dt><dd>April 2026 · New York City</dd></div>
+      <div><dt>Owns</dt><dd>Reliability</dd></div>
+      <div><dt>Papers</dt><dd>Three, one accepted at IEEE</dd></div>
+    </dl>
+  </div>
+</section>
+
+<section id="now">
+  <div class="tag">02<u>Now</u></div>
+  <div class="body">
+    <h2>Founding LLM Engineer, Alfred_ — New York City, April 2026 to now</h2>
+    <p>A consumer AI assistant running 5,000+ people's email, calendar and daily obligations over
+      text message, chat and voice. He owns the reliability side.</p>
+    <div class="rows">
+      <div class="row"><span>Email to text message</span><b>90 s → <i>3 s</i></b></div>
+      <div class="row"><span>Security codes</span><b>189 s → <i>instant</i></b></div>
+      <div class="row"><span>Replaced a model call on every message with a deterministic matcher</span>
+        <b><i>~30%</i> cheaper / user</b><div class="meter"><i style="width:30%"></i></div></div>
+      <div class="row"><span>Rules now made by chatting instead of by hand</span>
+        <b><i>98%</i></b><div class="meter"><i style="width:98%"></i></div></div>
+      <div class="row"><span>Working memory rebuilt so it cannot fabricate facts about your inbox</span>
+        <b>enforced by tests</b></div>
+    </div>
+  </div>
+</section>
+
+<section id="before">
+  <div class="tag">03<u>Before</u></div>
+  <div class="body">
+    <div class="role">
+      <h3>AI Engineer, WheelPrice</h3>
+      <div class="when">Charlotte · remote<br>Jul 2025 – Mar 2026</div>
+      <p>Computer vision for part fitment, and a content system that reached <strong>10–20k readers a day</strong>.</p>
+    </div>
+    <div class="role">
+      <h3>Research Software Engineer, V-ARE Labs (UIC)</h3>
+      <div class="when">Chicago<br>Feb 2024 – now</div>
+      <p>Virtual patients in Unreal Engine 5, and an audio ML pipeline at <strong>98.52%</strong> accuracy.</p>
+    </div>
+    <div class="role">
+      <h3>Software Developer Intern, Bipolar Factory</h3>
+      <div class="when">Bengaluru<br>2023</div>
+      <p>A MERN streaming platform, and in-game chat in Unity that lifted retention <strong>10%</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<section id="papers">
+  <div class="tag">04<u>Papers</u></div>
+  <div class="body">
+    <div class="paper">
+      <span class="chip on">Accepted · CAI 2026 / IEEE</span>
+      <h3>A systematic framework for enterprise knowledge retrieval</h3>
+      <p>Have the model write the metadata before anything is stored. Precision
+        <strong>82.5%</strong> against <strong>73.3%</strong>.</p>
+      <a class="lk" href="https://arxiv.org/pdf/2512.05411">arxiv.org/pdf/2512.05411</a>
+    </div>
+    <div class="paper">
+      <span class="chip">Under review · PAKDD 2026 · 4 citations</span>
+      <h3>TeamMedAgents</h3>
+      <p>The Big Five teamwork model built as real mechanisms between agents rather than as a prompt.
+        Better on <strong>7 of 8</strong> medical benchmarks.</p>
+      <a class="lk" href="https://arxiv.org/pdf/2508.08115">arxiv.org/pdf/2508.08115</a>
+    </div>
+    <div class="paper">
+      <span class="chip">In preparation</span>
+      <h3>Cost-efficient multi-modal medical reasoning with small models</h3>
+      <p>Ongoing.</p>
+    </div>
+  </div>
+</section>
+
+<section id="built">
+  <div class="tag">05<u>Built</u></div>
+  <div class="body wide">
+    <p style="max-width:60ch;margin-bottom:18px">Nine things. Colour arrives only where you look —
+      hover or focus a card.</p>
+    <div class="grid">
+      <a class="item" href="https://youtu.be/EX0c-6E8iNc">
+        <div class="shot"><img src="/portfolio/public/assets/images/game_design/stellarium.png" alt="Stellarium across the CAVE2 screen walls" loading="lazy"></div>
+        <div class="cap"><span class="n">01</span><h3>Stellarium</h3>
+          <p>107,000 astronomical objects in CAVE2, a room whose walls are screens.</p>
+          <span class="go">Video →</span></div>
+      </a>
+      <a class="item" href="https://youtu.be/CZtGmnGYKp8">
+        <div class="shot"><img src="/portfolio/public/assets/images/game_design/snaider.png" alt="SnAIder-Cut editing an augmented room" loading="lazy"></div>
+        <div class="cap"><span class="n">02</span><h3>SnAIder-Cut</h3>
+          <p>Say what you want changed and the augmented room changes. <em>Won MIT XR 2024.</em></p>
+          <span class="go">Video →</span></div>
+      </a>
+      <a class="item" href="https://youtu.be/WO2vVaD8WoE">
+        <div class="shot"><img src="/portfolio/public/assets/images/game_design/equity.png" alt="EQUITY virtual patient in Unreal Engine 5" loading="lazy"></div>
+        <div class="cap"><span class="n">03</span><h3>EQUITY</h3>
+          <p>An Unreal Engine 5 virtual patient for bias research in medicine.</p>
+          <span class="go">Video →</span></div>
+      </a>
+      <a class="item" href="https://youtu.be/PLVynmeGvsI">
+        <div class="shot"><img src="/portfolio/public/assets/images/game_design/neon.png" alt="Neon-Bites cyberpunk delivery game" loading="lazy"></div>
+        <div class="cap"><span class="n">04</span><h3>Neon-Bites</h3>
+          <p>Cyberpunk food delivery with the physics taken seriously.</p>
+          <span class="go">Video →</span></div>
+      </a>
+      <a class="item" href="https://github.com/PranavMishra17/Mafia-Boardgame-via-Agents">
+        <div class="shot"><img src="/portfolio/public/assets/images/game_design/mafia.png" alt="AI Mafia agents mid-round" loading="lazy"></div>
+        <div class="cap"><span class="n">05</span><h3>AI Mafia</h3>
+          <p>Language models playing a game about lying to each other.</p>
+          <span class="go">Code →</span></div>
+      </a>
+      <a class="item" href="https://github.com/PranavMishra17/Big5-Agents">
+        <div class="shot"><img src="/portfolio/public/assets/images/ai_ml/big5.png" alt="Big5-Agents system diagram" loading="lazy"></div>
+        <div class="cap"><span class="n">06</span><h3>Big5-Agents</h3>
+          <p>The teamwork paper as runnable code.</p>
+          <span class="go">Code →</span></div>
+      </a>
+      <a class="item" href="https://pranavmishra17.github.io/SnakeAI-MLOps/">
+        <div class="shot"><img src="/portfolio/public/assets/images/ai_ml/snake.png" alt="SnakeAI-MLOps agents playing" loading="lazy"></div>
+        <div class="cap"><span class="n">07</span><h3>SnakeAI-MLOps</h3>
+          <p>Four reinforcement-learning methods racing on one game. <em>Live and playable.</em></p>
+          <span class="go">Play →</span></div>
+      </a>
+      <a class="item" href="https://github.com/PranavMishra17/Rust-yy-Ant">
+        <div class="shot"><img src="/portfolio/public/assets/images/game_design/rust.png" alt="Rusty ANT evolution simulation" loading="lazy"></div>
+        <div class="cap"><span class="n">08</span><h3>Rusty ANT</h3>
+          <p>Ants evolving, in Rust.</p>
+          <span class="go">Code →</span></div>
+      </a>
+      <a class="item sq" href="https://youtu.be/rz_NiIj-dic">
+        <div class="shot"><img src="/portfolio/public/assets/images/game_design/van%20gogh.jpg" alt="Virtual Van Gogh walkable museum" loading="lazy"></div>
+        <div class="cap"><span class="n">09</span><h3>Virtual Van Gogh</h3>
+          <p>A walkable museum, paintings on a chain. <em>First at HINT 5.0.</em></p>
+          <span class="go">Video →</span></div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section id="interests">
+  <div class="tag">06<u>Interests</u></div>
+  <div class="body">
+    <h2>He reads books, loves films, plays games</h2>
+    <div class="slots">
+      <div class="slot"><span>Books</span></div>
+      <div class="slot"><span>Films</span></div>
+      <div class="slot"><span>Games</span></div>
+    </div>
+    <p>He has not said which ones. These three frames are placeholders and stay empty until he does.
+      Nothing here is invented on his behalf.</p>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="tag">07<u>Contact</u></div>
+  <div class="body">
+    <h2>Four places to find him</h2>
+    <div class="links">
+      <a href="https://github.com/PranavMishra17">github.com/PranavMishra17<u>Code</u></a>
+      <a href="https://linkedin.com/in/pranavgamedev">linkedin.com/in/pranavgamedev<u>Work</u></a>
+      <a href="https://huggingface.co/Paranoiid">huggingface.co/Paranoiid<u>Models</u></a>
+      <a href="https://get-alfred.ai">get-alfred.ai<u>Alfred_</u></a>
+    </div>
+    <p class="creds">Won MIT XR 2024. First place at HINT 5.0. Four citations, which pleases him
+      more than it should.</p>
+  </div>
+</section>
+
+</main>
+
+<script>
+(function(){
+  var links=[].slice.call(document.querySelectorAll('#nav a'));
+  var secs=links.map(function(a){return document.querySelector(a.getAttribute('href'));});
+  var prog=document.getElementById('prog');
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var ticking=false;
+
+  function offsetTopOf(el){
+    var y=0; while(el){ y+=el.offsetTop; el=el.offsetParent; } return y;
+  }
+  function paint(){
+    ticking=false;
+    var y=window.scrollY||document.documentElement.scrollTop||0;
+    var probe=y+(window.innerHeight*0.3);
+    var idx=0;
+    for(var i=0;i<secs.length;i++){
+      if(secs[i]&&offsetTopOf(secs[i])<=probe) idx=i;
+    }
+    for(var j=0;j<links.length;j++){
+      if(j===idx) links[j].setAttribute('aria-current','true');
+      else links[j].removeAttribute('aria-current');
+    }
+    var max=document.documentElement.scrollHeight-window.innerHeight;
+    prog.style.height=(max>0?(y/max)*100:0)+'vh';
+    var active=links[idx];
+    if(active&&window.innerWidth<=1000){
+      var n=active.parentNode;
+      if(n.scrollWidth>n.clientWidth){
+        var want=active.getBoundingClientRect().left-n.getBoundingClientRect().left+n.scrollLeft-24;
+        if(want<0) want=0;
+        if(Math.abs(n.scrollLeft-want)>40) n.scrollLeft=want;
+      }
+    }
+  }
+  function onScroll(){ if(!ticking){ ticking=true; requestAnimationFrame(paint); } }
+  window.addEventListener('scroll',onScroll,{passive:true});
+  window.addEventListener('resize',onScroll);
+
+  links.forEach(function(a,i){
+    a.addEventListener('click',function(e){
+      var t=secs[i]; if(!t) return;
+      e.preventDefault();
+      var off=window.innerWidth<=1000?45:0;
+      window.scrollTo({top:offsetTopOf(t)-off,behavior:reduce?'auto':'smooth'});
+      history.replaceState(null,'',a.getAttribute('href'));
+      paint();
+    });
+  });
+
+  document.addEventListener('keydown',function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey) return;
+    var tag=(e.target&&e.target.tagName||'').toLowerCase();
+    if(tag==='input'||tag==='textarea') return;
+    var n=parseInt(e.key,10);
+    if(n>=1&&n<=links.length){ links[n-1].click(); return; }
+    if(e.key==='j'||e.key==='k'){
+      var cur=-1;
+      for(var i=0;i<links.length;i++){ if(links[i].getAttribute('aria-current')) cur=i; }
+      if(cur<0) cur=0;
+      var next=Math.max(0,Math.min(links.length-1,cur+(e.key==='j'?1:-1)));
+      links[next].click();
+    }
+  });
+
+  paint();
+  setTimeout(paint,250);
+  window.addEventListener('load',paint);
+})();
+</script>
+</body>
+</html>

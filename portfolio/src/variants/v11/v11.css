@@ -1,0 +1,314 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Libre+Franklin:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+
+/* v11 — TISSUE. A sewing-pattern sheet; each piece is a section. */
+
+.v11 {
+  --tissue: #efe6d1;
+  --tissue2: #e3d8bd;
+  --piece: #f6efdd;
+  --ink: #1d2a3a;
+  --ink2: #46536a;
+  --red: #b23a2c;
+  font-family: 'Libre Franklin', system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink);
+  background: var(--tissue);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+.v11 * { box-sizing: border-box; }
+.v11 h1, .v11 h2, .v11 p, .v11 dl, .v11 dd, .v11 ul { margin: 0; }
+.v11 a { color: var(--red); text-decoration: underline; text-underline-offset: 3px; }
+.v11 a:hover { color: var(--ink); }
+.v11-cond {
+  font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.v11-sheet {
+  position: relative;
+  padding: 28px 28px 70px;
+  min-height: 100vh;
+  background-color: var(--tissue);
+  background-image:
+    repeating-linear-gradient(90deg, transparent 0 279px, rgba(29, 42, 58, 0.09) 279px 280px),
+    repeating-linear-gradient(0deg, transparent 0 239px, rgba(29, 42, 58, 0.09) 239px 240px),
+    radial-gradient(rgba(29, 42, 58, 0.05) 0.6px, transparent 0.7px);
+  background-size: auto, auto, 5px 5px;
+}
+
+/* ---------- title block ---------- */
+.v11-title {
+  display: grid;
+  grid-template-columns: minmax(220px, 300px) minmax(0, 1fr);
+  gap: 22px 34px;
+  border: 2px solid var(--ink);
+  outline: 1px solid var(--ink);
+  outline-offset: 3px;
+  background: var(--piece);
+  padding: 20px 24px 22px;
+  margin-bottom: 44px;
+  max-width: 1120px;
+}
+.v11-brand { font-size: 14px; letter-spacing: 0.3em; color: var(--ink2); }
+.v11-number {
+  font-size: clamp(64px, 10vw, 112px);
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+}
+.v11-title h1 {
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+  margin-top: 10px;
+}
+.v11-sub { font-size: 15px; color: var(--ink2); margin-top: 6px; }
+.v11-spec {
+  font-size: 14px;
+  color: var(--ink2);
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 8px;
+  margin-bottom: 12px;
+}
+.v11-howto { font-size: 16px; line-height: 1.6; max-width: 620px; }
+.v11-howto b { font-weight: 600; white-space: nowrap; }
+.v11-key {
+  display: grid;
+  grid-template-columns: 44px 1fr 44px 1fr;
+  gap: 6px 10px;
+  align-items: center;
+  margin-top: 14px;
+  font-size: 14px;
+  color: var(--ink2);
+  max-width: 560px;
+}
+.v11-key dt { display: flex; align-items: center; height: 18px; }
+.v11-key i { display: block; }
+.v11-k-dash { width: 40px; border-top: 2px dashed var(--ink); }
+.v11-k-solid { width: 40px; border-top: 2px solid var(--ink); }
+.v11-k-notch {
+  width: 0; height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-top: 10px solid var(--ink);
+  margin-left: 13px;
+}
+.v11-k-grain {
+  width: 40px;
+  height: 2px;
+  background: var(--ink);
+  position: relative;
+}
+.v11-k-grain::before, .v11-k-grain::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  border: 5px solid transparent;
+}
+.v11-k-grain::before { left: -6px; border-right: 7px solid var(--ink); }
+.v11-k-grain::after { right: -6px; border-left: 7px solid var(--ink); }
+.v11-count { margin-top: 12px; font-size: 14px; color: var(--red); }
+
+/* ---------- grid of pieces ---------- */
+.v11-grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-areas:
+    'front front front front front sleeve sleeve sleeve sleeve pocket pocket pocket'
+    'front front front front front collar collar collar collar collar collar collar'
+    'facing facing facing facing facing collar collar collar collar collar collar collar';
+  gap: 40px 30px;
+  align-items: start;
+  max-width: 1120px;
+}
+
+.v11-slot { position: relative; }
+.v11-hole {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.25s;
+  pointer-events: none;
+}
+.v11-slot.is-cut .v11-hole { opacity: 1; }
+.v11-svg { position: absolute; left: 0; top: 0; overflow: visible; pointer-events: none; }
+.v11-svg-hole .v11-cutline { fill: var(--tissue2); stroke: var(--ink2); stroke-width: 1; stroke-dasharray: 5 4; }
+.v11-svg-piece .v11-cutline { fill: var(--piece); stroke: var(--ink); stroke-width: 2; stroke-dasharray: 8 5; }
+.v11-stitchline { fill: none; stroke: var(--ink); stroke-width: 1.2; }
+.v11-notch { fill: var(--tissue); stroke: var(--ink); stroke-width: 1.5; }
+.v11-grain line { stroke: var(--ink); stroke-width: 1.5; }
+.v11-grain polygon { fill: var(--ink); }
+.v11-grain text, .v11-fold {
+  font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  fill: var(--ink2);
+  text-anchor: middle;
+}
+.v11-slot.is-cut .v11-svg-piece .v11-cutline { stroke-dasharray: none; }
+
+.v11-piece {
+  position: relative;
+  min-height: 280px;
+  transform-origin: 40% 60%;
+  will-change: transform;
+}
+.v11-slot.is-cut .v11-piece {
+  filter: drop-shadow(6px 10px 10px rgba(29, 42, 58, 0.28));
+}
+.v11-body {
+  position: relative;
+  z-index: 1;
+  padding: 12% 16% 10% 10%;
+}
+.v11-piece-front .v11-body { padding: 22% 20% 9% 12%; }
+.v11-piece-sleeve .v11-body { padding: 30% 18% 9% 14%; }
+.v11-piece-collar .v11-body { padding: 17% 16% 13% 8%; }
+.v11-piece-pocket .v11-body { padding: 10% 18% 13% 9%; }
+.v11-piece-facing .v11-body { padding: 9% 18% 9% 12%; }
+
+/* label block: number, name, scissors */
+.v11-label {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 10px;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--ink);
+}
+.v11-num {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid var(--ink);
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  font-weight: 700;
+}
+.v11-piece-name { font-size: 20px; font-weight: 700; line-height: 1.1; }
+.v11-sep { color: var(--red); }
+.v11-cutnote { font-size: 12px; color: var(--ink2); margin-top: 2px; }
+.v11-scissors {
+  background: var(--ink);
+  color: var(--piece);
+  border: 0;
+  padding: 8px 12px;
+  font-size: 14px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.v11-scissors:hover { background: var(--red); }
+.v11-scissors:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+.v11-scissors[aria-pressed='true'] { background: var(--red); }
+
+.v11-body h2 {
+  font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 1.05;
+  margin-bottom: 12px;
+}
+.v11-body p { font-size: 16px; line-height: 1.6; margin-bottom: 12px; }
+.v11-lead { font-size: 17px; font-weight: 500; }
+.v11-lengthen {
+  position: relative;
+  border-top: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+  height: 8px;
+  margin: 18px 0 20px;
+}
+.v11-lengthen span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--piece);
+  padding: 0 8px;
+  font-family: 'Barlow Condensed', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 11px;
+  color: var(--ink2);
+  white-space: nowrap;
+}
+.v11-dl { display: grid; grid-template-columns: auto 1fr; gap: 10px 14px; }
+.v11-dl dt {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink2);
+  padding-top: 2px;
+  white-space: nowrap;
+}
+.v11-dl dd { font-size: 15.5px; line-height: 1.55; }
+.v11-dl b { font-weight: 600; }
+.v11-ul { list-style: none; padding: 0; }
+.v11-ul li { font-size: 15.5px; line-height: 1.55; padding: 8px 0; border-top: 1px dashed rgba(29, 42, 58, 0.35); }
+.v11-ul li:first-child { border-top: 0; }
+.v11-ul b { font-weight: 600; }
+.v11-ul-inline li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; }
+.v11-ul-inline li a { font-weight: 500; }
+.v11-ul-inline li span { font-family: 'Barlow Condensed', sans-serif; text-transform: uppercase; letter-spacing: 0.06em; font-size: 14px; color: var(--ink2); }
+.v11-ul-links li a { font-weight: 500; font-size: 17px; }
+
+/* ---------- selvage ---------- */
+.v11-selvage {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 26px;
+  overflow: hidden;
+  background: var(--piece);
+  border-top: 2px solid var(--ink);
+  color: var(--ink2);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  line-height: 24px;
+  white-space: nowrap;
+  z-index: 10;
+}
+.v11-selvage::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 3px;
+  background: repeating-linear-gradient(90deg, var(--ink) 0 2px, transparent 2px 6px);
+}
+.v11-selvage span { display: inline-block; padding-left: 12px; }
+
+/* ---------- mobile / narrow ---------- */
+@media (max-width: 900px) {
+  .v11-sheet { padding: 18px 14px 60px; }
+  .v11-title { grid-template-columns: 1fr; padding: 16px 16px 18px; margin-bottom: 30px; }
+  .v11-key { grid-template-columns: 44px 1fr; max-width: none; }
+  .v11-grid {
+    grid-template-columns: 1fr;
+    grid-template-areas: 'front' 'sleeve' 'pocket' 'collar' 'facing';
+    gap: 30px;
+  }
+  .v11-piece-front .v11-body { padding: 24% 15% 9% 10%; }
+  .v11-piece-sleeve .v11-body { padding: 32% 15% 9% 12%; }
+  .v11-piece-collar .v11-body { padding: 18% 15% 13% 7%; }
+  .v11-piece-pocket .v11-body { padding: 10% 15% 13% 8%; }
+  .v11-piece-facing .v11-body { padding: 9% 15% 9% 10%; }
+  .v11-label { grid-template-columns: auto 1fr; }
+  .v11-scissors { grid-column: 1 / -1; justify-self: start; }
+  .v11-slot.is-cut .v11-piece { filter: drop-shadow(4px 6px 8px rgba(29, 42, 58, 0.28)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v11-hole { transition: none; }
+}

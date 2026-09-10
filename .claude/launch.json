@@ -1,0 +1,20 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "portfolio",
+      "runtimeExecutable": "python",
+      "runtimeArgs": [".claude/spa_server.py", "4600", "C:/Users/prana/Desktop/Portfolio-PranavMishra-Paranoid/.claude/worktrees/portfolio-revamp-alignment-a7dad8/portfolio/build"],
+      
+      "port": 4600,
+      "autoPort": false
+    },
+    {
+      "name": "design-lab",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "4458", "--directory", "C:/Users/prana/Desktop/Portfolio-PranavMishra-Paranoid/.claude/worktrees/portfolio-revamp-alignment-a7dad8"],
+      "port": 4458,
+      "autoPort": false
+    }
+  ]
+}

@@ -24,6 +24,8 @@ const V12 = lazy(() => import('./variants/v12'));
 const V13 = lazy(() => import('./variants/v13'));
 const V14 = lazy(() => import('./variants/v14'));
 const V15 = lazy(() => import('./variants/v15'));
+const V16 = lazy(() => import('./variants/v16'));
+const V17 = lazy(() => import('./variants/v17'));
 
 const wait = <div style={{ minHeight: '100vh' }} />;
 
@@ -50,6 +52,8 @@ function App() {
         <Route path="/v13" element={<Suspense fallback={wait}><V13 /></Suspense>} />
         <Route path="/v14" element={<Suspense fallback={wait}><V14 /></Suspense>} />
         <Route path="/v15" element={<Suspense fallback={wait}><V15 /></Suspense>} />
+        <Route path="/v16" element={<Suspense fallback={wait}><V16 /></Suspense>} />
+        <Route path="/v17" element={<Suspense fallback={wait}><V17 /></Suspense>} />
       </Routes>
     </Router>
   );

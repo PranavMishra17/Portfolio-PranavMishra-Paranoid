@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Signal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void: #090c18;
+    --void-deep: #05070f;
+    --signal: #f2e9d2;
+    --signal-dim: rgba(242,233,210,.5);
+    --ink: #cfd2e2;
+    --ink-dim: #8b8fa8;
+    --ink-faint: #5c6079;
+    --line: rgba(207,210,226,.14);
+    --line-soft: rgba(207,210,226,.07);
+  }
+  *{ box-sizing:border-box; }
+  html{ background:var(--void); }
+  body{
+    margin:0;
+    background: radial-gradient(ellipse 120% 90% at 50% 22%, #101528 0%, var(--void) 46%, var(--void-deep) 100%);
+    color:var(--ink);
+    font-family:'Manrope', sans-serif;
+    font-size:17px;
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  ::selection{ background: rgba(242,233,210,.28); color:#151425; }
+  a{ color:var(--signal); text-decoration-color: var(--signal-dim); text-underline-offset:4px; }
+  a:hover{ color:#fff; }
+  :focus-visible{ outline:2px solid var(--signal); outline-offset:4px; border-radius:2px; }
+
+  h1,h2,h3{ font-family:'Cormorant Garamond', serif; font-weight:500; margin:0; }
+
+  main{ position:relative; z-index:2; }
+  .wrap{ max-width: 700px; margin:0 auto; padding: 0 clamp(20px,7vw,44px); }
+
+  /* ------------------------------------------------------------ */
+  /* Hero — the receiving station                                   */
+  /* ------------------------------------------------------------ */
+  .station{
+    min-height: 100svh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    position:relative;
+    padding: 8vh 20px 10vh;
+  }
+  .dish-wrap{
+    position:absolute;
+    top:50%; left:50%;
+    width:min(920px, 150vw);
+    height:min(920px, 150vw);
+    transform: translate(-50%,-50%);
+    z-index:0;
+    pointer-events:none;
+  }
+  .dish-wrap svg{ width:100%; height:100%; display:block; }
+  .ring{ transform-origin: 460px 460px; }
+
+  .station-content{ position:relative; z-index:1; }
+
+  .kicker{
+    font-size: .95rem;
+    color: var(--ink-faint);
+    margin-bottom: 22px;
+    min-height: 1.4em;
+  }
+
+  .name{
+    font-size: clamp(2.4rem, 8.6vw, 4.4rem);
+    color: var(--signal);
+    letter-spacing: .01em;
+    line-height:1.06;
+  }
+  .role{
+    margin-top: 14px;
+    font-size: clamp(1.1rem, 3vw, 1.4rem);
+    color: var(--ink);
+    font-family:'Cormorant Garamond', serif;
+    font-style: italic;
+  }
+  .meta{
+    margin-top: 18px;
+    font-size: .95rem;
+    color: var(--ink-dim);
+  }
+  .lede{
+    margin: 34px auto 0;
+    max-width: 46ch;
+    font-size: 1.05rem;
+    color: var(--ink);
+  }
+
+  /* the reusable "resolve" mechanism ------------------------------ */
+  .resolve{
+    display:inline-block;
+    position:relative;
+  }
+  .resolve-block{ display:block; }
+  .resolve .rz-echo{
+    position:absolute; inset:0;
+    opacity:0;
+  }
+  .resolve.pending .rz-real{ opacity:0; filter: blur(16px); transform: scale(1.045); }
+  .resolve.pending .rz-echo{ opacity: .5; }
+  .resolve.pending .rz-echo:nth-child(2){ transform: translate(-7px,3px); filter: blur(3px); }
+  .resolve.pending .rz-echo:nth-child(3){ transform: translate(6px,-4px); filter: blur(3px); }
+  .resolve.arrived .rz-real{
+    /* framer: { type:'spring', stiffness: 240, damping: 26, mass: 1.3 } applied to scale/blur via a motion value */
+    transition: filter .85s cubic-bezier(.2,.85,.2,1), transform .85s cubic-bezier(.2,.85,.2,1), opacity .5s ease;
+    opacity:1; filter: blur(0); transform: scale(1);
+  }
+  .resolve.arrived .rz-echo{
+    transition: opacity .5s ease .05s, transform .5s ease .05s;
+    opacity:0; transform: translate(0,0);
+  }
+  .rz-real{ position:relative; }
+
+  .lock-line{
+    position:relative;
+    height:1px;
+    margin: 0 auto;
+    width: 0;
+    background: var(--signal);
+    box-shadow: 0 0 10px 1px var(--signal-dim);
+    opacity:0;
+  }
+  .lock-line.fire{
+    animation: lockFire 1.1s cubic-bezier(.2,.8,.2,1) forwards;
+  }
+  @keyframes lockFire{
+    0%{ width:0; opacity:0; }
+    12%{ opacity: 1; }
+    55%{ width: 120px; opacity:.9; }
+    100%{ width: 46px; opacity:.55; }
+  }
+
+  .arrow-hint{
+    position:absolute; bottom:30px; left:50%; transform:translateX(-50%);
+    font-size:.82rem; color:var(--ink-faint);
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+  }
+  .arrow-hint svg{ width:10px; height:16px; }
+
+  /* ------------------------------------------------------------ */
+  /* Sections                                                        */
+  /* ------------------------------------------------------------ */
+  section{ padding: 12vh 0; position:relative; }
+  .waveform{ display:block; width:100%; height:34px; margin: 0 auto 8vh; opacity:.5; }
+
+  .section-label{
+    font-family:'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 1.3rem;
+    color: var(--ink-dim);
+    margin-bottom: 46px;
+    text-align:center;
+  }
+
+  /* transmission blocks -------------------------------------------- */
+  .transmission{
+    max-width: 560px;
+    margin: 0 auto 10vh;
+    text-align:center;
+  }
+  .transmission:last-child{ margin-bottom:0; }
+  .t-when{ font-size:.9rem; color:var(--ink-faint); margin-bottom:10px; }
+  .t-role{ font-size:1.5rem; font-family:'Cormorant Garamond',serif; color:var(--signal); }
+  .t-org{ font-size:1rem; color:var(--ink-dim); margin-top:4px; }
+  .t-body{ margin-top:20px; text-align:left; }
+  .t-body p{ margin: 0 0 14px; color:var(--ink); }
+  .t-body ul{ list-style:none; margin:20px 0 0; padding:0; display:flex; flex-direction:column; gap:16px; }
+  .t-body li{
+    padding-left: 20px;
+    position:relative;
+    color: var(--ink);
+  }
+  .t-body li::before{
+    content:'';
+    position:absolute; left:0; top:.5em;
+    width:8px; height:1px;
+    background: var(--signal-dim);
+  }
+  .t-body li strong{ color:var(--signal); font-weight:600; }
+
+  .prior-list{ display:flex; flex-direction:column; gap: 54px; }
+  .prior{ text-align:center; }
+  .prior .t-when{ margin-bottom:6px; }
+  .prior .t-role{ font-size:1.25rem; }
+  .prior p{ max-width:48ch; margin: 12px auto 0; color:var(--ink); text-align:left; }
+
+  /* research -------------------------------------------------------- */
+  .paper{
+    padding: 30px 0;
+    border-top: 1px solid var(--line-soft);
+    max-width: 560px;
+    margin: 0 auto;
+  }
+  .paper:last-child{ border-bottom: 1px solid var(--line-soft); }
+  .paper-title{ font-family:'Cormorant Garamond', serif; font-size:1.25rem; color:var(--signal); }
+  .paper-status{ display:inline-block; margin-top:8px; font-size:.82rem; color:var(--ink-faint); letter-spacing:.02em; }
+  .paper p{ margin: 14px 0 8px; color:var(--ink); }
+  .paper-meta{ font-size:.85rem; color:var(--ink-faint); }
+
+  /* built -------------------------------------------------------------- */
+  .signals-list{ max-width:560px; margin:0 auto; display:flex; flex-direction:column; }
+  .signal-row{
+    display:flex; justify-content:space-between; gap: 20px;
+    padding: 18px 0;
+    border-top: 1px solid var(--line-soft);
+    text-align:left;
+  }
+  .signals-list .signal-row:last-child{ border-bottom:1px solid var(--line-soft); }
+  .signal-row .sr-name{ font-family:'Cormorant Garamond', serif; font-size:1.15rem; color:var(--signal); flex:none; width: 42%; }
+  .signal-row .sr-desc{ color:var(--ink); font-size:.96rem; flex:1; }
+
+  /* closing --------------------------------------------------------------- */
+  .close{
+    text-align:center;
+    padding: 14vh 0 16vh;
+  }
+  .close .t-role{ font-size:1.6rem; }
+  .close p{ max-width:44ch; margin: 18px auto 0; color:var(--ink); }
+  .channels{ margin-top:30px; display:flex; gap:26px; justify-content:center; flex-wrap:wrap; }
+
+  @media (max-width: 480px){
+    body{ font-size:16px; }
+    .t-body ul{ gap:14px; }
+    .signal-row{ flex-direction:column; gap:4px; }
+    .signal-row .sr-name{ width:auto; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .resolve .rz-real{ opacity:1 !important; filter:none !important; transform:none !important; transition:none !important; }
+    .resolve .rz-echo{ display:none !important; }
+    .lock-line{ transition:none !important; animation:none !important; opacity:.6 !important; width:46px !important; }
+    .ring{ transition:none !important; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header class="station">
+    <div class="dish-wrap" aria-hidden="true">
+      <svg viewBox="0 0 920 920">
+        <g class="ring" id="ringOuter" style="transform-origin:460px 460px;">
+          <circle cx="460" cy="460" r="430" fill="none" stroke="rgba(207,210,226,.10)" stroke-width="1"/>
+          <g id="ticksOuter"></g>
+        </g>
+        <g class="ring" id="ringMid" style="transform-origin:460px 460px;">
+          <circle cx="460" cy="460" r="330" fill="none" stroke="rgba(207,210,226,.14)" stroke-width="1"/>
+          <g id="ticksMid"></g>
+        </g>
+        <g class="ring" id="ringInner" style="transform-origin:460px 460px;">
+          <circle cx="460" cy="460" r="230" fill="none" stroke="rgba(242,233,210,.18)" stroke-width="1"/>
+        </g>
+        <circle cx="460" cy="460" r="150" fill="none" stroke="rgba(242,233,210,.10)" stroke-width="1"/>
+      </svg>
+    </div>
+
+    <div class="station-content">
+      <p class="kicker resolve pending" id="rzKicker" aria-hidden="true">
+        <span class="rz-real">receiving —</span>
+        <span class="rz-echo">receiving —</span>
+        <span class="rz-echo">receiving —</span>
+      </p>
+
+      <h1 class="name">
+        <span class="resolve pending" id="rzName">
+          <span class="rz-real">Pranav Pushkar Mishra</span>
+          <span class="rz-echo" aria-hidden="true">Pranav Pushkar Mishra</span>
+          <span class="rz-echo" aria-hidden="true">Pranav Pushkar Mishra</span>
+        </span>
+      </h1>
+
+      <div class="lock-line" id="lockLine"></div>
+
+      <p class="role">
+        <span class="resolve pending" id="rzRole">
+          <span class="rz-real">Founding LLM Engineer, Alfred_</span>
+          <span class="rz-echo" aria-hidden="true">Founding LLM Engineer, Alfred_</span>
+          <span class="rz-echo" aria-hidden="true">Founding LLM Engineer, Alfred_</span>
+        </span>
+      </p>
+
+      <p class="meta">
+        <span class="resolve pending" id="rzMeta">
+          <span class="rz-real">Metuchen, NJ — CS, University of Illinois Chicago</span>
+          <span class="rz-echo" aria-hidden="true">Metuchen, NJ — CS, University of Illinois Chicago</span>
+          <span class="rz-echo" aria-hidden="true">Metuchen, NJ — CS, University of Illinois Chicago</span>
+        </span>
+      </p>
+
+      <p class="lede resolve pending" id="rzLede">
+        <span class="rz-real">Something has been arriving here since April. I build the parts of it that decide what it's allowed to do without asking, and what it has to ask about first.</span>
+        <span class="rz-echo" aria-hidden="true">Something has been arriving here since April.</span>
+        <span class="rz-echo" aria-hidden="true">Something has been arriving here since April.</span>
+      </p>
+    </div>
+
+    <div class="arrow-hint">
+      <span>the transmission continues</span>
+      <svg viewBox="0 0 10 16" fill="none"><path d="M5 1v13M1 10l4 4 4-4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+  </header>
+
+  <div class="wrap">
+
+    <section id="now">
+      <svg class="waveform" viewBox="0 0 700 34" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 17 Q40 4 80 17 T160 17 T240 17 Q260 30 280 17 T360 17 T440 17 Q460 3 480 17 T560 17 T640 17 T700 17" fill="none" stroke="var(--ink-faint)" stroke-width="1"/>
+      </svg>
+      <p class="section-label">what's arriving now</p>
+
+      <article class="transmission reveal">
+        <div class="t-when">April 2026 — present</div>
+        <div class="t-role">Founding LLM Engineer</div>
+        <div class="t-org">Alfred_, New York City</div>
+        <div class="t-body">
+          <p>Alfred_ is a consumer AI executive assistant — a multi-agent system that manages people's email, calendar, and daily obligations over SMS, web chat, and voice. It has more than 5,000 active subscribers right now.</p>
+          <ul>
+            <li><strong>The reliability layer.</strong> Risk-scored gating, an eval harness built from scratch, a scanner that reads live conversations for production failures, and a rebuilt working memory that makes the model fabricating things structurally impossible — enforced by tests, not by hoping it behaves.</li>
+            <li><strong>The email-rules engine</strong>, the product's stickiest feature. I replaced per-message model calls with a deterministic three-stage matcher: about 30% cheaper per user, and roughly 98% of rules now get created just by talking to it.</li>
+            <li><strong>Latency.</strong> Email-to-SMS notification went from about 90 seconds to about 3. The security and one-time-code path went from 189 seconds at the 90th percentile to instant.</li>
+            <li><strong>The Execution Decision Layer.</strong> Every action the agent wants to take passes through a router with five verdicts — silent, notify, confirm, clarify, refuse — decided by a deterministic risk score, not the model judging itself, with a pending-obligations queue and a bounded window to undo.</li>
+          </ul>
+        </div>
+      </article>
+    </section>
+
+    <section id="prior">
+      <p class="section-label">prior signals</p>
+      <div class="prior-list">
+        <div class="prior reveal">
+          <div class="t-when">Jul 2025 — Mar 2026</div>
+          <div class="t-role">AI Engineer</div>
+          <div class="t-org">WheelPrice, Charlotte NC (remote)</div>
+        </div>
+        <div class="prior reveal">
+          <div class="t-when">Feb 2024 — present</div>
+          <div class="t-role">Research Software Engineer</div>
+          <div class="t-org">V-ARE Labs, University of Illinois Chicago</div>
+          <p>I build virtual patient systems in Unreal Engine 5 for bias research in medicine, and an audio ML pipeline running at 98.52% accuracy.</p>
+        </div>
+        <div class="prior reveal">
+          <div class="t-when">2023</div>
+          <div class="t-role">Software Developer Intern</div>
+          <div class="t-org">Bipolar Factory, Bengaluru</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="research">
+      <svg class="waveform" viewBox="0 0 700 34" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 17 Q40 4 80 17 T160 17 T240 17 Q260 30 280 17 T360 17 T440 17 Q460 3 480 17 T560 17 T640 17 T700 17" fill="none" stroke="var(--ink-faint)" stroke-width="1"/>
+      </svg>
+      <p class="section-label">recorded transmissions</p>
+
+      <div class="paper reveal">
+        <div class="paper-title">A Systematic Framework for Enterprise Knowledge Retrieval</div>
+        <div class="paper-status">Accepted — CAI 2026 / IEEE</div>
+        <p>I use an LLM to generate metadata that helps retrieval-augmented generation retrieve the right document, not just a similar-sounding one.</p>
+        <div class="paper-meta">arXiv 2512.05411</div>
+      </div>
+
+      <div class="paper reveal">
+        <div class="paper-title">TeamMedAgents: Enhancing Medical Decision-Making of LLMs Through Teamwork</div>
+        <div class="paper-status">Under review — PAKDD 2026</div>
+        <p>I ported Salas's Big Five teamwork model, built for human trauma teams, into a multi-agent system. It improved results on seven of eight medical benchmarks.</p>
+        <div class="paper-meta">arXiv 2508.08115 — cited 4 times so far</div>
+      </div>
+
+      <div class="paper reveal">
+        <div class="paper-title">A third paper, on cost-efficient multi-modal medical reasoning with small language models</div>
+        <div class="paper-status">Under preparation</div>
+      </div>
+    </section>
+
+    <section id="signals">
+      <p class="section-label">other signals</p>
+      <div class="signals-list">
+        <div class="signal-row reveal"><span class="sr-name">Stellarium</span><span class="sr-desc">A CAVE2 VR application rendering over 107,000 real astronomical objects in real time.</span></div>
+        <div class="signal-row reveal"><span class="sr-name">SnAIder-Cut</span><span class="sr-desc">Generative AI editing an AR scene live. Won the MIT XR Hackathon, 2024.</span></div>
+        <div class="signal-row reveal"><span class="sr-name">Virtual Van Gogh</span><span class="sr-desc">A walkable NFT museum. First place, HINT 5.0.</span></div>
+        <div class="signal-row reveal"><span class="sr-name">EQUITY</span><span class="sr-desc">An Unreal Engine 5 MetaHuman virtual patient, used for bias research in medicine.</span></div>
+        <div class="signal-row reveal"><span class="sr-name">TeamMedAgents</span><span class="sr-desc">The research above, as running code.</span></div>
+        <div class="signal-row reveal"><span class="sr-name">SnakeAI-MLOps</span><span class="sr-desc">Four reinforcement learning techniques racing each other in a C++ game.</span></div>
+        <div class="signal-row reveal"><span class="sr-name">Neon-Bites</span><span class="sr-desc">A cyberpunk delivery game.</span></div>
+        <div class="signal-row reveal"><span class="sr-name">Rusty ANT</span><span class="sr-desc">Ant evolution, simulated in Rust.</span></div>
+      </div>
+    </section>
+
+    <footer class="close">
+      <div class="t-role reveal">Open channel</div>
+      <p class="reveal">If you're building something and want to talk about it, or you just want to see more of what's listed above, this is where the signal goes both ways.</p>
+      <div class="channels">
+        <a href="https://github.com/PranavMishra17" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://linkedin.com/in/pranavgamedev" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://huggingface.co/Paranoiid" target="_blank" rel="noopener">Hugging Face</a>
+      </div>
+    </footer>
+
+  </div>
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* build tick marks for the two outer rings */
+  function ticks(id, count, r, len){
+    var g = document.getElementById(id);
+    if(!g) return;
+    var html = '';
+    for(var i=0;i<count;i++){
+      var a = (i/count) * Math.PI*2;
+      var x1 = 460 + Math.cos(a)*r, y1 = 460 + Math.sin(a)*r;
+      var x2 = 460 + Math.cos(a)*(r-len), y2 = 460 + Math.sin(a)*(r-len);
+      html += '<line x1="'+x1+'" y1="'+y1+'" x2="'+x2+'" y2="'+y2+'" stroke="rgba(207,210,226,.16)" stroke-width="1"/>';
+    }
+    g.innerHTML = html;
+  }
+  ticks('ticksOuter', 48, 430, 10);
+  ticks('ticksMid', 32, 330, 8);
+
+  /* ---------------- the one page-load sequence: the dish locks, then the first line arrives ---------------- */
+  function runIntro(){
+    if(reduced){ return; }
+    var outer = document.getElementById('ringOuter');
+    var mid = document.getElementById('ringMid');
+    var inner = document.getElementById('ringInner');
+    // framer: { type:'spring', stiffness: 90, damping: 16, mass: 2.2 } per ring, staggered
+    outer.style.transition = 'transform 1.6s cubic-bezier(.15,1.05,.2,1)';
+    mid.style.transition = 'transform 1.3s cubic-bezier(.15,1.1,.2,1) .1s';
+    inner.style.transition = 'transform 1.0s cubic-bezier(.15,1.15,.2,1) .2s';
+    outer.style.transform = 'rotate(-14deg) scale(1.04)';
+    mid.style.transform = 'rotate(11deg) scale(1.03)';
+    inner.style.transform = 'rotate(-8deg) scale(1.02)';
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        outer.style.transform = 'rotate(0deg) scale(1)';
+        mid.style.transform = 'rotate(0deg) scale(1)';
+        inner.style.transform = 'rotate(0deg) scale(1)';
+      });
+    });
+
+    var sequence = [
+      { id:'rzKicker', delay: 700 },
+      { id:'rzName',   delay: 1050, lock:true },
+      { id:'rzRole',   delay: 1700 },
+      { id:'rzMeta',   delay: 2050 },
+      { id:'rzLede',   delay: 2450 }
+    ];
+    sequence.forEach(function(step){
+      setTimeout(function(){
+        var el = document.getElementById(step.id);
+        el.classList.remove('pending');
+        el.classList.add('arrived');
+        if(step.lock){
+          setTimeout(function(){
+            var line = document.getElementById('lockLine');
+            line.classList.add('fire');
+          }, 550);
+        }
+      }, step.delay);
+    });
+  }
+
+  if(reduced){
+    document.querySelectorAll('.resolve').forEach(function(el){ el.classList.remove('pending'); el.classList.add('arrived'); });
+  } else {
+    runIntro();
+  }
+
+  /* ---------------- scroll-triggered arrivals reuse the same idea: blur+scale -> lock, lighter weight ---------------- */
+  var revealables = document.querySelectorAll('.reveal');
+  revealables.forEach(function(el){
+    if(!reduced){
+      el.style.opacity = 0;
+      el.style.transform = 'translateY(22px)';
+      el.style.filter = 'blur(6px)';
+      el.style.transition = 'opacity .8s ease-out, transform .9s cubic-bezier(.2,.9,.24,1), filter .8s ease-out';
+    }
+  });
+  if('IntersectionObserver' in window && !reduced){
+    var io = new IntersectionObserver(function(list){
+      list.forEach(function(entry){
+        if(entry.isIntersecting){
+          var el = entry.target;
+          el.style.opacity = 1;
+          el.style.transform = 'translateY(0)';
+          el.style.filter = 'blur(0)';
+          io.unobserve(el);
+        }
+      });
+    }, { threshold: .18 });
+    revealables.forEach(function(el){ io.observe(el); });
+  }
+})();
+</script>
+</body>
+</html>

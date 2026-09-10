@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Mishra Cabinet — A Catalogue in Nine Drawers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,700&family=Archivo+Narrow:wght@400;600;700&family=Karla:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EFE4CE; --paper2:#E3D5B9; --ink:#242E3D; --ink2:#4B5566;
+  --ochre:#C0912F; --blood:#8B4033;
+  --rule:rgba(36,46,61,.28); --serif:'Bodoni Moda',Georgia,serif;
+  --lab:'Archivo Narrow','Arial Narrow',sans-serif; --body:'Karla',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden}
+body{background:#242E3D;font-family:var(--body);color:var(--ink);-webkit-font-smoothing:antialiased}
+img{display:block;max-width:100%}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+
+/* ---------- the corridor: flat planes, moving sideways ---------- */
+#track{display:flex;height:100%;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none}
+#track::-webkit-scrollbar{display:none}
+.panel{flex:0 0 100%;height:100%;scroll-snap-align:center;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;
+  background:var(--g);position:relative;padding:clamp(18px,3.6vh,42px) clamp(14px,4vw,40px) 82px;
+  display:flex;flex-direction:column;justify-content:center;justify-content:safe center}
+.panel::-webkit-scrollbar{display:none}
+.panel::before{content:"";position:absolute;inset:10px;border:1px solid rgba(239,228,206,.16);pointer-events:none}
+.panel::after{content:"";position:absolute;top:10px;bottom:10px;left:50%;width:1px;background:rgba(239,228,206,.09);pointer-events:none}
+.stage{max-width:1040px;width:100%;margin:0 auto;position:relative;z-index:1;flex:0 0 auto}
+
+/* ---------- catalogue furniture ---------- */
+.head{text-align:center;margin:0 auto clamp(16px,3vh,30px)}
+.ch{font-family:var(--lab);font-size:11px;letter-spacing:.34em;text-transform:uppercase;color:rgba(239,228,206,.9);margin:0 0 8px}
+.head h2{font-family:var(--serif);font-weight:400;font-size:clamp(23px,4.2vw,40px);line-height:1.12;margin:0;color:var(--paper)}
+.orn{display:flex;align-items:center;justify-content:center;gap:8px;margin:12px auto 0;max-width:320px}
+.orn i{height:1px;flex:1;background:rgba(239,228,206,.4)}
+.orn b{width:5px;height:5px;background:var(--paper);transform:rotate(45deg)}
+.sub{font-family:var(--lab);font-size:12.5px;letter-spacing:.16em;text-transform:uppercase;color:rgba(239,228,206,.84);margin:10px 0 0}
+
+.card{background:var(--paper);border:1px solid var(--rule);
+  box-shadow:0 0 0 1px rgba(239,228,206,.1),inset 0 0 0 4px var(--paper),inset 0 0 0 5px rgba(36,46,61,.16);
+  padding:clamp(14px,2.2vw,22px)}
+.tag{font-family:var(--lab);font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--blood);margin:0}
+.ttl{font-family:var(--serif);font-size:clamp(17px,2.1vw,23px);margin:7px 0 3px;line-height:1.22}
+.meta{font-family:var(--lab);font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2);margin:0 0 10px}
+p.b{font-size:15.5px;line-height:1.6;color:var(--ink);margin:0 0 8px}
+ul.b{margin:0;padding-left:1.05em}
+ul.b li{font-size:15.5px;line-height:1.6;margin-bottom:6px}
+.row{display:grid;gap:clamp(12px,1.6vw,20px)}
+.r3{grid-template-columns:repeat(3,1fr)}
+.r2{grid-template-columns:repeat(2,1fr)}
+.stamp{display:inline-block;font-family:var(--lab);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:#7A3B2F;
+  border:1.5px solid var(--blood);padding:4px 9px;box-shadow:0 0 0 2.5px var(--paper),0 0 0 3.5px var(--blood)}
+.stamp.quiet{color:var(--ink2);border-color:var(--ink2);box-shadow:0 0 0 2.5px var(--paper),0 0 0 3.5px var(--ink2)}
+a.lk{font-family:var(--lab);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#7A3B2F;text-decoration:none;border-bottom:1px solid rgba(139,64,51,.55)}
+a.lk:hover{background:rgba(192,145,47,.24)}
+
+/* ---------- drawer 01: the cabinet IS the index ---------- */
+.front{text-align:center;padding-top:clamp(4px,1.6vh,20px)}
+.front .name{font-family:var(--serif);color:var(--paper);font-size:clamp(27px,5.6vw,54px);line-height:1.04;margin:0}
+.front .name em{font-style:normal;display:block;font-size:.4em;letter-spacing:.3em;text-transform:uppercase;
+  font-family:var(--lab);color:rgba(239,228,206,.72);margin-bottom:14px}
+.cab{max-width:600px;margin:clamp(16px,3vh,28px) auto;background:linear-gradient(180deg,#6E5535,#574226);
+  padding:12px;border:1px solid rgba(239,228,206,.3);box-shadow:0 18px 40px rgba(0,0,0,.38)}
+.cab .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.dw{position:relative;background:linear-gradient(180deg,var(--paper),var(--paper2));border:1px solid rgba(36,46,61,.35);
+  padding:13px 6px 18px;text-align:center;transition:transform .32s cubic-bezier(.2,.7,.2,1),box-shadow .32s}
+.dw span{display:block;font-family:var(--lab);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);line-height:1.35}
+.dw b{display:block;font-family:var(--serif);font-size:15px;color:var(--ink);margin-bottom:3px}
+.dw::after{content:"";position:absolute;left:50%;bottom:5px;width:9px;height:9px;margin-left:-4.5px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#D6B45E,#8A6A22)}
+.dw:hover,.dw:focus-visible{transform:translateY(4px) scale(1.015);box-shadow:0 8px 16px rgba(0,0,0,.42);outline:none}
+.dw[aria-current="true"]{background:linear-gradient(180deg,#EACB8C,#D8B168)}
+.fnote{max-width:520px;margin:0 auto;font-size:15px;line-height:1.6;color:#F3EADA}
+
+/* ---------- measured, before and after ---------- */
+.ledgerbox{max-width:660px;margin:0 auto}
+.lg{display:grid;grid-template-columns:1fr auto 1fr;align-items:baseline;gap:10px;padding:9px 0;border-bottom:1px dotted var(--rule)}
+.lg:last-child{border-bottom:0}
+.lg .was{text-align:right;font-family:var(--lab);font-size:15px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);
+  text-decoration:line-through;text-decoration-color:rgba(139,64,51,.75)}
+.lg .plainwas{text-decoration:none}
+.lg .now{text-align:left;font-family:var(--serif);font-size:clamp(17px,2.4vw,24px);font-weight:700}
+.lg .ar{font-family:var(--lab);color:var(--blood);font-size:13px}
+.lg.two{grid-template-columns:1fr auto}
+.cap{font-family:var(--lab);font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--ink2);text-align:center;margin:12px 0 0;line-height:1.7}
+
+/* ---------- plates ---------- */
+.plate{background:var(--paper);border:1px solid var(--rule);padding:10px 10px 0;box-shadow:0 10px 24px rgba(0,0,0,.24)}
+.mount{background:var(--paper2);border:1px solid rgba(36,46,61,.2);padding:9px}
+.mount img{aspect-ratio:16/9;object-fit:cover;width:100%;background:#CDBFA4}
+.sq{max-width:340px;margin:0 auto}
+.sq img{aspect-ratio:1/1}
+.pcap{padding:10px 2px 12px;text-align:center}
+.pcap .no{font-family:var(--lab);font-size:10px;letter-spacing:.26em;text-transform:uppercase;color:var(--blood);margin:0}
+.pcap h3{font-family:var(--serif);font-size:clamp(16px,1.9vw,21px);margin:5px 0}
+.pcap p.d{font-size:15px;line-height:1.58;margin:0 0 9px;color:var(--ink)}
+.verso{display:flex;gap:5px;justify-content:center;margin:0 0 9px}
+.verso img{width:44px;height:26px;object-fit:cover;border:1px solid var(--rule)}
+
+/* ---------- the empty department ---------- */
+.slot{border:1px dashed rgba(36,46,61,.45);
+  background:repeating-linear-gradient(45deg,rgba(36,46,61,.05) 0 7px,transparent 7px 14px),var(--paper);
+  min-height:130px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:14px}
+.slot .qn{font-family:var(--serif);font-size:30px;color:rgba(36,46,61,.32)}
+.links{display:flex;flex-wrap:wrap;gap:9px 14px;justify-content:center}
+
+/* ---------- the caption plate, dead centre, at the bottom ---------- */
+#ledger{position:fixed;left:50%;transform:translateX(-50%);bottom:14px;z-index:9;display:flex;align-items:center;gap:2px;
+  background:var(--paper);border:1px solid var(--rule);box-shadow:0 6px 18px rgba(0,0,0,.38);padding:4px 6px}
+#ledger button{width:27px;height:27px;font-family:var(--lab);font-size:16px;color:var(--ink2)}
+#ledger button:hover{color:var(--blood)}
+#ledger .txt{font-family:var(--lab);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink);padding:0 8px;white-space:nowrap}
+#ledger .txt i{color:var(--ink2);font-style:normal}
+
+@media (max-width:760px){
+  .r3,.r2{grid-template-columns:1fr}
+  .cab .grid{gap:4px}.dw{padding:10px 3px 16px}.dw span{font-size:8.6px;letter-spacing:.07em}.dw b{font-size:13px}
+  .lg{grid-template-columns:1fr;gap:2px;text-align:center}.lg .was,.lg .now{text-align:center}
+  .lg .ar{display:none}
+  .panel::after{display:none}
+  #ledger .txt{letter-spacing:.12em}
+}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.front>*{animation:rise .7s both}
+.front>*:nth-child(2){animation-delay:.09s}
+.front>*:nth-child(3){animation-delay:.18s}
+.front>*:nth-child(4){animation-delay:.26s}
+@media (prefers-reduced-motion:reduce){
+  #track{scroll-behavior:auto}.dw{transition:none}
+  .front>*{animation:none}
+}
+</style>
+</head>
+<body>
+
+<div id="track">
+
+<!-- ================= DRAWER I ================= -->
+<section class="panel" style="--g:#2A3547" data-t="Frontispiece">
+  <div class="stage front">
+    <h1 class="name"><em>A catalogue in nine drawers</em>Pranav&nbsp;Pushkar&nbsp;Mishra</h1>
+    <div class="cab"><div class="grid" id="drawers"></div></div>
+    <p class="fnote">Metuchen, New Jersey. Computer science, University of Illinois Chicago. Nine drawers, labelled, in the order he would like them opened. <b>Pull a drawer &mdash; or move sideways.</b></p>
+    <p class="sub">ACC. No. PM&thinsp;&ndash;&thinsp;0001 &nbsp;&middot;&nbsp; Complete &nbsp;&middot;&nbsp; Not to be removed from the premises</p>
+  </div>
+</section>
+
+<!-- ================= DRAWER II ================= -->
+<section class="panel" style="--g:#7A3F36" data-t="The Present Occupation">
+  <div class="stage">
+    <div class="head plane" data-d="6"><p class="ch">Drawer Two</p><h2>The Present Occupation</h2><div class="orn"><i></i><b></b><i></i></div><p class="sub">New York City &middot; April 2026 &ndash; present</p></div>
+    <div class="row r2">
+      <div class="card plane" data-d="14">
+        <p class="tag">Position held</p>
+        <h3 class="ttl">Founding LLM Engineer, Alfred_</h3>
+        <p class="meta">Reliability, in his charge</p>
+        <p class="b">A consumer AI assistant running 5,000+ people&rsquo;s email, calendar and daily obligations over text message, chat and voice. He owns the reliability side.</p>
+        <ul class="b">
+          <li>Replaced a model call on every message with a deterministic matcher: <b>~30% cheaper per user</b>, and <b>98%</b> of rules are now made by chatting.</li>
+          <li>Rebuilt working memory so it cannot fabricate facts about your inbox &mdash; enforced by tests.</li>
+        </ul>
+        <p style="margin:12px 0 0"><a class="lk" href="https://get-alfred.ai">get-alfred.ai</a></p>
+      </div>
+      <div class="card plane" data-d="22">
+        <p class="tag">Exhibit A &middot; measured, before and after</p>
+        <div class="ledgerbox" style="margin-top:14px">
+          <div class="lg"><span class="was">90 seconds</span><span class="ar">&#9656;</span><span class="now">3 seconds</span></div>
+          <div class="lg"><span class="was">189 seconds</span><span class="ar">&#9656;</span><span class="now">Instant</span></div>
+        </div>
+        <p class="cap">Above: email to text message.<br>Below: security codes.<br>Both were once a wait. They are now not.</p>
+        <p style="text-align:center;margin:18px 0 0"><span class="stamp">Verified by tests</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DRAWER III ================= -->
+<section class="panel" style="--g:#4A5A4B" data-t="Previous Engagements">
+  <div class="stage">
+    <div class="head plane" data-d="6"><p class="ch">Drawer Three</p><h2>Previous Engagements</h2><div class="orn"><i></i><b></b><i></i></div><p class="sub">Three, filed by date, most recent at left</p></div>
+    <div class="row r3">
+      <div class="card plane" data-d="12">
+        <p class="tag">File III &middot; a</p><h3 class="ttl">AI Engineer</h3>
+        <p class="meta">WheelPrice &middot; Charlotte, remote<br>Jul 2025 &ndash; Mar 2026</p>
+        <p class="b">Computer vision for part fitment, and a content system that reached <b>10&ndash;20k readers a day</b>.</p>
+      </div>
+      <div class="card plane" data-d="18">
+        <p class="tag">File III &middot; b</p><h3 class="ttl">Research Software Engineer</h3>
+        <p class="meta">V-ARE Labs, UIC &middot; Chicago<br>Feb 2024 &ndash; present</p>
+        <p class="b">Virtual patients in Unreal Engine 5, and an audio ML pipeline at <b>98.52%</b> accuracy.</p>
+      </div>
+      <div class="card plane" data-d="12">
+        <p class="tag">File III &middot; c</p><h3 class="ttl">Software Developer Intern</h3>
+        <p class="meta">Bipolar Factory &middot; Bengaluru<br>2023</p>
+        <p class="b">A MERN streaming platform, and in-game chat in Unity that lifted retention <b>+10%</b>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DRAWER IV ================= -->
+<section class="panel" style="--g:#6A5324" data-t="Papers, in Three Parts">
+  <div class="stage">
+    <div class="head plane" data-d="6"><p class="ch">Drawer Four</p><h2>Papers, in Three Parts</h2><div class="orn"><i></i><b></b><i></i></div><p class="sub">Two out in the world, one still on the desk</p></div>
+    <div class="row r3">
+      <div class="card plane" data-d="16">
+        <p class="tag">Part the First</p>
+        <h3 class="ttl">A systematic framework for enterprise knowledge retrieval</h3>
+        <p class="b">Metadata written by a language model <em>before</em> anything is stored. Precision <b>82.5%</b>, against <b>73.3%</b>.</p>
+        <p style="margin:0 0 12px"><span class="stamp">Accepted &middot; CAI 2026 &middot; IEEE</span></p>
+        <a class="lk" href="https://arxiv.org/pdf/2512.05411">Read the paper</a>
+      </div>
+      <div class="card plane" data-d="24">
+        <p class="tag">Part the Second</p>
+        <h3 class="ttl">TeamMedAgents</h3>
+        <p class="b">The Big Five teamwork model, built as real mechanisms between agents rather than as advice. Better on <b>7 of 8</b> medical benchmarks.</p>
+        <p class="meta" style="margin:10px 0 12px">Under review &middot; PAKDD 2026 &middot; 4 citations</p>
+        <a class="lk" href="https://arxiv.org/pdf/2508.08115">Read the paper</a>
+      </div>
+      <div class="card plane" data-d="16">
+        <p class="tag">Part the Third</p>
+        <h3 class="ttl">Cost-efficient multi-modal medical reasoning with small models</h3>
+        <p class="b">In preparation. There is nothing yet to link to, and it would be rude to pretend otherwise.</p>
+        <p style="margin:0"><span class="stamp quiet">In preparation</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DRAWER V ================= -->
+<section class="panel" style="--g:#345A62" data-t="Vitrine One">
+  <div class="stage">
+    <div class="head plane" data-d="6"><p class="ch">Drawer Five</p><h2>Vitrine One &mdash; Rooms &amp; Patients</h2><div class="orn"><i></i><b></b><i></i></div><p class="sub">Plates I to III</p></div>
+    <div class="row r3">
+      <figure class="plate plane" data-d="14" style="margin:0">
+        <div class="mount"><img src="/portfolio/public/assets/images/game_design/stellarium.png" alt="Stellarium running in the CAVE2 room" loading="eager"></div>
+        <figcaption class="pcap"><p class="no">Plate I</p><h3>Stellarium</h3>
+          <p class="d">107,000 astronomical objects in CAVE2, a room whose walls are screens.</p>
+          <div class="verso"><img src="/portfolio/public/assets/images/game_design/st1.png" alt="Stellarium, detail a"><img src="/portfolio/public/assets/images/game_design/st2.png" alt="Stellarium, detail b"></div>
+          <a class="lk" href="https://youtu.be/EX0c-6E8iNc">Moving picture</a></figcaption>
+      </figure>
+      <figure class="plate plane" data-d="22" style="margin:0">
+        <div class="mount"><img src="/portfolio/public/assets/images/game_design/snaider.png" alt="SnAIder-Cut augmented room" loading="eager"></div>
+        <figcaption class="pcap"><p class="no">Plate II</p><h3>SnAIder-Cut</h3>
+          <p class="d">Say what you want changed, and the augmented room changes.</p>
+          <div class="verso"><img src="/portfolio/public/assets/images/game_design/mit.jpeg" alt="MIT XR 2024"></div>
+          <p style="margin:0 0 10px"><span class="stamp">Won MIT XR 2024</span></p>
+          <a class="lk" href="https://youtu.be/CZtGmnGYKp8">Moving picture</a></figcaption>
+      </figure>
+      <figure class="plate plane" data-d="14" style="margin:0">
+        <div class="mount"><img src="/portfolio/public/assets/images/game_design/equity.png" alt="EQUITY virtual patient in Unreal Engine 5" loading="eager"></div>
+        <figcaption class="pcap"><p class="no">Plate III</p><h3>EQUITY</h3>
+          <p class="d">An Unreal Engine 5 virtual patient, for bias research in medicine.</p>
+          <div class="verso"><img src="/portfolio/public/assets/images/game_design/eq1.png" alt="EQUITY, detail a"><img src="/portfolio/public/assets/images/game_design/eq2.png" alt="EQUITY, detail b"></div>
+          <a class="lk" href="https://youtu.be/WO2vVaD8WoE">Moving picture</a></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DRAWER VI ================= -->
+<section class="panel" style="--g:#6E4550" data-t="Vitrine Two">
+  <div class="stage">
+    <div class="head plane" data-d="6"><p class="ch">Drawer Six</p><h2>Vitrine Two &mdash; Places to Walk Around In</h2><div class="orn"><i></i><b></b><i></i></div><p class="sub">Plates IV to VI &middot; one is square, and stays that way</p></div>
+    <div class="row r3">
+      <figure class="plate plane" data-d="14" style="margin:0">
+        <div class="mount"><img src="/portfolio/public/assets/images/game_design/neon.png" alt="Neon-Bites cyberpunk delivery game" loading="lazy"></div>
+        <figcaption class="pcap"><p class="no">Plate IV</p><h3>Neon-Bites</h3>
+          <p class="d">Cyberpunk food delivery, with the physics taken seriously.</p>
+          <div class="verso"><img src="/portfolio/public/assets/images/game_design/neon1.png" alt="Neon-Bites, detail a"></div>
+          <a class="lk" href="https://youtu.be/PLVynmeGvsI">Moving picture</a></figcaption>
+      </figure>
+      <figure class="plate plane" data-d="22" style="margin:0">
+        <div class="mount sq"><img src="/portfolio/public/assets/images/game_design/van%20gogh.jpg" alt="Virtual Van Gogh walkable museum" loading="lazy"></div>
+        <figcaption class="pcap"><p class="no">Plate V &middot; square plate, shown at true size</p><h3>Virtual Van Gogh</h3>
+          <p class="d">A walkable museum. The paintings hang on a chain.</p>
+          <p style="margin:0 0 10px"><span class="stamp">First at HINT 5.0</span></p>
+          <a class="lk" href="https://youtu.be/rz_NiIj-dic">Moving picture</a></figcaption>
+      </figure>
+      <figure class="plate plane" data-d="14" style="margin:0">
+        <div class="mount"><img src="/portfolio/public/assets/images/game_design/mafia.png" alt="AI Mafia board game played by agents" loading="lazy"></div>
+        <figcaption class="pcap"><p class="no">Plate VI</p><h3>AI Mafia</h3>
+          <p class="d">Language models playing a game about lying to each other.</p>
+          <a class="lk" href="https://github.com/PranavMishra17/Mafia-Boardgame-via-Agents">Source</a></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DRAWER VII ================= -->
+<section class="panel" style="--g:#3E4A5C" data-t="Vitrine Three">
+  <div class="stage">
+    <div class="head plane" data-d="6"><p class="ch">Drawer Seven</p><h2>Vitrine Three &mdash; Things That Learn</h2><div class="orn"><i></i><b></b><i></i></div><p class="sub">Plates VII to IX</p></div>
+    <div class="row r3">
+      <figure class="plate plane" data-d="14" style="margin:0">
+        <div class="mount"><img src="/portfolio/public/assets/images/ai_ml/big5.png" alt="Big5-Agents" loading="lazy"></div>
+        <figcaption class="pcap"><p class="no">Plate VII</p><h3>Big5-Agents</h3>
+          <p class="d">The teamwork paper, as runnable code.</p>
+          <a class="lk" href="https://github.com/PranavMishra17/Big5-Agents">Source</a></figcaption>
+      </figure>
+      <figure class="plate plane" data-d="22" style="margin:0">
+        <div class="mount"><img src="/portfolio/public/assets/images/ai_ml/snake.png" alt="SnakeAI-MLOps" loading="lazy"></div>
+        <figcaption class="pcap"><p class="no">Plate VIII</p><h3>SnakeAI-MLOps</h3>
+          <p class="d">Four reinforcement learning methods, racing on one game.</p>
+          <p style="margin:0 0 10px"><span class="stamp">Live and playable</span></p>
+          <a class="lk" href="https://pranavmishra17.github.io/SnakeAI-MLOps/">Play it</a></figcaption>
+      </figure>
+      <figure class="plate plane" data-d="14" style="margin:0">
+        <div class="mount"><img src="/portfolio/public/assets/images/game_design/rust.png" alt="Rusty ANT ant colony simulation in Rust" loading="lazy"></div>
+        <figcaption class="pcap"><p class="no">Plate IX</p><h3>Rusty ANT</h3>
+          <p class="d">Ants evolving, in Rust.</p>
+          <a class="lk" href="https://github.com/PranavMishra17/Rust-yy-Ant">Source</a></figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DRAWER VIII ================= -->
+<section class="panel" style="--g:#55534A" data-t="Dept. of Personal Taste">
+  <div class="stage">
+    <div class="head plane" data-d="6"><p class="ch">Drawer Eight</p><h2>Department of Personal Taste</h2><div class="orn"><i></i><b></b><i></i></div><p class="sub">Catalogued in advance of the objects arriving</p></div>
+    <div class="card plane" data-d="18" style="max-width:820px;margin:0 auto">
+      <div class="row r3">
+        <div class="slot"><span class="qn">?</span><p class="tag">Shelf I &middot; Books</p></div>
+        <div class="slot"><span class="qn">?</span><p class="tag">Shelf II &middot; Films</p></div>
+        <div class="slot"><span class="qn">?</span><p class="tag">Shelf III &middot; Games</p></div>
+      </div>
+      <p class="b" style="text-align:center;max-width:540px;margin:18px auto 0">He reads books, loves films, plays games. He has not said which ones. These three shelves are placeholders, and will stay empty until he does.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DRAWER IX ================= -->
+<section class="panel" style="--g:#2A3547" data-t="Odds, Ends &amp; Colophon">
+  <div class="stage">
+    <div class="head plane" data-d="6"><p class="ch">Drawer Nine</p><h2>Odds, Ends &amp; Colophon</h2><div class="orn"><i></i><b></b><i></i></div><p class="sub">The last drawer, which is mostly small things</p></div>
+    <div class="row r2" style="max-width:880px;margin:0 auto">
+      <div class="card plane" data-d="16">
+        <p class="tag">Odds and ends</p>
+        <div class="ledgerbox" style="margin-top:12px">
+          <div class="lg two"><span class="was plainwas">Won MIT XR</span><span class="now">2024</span></div>
+          <div class="lg two"><span class="was plainwas">First place, HINT</span><span class="now">5.0</span></div>
+          <div class="lg two"><span class="was plainwas">Citations</span><span class="now">4</span></div>
+        </div>
+        <p class="b" style="margin:14px 0 0;text-align:center">Four citations, which pleases him more than it should.</p>
+      </div>
+      <div class="card plane" data-d="24" style="text-align:center">
+        <p class="tag">Where to find him</p>
+        <p class="ttl" style="margin-bottom:14px">Correspondence</p>
+        <div class="links">
+          <a class="lk" href="https://github.com/PranavMishra17">github.com/PranavMishra17</a>
+          <a class="lk" href="https://linkedin.com/in/pranavgamedev">linkedin.com/in/pranavgamedev</a>
+          <a class="lk" href="https://huggingface.co/Paranoiid">huggingface.co/Paranoiid</a>
+          <a class="lk" href="https://get-alfred.ai">get-alfred.ai</a>
+        </div>
+        <p class="cap" style="margin-top:20px">Set in Bodoni Moda, Archivo Narrow and Karla.<br>Nine drawers. Everything labelled.<br>Metuchen, New Jersey.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<nav id="ledger" aria-label="Catalogue position">
+  <button id="prev" aria-label="Previous drawer">&#8249;</button>
+  <span class="txt"><i>Drawer</i> <b id="lnum">01</b> <i>of 09 &middot;</i> <b id="lttl">Frontispiece</b></span>
+  <button id="next" aria-label="Next drawer">&#8250;</button>
+</nav>
+
+<script>
+(function(){
+  var track=document.getElementById('track');
+  var panels=[].slice.call(track.querySelectorAll('.panel'));
+  var titles=panels.map(function(p){return p.getAttribute('data-t')});
+  var labels=['This plate','Now','Before','Papers','Vitrine I','Vitrine II','Vitrine III','Taste','Odds & ends'];
+  var romans=['I','II','III','IV','V','VI','VII','VIII','IX'];
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var cur=0;
+
+  /* the cabinet is the index */
+  var box=document.getElementById('drawers');
+  labels.forEach(function(t,i){
+    var b=document.createElement('button');
+    b.className='dw'; b.type='button';
+    b.innerHTML='<b>'+romans[i]+'</b><span>'+t+'</span>';
+    b.setAttribute('aria-label','Drawer '+romans[i]+': '+titles[i]);
+    b.addEventListener('click',function(){go(i)});
+    box.appendChild(b);
+  });
+  var drawers=[].slice.call(box.children);
+
+  function paint(){
+    document.getElementById('lnum').textContent=('0'+(cur+1)).slice(-2);
+    document.getElementById('lttl').innerHTML=titles[cur];
+    drawers.forEach(function(d,i){d.setAttribute('aria-current',i===cur?'true':'false')});
+  }
+  /* the drawer slides open on its own runners; scroll-snap is stood down meanwhile */
+  var anim=null, runid=0;
+  function go(i){
+    var me=++runid;
+    var n=Math.max(0,Math.min(panels.length-1,i));
+    if(n===cur&&Math.abs(track.scrollLeft-n*track.clientWidth)<2)return;
+    cur=n; paint();
+    var from=track.scrollLeft, to=cur*track.clientWidth, d=to-from;
+    if(anim){cancelAnimationFrame(anim);anim=null}
+    if(reduce||Math.abs(d)<2){track.scrollLeft=to;return}
+    track.style.scrollSnapType='none';
+    var t0=(window.performance||Date).now(), dur=560;
+    /* if rAF never runs (hidden tab, throttling), land it anyway */
+    setTimeout(function(){
+      if(anim&&me===runid){cancelAnimationFrame(anim);anim=null;track.scrollLeft=to;track.style.scrollSnapType=''}
+    },dur+240);
+    (function step(now){
+      if(me!==runid)return;
+      var k=Math.min(1,((now||t0)-t0)/dur);
+      var e=k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2;
+      track.scrollLeft=from+d*e;
+      if(k<1){anim=requestAnimationFrame(step)}
+      else{anim=null;track.scrollLeft=to;track.style.scrollSnapType=''}
+    })(t0);
+  }
+  document.getElementById('prev').addEventListener('click',function(){go(cur-1)});
+  document.getElementById('next').addEventListener('click',function(){go(cur+1)});
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'){go(cur+1)} else if(e.key==='ArrowLeft'){go(cur-1)}
+  });
+
+  /* flat planes drifting sideways at different rates */
+  var queued=false;
+  function frame(){
+    queued=false;
+    var w=track.clientWidth||1, x=track.scrollLeft;
+    var idx=Math.round(x/w);
+    if(!anim&&idx!==cur){cur=idx;paint()}
+    if(reduce)return;
+    panels.forEach(function(p,i){
+      var off=(x/w)-i;
+      if(Math.abs(off)>1.2)return;
+      var ps=p.querySelectorAll('.plane');
+      for(var j=0;j<ps.length;j++){
+        var d=parseFloat(ps[j].getAttribute('data-d'))||0;
+        ps[j].style.transform='translate3d('+(off*d).toFixed(2)+'px,0,0)';
+      }
+    });
+  }
+  track.addEventListener('scroll',function(){ if(!queued){queued=true;requestAnimationFrame(frame)} },{passive:true});
+
+  /* a vertical wheel, when there is nowhere vertical to go, moves sideways */
+  track.addEventListener('wheel',function(e){
+    var p=panels[cur];
+    if(Math.abs(e.deltaY)<=Math.abs(e.deltaX))return;
+    if(p && p.scrollHeight-p.clientHeight>6)return;
+    e.preventDefault();
+    track.scrollLeft+=e.deltaY;
+  },{passive:false});
+
+  paint();
+  setTimeout(frame,120);
+  window.addEventListener('resize',function(){track.scrollLeft=cur*track.clientWidth});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Strata: Pranav Pushkar Mishra</title>
+<meta name="description" content="Pranav Pushkar Mishra — Founding LLM Engineer at Alfred_.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..400&family=Spline+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   STRATA
+   An alien geology. Scrolling descends through rock layers.
+   The surface is now. The bedrock is where he started.
+   ============================================================ */
+
+:root{
+  /* sky — violet, wrong colour for the pale jade light below it */
+  --sky-void:#1D2038;
+  --sky-high:#2B2A4A;
+  --sky-mid:#4E3F62;
+  --sky-low:#7A6A82;
+  --sky-haze:#9DAB9C;
+
+  /* light */
+  --jade:#B7D6BE;
+  --jade-deep:#7FA98D;
+
+  /* type */
+  --bone:#EBE5D7;
+  --bone-2:#C4BCAE;
+  --bone-3:#9E968D;
+
+  --veil:16,11,26;
+
+  --gutter:clamp(20px, 7vw, 120px);
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--sky-void);
+  color:var(--bone);
+  font-family:"Spline Sans", ui-sans-serif, system-ui, sans-serif;
+  font-weight:300;
+  font-size:clamp(15px, 0.55vw + 13.4px, 18px);
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+/* ---------- sky ---------- */
+.sky{
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(58vw 34vh at 21% 62%, rgba(183,214,190,.30), rgba(183,214,190,.10) 38%, rgba(183,214,190,0) 70%),
+    linear-gradient(to bottom,
+      var(--sky-void) 0%,
+      var(--sky-high) 20%,
+      var(--sky-mid) 44%,
+      var(--sky-low) 60%,
+      var(--sky-haze) 72%,
+      var(--sky-haze) 100%);
+}
+.sun{
+  position:fixed; z-index:0; pointer-events:none;
+  left:21%; top:60%;
+  width:min(15vw,150px); aspect-ratio:1; margin:0 0 0 min(-7.5vw,-75px);
+  border-radius:50%;
+  background:radial-gradient(circle, #E6F2E4 0%, #C6E0CB 38%, rgba(183,214,190,.42) 62%, rgba(183,214,190,0) 74%);
+  filter:blur(1px);
+}
+/* a second, dimmer companion — the tell that this is not our sky */
+.sun.b{ left:33%; top:52%; width:min(5vw,44px); margin-left:min(-2.5vw,-22px); opacity:.5; filter:blur(2px) }
+
+/* ---------- ridge layers (built by JS, appended to body) ---------- */
+.layer{
+  position:fixed; left:-7%; width:114%; bottom:0;
+  pointer-events:none;
+  will-change:transform;
+  transform:translate3d(0,110vh,0);
+}
+.layer svg{ display:block; width:100%; height:100%; overflow:visible }
+.layer .skirt{
+  position:absolute; left:0; right:0; top:calc(100% - 1px); height:240vh;
+}
+
+/* ---------- content ---------- */
+main{ position:relative; z-index:10 }
+
+.stratum{
+  min-height:100svh;
+  padding:22vh var(--gutter) 26vh;
+  display:flex; align-items:center;
+}
+.col{
+  position:relative;
+  width:100%;
+  max-width:44rem;
+}
+.col::before{
+  content:"";
+  position:absolute; inset:-9vh -9vw -11vh -10vw;
+  z-index:-1; pointer-events:none;
+  background:radial-gradient(115% 92% at 26% 48%,
+    rgba(var(--veil),.80) 0%,
+    rgba(var(--veil),.56) 38%,
+    rgba(var(--veil),.20) 64%,
+    rgba(var(--veil),0) 82%);
+}
+
+/* hero */
+#surface{ min-height:100svh; align-items:flex-end; padding-bottom:30vh }
+#surface .col::before{ inset:-14vh -14vw -18vh -12vw }
+.rise{ display:block; transform:translate3d(0,120px,0); opacity:0 }
+
+h1{
+  font-family:"Fraunces", Georgia, serif;
+  font-optical-sizing:auto;
+  font-weight:300;
+  font-size:clamp(2.7rem, 9.2vw, 6.1rem);
+  line-height:.98;
+  letter-spacing:-.022em;
+  margin:0 0 .5em;
+  color:#F3EEE1;
+}
+h1 em{ font-style:italic; font-weight:300; color:#F3EEE1 }
+
+.lede{
+  font-size:clamp(1.12rem, 2.5vw, 1.5rem);
+  line-height:1.5;
+  font-weight:300;
+  max-width:30ch;
+  margin:0 0 1.4em;
+  color:var(--bone);
+}
+.place{ color:var(--bone-2); margin:0 0 2.6em; max-width:34ch }
+.descend{
+  color:var(--bone-3); font-size:.94rem; max-width:32ch; margin:0;
+  line-height:1.55;
+}
+
+/* section heads */
+.yr{
+  margin:0 0 .55em;
+  color:var(--jade-deep);
+  font-size:.92rem;
+  font-weight:400;
+  letter-spacing:.005em;
+}
+h2{
+  font-family:"Fraunces", Georgia, serif;
+  font-optical-sizing:auto;
+  font-weight:300;
+  font-size:clamp(2rem, 5.6vw, 3.5rem);
+  line-height:1.02;
+  letter-spacing:-.018em;
+  margin:0 0 .28em;
+  color:#F3EEE1;
+}
+h3{
+  font-family:"Fraunces", Georgia, serif;
+  font-weight:400; font-size:1.14rem; line-height:1.3;
+  letter-spacing:-.006em;
+  margin:0 0 .3em; color:#EDE7DA;
+}
+.role{ color:var(--bone-2); margin:0 0 1.6em; font-size:1.02rem }
+p{ margin:0 0 1.15em; max-width:38rem }
+.notes p{ color:var(--bone) }
+.notes p + p{ margin-top:-.15em }
+
+/* the strata entries (papers / roles / builds) — no cards, hairline beds */
+.bed{ border-top:1px solid rgba(235,229,215,.16); padding:1.5em 0 1.35em; max-width:38rem }
+.bed:first-of-type{ border-top:0; padding-top:.3em }
+.bed p{ margin:0 }
+.bed .meta{ color:var(--bone-3); margin-top:.5em; font-size:.92rem }
+
+.builds{ margin-top:.6em }
+.builds .bed{ padding:1.1em 0 1em }
+.builds h3{ font-size:1.06rem; margin-bottom:.15em }
+.builds p{ color:var(--bone-2) }
+
+.tail{ color:var(--bone-3); margin-top:1.6em; font-size:.95rem }
+
+/* links */
+a{ color:#F3EEE1; text-decoration:none; border-bottom:1px solid rgba(183,214,190,.45); padding-bottom:.08em }
+a:hover{ border-bottom-color:var(--jade); color:#fff }
+a:focus-visible{ outline:2px solid var(--jade); outline-offset:4px; border-radius:2px }
+.reach{ display:flex; flex-direction:column; gap:.85em; margin-top:1.6em; align-items:flex-start }
+.reach a{ font-family:"Fraunces", Georgia, serif; font-size:clamp(1.1rem,3vw,1.5rem); font-weight:300; letter-spacing:-.01em }
+
+/* ---------- depth gauge ---------- */
+.gauge{
+  position:fixed; right:26px; top:50%; transform:translateY(-50%);
+  z-index:30; width:150px; pointer-events:none;
+  display:none;
+}
+.gauge .rail{ position:absolute; right:0; top:0; bottom:0; width:1px; background:rgba(235,229,215,.20) }
+.gauge ol{ list-style:none; margin:0; padding:0 }
+.gauge li{
+  position:relative; height:34px; display:flex; align-items:center; justify-content:flex-end;
+  gap:10px; color:rgba(235,229,215,.34); font-size:.82rem; letter-spacing:.005em;
+  transition:color .5s ease;
+}
+.gauge li .tick{ display:block; width:8px; height:1px; background:rgba(235,229,215,.30); flex:none }
+.gauge li[data-on]{ color:var(--bone) }
+.gauge li[data-on] .tick{ width:20px; background:var(--jade) }
+.gauge .head{
+  position:absolute; right:-3px; width:7px; height:7px; border-radius:50%;
+  background:var(--jade); top:0; margin-top:13.5px;
+  box-shadow:0 0 0 5px rgba(183,214,190,.14);
+}
+.gauge .depth{
+  position:absolute; right:32px; bottom:-30px; color:rgba(235,229,215,.30); font-size:.78rem;
+  white-space:nowrap;
+}
+@media (min-width:1040px) and (min-height:620px){ .gauge{ display:block } }
+
+/* ---------- responsive ---------- */
+@media (max-width:760px){
+  .stratum{ padding:16vh var(--gutter) 22vh }
+  #surface{ padding-bottom:36vh }
+  .col::before{ inset:-7vh -30vw -9vh -30vw }
+  .lede{ max-width:22ch }
+}
+
+/* ---------- reduced motion: everything settles instantly, ridges recede behind ---------- */
+@media (prefers-reduced-motion: reduce){
+  .layer{ transform:none !important }
+  .rise{ transform:none !important; opacity:1 !important }
+  *{ animation:none !important; transition:none !important }
+}
+</style>
+</head>
+<body>
+
+<div class="sky" aria-hidden="true"></div>
+<div class="sun" aria-hidden="true"></div>
+<div class="sun b" aria-hidden="true"></div>
+
+<main>
+
+  <section class="stratum" id="surface" data-anchor data-label="Surface">
+    <div class="col">
+      <h1><span class="rise" data-d="0">Pranav Pushkar</span><span class="rise" data-d="1"><em>Mishra</em></span></h1>
+      <p class="lede rise" data-d="2">I build the parts of language-model systems that have to be right.</p>
+      <p class="place rise" data-d="3">Founding LLM Engineer at Alfred_, in New York. I live in Metuchen, New Jersey.</p>
+      <p class="descend rise" data-d="4">Keep going down. The rock gets older as you go, and the bottom layer is where I started.</p>
+    </div>
+  </section>
+
+  <section class="stratum" id="now" data-anchor data-label="Alfred_">
+    <div class="col">
+      <p class="yr">2026, and still going</p>
+      <h2>Alfred_</h2>
+      <p class="role">Founding LLM Engineer. New York City.</p>
+      <p class="lede">Alfred_ runs people's email, calendar and daily obligations for them, over text message, web chat and voice. More than five thousand people rely on it.</p>
+      <div class="notes">
+        <p>I made it stop making things up. I rebuilt the assistant's working memory so that inventing a fact isn't something it can do — the shape of the data won't allow it, and the tests hold that line instead of me hoping the model behaves.</p>
+        <p>Every action it wants to take now goes through a decision layer with five possible verdicts: stay silent, notify me, ask me to confirm, ask me a question, or refuse. The risk score behind that is deterministic. The model does not grade its own homework. Anything still waiting sits in a queue, and there's a window in which anything done can be undone.</p>
+        <p>The email rules are the reason people stay. That used to mean a model call for every message arriving. I replaced it with a matcher that runs in three stages and mostly never needs the model at all. It costs about thirty per cent less per person, and about ninety-eight per cent of rules now get made just by talking to it in plain sentences.</p>
+        <p>An email used to take about ninety seconds to reach you as a text. Now it takes about three. One-time security codes used to take a hundred and eighty-nine seconds at the slow end. Now they arrive as they land.</p>
+        <p>I also wrote the evaluation harness from nothing, and a scanner that reads real conversations looking for the failures nobody has reported yet.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="stratum" id="papers" data-anchor data-label="Papers">
+    <div class="col">
+      <p class="yr">Written down</p>
+      <h2>Three papers</h2>
+      <p class="role">Two out in the world, one still being written.</p>
+
+      <div class="bed">
+        <h3>A Systematic Framework for Enterprise Knowledge Retrieval</h3>
+        <p>Having a language model write the metadata first, so that retrieval finds the thing you actually meant.</p>
+        <p class="meta">Accepted at CAI 2026, IEEE. arXiv 2512.05411.</p>
+      </div>
+      <div class="bed">
+        <h3>TeamMedAgents</h3>
+        <p>I took Salas's Big Five model of how human teams work together and gave it to a group of language models. It did better on seven of eight medical benchmarks.</p>
+        <p class="meta">Under review at PAKDD 2026. arXiv 2508.08115. Four citations so far.</p>
+      </div>
+      <div class="bed">
+        <h3>Small models, images and text</h3>
+        <p>Getting cheap models to reason across pictures and writing in medicine without paying for a large one.</p>
+        <p class="meta">In preparation.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="stratum" id="before" data-anchor data-label="Before">
+    <div class="col">
+      <p class="yr">2023 to 2026</p>
+      <h2>Before this</h2>
+
+      <div class="bed">
+        <h3>AI Engineer, WheelPrice</h3>
+        <p class="meta">Remote, out of Charlotte. July 2025 to March 2026.</p>
+      </div>
+      <div class="bed">
+        <h3>Research Software Engineer, V-ARE Labs at UIC</h3>
+        <p>Virtual patients built in Unreal Engine 5, and an audio machine-learning pipeline that got to 98.52 per cent.</p>
+        <p class="meta">Chicago. Since February 2024.</p>
+      </div>
+      <div class="bed">
+        <h3>Software Developer Intern, Bipolar Factory</h3>
+        <p class="meta">Bengaluru. 2023.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="stratum" id="built" data-anchor data-label="Built">
+    <div class="col">
+      <p class="yr">Older rock</p>
+      <h2>Things I built</h2>
+      <p class="role">About thirty-two of them. These are the ones worth showing.</p>
+
+      <div class="builds">
+        <div class="bed">
+          <h3>Stellarium</h3>
+          <p>A hundred and seven thousand astronomical objects, drawn live in a CAVE2 room you can walk into.</p>
+        </div>
+        <div class="bed">
+          <h3>SnAIder-Cut</h3>
+          <p>Generative AI editing an augmented-reality scene while you're standing inside it. It won the MIT XR Hackathon in 2024.</p>
+        </div>
+        <div class="bed">
+          <h3>Virtual Van Gogh</h3>
+          <p>A museum you walk through, built around NFTs. First place at HINT 5.0.</p>
+        </div>
+        <div class="bed">
+          <h3>EQUITY</h3>
+          <p>A MetaHuman patient in Unreal Engine 5, used to study bias in medicine.</p>
+        </div>
+        <div class="bed">
+          <h3>Big5-Agents</h3>
+          <p>The teamwork paper, as code you can actually run.</p>
+        </div>
+        <div class="bed">
+          <h3>SnakeAI-MLOps</h3>
+          <p>Four reinforcement-learning methods racing each other inside a game written in C++.</p>
+        </div>
+        <div class="bed">
+          <h3>Neon-Bites</h3>
+          <p>A cyberpunk delivery game.</p>
+        </div>
+        <div class="bed">
+          <h3>Rusty ANT</h3>
+          <p>Ants evolving, in Rust.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stratum" id="bedrock" data-anchor data-label="Bedrock">
+    <div class="col">
+      <p class="yr">The bottom layer</p>
+      <h2>Where I started</h2>
+      <p class="lede">Computer science at the University of Illinois Chicago. Everything above this is built on it.</p>
+      <p>I like problems where the answer has to be correct and nobody is going to check it for me. That's most of what I do now.</p>
+      <nav class="reach" aria-label="Elsewhere">
+        <a href="https://github.com/PranavMishra17">github.com/PranavMishra17</a>
+        <a href="https://linkedin.com/in/pranavgamedev">linkedin.com/in/pranavgamedev</a>
+        <a href="https://huggingface.co/Paranoiid">huggingface.co/Paranoiid</a>
+      </nav>
+      <p class="tail">Pranav Pushkar Mishra. Metuchen, New Jersey.</p>
+    </div>
+  </section>
+
+</main>
+
+<aside class="gauge" aria-hidden="true">
+  <div class="rail"></div>
+  <div class="head" id="gaugeHead"></div>
+  <ol id="gaugeList"></ol>
+  <div class="depth" id="gaugeDepth">surface</div>
+</aside>
+
+<script>
+(function(){
+"use strict";
+
+var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+/* ------------------------------------------------------------------
+   Ridge geometry. Midpoint displacement, seeded so it's stable.
+   Far layers get few points and quadratic smoothing (soft, hazy).
+   Near layers get many points and straight segments (hard silhouette).
+   ------------------------------------------------------------------ */
+function rng(a){ return function(){ a|=0; a=a+0x6D2B79F5|0;
+  var t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t;
+  return ((t^t>>>14)>>>0)/4294967296; }; }
+
+function ridgeline(seed, n, rough){
+  var r = rng(seed), a = new Array(n), i, step, half, scale;
+  for(i=0;i<n;i++) a[i]=NaN;
+  a[0]=.42+r()*.22; a[n-1]=.42+r()*.22;
+  step=n-1; scale=1;
+  while(step>1){
+    half=step>>1;
+    for(i=half;i<n;i+=step) a[i]=(a[i-half]+a[i+half])/2 + (r()-.5)*scale;
+    step=half; scale*=rough;
+  }
+  var mn=Infinity,mx=-Infinity;
+  for(i=0;i<n;i++){ if(a[i]<mn)mn=a[i]; if(a[i]>mx)mx=a[i]; }
+  var sp=(mx-mn)||1;
+  for(i=0;i<n;i++) a[i]=(a[i]-mn)/sp;
+  return a;
+}
+
+var VBW = 1200, VBH = 100;
+
+function buildPaths(spec){
+  var n = spec.soft ? 33 : 129;
+  var a = ridgeline(spec.seed, n, spec.rough);
+  var band = 100 * spec.amp / (spec.base + spec.amp);
+  var pts = [], i;
+  for(i=0;i<n;i++) pts.push([ i/(n-1)*VBW, band*(1-a[i]) ]);
+
+  var line = 'M ' + pts[0][0].toFixed(1) + ' ' + pts[0][1].toFixed(2);
+  if(spec.soft){
+    for(i=1;i<n-1;i++){
+      var mx=(pts[i][0]+pts[i+1][0])/2, my=(pts[i][1]+pts[i+1][1])/2;
+      line += ' Q ' + pts[i][0].toFixed(1) + ' ' + pts[i][1].toFixed(2) + ' ' + mx.toFixed(1) + ' ' + my.toFixed(2);
+    }
+    line += ' L ' + pts[n-1][0].toFixed(1) + ' ' + pts[n-1][1].toFixed(2);
+  } else {
+    for(i=1;i<n;i++) line += ' L ' + pts[i][0].toFixed(1) + ' ' + pts[i][1].toFixed(2);
+  }
+  return { line: line, fill: line + ' L ' + VBW + ' ' + VBH + ' L 0 ' + VBH + ' Z' };
+}
+
+/* ------------------------------------------------------------------
+   The eight layers, far to near.
+   base/amp are in vh: base = mean ridgeline height above the viewport
+   floor, amp = how far the peaks rise above that.
+   speed = parallax rate. anchors = which sections this layer parks at.
+   k / dp = spring constants (see framer note by the integrator).
+   ------------------------------------------------------------------ */
+var SPEC = [
+  {base:47, amp:7,  fill:'#6C6480', top:'#7E7694', blur:2.4, soft:1, rough:.50, seed:7,   speed:.012, k:.040, dp:.905, z:1,  rim:.10, anchors:[0]},
+  {base:43, amp:10, fill:'#5D5676', top:'#6E6789', blur:1.5, soft:1, rough:.51, seed:23,  speed:.030, k:.048, dp:.898, z:2,  rim:.16, anchors:[0]},
+  {base:38, amp:13, fill:'#4B4567', top:'#5A5479', blur:.8,  soft:1, rough:.52, seed:41,  speed:.055, k:.058, dp:.888, z:3,  rim:.26, anchors:[0]},
+  {base:31, amp:17, fill:'#3A3559', top:'#463F69', blur:.3,  soft:1, rough:.54, seed:59,  speed:.090, k:.075, dp:.872, z:4,  rim:.30, anchors:[0]},
+  {base:23, amp:20, fill:'#2B2748', top:'#342F52', blur:0,   soft:0, rough:.56, seed:83,  speed:.190, k:.120, dp:.800, z:5,  rim:.26, anchors:[0,2,4]},
+  {base:15, amp:22, fill:'#1F1A36', top:'#262040', blur:0,   soft:0, rough:.58, seed:97,  speed:.520, k:.175, dp:.706, z:20, rim:.20, anchors:[2,5]},
+  {base:8,  amp:24, fill:'#171128', top:'#1D1632', blur:0,   soft:0, rough:.60, seed:113, speed:.760, k:.205, dp:.668, z:21, rim:.16, anchors:[1,4]},
+  {base:2,  amp:28, fill:'#0F0A1B', top:'#140E24', blur:0,   soft:0, rough:.62, seed:131, speed:1.00, k:.240, dp:.628, z:22, rim:.12, anchors:[0,3]}
+];
+
+var SVGNS='http://www.w3.org/2000/svg';
+var layers=[], anchors=[], anchorEls=[];
+
+function build(){
+  var frag = document.createDocumentFragment();
+  SPEC.forEach(function(s, idx){
+    var d = buildPaths(s);
+    var el = document.createElement('div');
+    el.className = 'layer';
+    el.style.height = (s.base + s.amp) + 'vh';
+    el.style.zIndex = s.z;
+    if(s.blur) el.style.filter = 'blur(' + s.blur + 'px)';
+
+    var gid = 'g' + idx;
+    var svg = document.createElementNS(SVGNS,'svg');
+    svg.setAttribute('viewBox','0 0 ' + VBW + ' ' + VBH);
+    svg.setAttribute('preserveAspectRatio','none');
+    svg.innerHTML =
+      '<defs><linearGradient id="'+gid+'" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="'+s.top+'"/>' +
+        '<stop offset="1" stop-color="'+s.fill+'"/>' +
+      '</linearGradient></defs>' +
+      '<path d="'+d.fill+'" fill="url(#'+gid+')"/>' +
+      '<path d="'+d.line+'" fill="none" stroke="#C9E4CE" stroke-opacity="'+s.rim+'" stroke-width="1.1" vector-effect="non-scaling-stroke" stroke-linejoin="round"/>';
+
+    var skirt = document.createElement('div');
+    skirt.className = 'skirt';
+    skirt.style.background = s.fill;
+    el.appendChild(svg); el.appendChild(skirt);
+    frag.appendChild(el);
+
+    layers.push({
+      el: el, s: s,
+      cur: 0, vel: 0, station: 0, ai: 0,
+      px: (s.base + s.amp) / 100,   /* layer height as a fraction of vh */
+      live: false
+    });
+  });
+  document.body.appendChild(frag);
+}
+
+/* ---------- stations: where each near ridge parks ---------- */
+function measure(){
+  anchors = anchorEls.map(function(el, i){
+    if(i === 0) return 0;
+    return Math.max(0, el.offsetTop - window.innerHeight * 0.62);
+  });
+}
+
+function pickStation(L, sy){
+  /* the layer parks at the latest of its anchors we have reached */
+  var list = L.s.anchors, best = list[0], vh = window.innerHeight;
+  for(var i=0;i<list.length;i++){
+    var st = anchors[list[i]];
+    if(st !== undefined && st <= sy + vh*0.55) best = list[i];
+  }
+  return best;
+}
+
+/* ------------------------------------------------------------------
+   Motion. Each layer is a mass on a spring chasing its parallax
+   target. Far layers are soft and laggy; near layers are stiff and
+   stop hard, with one overshoot.
+
+   framer-motion equivalents, far to near:
+     far   { type:'spring', stiffness: 90,  damping: 22, mass: 2.4 }
+     mid   { type:'spring', stiffness: 210, damping: 26, mass: 1.6 }
+     near  { type:'spring', stiffness: 430, damping: 27, mass: 1.15 }
+   ------------------------------------------------------------------ */
+var scrollY = 0, mx = 0, mxTarget = 0, running = false, started = 0;
+
+function frame(now){
+  var vh = window.innerHeight;
+  mx += (mxTarget - mx) * .06;
+
+  for(var i=0;i<layers.length;i++){
+    var L = layers[i], s = L.s;
+    var ai = pickStation(L, scrollY);
+    if(ai !== L.ai){ L.ai = ai; L.station = anchors[ai] || 0; L.cur = (L.station - scrollY) * s.speed; L.vel = 0; }
+    L.station = anchors[L.ai] || 0;
+
+    var target = (L.station - scrollY) * s.speed;
+
+    /* page-load entrance: each slab is held below, then released in
+       order, far first. One overshoot, then it stops dead. */
+    if(!L.live){
+      if(now - started > i * 78){ L.live = true; }
+      else { L.el.style.transform = 'translate3d(0,' + (L.cur).toFixed(1) + 'px,0)'; continue; }
+    }
+
+    L.vel += (target - L.cur) * s.k;
+    L.vel *= s.dp;
+    L.cur += L.vel;
+    if(Math.abs(L.vel) < .02 && Math.abs(target - L.cur) < .3){ L.cur = target; L.vel = 0; }
+
+    var x = mx * (0.4 + s.speed * 26);
+    L.el.style.transform = 'translate3d(' + x.toFixed(2) + 'px,' + L.cur.toFixed(1) + 'px,0)';
+  }
+
+  gaugeFrame();
+  requestAnimationFrame(frame);
+}
+
+/* ---------- depth gauge ---------- */
+var gHead, gList, gDepth, gItems = [], gPos = 0, gVel = 0, gTargetIdx = 0;
+
+function buildGauge(){
+  gHead = document.getElementById('gaugeHead');
+  gList = document.getElementById('gaugeList');
+  gDepth = document.getElementById('gaugeDepth');
+  anchorEls.forEach(function(el){
+    var li = document.createElement('li');
+    li.innerHTML = '<span>' + el.getAttribute('data-label') + '</span><span class="tick"></span>';
+    gList.appendChild(li);
+    gItems.push(li);
+  });
+}
+
+function gaugeFrame(){
+  if(!gItems.length) return;
+  var mid = scrollY + window.innerHeight * 0.42, idx = 0;
+  for(var i=0;i<anchorEls.length;i++){ if(anchorEls[i].offsetTop <= mid) idx = i; }
+  if(idx !== gTargetIdx){
+    gTargetIdx = idx;
+    for(var j=0;j<gItems.length;j++){
+      if(j === idx) gItems[j].setAttribute('data-on',''); else gItems[j].removeAttribute('data-on');
+    }
+    gDepth.textContent = idx === 0 ? 'surface' : (idx * 1.4).toFixed(1) + ' km down';
+  }
+  /* the marker does not glide — it carries momentum and lands.
+     framer: { type:'spring', stiffness: 500, damping: 30, mass: 1 } */
+  var t = idx * 34;
+  gVel += (t - gPos) * .22; gVel *= .64; gPos += gVel;
+  gHead.style.transform = 'translateY(' + gPos.toFixed(1) + 'px)';
+}
+
+/* ---------- hero entrance ---------- */
+function heroIn(){
+  var els = document.querySelectorAll('.rise');
+  Array.prototype.forEach.call(els, function(el, i){
+    var d = 620 + i * 95;
+    /* framer: { type:'spring', stiffness: 400, damping: 26, mass: 1.3 } */
+    el.style.transition = 'transform 900ms cubic-bezier(.14,.92,.2,1) ' + d + 'ms, opacity 320ms linear ' + d + 'ms';
+    requestAnimationFrame(function(){
+      requestAnimationFrame(function(){
+        el.style.transform = 'translate3d(0,0,0)';
+        el.style.opacity = '1';
+      });
+    });
+  });
+}
+
+/* ---------- boot ---------- */
+function init(){
+  anchorEls = Array.prototype.slice.call(document.querySelectorAll('[data-anchor]'));
+  build();
+  buildGauge();
+  measure();
+
+  if(reduced.matches){
+    /* Everything is already where it belongs. Move the front ridges
+       behind the words so nothing is ever hidden, and stop. */
+    layers.forEach(function(L, i){
+      L.el.style.zIndex = Math.min(L.s.z, 6);
+      L.el.style.transform = 'none';
+    });
+    for(var j=0;j<gItems.length;j++){ if(j===0) gItems[j].setAttribute('data-on',''); }
+    return;
+  }
+
+  layers.forEach(function(L){
+    /* held below the horizon, heavier layers held further down */
+    L.cur = 90 + L.s.speed * 260 + 40;
+    L.vel = 0;
+  });
+
+  scrollY = window.pageYOffset || 0;
+  started = performance.now();
+  requestAnimationFrame(frame);
+  heroIn();
+
+  window.addEventListener('scroll', function(){ scrollY = window.pageYOffset || 0; }, {passive:true});
+  window.addEventListener('resize', function(){ measure(); }, {passive:true});
+  if(window.matchMedia('(hover:hover)').matches){
+    window.addEventListener('mousemove', function(e){
+      mxTarget = (e.clientX / window.innerWidth - .5) * -1;
+    }, {passive:true});
+  }
+}
+
+if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+else init();
+
+/* fonts land after layout — re-measure the stations once they do */
+if(document.fonts && document.fonts.ready) document.fonts.ready.then(function(){ measure(); });
+})();
+</script>
+</body>
+</html>

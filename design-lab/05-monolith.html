@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pranav Mishra, standing stones</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400..900&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ------------------------------------------------------------------
+   MONOLITH
+   The type is the landscape. One material decision: quarry grey ground,
+   low sun raking in from the upper left. No colour does any work.
+   ------------------------------------------------------------------ */
+
+:root{
+  --ground-lit:  #DBD7CC;
+  --ground:      #C4C0B6;
+  --ground-far:  #A6A29A;
+  --ground-deep: #8E8B84;
+
+  --stone-lit:   #A9A59C;
+  --stone:       #6F6C65;
+  --stone-dark:  #4C4A45;
+  --cast:        rgba(48,46,42,.42);
+  --cast-hard:   rgba(48,46,42,.58);
+
+  --ink:         #24231E;
+  --ink-soft:    #57544C;
+  --hair:        rgba(36,35,30,.22);
+
+  --display: "Bodoni Moda", "Didot", Georgia, serif;
+  --text: "Instrument Sans", "Helvetica Neue", Arial, sans-serif;
+}
+
+*{box-sizing:border-box}
+html{ -webkit-text-size-adjust:100%; }
+body{
+  margin:0;
+  overflow-x:hidden;
+  color:var(--ink);
+  font-family:var(--text);
+  font-size:17px;
+  line-height:1.62;
+  background-color:var(--ground);
+  background-image:
+    radial-gradient(115% 78% at 6% 4%, var(--ground-lit) 0%, var(--ground) 38%, var(--ground-far) 74%, var(--ground-deep) 100%);
+  background-attachment:fixed;
+  background-repeat:no-repeat;
+}
+/* grain: the ground is concrete, not paper */
+body::before{
+  content:"";
+  position:fixed; inset:-10%;
+  pointer-events:none; z-index:2;
+  opacity:.14; mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.86' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+/* the low sun: one warm wash lying across the whole field */
+body::after{
+  content:"";
+  position:fixed; inset:0;
+  pointer-events:none; z-index:1;
+  background:linear-gradient(101deg, rgba(255,246,224,.30) 0%, rgba(255,246,224,.06) 26%, rgba(38,36,32,.00) 52%, rgba(38,36,32,.14) 100%);
+}
+
+/* ---------- shared shell ---------- */
+.field{ position:relative; z-index:3; }
+.act{
+  min-height:100svh;
+  padding:14svh clamp(20px, 6vw, 96px) 14svh;
+  display:flex; flex-direction:column; justify-content:center;
+  gap:clamp(28px, 5vh, 64px);
+}
+
+/* ---------- the stones ---------- */
+.word{
+  margin:0;
+  font-family:var(--display);
+  font-weight:900;
+  font-variation-settings:'opsz' 96;
+  font-size:clamp(3.2rem, 25vw, 19rem);
+  line-height:.80;
+  letter-spacing:var(--ls, -0.025em);
+  text-transform:uppercase;
+  white-space:nowrap;
+}
+.word .g{
+  display:inline-block;
+  /* raking light across each face: lit edge left, falling into shade */
+  background-image:linear-gradient(101deg,
+      #C6C2B8 0%, var(--stone-lit) 14%, var(--stone) 44%, var(--stone-dark) 82%, #403E3A 100%);
+  -webkit-background-clip:text; background-clip:text;
+  color:transparent;
+  filter:
+    drop-shadow(0.020em 0.026em 0 var(--cast-hard))
+    drop-shadow(0.075em 0.100em 0.045em var(--cast));
+  transform:translate3d(0, calc(var(--dy, 0) * 1vh), 0);
+  will-change:transform;
+}
+.word .g.sp{ background:none; -webkit-text-fill-color:transparent; }
+
+/* ---------- human-scale text at the feet ---------- */
+.feet{ max-width:46ch; }
+.feet p{ margin:0 0 1.05em; }
+.feet p:last-child{ margin-bottom:0; }
+.lead{ font-size:clamp(16px,.55vw + 14px,19px); }
+.quiet{ color:var(--ink-soft); }
+
+.rise{ transform:translate3d(0, calc(var(--ry, 0) * 1px), 0); opacity:var(--ro, 1); }
+
+/* ---------- hero ---------- */
+.hero{ padding-top:20svh; padding-bottom:10svh; min-height:100svh; justify-content:flex-end; }
+.hero .word{ font-size:clamp(3.6rem, 26.5vw, 21rem); }
+.hero-foot{ display:flex; flex-wrap:wrap; gap:clamp(20px,4vw,72px); align-items:flex-end; }
+.hero-foot .feet{ max-width:38ch; }
+.plumb{ width:1px; height:74px; background:linear-gradient(180deg, var(--hair), transparent); flex:0 0 auto; margin-bottom:4px; }
+/* the dust that leaves the base when the stones land */
+.dust{
+  position:absolute; left:0; right:0; bottom:0; height:26svh;
+  pointer-events:none;
+  opacity:var(--dust, 0);
+  background:radial-gradient(120% 100% at 22% 100%, rgba(220,215,203,.9), rgba(220,215,203,0) 62%);
+}
+.thudder{ transform:translate3d(0, calc(var(--thud, 0) * 1px), 0); }
+
+/* ---------- the cliff: a word four viewports tall ---------- */
+.cliff{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:clamp(30px,6vh,70px);
+  padding-top:12svh; padding-bottom:16svh;
+}
+.stack{
+  display:flex; flex-direction:row; justify-content:flex-start;
+  font-family:var(--display); font-weight:900;
+  font-variation-settings:'opsz' 96;
+  font-size:19.5vw; line-height:1; letter-spacing:-0.03em;
+  text-transform:uppercase;
+}
+.stack .g{ display:block; }
+.entries{ display:flex; flex-direction:column; gap:clamp(46px, 11vh, 130px); }
+.entry{ max-width:44ch; }
+.entry h3{
+  margin:0 0 .5em; font-family:var(--display); font-weight:700;
+  font-variation-settings:'opsz' 14;
+  font-size:clamp(21px,1.1vw + 17px,29px); line-height:1.15; letter-spacing:-0.005em;
+}
+.entry p{ margin:0 0 .9em; }
+.entry p:last-child{ margin-bottom:0; }
+
+@media (min-width:820px){
+  .cliff{ grid-template-columns:minmax(0,.86fr) minmax(0,1.14fr); gap:clamp(40px,6vw,110px); align-items:start; }
+  .stack{ flex-direction:column; align-items:flex-end; font-size:46vh; line-height:.92; }
+  .entries{ padding-top:16svh; gap:26svh; }
+}
+
+/* ---------- lists that are not cards ---------- */
+.rows{ margin:0; padding:0; list-style:none; max-width:78ch; }
+.rows li{ padding:clamp(16px,2.2vh,26px) 0; border-top:1px solid var(--hair); break-inside:avoid; }
+.rows li:last-child{ border-bottom:1px solid var(--hair); }
+.rows h3{
+  margin:0 0 .32em; font-family:var(--display); font-weight:700;
+  font-variation-settings:'opsz' 14;
+  font-size:clamp(19px,.7vw + 16px,25px); line-height:1.2;
+}
+.rows p{ margin:0; color:var(--ink-soft); max-width:52ch; }
+.rows .yr{ font-family:var(--text); font-size:14px; color:var(--ink-soft); }
+@media (min-width:900px){
+  .made .rows{ columns:2; column-gap:clamp(40px,5vw,90px); }
+  .made .rows li:first-child{ border-top:1px solid var(--hair); }
+}
+
+/* ---------- links ---------- */
+a{ color:inherit; text-decoration:none; border-bottom:1px solid rgba(36,35,30,.35); padding-bottom:1px; transition:border-color .18s linear, border-bottom-width .18s linear; }
+a:hover{ border-bottom-width:2px; border-color:var(--ink); }
+a:focus-visible{ outline:2px solid var(--ink); outline-offset:5px; border-radius:1px; }
+.talk-links{ display:flex; flex-direction:column; gap:.85em; font-size:clamp(17px,.7vw + 15px,22px); align-items:flex-start; }
+
+.colophon{ padding:0 clamp(20px,6vw,96px) 9svh; color:var(--ink-soft); font-size:14px; }
+
+@media (prefers-reduced-motion: reduce){
+  .word .g, .rise, .thudder{ transform:none !important; opacity:1 !important; }
+  .dust{ display:none; }
+  a{ transition:none; }
+}
+</style>
+</head>
+<body>
+
+<main class="field">
+
+  <!-- ======================= 1. THE NAME ======================= -->
+  <section class="act hero thudder" id="one" style="position:relative">
+    <div class="dust" aria-hidden="true"></div>
+    <h1 class="word" data-hero>
+      <span class="g">P</span><span class="g">R</span><span class="g">A</span><span class="g">N</span><span class="g">A</span><span class="g">V</span><br>
+      <span class="g">M</span><span class="g">I</span><span class="g">S</span><span class="g">H</span><span class="g">R</span><span class="g">A</span>
+    </h1>
+    <div class="hero-foot">
+      <div class="plumb" aria-hidden="true"></div>
+      <div class="feet rise" data-rise>
+        <p class="lead">I build the parts of an AI assistant that have to be right. I'm the founding LLM engineer at Alfred_ in New York.</p>
+        <p class="quiet">Computer science at the University of Illinois Chicago. I live in Metuchen, New Jersey.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================= 2. THE CLIFF ======================= -->
+  <section class="act cliff" id="two">
+    <div class="stack" aria-hidden="true">
+      <span class="g">A</span><span class="g">L</span><span class="g">F</span><span class="g">R</span><span class="g">E</span><span class="g">D</span><span class="g">_</span>
+    </div>
+    <h2 class="visually-hidden" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap">Alfred_</h2>
+
+    <div class="entries">
+      <article class="entry">
+        <h3>Where I work</h3>
+        <p>Alfred_ is an assistant you talk to by text message, by voice, or in a chat window. It reads your email, keeps your calendar, and carries the small obligations you would otherwise drop. About five thousand people rely on it right now. I was the first engineer, and I took the half that has to be right.</p>
+      </article>
+
+      <article class="entry">
+        <h3>I made it stop making things up</h3>
+        <p>A language model will fill a gap with something plausible. That is charming in a demo and unforgivable when the gap is your calendar. I rebuilt the working memory so the assistant cannot invent a fact about your life. Not discouraged from it. Unable to. Tests hold that line, so it doesn't depend on the model behaving.</p>
+        <p class="quiet">Around it sits the rest of the reliability layer: risk scoring on every action, an eval harness I built from nothing, and a scanner that reads live conversations to find the failures nobody bothered to report.</p>
+      </article>
+
+      <article class="entry">
+        <h3>The rules engine</h3>
+        <p>It's the reason people stay. It used to ask a language model about every message that arrived. I replaced that with a matcher in three stages that decides for itself, which costs about thirty percent less per person. Almost all rules, around ninety-eight percent, now get made by someone simply saying what they want.</p>
+      </article>
+
+      <article class="entry">
+        <h3>Waiting</h3>
+        <p>An email took about ninety seconds to reach you as a text. Now it takes about three. Security codes were the worst of it, a hundred and eighty-nine seconds at the ninetieth percentile, and now they land while you're still holding the phone.</p>
+      </article>
+
+      <article class="entry">
+        <h3>Permission</h3>
+        <p>Every action the assistant wants to take goes through one router with five answers: stay silent, notify, confirm, ask, refuse. The scoring is deterministic. I don't let the model be its own judge. What's waiting sits in a queue you can see, and there is a window in which anything done can be undone.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ======================= 3. BEFORE ======================= -->
+  <section class="act" id="three">
+    <h2 class="word" data-spread>
+      <span class="g">B</span><span class="g">E</span><span class="g">F</span><span class="g">O</span><span class="g">R</span><span class="g">E</span>
+    </h2>
+    <div class="rise" data-rise>
+      <ul class="rows">
+        <li>
+          <h3>WheelPrice</h3>
+          <p>AI engineer, remote out of Charlotte, from July 2025 to March 2026.</p>
+        </li>
+        <li>
+          <h3>V-ARE Labs, University of Illinois Chicago</h3>
+          <p>Research software engineer since February 2024. Virtual patients built in Unreal Engine 5, and an audio machine-learning pipeline that lands at 98.52 percent.</p>
+        </li>
+        <li>
+          <h3>Bipolar Factory</h3>
+          <p>Software development intern in Bengaluru, 2023. The first place anyone paid me to write code.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ======================= 4. PAPERS ======================= -->
+  <section class="act" id="four">
+    <h2 class="word" data-spread>
+      <span class="g">W</span><span class="g">R</span><span class="g">O</span><span class="g">T</span><span class="g">E</span>
+    </h2>
+    <div class="rise" data-rise>
+      <ul class="rows">
+        <li>
+          <h3>A Systematic Framework for Enterprise Knowledge Retrieval</h3>
+          <p>We had a language model write the metadata, so retrieval had something better to grab hold of. Accepted at CAI 2026, IEEE. arXiv 2512.05411.</p>
+        </li>
+        <li>
+          <h3>TeamMedAgents: Enhancing Medical Decision-Making of LLMs Through Teamwork</h3>
+          <p>I took Salas's Big Five model of how human teams work and gave it to a group of agents. It improved on seven of the eight medical benchmarks we tried. Under review at PAKDD 2026. arXiv 2508.08115, four citations so far.</p>
+        </li>
+        <li>
+          <h3>Cheap multi-modal medical reasoning</h3>
+          <p>A third paper, in preparation, on getting small language models to reason over images and text without the cost of the large ones.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ======================= 5. MADE ======================= -->
+  <section class="act made" id="five">
+    <h2 class="word" data-spread>
+      <span class="g">M</span><span class="g">A</span><span class="g">D</span><span class="g">E</span>
+    </h2>
+    <div class="rise" data-rise>
+      <div class="feet" style="max-width:52ch;margin-bottom:clamp(18px,3vh,34px)">
+        <p class="quiet">There are about thirty-two of these. These eight are worth your time.</p>
+      </div>
+      <ul class="rows">
+        <li>
+          <h3>Stellarium</h3>
+          <p>A CAVE2 virtual reality room holding a hundred and seven thousand astronomical objects, drawn live while you turn your head.</p>
+        </li>
+        <li>
+          <h3>SnAIder-Cut</h3>
+          <p>Generative AI editing an augmented-reality scene while you're standing inside it. It won the MIT XR Hackathon in 2024.</p>
+        </li>
+        <li>
+          <h3>Virtual Van Gogh</h3>
+          <p>A museum you walk through, hung with NFTs. First place at HINT 5.0.</p>
+        </li>
+        <li>
+          <h3>EQUITY</h3>
+          <p>A MetaHuman patient in Unreal Engine 5, built so researchers can study bias in medicine on someone who isn't a real person.</p>
+        </li>
+        <li>
+          <h3>Big5-Agents</h3>
+          <p>The teamwork paper, as code you can actually run.</p>
+        </li>
+        <li>
+          <h3>SnakeAI-MLOps</h3>
+          <p>Four reinforcement learning methods racing each other inside a C++ game.</p>
+        </li>
+        <li>
+          <h3>Neon-Bites</h3>
+          <p>A delivery game in a wet neon city.</p>
+        </li>
+        <li>
+          <h3>Rusty ANT</h3>
+          <p>Ants evolving, written in Rust.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ======================= 6. TALK ======================= -->
+  <section class="act" id="six">
+    <h2 class="word" data-spread>
+      <span class="g">T</span><span class="g">A</span><span class="g">L</span><span class="g">K</span>
+    </h2>
+    <div class="rise" data-rise>
+      <div class="talk-links">
+        <a href="https://github.com/PranavMishra17">github.com/PranavMishra17</a>
+        <a href="https://linkedin.com/in/pranavgamedev">linkedin.com/in/pranavgamedev</a>
+        <a href="https://huggingface.co/Paranoiid">huggingface.co/Paranoiid</a>
+      </div>
+    </div>
+  </section>
+
+  <p class="colophon">Metuchen, New Jersey.</p>
+</main>
+
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* --------------------------------------------------------------
+     A spring integrator. Every call site notes its framer-motion
+     equivalent, because this ports to framer-motion 12 later.
+     -------------------------------------------------------------- */
+  function spring(o, onUpdate, onCross){
+    var s=o.stiffness, d=o.damping, m=o.mass;
+    var x=o.from, v=o.velocity||0, to=o.to, last=null;
+    var eps = o.eps || 0.004 * Math.max(1, Math.abs(o.to - o.from));
+    var crossed=false, dir = (to > o.from) ? 1 : -1;
+    function frame(t){
+      if(last===null) last=t;
+      var dt=Math.min((t-last)/1000, 0.05); last=t;
+      var steps=Math.max(1, Math.ceil(dt/(1/300))), h=dt/steps;
+      for(var i=0;i<steps;i++){
+        var f = -s*(x-to) - d*v;
+        v += (f/m)*h;
+        x += v*h;
+      }
+      if(!crossed && (x-to)*dir >= 0){ crossed=true; if(onCross) onCross(); }
+      onUpdate(x, v);
+      if(Math.abs(x-to) < eps && Math.abs(v) < eps*10){ onUpdate(to, 0); return; }
+      requestAnimationFrame(frame);
+    }
+    requestAnimationFrame(frame);
+  }
+
+  if(reduce) return; /* the page is already complete and at rest */
+
+  /* ---- 1. the opening: twelve stones fall and land ------------- */
+  var hero = document.querySelector("[data-hero]");
+  var heroAct = document.getElementById("one");
+  var dust = heroAct.querySelector(".dust");
+  var glyphs = hero ? hero.querySelectorAll(".g") : [];
+
+  function thud(){
+    /* framer: { type:'spring', stiffness: 300, damping: 22, mass: 3.2 }
+       low frequency, several soft wobbles: the ground taking the weight */
+    spring({from:9, to:0, stiffness:300, damping:22, mass:3.2, eps:0.02}, function(val){
+      heroAct.style.setProperty("--thud", val.toFixed(3));
+    });
+    spring({from:0.55, to:0, stiffness:26, damping:12, mass:1.6, eps:0.002}, function(val){
+      dust.style.setProperty("--dust", Math.max(0, val).toFixed(3));
+    });
+  }
+
+  var landed = false;
+  Array.prototype.forEach.call(glyphs, function(g, i){
+    g.style.setProperty("--dy", "-26");
+    var delay = 70 * i;
+    setTimeout(function(){
+      /* framer: { type:'spring', stiffness: 120, damping: 20, mass: 6 }
+         heavy: one clear overshoot, then a long settle */
+      spring({from:-26, to:0, stiffness:120, damping:20, mass:6, eps:0.012},
+        function(val){ g.style.setProperty("--dy", val.toFixed(3)); },
+        function(){ if(!landed && i >= glyphs.length - 4){ landed = true; thud(); } }
+      );
+    }, delay);
+  });
+
+  /* ---- 2. small human text: quick and light ------------------- */
+  function rise(el, delay){
+    el.style.setProperty("--ry","18");
+    el.style.setProperty("--ro","0");
+    setTimeout(function(){
+      /* framer: { type:'spring', stiffness: 520, damping: 32, mass: 0.8 } */
+      spring({from:18, to:0, stiffness:520, damping:32, mass:0.8, eps:0.02}, function(val){
+        el.style.setProperty("--ry", val.toFixed(2));
+        el.style.setProperty("--ro", Math.min(1, 1 - (val/18)*0.9).toFixed(3));
+      });
+    }, delay);
+  }
+  var heroRise = heroAct.querySelector("[data-rise]");
+  if(heroRise) rise(heroRise, 70*glyphs.length + 240);
+
+  /* ---- 3. later stones: they don't fall, they slide apart ------
+     A compressed slab of overlapping letterforms expands into place
+     and stops. Mass without a fade-and-slide-up.                   */
+  var spreads = document.querySelectorAll("[data-spread]");
+  Array.prototype.forEach.call(spreads, function(w){ w.style.setProperty("--ls","-0.17em"); });
+
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if(!e.isIntersecting) return;
+      var el = e.target;
+      io.unobserve(el);
+      if(el.hasAttribute("data-spread")){
+        /* framer: { type:'spring', stiffness: 150, damping: 24, mass: 5.5 } */
+        spring({from:-0.17, to:-0.025, stiffness:150, damping:24, mass:5.5, eps:0.0006}, function(val){
+          el.style.setProperty("--ls", val.toFixed(4) + "em");
+        });
+      } else {
+        rise(el, 160);
+      }
+    });
+  }, {threshold:0.2, rootMargin:"0px 0px -8% 0px"});
+
+  Array.prototype.forEach.call(spreads, function(el){ io.observe(el); });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-rise]"), function(el){
+    if(el === heroRise) return;
+    io.observe(el);
+  });
+})();
+</script>
+</body>
+</html>

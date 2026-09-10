@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pranav Mishra — Passport</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=Courier+Prime&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDE8DA;
+    --paper-2:#E4DDC9;
+    --ink:#20293A;
+    --ink-soft:#4C5A6B;
+    --red:#9B3A2E;
+    --green:#5B7A5E;
+    --gold:#8C6B32;
+    --line:#c9c0a6;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:#151a22;
+    font-family:'Source Serif 4', Georgia, serif;
+    color:var(--ink);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px 12px;
+  }
+  .book{
+    position:relative;
+    width:min(920px, 100%);
+    height:min(78vh, 660px);
+    min-height:520px;
+    background:var(--paper);
+    border-radius:6px;
+    box-shadow:0 30px 70px rgba(0,0,0,.55), 0 0 0 1px rgba(0,0,0,.15);
+    overflow:hidden;
+  }
+  .book:before{ /* spine crease */
+    content:"";
+    position:absolute; left:50%; top:0; bottom:0; width:2px;
+    background:linear-gradient(rgba(0,0,0,.12), rgba(0,0,0,.04) 40%, rgba(0,0,0,.12));
+    transform:translateX(-1px);
+    z-index:5; pointer-events:none;
+    display:none;
+  }
+  @media (min-width:760px){ .book:before{ display:block; } }
+
+  .pages{ position:absolute; inset:0; }
+  .page{
+    position:absolute; inset:0;
+    padding:34px 40px 78px;
+    overflow-y:auto;
+    transform:translateX(100%);
+    transition:transform .55s cubic-bezier(.34,1.32,.4,1); /* framer-motion equivalent: spring(stiffness:210, damping:22, mass:1) — one overshoot, one settle */
+    background:
+      repeating-linear-gradient(0deg, transparent 0 27px, rgba(90,90,60,.05) 27px 28px),
+      var(--paper);
+  }
+  .page.active{ transform:translateX(0); z-index:2; }
+  .page.before{ transform:translateX(-100%); }
+  @media (prefers-reduced-motion: reduce){
+    .page{ transition:none; }
+  }
+
+  .kicker{
+    font-family:'Courier Prime', monospace;
+    font-size:11px; letter-spacing:.14em; color:var(--ink-soft);
+    display:flex; justify-content:space-between; flex-wrap:wrap; gap:4px 16px;
+    border-bottom:1px solid var(--line); padding-bottom:8px; margin-bottom:20px;
+  }
+  h1{ font-size:22px; margin:0 0 4px; font-weight:700; }
+  h2{ font-size:15px; margin:0 0 14px; font-weight:600; color:var(--ink-soft); font-style:italic;}
+  p, li{ font-size:15.5px; line-height:1.6; }
+  .field-label{ font-size:11px; letter-spacing:.08em; color:var(--ink-soft); text-transform:uppercase; margin-bottom:2px; }
+  .field-value{ font-size:16px; font-weight:600; margin-bottom:14px; }
+  .field-row{ display:flex; gap:32px; flex-wrap:wrap; }
+  .field{ min-width:160px; }
+
+  /* ---- DATA PAGE ---- */
+  .data-grid{ display:grid; grid-template-columns:1fr; gap:0; }
+  .observations{
+    margin-top:10px; padding:14px 16px; background:var(--paper-2); border-left:3px solid var(--ink); border-radius:2px;
+  }
+  .observations p{ margin:0 0 8px; }
+  .observations p:last-child{ margin-bottom:0; }
+  .mrz{
+    position:absolute; left:0; right:0; bottom:0;
+    background:#e2dcc7; border-top:1px solid var(--line);
+    padding:14px 40px 18px;
+    font-family:'Courier Prime', monospace;
+    font-size:13px; line-height:1.7; letter-spacing:.06em; color:var(--ink);
+  }
+  .guilloche{
+    height:14px; margin:16px 0 20px;
+    background-image:repeating-linear-gradient(115deg, var(--green) 0 1px, transparent 1px 7px);
+    opacity:.55;
+  }
+
+  /* ---- STAMPS (experience) ---- */
+  .stamp-row{ display:flex; gap:22px; flex-wrap:wrap; align-items:flex-start; margin-bottom:26px; }
+  .stamp{
+    flex:0 0 132px; height:132px; border-radius:50%;
+    border:3px solid var(--red); color:var(--red);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; font-family:'Courier Prime', monospace;
+    padding:8px; transform:rotate(var(--r,-6deg));
+    position:relative; opacity:.92;
+  }
+  .stamp:before{ content:""; position:absolute; inset:6px; border:1px solid var(--red); border-radius:50%; opacity:.5; }
+  .stamp .city{ font-size:12px; font-weight:700; letter-spacing:.05em; }
+  .stamp .date{ font-size:11px; margin-top:4px; }
+  .stamp .role{ font-size:9.5px; margin-top:4px; letter-spacing:.03em; }
+  .exp-entry{ flex:1 1 260px; min-width:240px; background:var(--paper-2); padding:12px 16px; border-radius:3px; }
+  .exp-entry h3{ margin:0 0 2px; font-size:16px; }
+  .exp-entry .meta{ font-size:12.5px; color:var(--ink-soft); margin-bottom:8px; font-family:'Courier Prime',monospace; }
+  .exp-entry ul{ margin:0; padding-left:18px; }
+  .exp-entry li{ margin-bottom:5px; }
+
+  /* ---- VISAS (projects) ---- */
+  .visa-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(240px,1fr)); gap:18px; }
+  .visa{
+    background:var(--paper-2); border:1px solid var(--line); border-radius:4px; overflow:hidden;
+    display:flex; flex-direction:column;
+  }
+  .visa .photo{ height:120px; background-size:cover; background-position:center; position:relative; filter:sepia(.12) saturate(1.05); }
+  .visa .band{
+    position:absolute; top:8px; left:-26px; width:120px; text-align:center;
+    background:var(--red); color:#fff; font-size:10.5px; letter-spacing:.12em; font-weight:700;
+    transform:rotate(-38deg); padding:2px 0; box-shadow:0 1px 3px rgba(0,0,0,.4);
+  }
+  .visa .body{ padding:12px 14px 14px; flex:1; display:flex; flex-direction:column; }
+  .visa h3{ font-size:15.5px; margin:0 0 4px; }
+  .visa .ref{ font-family:'Courier Prime',monospace; font-size:10.5px; color:var(--ink-soft); margin-bottom:8px; }
+  .visa p{ font-size:13.5px; line-height:1.5; margin:0 0 8px; flex:1; }
+  .visa .links{ display:flex; gap:10px; }
+  .visa .links a{ font-size:12px; color:var(--ink); text-decoration:none; border-bottom:1px solid var(--ink); }
+  .visa .links a:hover{ color:var(--red); border-color:var(--red); }
+
+  /* ---- RESEARCH ---- */
+  .cert{ display:flex; gap:18px; background:var(--paper-2); border-radius:4px; padding:16px 18px; margin-bottom:16px; align-items:flex-start; }
+  .seal{
+    flex:0 0 74px; height:74px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-family:'Courier Prime',monospace; font-size:9.5px; font-weight:700; text-align:center; letter-spacing:.04em;
+    border:2.5px solid; transform:rotate(-8deg); line-height:1.2;
+  }
+  .seal.accepted{ border-color:var(--gold); color:var(--gold); }
+  .seal.review{ border-color:#3D5A73; color:#3D5A73; }
+  .seal.prep{ border-color:var(--ink-soft); color:var(--ink-soft); border-style:dashed; }
+  .cert-body h3{ font-size:15.5px; margin:0 0 4px; }
+  .cert-body .venue{ font-size:12.5px; color:var(--ink-soft); margin-bottom:6px; font-family:'Courier Prime',monospace; }
+  .cert-body p{ font-size:14px; margin:0; }
+
+  /* ---- INTERESTS (blank stamps) ---- */
+  .blank-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:18px; margin-top:6px;}
+  .blank-slot{
+    height:130px; border:2px dashed #b7ad8f; border-radius:6px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    color:var(--ink-soft); font-size:12px; letter-spacing:.1em; text-transform:uppercase;
+  }
+  .blank-slot span{ font-size:10.5px; letter-spacing:.04em; text-transform:none; margin-top:6px; opacity:.75; }
+  .margin-note{ margin-top:18px; font-size:12.5px; font-style:italic; color:var(--ink-soft); border-left:2px solid var(--line); padding-left:10px; }
+
+  /* ---- SURPRISES ---- */
+  .surprise-wrap{ display:flex; gap:26px; flex-wrap:wrap; align-items:flex-start; }
+  .special-seal{
+    flex:0 0 150px; height:150px; border-radius:8px; border:3px solid var(--green); color:var(--green);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+    font-family:'Courier Prime',monospace; transform:rotate(5deg); padding:10px;
+  }
+  .special-seal .big{ font-size:13px; font-weight:700; letter-spacing:.04em; }
+  .special-seal .small{ font-size:10px; margin-top:6px; }
+  .tucked{
+    flex:1 1 240px; min-width:220px; background:#e9e3d0; border:1px solid var(--line); border-radius:3px;
+    padding:12px 16px; position:relative; box-shadow:2px 3px 6px rgba(0,0,0,.12);
+  }
+  .tucked:before{ content:"tucked between pages"; position:absolute; top:-9px; left:14px; background:var(--paper);
+    font-size:9.5px; letter-spacing:.1em; color:var(--ink-soft); padding:0 6px; text-transform:uppercase; }
+  .tucked p{ font-size:13.5px; margin:6px 0; }
+  .tucked .lab{ font-size:11px; color:var(--ink-soft); font-style:italic; }
+
+  /* ---- NAV ---- */
+  .tabs{
+    position:absolute; right:0; top:60px; display:flex; flex-direction:column; gap:8px; z-index:6;
+  }
+  .tab{
+    font-family:'Courier Prime',monospace; font-size:10.5px; letter-spacing:.08em; text-transform:uppercase;
+    background:var(--ink); color:var(--paper); border:none; padding:9px 6px 9px 10px; border-radius:4px 0 0 4px;
+    cursor:pointer; writing-mode:vertical-rl; text-orientation:mixed; min-height:74px;
+  }
+  .tab.on{ background:var(--red); }
+  .tab:focus-visible{ outline:3px solid #fff; outline-offset:-3px; }
+
+  .arrows{
+    position:absolute; left:0; right:0; bottom:0; height:56px; display:flex; align-items:center; justify-content:space-between;
+    padding:0 20px; background:linear-gradient(0deg, var(--paper) 60%, transparent); z-index:4;
+  }
+  .arrow{
+    font-family:'Courier Prime',monospace; font-size:13px; letter-spacing:.06em; background:var(--ink); color:var(--paper);
+    border:none; border-radius:20px; padding:9px 18px; cursor:pointer;
+  }
+  .arrow:disabled{ opacity:.3; cursor:default; }
+  .arrow:focus-visible{ outline:3px solid var(--red); outline-offset:2px; }
+  .pageno{ font-family:'Courier Prime',monospace; font-size:11.5px; color:var(--ink-soft); }
+
+  @media (max-width:640px){
+    .page{ padding:20px 16px 122px; }
+    .tabs{
+      top:auto; bottom:56px; left:0; right:0;
+      flex-direction:row; gap:6px; padding:8px 10px;
+      overflow-x:auto; background:var(--paper-2); border-top:1px solid var(--line);
+    }
+    .tab{ writing-mode:horizontal-tb; min-height:auto; padding:7px 10px; border-radius:4px; flex:0 0 auto; }
+    .mrz{ padding:12px 18px 16px; font-size:10.5px; }
+    h1{ font-size:19px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="book" role="group" aria-label="Passport — Pranav Mishra">
+  <div class="pages" id="pages">
+
+    <!-- PAGE 1 — ABOUT / DATA PAGE -->
+    <section class="page" data-page="about">
+      <div class="kicker"><span>SPECIMEN&nbsp;&mdash;&nbsp;NOT&nbsp;A&nbsp;TRAVEL&nbsp;DOCUMENT</span><span>TYPE / P &nbsp; NO. 0000000</span></div>
+      <h1>MISHRA, Pranav Pushkar</h1>
+      <h2>Founding LLM Engineer — New York City</h2>
+
+      <div class="field-row">
+        <div class="field"><div class="field-label">Place of origin</div><div class="field-value">Metuchen, New Jersey</div></div>
+        <div class="field"><div class="field-label">Field of study</div><div class="field-value">Computer Science — UIC</div></div>
+        <div class="field"><div class="field-label">Authority</div><div class="field-value">Alfred_</div></div>
+      </div>
+
+      <div class="guilloche"></div>
+
+      <div class="field-label">Observations</div>
+      <div class="observations">
+        <p>Founding LLM engineer building Alfred_, a consumer AI assistant that manages email, calendar and daily obligations over text, chat and voice for 5,000+ subscribers.</p>
+        <p>Computer scientist out of Metuchen, New Jersey, trained at the University of Illinois Chicago — has since worked across research labs, startups and a growing production system.</p>
+      </div>
+
+      <div class="mrz">P&lt;&lt;&lt;MISHRA&lt;&lt;PRANAV&lt;PUSHKAR&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;<br>
+      1783HQ917&lt;&lt;&lt;0000000M9999999UIC&lt;CS&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;08</div>
+    </section>
+
+    <!-- PAGE 2 — EXPERIENCE STAMPS -->
+    <section class="page" data-page="experience">
+      <div class="kicker"><span>ENTRIES</span><span>PAGE 2 — WORK AUTHORIZATION</span></div>
+      <h1>Points of entry</h1>
+      <h2>Four roles, in order of arrival</h2>
+
+      <div class="stamp-row">
+        <div class="stamp" style="--r:-8deg"><div class="city">BENGALURU</div><div class="date">2023</div><div class="role">SW DEV INTERN</div></div>
+        <div class="exp-entry">
+          <h3>Bipolar Factory</h3>
+          <div class="meta">Software Developer Intern · Bengaluru · 2023</div>
+          <ul><li>Streaming platform built on the MERN stack.</li><li>In-game chat system shipped in Unity.</li></ul>
+        </div>
+      </div>
+
+      <div class="stamp-row">
+        <div class="stamp" style="--r:5deg"><div class="city">CHICAGO</div><div class="date">FEB 2024–</div><div class="role">RESEARCH SW ENG</div></div>
+        <div class="exp-entry">
+          <h3>V-ARE Labs, UIC</h3>
+          <div class="meta">Research Software Engineer · Chicago · Feb 2024 – present</div>
+          <ul><li>Virtual patients built in Unreal Engine 5.</li><li>Audio ML pipeline running at 98.52% accuracy.</li></ul>
+        </div>
+      </div>
+
+      <div class="stamp-row">
+        <div class="stamp" style="--r:-4deg"><div class="city">CHARLOTTE, NC</div><div class="date">JUL'25–MAR'26</div><div class="role">AI ENGINEER</div></div>
+        <div class="exp-entry">
+          <h3>WheelPrice</h3>
+          <div class="meta">AI Engineer · Remote / Charlotte, NC · Jul 2025 – Mar 2026</div>
+          <ul><li>Computer-vision part fitment for vehicles.</li><li>CMS rebuild that took the site to 10–20k daily readers.</li></ul>
+        </div>
+      </div>
+
+      <div class="stamp-row">
+        <div class="stamp" style="--r:7deg"><div class="city">NEW YORK</div><div class="date">APR 2026–</div><div class="role">FOUNDING ENGR</div></div>
+        <div class="exp-entry">
+          <h3>Alfred_</h3>
+          <div class="meta">Founding LLM Engineer · New York City · Apr 2026 – present</div>
+          <ul><li>Notification latency cut from ~90s to ~3s; security codes from 189s (p90) to instant.</li>
+              <li>Replaced per-message model calls with a deterministic three-stage matcher — ~30% cheaper per user, ~98% of rules now made by chatting.</li>
+              <li>Rebuilt working memory so the assistant can't fabricate inbox facts — enforced by tests.</li></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 3 — PROJECTS AS VISAS -->
+    <section class="page" data-page="projects">
+      <div class="kicker"><span>VISAS</span><span>PAGE 3 — MULTIPLE ENTRY</span></div>
+      <h1>Visas issued</h1>
+      <h2>Nine builds, each stamped where it stood</h2>
+      <div class="visa-grid">
+
+        <div class="visa"><div class="photo" style="background-image:url('/portfolio/public/assets/images/game_design/stellarium.png')"><div class="band">VISA</div></div>
+          <div class="body"><h3>Stellarium</h3><div class="ref">REF · CAVE2-107K</div><p>107,000 astronomical objects rendered inside CAVE2, a room whose walls are screens.</p></div></div>
+
+        <div class="visa"><div class="photo" style="background-image:url('/portfolio/public/assets/images/game_design/snaider.png')"><div class="band">VISA</div></div>
+          <div class="body"><h3>SnAIder-Cut</h3><div class="ref">REF · MIT-XR-2024 · WINNER</div><p>Generative AI editing an augmented scene while you stand inside it.</p></div></div>
+
+        <div class="visa"><div class="photo" style="background-image:url('/portfolio/public/assets/images/game_design/equity.png')"><div class="band">VISA</div></div>
+          <div class="body"><h3>EQUITY</h3><div class="ref">REF · UE5-BIAS</div><p>An Unreal Engine 5 virtual patient built for bias research in medicine.</p></div></div>
+
+        <div class="visa"><div class="photo" style="background-image:url('/portfolio/public/assets/images/game_design/van%20gogh.jpg')"><div class="band">VISA</div></div>
+          <div class="body"><h3>Virtual Van Gogh</h3><div class="ref">REF · HINT-5.0 · FIRST</div><p>A walkable museum where the paintings hang on a chain.</p></div></div>
+
+        <div class="visa"><div class="photo" style="background-image:url('/portfolio/public/assets/images/game_design/neon.png')"><div class="band">VISA</div></div>
+          <div class="body"><h3>Neon-Bites</h3><div class="ref">REF · CYBERPUNK-PHYS</div><p>Cyberpunk food delivery that takes its physics seriously.</p></div></div>
+
+        <div class="visa"><div class="photo" style="background-image:url('/portfolio/public/assets/images/game_design/mafia.png')"><div class="band">VISA</div></div>
+          <div class="body"><h3>AI Mafia</h3><div class="ref">REF · LLM-SOCIAL</div><p>Language models playing a game that runs on lying to each other.</p></div></div>
+
+        <div class="visa"><div class="photo" style="background-image:url('/portfolio/public/assets/images/ai_ml/big5.png')"><div class="band">VISA</div></div>
+          <div class="body"><h3>Big5-Agents</h3><div class="ref">REF · PAKDD-2026</div><p>The teamwork paper (Big Five model), as runnable multi-agent code.</p>
+          <div class="links"><a href="https://github.com/PranavMishra17" target="_blank" rel="noopener">github</a></div></div></div>
+
+        <div class="visa"><div class="photo" style="background-image:url('/portfolio/public/assets/images/ai_ml/snake.png')"><div class="band">VISA</div></div>
+          <div class="body"><h3>SnakeAI-MLOps</h3><div class="ref">REF · LIVE-PLAYABLE</div><p>Four reinforcement-learning methods racing on the same game.</p>
+          <div class="links"><a href="https://pranavmishra17.github.io/SnakeAI-MLOps/" target="_blank" rel="noopener">play it</a></div></div></div>
+
+        <div class="visa"><div class="photo" style="background-image:url('/portfolio/public/assets/images/game_design/rust.png')"><div class="band">VISA</div></div>
+          <div class="body"><h3>Rusty ANT</h3><div class="ref">REF · RUST-EVO</div><p>Ants evolving under selection pressure, written in Rust.</p></div></div>
+
+      </div>
+    </section>
+
+    <!-- PAGE 4 — RESEARCH ENDORSEMENTS -->
+    <section class="page" data-page="research">
+      <div class="kicker"><span>ENDORSEMENTS</span><span>PAGE 4 — OFFICIAL RECORD</span></div>
+      <h1>Endorsements</h1>
+      <h2>Three papers, three states of standing</h2>
+
+      <div class="cert">
+        <div class="seal accepted">ACCEPTED<br>CAI'26</div>
+        <div class="cert-body">
+          <h3>A systematic framework for enterprise knowledge retrieval</h3>
+          <div class="venue">Accepted · CAI 2026, IEEE · arxiv.org/pdf/2512.05411</div>
+          <p>Has a model write metadata for each chunk before storing it — 82.5% precision versus 73.3% for content alone.</p>
+        </div>
+      </div>
+
+      <div class="cert">
+        <div class="seal review">UNDER<br>REVIEW</div>
+        <div class="cert-body">
+          <h3>TeamMedAgents</h3>
+          <div class="venue">Under review · PAKDD 2026 · 4 citations · arxiv.org/pdf/2508.08115</div>
+          <p>Takes the Big Five teamwork model from organisational psychology and builds it as real mechanisms between agents — better on seven of eight medical benchmarks.</p>
+        </div>
+      </div>
+
+      <div class="cert">
+        <div class="seal prep">IN<br>PREP.</div>
+        <div class="cert-body">
+          <h3>Cost-efficient multi-modal medical reasoning with small models</h3>
+          <div class="venue">In preparation</div>
+          <p>Ongoing work on getting small models to reason across modalities in medicine, cheaply.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 5 — INTERESTS (blank stamps) -->
+    <section class="page" data-page="interests">
+      <div class="kicker"><span>UNSTAMPED</span><span>PAGE 5 — RESERVED</span></div>
+      <h1>Reserved for personal use</h1>
+      <h2>He reads, watches films, plays games — the specific ones aren't on file</h2>
+      <div class="blank-grid">
+        <div class="blank-slot">Books<span>— awaiting stamp —</span></div>
+        <div class="blank-slot">Films<span>— awaiting stamp —</span></div>
+        <div class="blank-slot">Games<span>— awaiting stamp —</span></div>
+      </div>
+      <div class="margin-note">placeholders — swap these for the real ones.</div>
+    </section>
+
+    <!-- PAGE 6 — SURPRISES -->
+    <section class="page" data-page="surprises">
+      <div class="kicker"><span>ANNEX</span><span>PAGE 6 — UNSCHEDULED</span></div>
+      <h1>Found, not announced</h1>
+      <h2>One stamp from somewhere unexpected</h2>
+      <div class="surprise-wrap">
+        <div class="special-seal"><div class="big">MIT XR 2024</div><div class="small">SnAIder-Cut — Winner</div></div>
+        <div class="tucked">
+          <p><strong>Currently reading / playing:</strong> <span class="lab">— placeholder, swap for the real one —</span></p>
+          <p>Also on file: <em>Virtual Van Gogh</em> took first place at HINT 5.0 — a second stamp, same drawer.</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+  <div class="arrows">
+    <button class="arrow" id="prev">‹ back</button>
+    <div class="pageno" id="pageno"></div>
+    <button class="arrow" id="next">next ›</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var order = ['about','experience','projects','research','interests','surprises'];
+  var labels = {about:'About', experience:'Experience', projects:'Projects', research:'Research', interests:'Interests', surprises:'Surprises'};
+  var pages = order.map(function(id){ return document.querySelector('.page[data-page="'+id+'"]'); });
+  var tabsEl = document.getElementById('tabs');
+  var idx = 0;
+
+  order.forEach(function(id, i){
+    var b = document.createElement('button');
+    b.className = 'tab';
+    b.textContent = labels[id];
+    b.setAttribute('aria-label', 'Go to ' + labels[id] + ' page');
+    b.addEventListener('click', function(){ setPage(i); });
+    tabsEl.appendChild(b);
+  });
+  var tabButtons = tabsEl.querySelectorAll('.tab');
+
+  function render(){
+    pages.forEach(function(p, i){
+      p.classList.remove('active','before');
+      if(i === idx) p.classList.add('active');
+      else if(i < idx) p.classList.add('before');
+    });
+    tabButtons.forEach(function(b,i){ b.classList.toggle('on', i===idx); });
+    document.getElementById('prev').disabled = idx===0;
+    document.getElementById('next').disabled = idx===order.length-1;
+    document.getElementById('pageno').textContent = (idx+1) + ' / ' + order.length;
+  }
+  function setPage(i){
+    idx = Math.max(0, Math.min(order.length-1, i));
+    render();
+  }
+  document.getElementById('prev').addEventListener('click', function(){ setPage(idx-1); });
+  document.getElementById('next').addEventListener('click', function(){ setPage(idx+1); });
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'ArrowRight') setPage(idx+1);
+    if(e.key === 'ArrowLeft') setPage(idx-1);
+  });
+
+  // First paint must not depend on rAF/load/IntersectionObserver alone.
+  render();
+  var settled = false;
+  function finalize(){ if(settled) return; settled = true; render(); }
+  requestAnimationFrame(finalize);
+  setTimeout(finalize, 300);
+})();
+</script>
+
+</body>
+</html>

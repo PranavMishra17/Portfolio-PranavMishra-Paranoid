@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>The Move — Pranav Mishra</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --floor:#6e6f68;
+  --floor-2:#5f6059;
+  --kraft:#b9a184;
+  --kraft-dark:#9c8468;
+  --kraft-lid:#c6b096;
+  --tape:#ded7c6;
+  --marker:#1f1c18;
+  --stamp:#9d3227;
+  --paper:#f3f0e7;
+  --ink:#1d1b18;
+  --ink-soft:#5d574e;
+  --deep:#38504f;
+  --hand:'Caveat',cursive;
+  --read:'Newsreader',Georgia,serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%}
+body{
+  background:linear-gradient(to bottom,var(--floor-2),var(--floor));
+  color:var(--ink);font-family:var(--read);
+}
+:focus-visible{outline:3px solid #f0e3c0;outline-offset:3px}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;text-align:left}
+img{display:block;max-width:100%}
+
+.hall{max-width:1180px;margin:0 auto;padding:clamp(24px,4vw,54px) clamp(18px,4vw,44px) 80px}
+
+/* the shipping label on the top box — about, readable at rest */
+.tag{
+  background:var(--paper);border-radius:2px;padding:clamp(18px,2.6vw,26px);
+  max-width:640px;box-shadow:0 14px 32px rgba(0,0,0,.3);
+  border-left:6px solid var(--kraft-dark);margin-bottom:clamp(22px,3.4vw,38px);
+}
+.tag .car{
+  font-family:var(--hand);font-size:20px;color:var(--ink-soft);
+  border-bottom:1px dashed #c9c2b3;padding-bottom:.35rem;margin-bottom:.75rem;
+}
+.tag h1{font-weight:500;font-size:clamp(24px,3.2vw,34px);line-height:1.1;margin-bottom:.15rem}
+.tag .from{font-size:14.5px;color:var(--ink-soft);margin-bottom:.8rem}
+.tag p{font-size:15.5px;line-height:1.62;max-width:60ch;margin-bottom:.5rem}
+.tag .lk{display:flex;gap:1.3rem;flex-wrap:wrap;margin-top:.7rem}
+.tag .lk a{color:var(--deep);text-decoration:none;font-size:14px;border-bottom:1px solid rgba(56,80,79,.35);padding-bottom:1px}
+
+.hint{font-family:var(--hand);font-size:19px;color:#e6e2d6;margin-bottom:1rem;opacity:.85}
+
+/* ── the stack ─────────────────────────────────────────────── */
+.stack{display:grid;grid-template-columns:repeat(auto-fill,minmax(238px,1fr));gap:clamp(14px,2vw,22px)}
+
+.box{
+  position:relative;background:var(--kraft);border-radius:3px;
+  padding:0;overflow:hidden;
+  box-shadow:0 10px 24px rgba(0,0,0,.34), inset 0 -3px 0 rgba(0,0,0,.12);
+  transition:transform 240ms cubic-bezier(.2,.9,.25,1), box-shadow 240ms;
+  display:block;width:100%;
+}
+.box:hover{transform:translateY(-3px);box-shadow:0 16px 30px rgba(0,0,0,.4)}
+.box .lid{
+  height:34px;background:var(--kraft-lid);position:relative;
+  border-bottom:2px solid rgba(0,0,0,.14);
+  transition:transform 320ms cubic-bezier(.2,.95,.3,1);transform-origin:50% 0;
+}
+.box .lid::after{
+  content:"";position:absolute;left:50%;top:0;transform:translateX(-50%);
+  width:56%;height:14px;background:var(--tape);opacity:.9;
+  box-shadow:0 1px 0 rgba(0,0,0,.12);
+}
+.box.open .lid{transform:rotateX(58deg)}
+.box .face{padding:clamp(14px,1.8vw,20px)}
+.box .mark{
+  font-family:var(--hand);font-size:clamp(23px,2.5vw,29px);color:var(--marker);
+  line-height:1.05;margin-bottom:.15rem;
+}
+.box .sub{font-family:var(--hand);font-size:17px;color:#4a4137;line-height:1.2}
+.box .count{
+  position:absolute;right:10px;bottom:9px;font-family:var(--hand);
+  font-size:16px;color:#6b5f4f;
+}
+.box .fragile{
+  position:absolute;right:8px;top:44px;transform:rotate(9deg);
+  font-family:var(--read);font-weight:600;font-size:11px;letter-spacing:.14em;
+  color:var(--stamp);border:2px solid var(--stamp);border-radius:2px;
+  padding:2px 6px;opacity:.85;
+}
+.box .sealed{
+  position:absolute;left:0;right:0;top:52%;height:15px;background:var(--tape);
+  transform:rotate(-2.4deg);opacity:.95;
+  box-shadow:0 1px 0 rgba(0,0,0,.14),0 -1px 0 rgba(0,0,0,.08);
+}
+.box .medal{position:absolute;right:12px;top:-14px;font-size:26px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.4))}
+.box.seen{filter:saturate(.82)}
+.box.seen .mark{color:#4b443a}
+
+/* ── what came out of the box ──────────────────────────────── */
+#out{margin-top:clamp(22px,3.4vw,38px)}
+.unpack{
+  background:var(--paper);border-radius:2px;padding:clamp(20px,3vw,34px);
+  box-shadow:0 20px 44px rgba(0,0,0,.34);
+}
+.unpack .head{border-bottom:1px solid #ded7c8;padding-bottom:.9rem;margin-bottom:1.2rem}
+.unpack .head h2{font-family:var(--hand);font-size:clamp(28px,3.6vw,38px);font-weight:600;line-height:1}
+.unpack .head p{font-size:14px;color:var(--ink-soft);margin-top:.3rem}
+.item{padding:1.15rem 0;border-top:1px solid #e4ded1}
+.item:first-of-type{border-top:0;padding-top:0}
+.item h3{font-weight:500;font-size:19.5px;line-height:1.25;margin-bottom:.15rem}
+.item .meta{font-size:13.5px;color:var(--ink-soft);margin-bottom:.5rem}
+.item p{font-size:15.5px;line-height:1.62;max-width:64ch;margin-bottom:.5rem}
+.item .lk{display:flex;gap:1.3rem;flex-wrap:wrap;font-size:14px;margin-top:.3rem}
+.item .lk a{color:var(--deep);text-decoration:none;border-bottom:1px solid rgba(56,80,79,.35);padding-bottom:1px}
+
+/* numbers get a home: written on the box, struck through and corrected */
+.figs{display:flex;flex-wrap:wrap;gap:.6rem .9rem;margin:.55rem 0 .3rem}
+.fig{
+  font-family:var(--hand);font-size:19px;color:var(--marker);
+  background:#e9e2d2;border-radius:2px;padding:.15rem .6rem;
+}
+.fig s{color:#8d8474;text-decoration-thickness:1.5px;margin-right:.35rem}
+.fig b{font-weight:600}
+
+.shots{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:.6rem}
+.shots figure{margin:0}
+.shots img{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:2px;background:#ddd6c6}
+.shots figcaption{font-size:13.5px;color:var(--ink-soft);margin-top:.35rem;line-height:1.4}
+.shots .live{color:#3f6b45;font-weight:600}
+
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:11px;margin-top:.5rem}
+.slot{border:1px dashed #cdc5b4;border-radius:2px;padding:.65rem .75rem;min-height:66px}
+.slot span{display:block;font-size:12.5px;color:var(--ink-soft);margin-bottom:.2rem}
+.slot b{font-family:var(--hand);font-weight:500;font-size:18px;color:#928a79}
+.note{font-family:var(--hand);font-size:18px;color:#6f665a;margin-top:.9rem}
+
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+
+<main class="hall">
+
+  <section class="tag">
+    <p class="car">handle with care — this way up</p>
+    <h1>Pranav Pushkar Mishra</h1>
+    <p class="from">Bengaluru, 2023 &nbsp;→&nbsp; Chicago, 2024 &nbsp;→&nbsp; remote, 2025 &nbsp;→&nbsp; New York, 2026</p>
+    <p>I build the parts of AI systems that have to be right, which usually means the unglamorous parts: what the thing is allowed to do, how fast it does it, and whether it is telling the truth.</p>
+    <p>Everything I have made is in these boxes, packed by the city I was living in when I made it. Open one.</p>
+    <p class="lk">
+      <a href="https://github.com/PranavMishra17" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://www.linkedin.com/in/pranavgamedev/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://huggingface.co/Paranoiid" target="_blank" rel="noopener">Hugging Face</a>
+    </p>
+  </section>
+
+  <p class="hint">seven boxes. nothing is sorted, because nothing ever is</p>
+  <div class="stack" id="stack"></div>
+
+  <div id="out"></div>
+</main>
+
+<script>
+(function(){
+  'use strict';
+  var REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var IMG = '/portfolio/public/assets/images/';
+
+  /* Boxes are packed by era, which is the one true axis in his history.
+     Every date below is real; nothing is grouped by guesswork. */
+  var BOXES = [
+    { id:'ny', mark:'NEW YORK', sub:'2026 — still living out of it', count:'the job',
+      head:'New York, 2026', note:'Founding LLM engineer at Alfred_. This box is not really unpacked.',
+      items:[
+        { h:'Alfred_, founding LLM engineer', m:'April 2026 to now · 5,000+ subscribers in production',
+          p:['A consumer assistant that runs people’s email, calendar and daily obligations over text message, chat and voice. I own the reliability side of it.',
+             'I rebuilt working memory so it cannot invent a fact about your inbox — enforced by tests, not by hoping the model behaves. And I replaced a model call on every message in the rules engine with a matcher that just decides.'],
+          figs:[['90 s','3 s','email to text'],['189 s','instant','security codes'],[null,'−30%','cost per user'],[null,'98%','rules made by talking']],
+          lk:[['get-alfred.ai','https://get-alfred.ai/']] }
+      ]},
+
+    { id:'remote', mark:'REMOTE', sub:'2025 — packed in a hurry', count:'a job, 3 builds',
+      head:'Remote, 2025', note:'A year of working from wherever, mostly for a car-parts marketplace.',
+      items:[
+        { h:'WheelPrice, AI engineer', m:'July 2025 to March 2026 · Charlotte, remote',
+          p:['Computer vision for automotive part fitment, built end to end. Also a content system in React and Node, and the OTP verification flow.'],
+          figs:[[null,'10–20k','readers a day']] },
+        { h:'Three things I made that year', m:'SnakeAI-MLOps · Big5-Agents · AI Mafia',
+          p:['Four reinforcement-learning methods racing on the same game. The teamwork paper turned into runnable code. And a set of language models playing a game about lying to each other.'],
+          shots:[['ai_ml/snake.png','SnakeAI-MLOps — four RL methods, C++ and PyTorch','https://pranavmishra17.github.io/SnakeAI-MLOps/','play it'],
+                 ['ai_ml/big5.png','Big5-Agents — six teamwork behaviours you can switch off one at a time','https://github.com/PranavMishra17/Big5-Agents',''],
+                 ['game_design/mafia.png','AI Mafia — nobody scripted the betrayals','https://github.com/PranavMishra17/Mafia-Boardgame-via-Agents','']] }
+      ]},
+
+    { id:'chi', mark:'CHICAGO', sub:'2024 — the heaviest box', count:'a lab, 4 builds',
+      head:'Chicago, 2024', note:'University of Illinois Chicago, and the lab where most of the worlds got made.',
+      items:[
+        { h:'V-ARE Labs, research software engineer', m:'February 2024 to now · UIC',
+          p:['Virtual patients in Unreal Engine with a Python service behind them, used by clinicians in real studies. Also an audio pipeline comparing feature engineering against CNNs and transformers.'],
+          figs:[[null,'98.52%','audio accuracy']] },
+        { h:'Four things I made that year', m:'Stellarium · SnAIder-Cut · EQUITY · Rusty ANT',
+          p:['A room whose walls are screens, a scene you can edit by asking, a patient who is not real, and some ants written in Rust.'],
+          figs:[[null,'107,000','objects held at frame rate']],
+          shots:[['game_design/stellarium.png','Stellarium — 107,000 astronomical objects in CAVE2','https://youtu.be/EX0c-6E8iNc',''],
+                 ['game_design/snaider.png','SnAIder-Cut — won the MIT XR hackathon','https://youtu.be/CZtGmnGYKp8',''],
+                 ['game_design/equity.png','EQUITY — a MetaHuman patient for bias research','https://youtu.be/WO2vVaD8WoE',''],
+                 ['game_design/rust.png','Rusty ANT — a life sim, in Rust','https://github.com/PranavMishra17/Rust-yy-Ant','']] }
+      ]},
+
+    { id:'blr', mark:'BENGALURU', sub:'2023 — the oldest one', count:'a job, 2 builds',
+      head:'Bengaluru, 2023', note:'Where it started. A small studio, and two things that were mostly for fun.',
+      items:[
+        { h:'Bipolar Factory, software developer intern', m:'2023 · Bengaluru',
+          p:['A streaming platform on the MERN stack with an AWS and Jenkins pipeline behind it, and in-game chat in Unity.'],
+          figs:[[null,'+10%','retention from the chat']] },
+        { h:'Two things I made that year', m:'Virtual Van Gogh · Neon-Bites',
+          p:['A museum you can walk through where the paintings are on a chain, and cyberpunk food delivery with the physics taken seriously.'],
+          shots:[['game_design/van%20gogh.jpg','Virtual Van Gogh — first place at HINT 5.0','https://youtu.be/rz_NiIj-dic',''],
+                 ['game_design/neon.png','Neon-Bites — the city generates itself','https://youtu.be/PLVynmeGvsI','']] }
+      ]},
+
+    { id:'papers', mark:'PAPERS', sub:'do not stack anything on this', count:'3 inside', fragile:1,
+      head:'Papers — fragile', note:'Three of them. One accepted, one waiting, one not finished.',
+      items:[
+        { h:'A systematic framework for enterprise knowledge retrieval', m:'Accepted · CAI 2026, IEEE',
+          p:['Retrieval gets better if you let a model write metadata about each chunk before you store it.'],
+          figs:[['73.3%','82.5%','precision, metadata vs content alone']],
+          lk:[['Read it','https://arxiv.org/pdf/2512.05411']] },
+        { h:'TeamMedAgents', m:'Under review · PAKDD 2026 · four citations',
+          p:['I took the Big Five teamwork model out of organisational psychology and built each component as a real mechanism between agents. Which configuration wins depends on the kind of reasoning the task needs, which was the interesting part.'],
+          figs:[[null,'7 of 8','medical benchmarks improved']],
+          lk:[['Read it','https://arxiv.org/pdf/2508.08115'],['Code','https://github.com/PranavMishra17/Big5-Agents']] },
+        { h:'Cost-efficient multi-modal medical reasoning with small models', m:'In preparation',
+          p:['Whether several small models talking to each other can stand in for one large one on medical images, and what that trade actually costs.'] }
+      ]},
+
+    { id:'misc', mark:'MISC', sub:'never got round to this one', count:'still taped', sealed:1,
+      head:'Misc — the one still taped shut', note:'Books, films, games. I have not told anyone what is in here yet.',
+      items:[
+        { h:'What I read, watch and play', m:'Half of what I have built is a world of some kind, so this is not really time off',
+          p:['These are empty on purpose. I did not want to put opinions in your mouth.'],
+          slots:[['Reading now','—'],['Just finished','—'],['The one I reread','—'],['Film I return to','—'],['Playing now','—'],['The one that made me want to build','—']],
+          note:'placeholders — tell me the real ones and I will write them on the box' }
+      ]},
+
+    { id:'never', mark:'NEVER UNPACKED', sub:'moved four times, opened zero', count:'?', medal:'🏅',
+      head:'The box that never got opened', note:'Every move has one. This is mine.',
+      items:[
+        { h:'MIT XR hackathon, 2024', m:'Won it, for SnAIder-Cut',
+          p:['Generative AI editing an augmented scene while you stand inside it.'] },
+        { h:'HINT 5.0', m:'First place, for Virtual Van Gogh',
+          p:['The walkable museum with the paintings on a chain.'] },
+        { h:'Four citations', m:'On the teamwork paper',
+          p:['It is a small number and I am unreasonably pleased about it.'] },
+        { h:'And whatever you want to put in here', m:'The box has room',
+          p:['This is the one that does not have to be about work.'] }
+      ]}
+  ];
+
+  var stack = document.getElementById('stack');
+  var out = document.getElementById('out');
+  var openId = null;
+
+  BOXES.forEach(function(b){
+    var el = document.createElement('button');
+    el.type = 'button';
+    el.className = 'box';
+    el.id = 'box-' + b.id;
+    el.setAttribute('aria-expanded','false');
+    el.innerHTML =
+      '<span class="lid"></span>' +
+      (b.sealed ? '<span class="sealed"></span>' : '') +
+      (b.fragile ? '<span class="fragile">FRAGILE</span>' : '') +
+      (b.medal ? '<span class="medal">' + b.medal + '</span>' : '') +
+      '<span class="face">' +
+        '<span class="mark">' + b.mark + '</span>' +
+        '<span class="sub">' + b.sub + '</span>' +
+      '</span>' +
+      '<span class="count">' + b.count + '</span>';
+    el.addEventListener('click', function(){ openBox(b, el); });
+    stack.appendChild(el);
+  });
+
+  function figs(list){
+    if (!list) return '';
+    return '<span class="figs">' + list.map(function(f){
+      return '<span class="fig">' + (f[0] ? '<s>' + f[0] + '</s>' : '') +
+             '<b>' + f[1] + '</b> ' + f[2] + '</span>';
+    }).join('') + '</span>';
+  }
+  function shots(list){
+    if (!list) return '';
+    return '<span class="shots">' + list.map(function(s){
+      var cap = s[3] ? s[1] + ' <a class="live" href="' + s[2] + '" target="_blank" rel="noopener">' + s[3] + '</a>' : s[1];
+      return '<figure><a href="' + s[2] + '" target="_blank" rel="noopener">' +
+             '<img src="' + IMG + s[0] + '" alt="' + s[1] + '" loading="lazy"></a>' +
+             '<figcaption>' + cap + '</figcaption></figure>';
+    }).join('') + '</span>';
+  }
+  function slots(list){
+    if (!list) return '';
+    return '<span class="slots">' + list.map(function(s){
+      return '<span class="slot"><span>' + s[0] + '</span><b>' + s[1] + '</b></span>';
+    }).join('') + '</span>';
+  }
+
+  function openBox(b, el){
+    if (openId === b.id){          /* clicking the open box closes it */
+      el.classList.remove('open');
+      el.setAttribute('aria-expanded','false');
+      out.innerHTML = ''; openId = null; return;
+    }
+    var prev = document.querySelector('.box.open');
+    if (prev){ prev.classList.remove('open'); prev.setAttribute('aria-expanded','false'); }
+    el.classList.add('open','seen');
+    el.setAttribute('aria-expanded','true');
+    openId = b.id;
+
+    out.innerHTML =
+      '<section class="unpack">' +
+        '<div class="head"><h2>' + b.head + '</h2><p>' + b.note + '</p></div>' +
+        b.items.map(function(i){
+          return '<article class="item">' +
+            '<h3>' + i.h + '</h3>' +
+            '<p class="meta">' + i.m + '</p>' +
+            i.p.map(function(x){ return '<p>' + x + '</p>'; }).join('') +
+            figs(i.figs) + shots(i.shots) + slots(i.slots) +
+            (i.note ? '<p class="note">' + i.note + '</p>' : '') +
+            (i.lk ? '<p class="lk">' + i.lk.map(function(l){
+              return '<a href="' + l[1] + '" target="_blank" rel="noopener">' + l[0] + '</a>';
+            }).join('') + '</p>' : '') +
+          '</article>';
+        }).join('') +
+      '</section>';
+
+    if (!REDUCED){
+      /* things come out of a box with weight. one overshoot, one settle.
+         framer: { type:'spring', stiffness: 320, damping: 28, mass: 1.3 } */
+      out.firstChild.animate(
+        [{transform:'translateY(22px) scale(.99)',opacity:0},
+         {transform:'translateY(-4px) scale(1.003)',opacity:1,offset:.62},
+         {transform:'none',opacity:1}],
+        {duration:430,easing:'cubic-bezier(.2,.85,.25,1)'});
+    }
+  }
+
+  /* the top box is already open, the way a move actually looks */
+  openBox(BOXES[0], document.getElementById('box-ny'));
+})();
+</script>
+</body>
+</html>

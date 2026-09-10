@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Five Parts, Symmetrical — Pranav Pushkar Mishra</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,400&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════════════════════════════
+   FIVE PARTS, SYMMETRICAL
+   A film in five parts, hung in a room that is too clean.
+   Rules obeyed without exception:
+     · one vertical axis, dead centre, visible from top to bottom
+     · every plate is bilaterally symmetrical about that axis
+     · one-point perspective: nested frames scaled about a single point
+     · the frame never changes size to suit its contents
+     · three inks: bone, black, and one red used only for a verdict
+     · the only asymmetries are typewritten, human, and deliberate
+   ══════════════════════════════════════════════════════════════════════ */
+:root{
+  --bone:#EDEAE3; --bone-lit:#F7F5F0; --bone-dim:#DDD9CF; --bone-dark:#CBC6B9;
+  --ink:#13130F; --ink-2:#565349; --ink-3:#6C675B;   /* all ≥ 4.9:1 on bone-lit */
+  --red:#A82810; --hair:#B7B2A4;
+  --dsp:'Jost',Futura,'Century Gothic',sans-serif;
+  --ser:'Newsreader',Georgia,serif;
+  --mno:'Courier Prime',Courier,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+/* a flat, evenly lit wall — the value shifts belong to the plates, not the paint */
+body{background:var(--bone);color:var(--ink);font-family:var(--ser);
+  font-size:17px;line-height:1.62;overflow-x:hidden}
+img{display:block;max-width:100%}
+a{color:inherit}
+
+/* the axis — one line, always */
+.axis{position:fixed;inset:0 auto 0 50%;width:1px;background:var(--hair);
+  opacity:.55;z-index:0;pointer-events:none}
+
+/* type ------------------------------------------------------------- */
+.mno{font-family:var(--mno);text-transform:uppercase;font-size:12px;
+  letter-spacing:.2em;color:var(--ink-2);line-height:1.5}
+.stamp{display:inline-block;font-family:var(--mno);font-size:11.5px;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--red);
+  border:1px solid var(--red);padding:3px 9px 2px;background:var(--bone-lit)}
+.stamp.q{color:var(--ink-2);border-color:var(--hair)}
+
+/* the typewritten human, always off the axis, always on a solid chip */
+.note{font-family:var(--mno);font-size:13.5px;line-height:1.62;color:var(--ink-2);
+  text-transform:none;letter-spacing:.01em;background:var(--bone-lit);
+  border-left:2px solid var(--red);padding:10px 14px;max-width:34ch;text-align:left}
+
+/* layout ----------------------------------------------------------- */
+main{position:relative;z-index:1}
+.wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+.part{padding:clamp(66px,10vw,132px) 0}
+.plate{text-align:center;max-width:780px;margin:0 auto}
+.plate h2{font-family:var(--dsp);text-transform:uppercase;font-weight:700;
+  letter-spacing:.16em;line-height:1.1;font-size:clamp(1.4rem,4.4vw,2.85rem);
+  margin:14px 0 0}
+.rule{width:1px;height:52px;background:var(--hair);margin:22px auto}
+.lede{margin:0 auto;max-width:56ch;font-size:clamp(1rem,1.3vw,1.16rem);
+  line-height:1.68;color:var(--ink-2)}
+.glyph{display:block;margin:0 auto;width:104px;height:auto}
+
+/* THE CARD --------------------------------------------------------- */
+.card{position:relative;height:100svh;min-height:540px;overflow:hidden;
+  display:grid;place-items:center;background:#C6C1B2}
+.card svg.corridor{position:absolute;inset:0;width:100%;height:100%}
+.titlecard{position:relative;z-index:2;background:var(--bone-lit);
+  border:1px solid var(--ink);padding:clamp(26px,4vw,38px) clamp(20px,4vw,44px);
+  text-align:center;max-width:min(88vw,600px);
+  outline:1px solid var(--ink);outline-offset:10px}
+.titlecard h1{font-family:var(--dsp);font-weight:700;text-transform:uppercase;
+  letter-spacing:.2em;line-height:1.08;font-size:clamp(1.28rem,4.6vw,2.5rem);margin:0}
+.titlecard .sub{margin-top:16px;font-size:13px;letter-spacing:.17em;
+  font-family:var(--mno);text-transform:uppercase;color:var(--ink-2)}
+.titlecard .reel{margin-bottom:18px}
+.cardnote{position:absolute;z-index:3;left:max(26px,calc(50% - 570px));
+  bottom:clamp(84px,13vh,132px)}
+.scrollcue{position:absolute;z-index:3;bottom:74px;left:50%;transform:translateX(-50%);
+  text-align:center;background:var(--bone-lit);border:1px solid var(--hair);padding:6px 14px}
+@media (max-width:1080px){
+  .cardnote{position:static;margin:24px auto 0;z-index:3}
+  .card{height:auto;padding:76px 18px 52px}
+  .scrollcue{position:static;transform:none;margin:32px auto 0;display:table}
+}
+@media (max-width:520px){
+  .titlecard .sub{font-size:11.5px;letter-spacing:.1em}
+  .titlecard .reel{font-size:11px;letter-spacing:.13em}
+  .card{padding:56px 16px 44px}
+}
+
+/* PART I — the triptych of numbers -------------------------------- */
+.tri{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin:56px 0 0;
+  background:var(--hair);border:1px solid var(--hair)}
+.tri>div{background:var(--bone-lit);padding:34px 16px 28px;text-align:center}
+.tri .big{font-family:var(--dsp);font-weight:500;letter-spacing:.02em;
+  font-size:clamp(1.4rem,3.2vw,2.15rem);white-space:nowrap}
+.tri .big i{font-style:normal;color:var(--red);padding:0 .26em}
+.tri .cap{margin-top:12px;font-family:var(--mno);font-size:12px;letter-spacing:.16em;
+  text-transform:uppercase;color:var(--ink-2)}
+.coda{max-width:60ch;margin:42px auto 0;text-align:center}
+@media (max-width:720px){.tri{grid-template-columns:1fr}}
+
+/* PART II — three rooms ------------------------------------------- */
+.rooms{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:54px}
+.room{border-top:2px solid var(--ink);background:var(--bone-lit);
+  padding:22px 20px 24px;text-align:center}
+.room h3{font-family:var(--dsp);text-transform:uppercase;font-weight:600;
+  letter-spacing:.14em;font-size:1rem;margin:0}
+.room .role{font-style:italic;margin-top:8px;font-size:16px}
+.room .meta{margin-top:6px;font-size:11.5px}
+.room p{margin-top:14px;font-size:15.5px;line-height:1.6;color:var(--ink-2)}
+@media (max-width:820px){.rooms{grid-template-columns:1fr;max-width:520px;margin-inline:auto}}
+
+/* PART III — papers ----------------------------------------------- */
+.paper{border:1px solid var(--hair);background:var(--bone-lit);margin-top:26px;
+  padding:clamp(24px,4vw,40px) clamp(18px,4vw,44px);text-align:center}
+.paper h3{font-family:var(--ser);font-style:italic;font-weight:400;
+  font-size:clamp(1.12rem,2.5vw,1.55rem);line-height:1.3;margin:16px auto 0;max-width:34ch}
+.paper .say{margin:12px auto 0;max-width:52ch;color:var(--ink-2);font-size:16px}
+.vs{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;
+  max-width:380px;margin:24px auto 0}
+.vs b{font-family:var(--dsp);font-weight:500;font-size:1.55rem;display:block}
+.vs .l{text-align:right}.vs .r{text-align:left}
+.vs .r b{color:var(--ink-3)}
+.vs span.m{font-family:var(--mno);font-size:11px;letter-spacing:.16em;
+  color:var(--ink-2);text-transform:uppercase}
+.vs em{font-family:var(--mno);font-size:11px;letter-spacing:.2em;color:var(--ink-3);
+  font-style:normal;text-transform:uppercase}
+.paper .foot{margin-top:22px;display:flex;gap:10px 26px;justify-content:center;
+  flex-wrap:wrap;align-items:center}
+.lnk{font-family:var(--mno);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink);text-decoration:none;border-bottom:1px solid var(--hair);padding-bottom:2px}
+.lnk:hover,.lnk:focus-visible{border-color:var(--red);color:var(--red)}
+.aside{display:flex;justify-content:center;margin-top:22px}
+.aside .note{transform:translateX(min(25vw,232px))}
+@media (max-width:940px){.aside .note{transform:none}}
+
+/* PART IV — nine identical frames --------------------------------- */
+.nine{display:grid;grid-template-columns:repeat(3,1fr);gap:24px 22px;margin-top:54px}
+.f{background:var(--bone-lit);border:1px solid var(--hair);padding:12px 12px 18px;
+  text-align:center;text-decoration:none;color:inherit;display:block;
+  transition:border-color .22s,transform .22s}
+.f:hover,.f:focus-visible{border-color:var(--ink);transform:translateY(-3px)}
+/* the frame never resizes for its contents: fixed ratio, image contained */
+.win{position:relative;aspect-ratio:16/9;background:var(--bone-dark);
+  display:grid;place-items:center;overflow:hidden;
+  outline:1px solid var(--hair);outline-offset:-1px}
+.win img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.f .ix{margin-top:14px;font-family:var(--mno);font-size:11px;letter-spacing:.22em;color:var(--ink-3)}
+.f h3{font-family:var(--dsp);text-transform:uppercase;font-weight:600;letter-spacing:.13em;
+  font-size:.95rem;margin:7px 0 0}
+.f p{margin-top:9px;font-size:15px;line-height:1.58;color:var(--ink-2)}
+.f .stamp{margin-top:13px}
+@media (max-width:860px){.nine{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.nine{grid-template-columns:1fr;max-width:420px;margin-inline:auto}}
+
+/* the supplementary strip */
+.stripwrap{margin-top:56px;border-top:1px solid var(--hair);padding-top:26px}
+.strip{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-top:18px}
+.strip figure{background:var(--bone-lit);border:1px solid var(--hair);padding:6px}
+.strip .win{aspect-ratio:16/10}
+.strip figcaption{font-family:var(--mno);font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-2);margin-top:7px;text-align:center}
+@media (max-width:760px){.strip{grid-template-columns:repeat(3,1fr)}}
+
+/* PART V — three empty frames ------------------------------------- */
+.empties{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:54px;
+  max-width:920px;margin-inline:auto}
+.empty{background:var(--bone-lit);border:1px solid var(--hair);padding:12px 12px 18px;text-align:center}
+.empty .win{background:repeating-linear-gradient(135deg,var(--bone-dim) 0 9px,var(--bone-dark) 9px 10px)}
+.empty .win span{font-family:var(--dsp);font-size:1.5rem;color:var(--ink-2);
+  background:var(--bone-lit);padding:2px 18px;letter-spacing:.1em}
+.empty h3{font-family:var(--dsp);text-transform:uppercase;font-weight:600;
+  letter-spacing:.2em;font-size:.9rem;margin:14px 0 0}
+@media (max-width:560px){.empties{grid-template-columns:1fr;max-width:380px}}
+
+/* END CARD -------------------------------------------------------- */
+.end{background:var(--bone-dim);border-top:1px solid var(--ink);
+  padding:clamp(62px,9vw,110px) 22px clamp(100px,12vw,140px);text-align:center}
+.end h2{font-family:var(--dsp);text-transform:uppercase;font-weight:700;
+  letter-spacing:.24em;font-size:clamp(1.02rem,3vw,1.65rem);margin:20px 0 0}
+.dblrule{width:min(300px,72vw);margin:26px auto;border-top:1px solid var(--ink);
+  border-bottom:1px solid var(--ink);height:4px}
+.links{display:flex;gap:12px 30px;justify-content:center;flex-wrap:wrap;margin-top:8px}
+.honours{margin-top:30px;font-size:16px;color:var(--ink-2)}
+
+/* chapter marks — not a nav bar; a strip of chapter marks ---------- */
+.marks{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:9;
+  display:flex;gap:2px;background:var(--bone-lit);border:1px solid var(--hair);padding:4px}
+.marks a{font-family:var(--mno);font-size:11.5px;letter-spacing:.12em;color:var(--ink-2);
+  text-decoration:none;padding:6px 10px;min-width:34px;text-align:center}
+.marks a:hover,.marks a:focus-visible{color:var(--ink);background:var(--bone-dim)}
+.marks a[aria-current="true"]{background:var(--ink);color:var(--bone-lit)}
+
+/* reveal — visible by default; JS opts in, timeout un-opts --------- */
+.js .rv{opacity:0;transform:translateY(15px);transition:opacity .8s ease,transform .8s ease}
+.js .rv.in{opacity:1;transform:none}
+@keyframes cardin{from{opacity:0;transform:scale(.965)}to{opacity:1;transform:none}}
+.titlecard,.cardnote,.scrollcue{animation:cardin .9s cubic-bezier(.22,.7,.2,1) both}
+.cardnote{animation-delay:.5s}.scrollcue{animation-delay:.78s}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .titlecard,.cardnote,.scrollcue{animation:none}
+  .js .rv{opacity:1;transform:none;transition:none}
+  .f:hover,.f:focus-visible{transform:none}
+}
+</style>
+</head>
+<body>
+<div class="axis" aria-hidden="true"></div>
+
+<main>
+<!-- ══ THE CARD ══════════════════════════════════════════════════ -->
+<section class="card" id="card">
+  <svg class="corridor" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <g>
+      <rect x="0" y="0" width="1600" height="900" fill="#C6C1B2"/>
+      <rect x="304" y="191" width="992" height="558" fill="#D4CFC1"/>
+      <rect x="480" y="290" width="640" height="360" fill="#E2DED3"/>
+      <rect x="592" y="353" width="416" height="234" fill="#ECE9E0"/>
+      <rect x="664" y="393" width="272" height="153" fill="#F4F2EC"/>
+      <rect x="712" y="420" width="176" height="99"  fill="#FAF9F5"/>
+      <rect x="756" y="445" width="88"  height="50"  fill="#FFFEFA"/>
+    </g>
+    <!-- the light in the room: floor darker, ceiling paler -->
+    <polygon points="0,900 1600,900 800,470" fill="#3A362C" opacity=".13"/>
+    <polygon points="0,0 1600,0 800,470" fill="#FFFFFF" opacity=".26"/>
+    <g stroke="#A19B8C" fill="none" stroke-width="1">
+      <path d="M0 0 L800 470 M1600 0 L800 470 M0 900 L800 470 M1600 900 L800 470"/>
+      <rect x="304" y="191" width="992" height="558"/>
+      <rect x="480" y="290" width="640" height="360"/>
+      <rect x="592" y="353" width="416" height="234"/>
+      <rect x="664" y="393" width="272" height="153"/>
+      <rect x="712" y="420" width="176" height="99"/>
+    </g>
+    <g stroke="#6E695C" fill="none" stroke-width="1.5">
+      <rect x="756" y="445" width="88" height="50"/>
+      <path d="M0 470 H196 M1404 470 H1600"/>
+    </g>
+    <g stroke="#A82810" stroke-width="1.8" fill="none"><path d="M793 470 h14"/></g>
+  </svg>
+
+  <div class="titlecard">
+    <div class="mno reel">Reel one &nbsp;·&nbsp; Five parts &nbsp;·&nbsp; Nineteen plates</div>
+    <h1>Pranav Pushkar Mishra</h1>
+    <div class="sub">Founding LLM Engineer, Alfred_ &nbsp;·&nbsp; New York City</div>
+    <div class="sub" style="margin-top:9px">Computer science, University of Illinois Chicago &nbsp;·&nbsp; Metuchen, New Jersey</div>
+  </div>
+
+  <div class="cardnote"><p class="note">He owns the reliability side. That is the part where it must not be wrong.</p></div>
+  <div class="scrollcue mno">Part one follows &nbsp;&darr;</div>
+</section>
+
+<!-- ══ PART ONE ══════════════════════════════════════════════════ -->
+<section class="part" id="p1"><div class="wrap">
+  <div class="plate rv">
+    <svg class="glyph" viewBox="0 0 104 40" aria-hidden="true"><g fill="none" stroke="#B7B2A4"><rect x=".5" y=".5" width="103" height="39"/><rect x="20" y="8" width="64" height="24"/><rect x="34" y="14" width="36" height="12"/></g><rect x="49" y="18" width="6" height="4" fill="#A82810"/></svg>
+    <div class="mno" style="margin-top:16px">Part one</div>
+    <h2>The room he is in now</h2>
+    <div class="rule"></div>
+    <p class="lede">Alfred_ runs five thousand people&rsquo;s email, calendar and daily obligations over text message, chat and voice &mdash; a consumer assistant that answers in the place you already are. April 2026 to now.</p>
+  </div>
+  <div class="tri rv">
+    <div><div class="big">90s<i>&rarr;</i>3s</div><div class="cap">Email into a text message</div></div>
+    <div><div class="big">189s<i>&rarr;</i>0s</div><div class="cap">Security codes, now instant</div></div>
+    <div><div class="big">&minus;30<span style="font-size:.62em">%</span></div><div class="cap">Cost, per user</div></div>
+  </div>
+  <p class="coda rv">A model call sat on every single message. It was replaced with a deterministic matcher, and <strong>98%</strong> of the rules that drive it are now made by chatting. Working memory was rebuilt so that it cannot fabricate a fact about your inbox &mdash; a property enforced by tests, not by hope.</p>
+</div></section>
+
+<!-- ══ PART TWO ══════════════════════════════════════════════════ -->
+<section class="part" id="p2"><div class="wrap">
+  <div class="plate rv">
+    <svg class="glyph" viewBox="0 0 104 40" aria-hidden="true"><g fill="none" stroke="#B7B2A4"><rect x=".5" y=".5" width="103" height="39"/><rect x="20" y="8" width="64" height="24"/><rect x="34" y="14" width="36" height="12"/></g><rect x="49" y="18" width="6" height="4" fill="#A82810"/></svg>
+    <div class="mno" style="margin-top:16px">Part two</div>
+    <h2>The rooms before</h2>
+    <div class="rule"></div>
+    <p class="lede">Three rooms, hung at the same height, in the same frame, with the same margins.</p>
+  </div>
+  <div class="rooms rv">
+    <div class="room">
+      <h3>WheelPrice</h3>
+      <div class="role">AI Engineer</div>
+      <div class="meta mno">Charlotte, remote &nbsp;·&nbsp; Jul 2025 &ndash; Mar 2026</div>
+      <p>Computer vision for part fitment &mdash; does this component belong on this car. And a content system that reached ten to twenty thousand readers a day.</p>
+    </div>
+    <div class="room">
+      <h3>V&ndash;ARE Labs, UIC</h3>
+      <div class="role">Research Software Engineer</div>
+      <div class="meta mno">Chicago &nbsp;·&nbsp; Feb 2024 &ndash; now</div>
+      <p>Virtual patients in Unreal Engine 5, built to be examined. An audio machine-learning pipeline holding 98.52% accuracy.</p>
+    </div>
+    <div class="room">
+      <h3>Bipolar Factory</h3>
+      <div class="role">Software Developer Intern</div>
+      <div class="meta mno">Bengaluru &nbsp;·&nbsp; 2023</div>
+      <p>A MERN streaming platform. In-game chat in Unity, which moved retention up ten per cent.</p>
+    </div>
+  </div>
+</div></section>
+
+<!-- ══ PART THREE ════════════════════════════════════════════════ -->
+<section class="part" id="p3"><div class="wrap">
+  <div class="plate rv">
+    <svg class="glyph" viewBox="0 0 104 40" aria-hidden="true"><g fill="none" stroke="#B7B2A4"><rect x=".5" y=".5" width="103" height="39"/><rect x="20" y="8" width="64" height="24"/><rect x="34" y="14" width="36" height="12"/></g><rect x="49" y="18" width="6" height="4" fill="#A82810"/></svg>
+    <div class="mno" style="margin-top:16px">Part three</div>
+    <h2>What is written down</h2>
+    <div class="rule"></div>
+    <p class="lede">Three papers. One is through, one is waiting, one does not exist yet.</p>
+  </div>
+
+  <article class="paper rv">
+    <span class="stamp">Accepted &nbsp;·&nbsp; CAI 2026 / IEEE</span>
+    <h3>A systematic framework for enterprise knowledge retrieval</h3>
+    <p class="say">Metadata written by a language model <em>before</em> anything is stored, rather than searched for afterwards.</p>
+    <div class="vs">
+      <div class="l"><b>82.5%</b><span class="m">This</span></div>
+      <em>vs</em>
+      <div class="r"><b>73.3%</b><span class="m">Baseline</span></div>
+    </div>
+    <div class="foot"><a class="lnk" href="https://arxiv.org/pdf/2512.05411">Read the paper &nearr;</a></div>
+  </article>
+
+  <article class="paper rv">
+    <span class="stamp q">Under review &nbsp;·&nbsp; PAKDD 2026</span>
+    <h3>TeamMedAgents</h3>
+    <p class="say">The Big Five teamwork model built as real mechanisms between agents &mdash; not as a prompt asking them to cooperate. Better on seven of eight medical benchmarks.</p>
+    <div class="foot">
+      <a class="lnk" href="https://arxiv.org/pdf/2508.08115">Read the paper &nearr;</a>
+      <span class="mno">Four citations</span>
+    </div>
+    <div class="aside"><p class="note">Four citations, which pleases him more than it should.</p></div>
+  </article>
+
+  <article class="paper rv">
+    <span class="stamp q">In preparation</span>
+    <h3>Cost-efficient multi-modal medical reasoning with small models</h3>
+    <p class="say">Nothing is published yet. The frame is hung anyway.</p>
+  </article>
+</div></section>
+
+<!-- ══ PART FOUR ═════════════════════════════════════════════════ -->
+<section class="part" id="p4"><div class="wrap">
+  <div class="plate rv">
+    <svg class="glyph" viewBox="0 0 104 40" aria-hidden="true"><g fill="none" stroke="#B7B2A4"><rect x=".5" y=".5" width="103" height="39"/><rect x="20" y="8" width="64" height="24"/><rect x="34" y="14" width="36" height="12"/></g><rect x="49" y="18" width="6" height="4" fill="#A82810"/></svg>
+    <div class="mno" style="margin-top:16px">Part four</div>
+    <h2>Nine things, identically framed</h2>
+    <div class="rule"></div>
+    <p class="lede">The frame does not change size to flatter its contents. Whatever fails to fill it is simply centred inside it.</p>
+  </div>
+
+  <div class="nine rv">
+    <a class="f" href="https://youtu.be/EX0c-6E8iNc">
+      <div class="win"><img src="/portfolio/public/assets/images/game_design/stellarium.png" alt="Stellarium running in the CAVE2 room" loading="lazy"></div>
+      <div class="ix">01</div><h3>Stellarium</h3>
+      <p>107,000 astronomical objects in CAVE2 &mdash; a room whose walls are screens.</p>
+    </a>
+    <a class="f" href="https://youtu.be/CZtGmnGYKp8">
+      <div class="win"><img src="/portfolio/public/assets/images/game_design/snaider.png" alt="SnAIder-Cut editing an augmented room" loading="lazy"></div>
+      <div class="ix">02</div><h3>SnAIder&ndash;Cut</h3>
+      <p>Say what you want changed, and the augmented room changes.</p>
+      <span class="stamp">Won MIT XR 2024</span>
+    </a>
+    <a class="f" href="https://youtu.be/WO2vVaD8WoE">
+      <div class="win"><img src="/portfolio/public/assets/images/game_design/equity.png" alt="EQUITY virtual patient in Unreal Engine 5" loading="lazy"></div>
+      <div class="ix">03</div><h3>EQUITY</h3>
+      <p>An Unreal Engine 5 virtual patient, for bias research in medicine.</p>
+    </a>
+    <a class="f" href="https://youtu.be/rz_NiIj-dic">
+      <div class="win"><img src="/portfolio/public/assets/images/game_design/van%20gogh.jpg" alt="Virtual Van Gogh, a walkable museum" loading="lazy"></div>
+      <div class="ix">04</div><h3>Virtual Van Gogh</h3>
+      <p>A walkable museum. The paintings hang on a chain.</p>
+      <span class="stamp">First at HINT 5.0</span>
+    </a>
+    <a class="f" href="https://youtu.be/PLVynmeGvsI">
+      <div class="win"><img src="/portfolio/public/assets/images/game_design/neon.png" alt="Neon-Bites cyberpunk delivery game" loading="lazy"></div>
+      <div class="ix">05</div><h3>Neon&ndash;Bites</h3>
+      <p>Cyberpunk food delivery, with the physics taken seriously.</p>
+    </a>
+    <a class="f" href="https://github.com/PranavMishra17/Mafia-Boardgame-via-Agents">
+      <div class="win"><img src="/portfolio/public/assets/images/game_design/mafia.png" alt="AI Mafia, agents playing the game" loading="lazy"></div>
+      <div class="ix">06</div><h3>AI Mafia</h3>
+      <p>Language models playing a game about lying to each other.</p>
+    </a>
+    <a class="f" href="https://github.com/PranavMishra17/Big5-Agents">
+      <div class="win"><img src="/portfolio/public/assets/images/ai_ml/big5.png" alt="Big5-Agents framework" loading="lazy"></div>
+      <div class="ix">07</div><h3>Big5&ndash;Agents</h3>
+      <p>The teamwork paper, as runnable code.</p>
+    </a>
+    <a class="f" href="https://pranavmishra17.github.io/SnakeAI-MLOps/">
+      <div class="win"><img src="/portfolio/public/assets/images/ai_ml/snake.png" alt="SnakeAI-MLOps reinforcement learning" loading="lazy"></div>
+      <div class="ix">08</div><h3>SnakeAI&ndash;MLOps</h3>
+      <p>Four reinforcement-learning methods racing on one game.</p>
+      <span class="stamp">Live and playable</span>
+    </a>
+    <a class="f" href="https://github.com/PranavMishra17/Rust-yy-Ant">
+      <div class="win"><img src="/portfolio/public/assets/images/game_design/rust.png" alt="Rusty ANT evolution simulation" loading="lazy"></div>
+      <div class="ix">09</div><h3>Rusty ANT</h3>
+      <p>Ants evolving, in Rust.</p>
+    </a>
+  </div>
+
+  <div class="stripwrap rv">
+    <div class="plate"><div class="mno">Supplementary plates &nbsp;·&nbsp; six</div></div>
+    <div class="strip">
+      <figure><div class="win"><img src="/portfolio/public/assets/images/game_design/st1.png" alt="Stellarium, second view" loading="lazy"></div><figcaption>Stellarium II</figcaption></figure>
+      <figure><div class="win"><img src="/portfolio/public/assets/images/game_design/st2.png" alt="Stellarium, third view" loading="lazy"></div><figcaption>Stellarium III</figcaption></figure>
+      <figure><div class="win"><img src="/portfolio/public/assets/images/game_design/eq1.png" alt="EQUITY, second view" loading="lazy"></div><figcaption>Equity II</figcaption></figure>
+      <figure><div class="win"><img src="/portfolio/public/assets/images/game_design/eq2.png" alt="EQUITY, third view" loading="lazy"></div><figcaption>Equity III</figcaption></figure>
+      <figure><div class="win"><img src="/portfolio/public/assets/images/game_design/neon1.png" alt="Neon-Bites, second view" loading="lazy"></div><figcaption>Neon&ndash;Bites II</figcaption></figure>
+      <figure><div class="win"><img src="/portfolio/public/assets/images/game_design/mit.jpeg" alt="MIT XR 2024 award" loading="lazy"></div><figcaption>MIT XR 2024</figcaption></figure>
+    </div>
+  </div>
+</div></section>
+
+<!-- ══ PART FIVE ═════════════════════════════════════════════════ -->
+<section class="part" id="p5"><div class="wrap">
+  <div class="plate rv">
+    <svg class="glyph" viewBox="0 0 104 40" aria-hidden="true"><g fill="none" stroke="#B7B2A4"><rect x=".5" y=".5" width="103" height="39"/><rect x="20" y="8" width="64" height="24"/><rect x="34" y="14" width="36" height="12"/></g><rect x="49" y="18" width="6" height="4" fill="#A82810"/></svg>
+    <div class="mno" style="margin-top:16px">Part five</div>
+    <h2>Three empty frames</h2>
+    <div class="rule"></div>
+    <p class="lede">He reads books. He loves films. He plays games. He has not said which.</p>
+  </div>
+  <div class="empties rv">
+    <div class="empty"><div class="win"><span>&mdash;</span></div><h3>Books</h3></div>
+    <div class="empty"><div class="win"><span>&mdash;</span></div><h3>Films</h3></div>
+    <div class="empty"><div class="win"><span>&mdash;</span></div><h3>Games</h3></div>
+  </div>
+  <div class="plate rv" style="margin-top:36px">
+    <p class="lede">These three are placeholders, and nothing has been put in them. Inventing a taste for him would have been the easiest thing on this page, and the only dishonest one.</p>
+  </div>
+</div></section>
+
+<!-- ══ END CARD ══════════════════════════════════════════════════ -->
+<footer class="end" id="end">
+  <div class="rv">
+    <div class="mno">End card</div>
+    <h2>Pranav Pushkar Mishra</h2>
+    <div class="dblrule"></div>
+    <div class="links">
+      <a class="lnk" href="https://github.com/PranavMishra17">github / PranavMishra17</a>
+      <a class="lnk" href="https://linkedin.com/in/pranavgamedev">linkedin / pranavgamedev</a>
+      <a class="lnk" href="https://huggingface.co/Paranoiid">huggingface / Paranoiid</a>
+      <a class="lnk" href="https://get-alfred.ai">get&ndash;alfred.ai</a>
+    </div>
+    <p class="honours">Won MIT XR 2024. First place at HINT 5.0. Four citations.<br>
+      <span class="mno" style="display:inline-block;margin-top:12px">Metuchen, New Jersey</span></p>
+  </div>
+</footer>
+</main>
+
+<nav class="marks" aria-label="Parts">
+  <a href="#card">0</a><a href="#p1">I</a><a href="#p2">II</a><a href="#p3">III</a><a href="#p4">IV</a><a href="#p5">V</a>
+</nav>
+
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var items = [].slice.call(document.querySelectorAll('.rv'));
+  function showAll(){ items.forEach(function(n){ n.classList.add('in'); }); }
+
+  if (!reduce && 'IntersectionObserver' in window) {
+    document.documentElement.classList.add('js');
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, {rootMargin:'0px 0px -8% 0px', threshold:0.04});
+    items.forEach(function(n){ io.observe(n); });
+    /* hard fallback: nothing stays hidden, ever */
+    setTimeout(showAll, 1600);
+    window.addEventListener('pageshow', showAll);
+  } else { showAll(); }
+
+  /* chapter marks */
+  var marks = [].slice.call(document.querySelectorAll('.marks a'));
+  var secs = marks.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  var queued = false;
+  function sync(){
+    queued = false;
+    var y = window.scrollY + window.innerHeight * 0.34, best = 0;
+    secs.forEach(function(s,i){ if (s && s.offsetTop <= y) best = i; });
+    marks.forEach(function(a,i){ a.setAttribute('aria-current', i === best ? 'true' : 'false'); });
+  }
+  window.addEventListener('scroll', function(){
+    if (!queued) { queued = true; requestAnimationFrame(sync); }
+  }, {passive:true});
+  sync();
+})();
+</script>
+</body>
+</html>

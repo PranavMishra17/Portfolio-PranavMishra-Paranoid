@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Tide — Pranav Mishra</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Pranav Mishra — Founding LLM Engineer. A walk, not a scroll.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#fdf6e8;
+    --ink-dim:rgba(253,246,232,.72);
+    --ink-dimmer:rgba(253,246,232,.46);
+    --ground:#171029;
+    --font-display:'Cormorant Garamond', Georgia, serif;
+    --font-ui:'Jost', sans-serif;
+  }
+  *{ box-sizing:border-box; }
+  html,body{
+    margin:0; padding:0;
+    width:100%; height:100%;
+    background:#12102c;
+    color:var(--ink);
+    font-family:var(--font-ui);
+    overflow:hidden;
+    overscroll-behavior:none;
+    -webkit-user-select:none; user-select:none;
+  }
+  a, button{ -webkit-user-select:auto; user-select:auto; }
+  ::selection{ background:#f2965c; color:#1a1130; }
+
+  :focus-visible{
+    outline:2px solid #fdf6e8;
+    outline-offset:3px;
+    border-radius:2px;
+  }
+
+  #viewport{
+    position:fixed; inset:0;
+    width:100%; height:100%;
+    overflow:hidden;
+    touch-action:none;
+    cursor:grab;
+  }
+  #viewport.dragging{ cursor:grabbing; }
+
+  .parallax-layer{
+    position:absolute; left:0; bottom:0;
+    width:600vw; height:100%;
+    pointer-events:none;
+    will-change:transform;
+  }
+  .parallax-layer svg{ position:absolute; left:0; bottom:0; width:100%; display:block; }
+
+  #farhills svg{ height:44vh; }
+  #midhills svg{ height:32vh; }
+
+  #world{
+    position:absolute; left:0; top:0;
+    width:600vw; height:100%;
+    will-change:transform;
+    background:linear-gradient(to right,
+      #aab4d8 0%, #cfd3da 10%, #ecdcb0 20%, #f4cd8c 35%,
+      #f2965c 50%, #da6440 62%, #a63f66 75%, #4c2c66 88%, #100e2a 100%);
+  }
+
+  #ground-svg{ position:absolute; left:0; bottom:0; width:100%; height:27vh; display:block; }
+
+  .stop{
+    position:absolute; top:0; height:100%;
+    width:100vw;
+    display:flex;
+    align-items:flex-end;
+    padding:0 8vw 15vh;
+  }
+  /* each waypoint pinned to its own slot along the 600vw track --
+     without an explicit left, absolutely-positioned blocks with no
+     static-position context all collapse onto the same spot (left:0) */
+  #stop-0{ left:0vw; }
+  #stop-1{ left:100vw; }
+  #stop-2{ left:200vw; }
+  #stop-3{ left:300vw; }
+  #stop-4{ left:400vw; }
+  #stop-5{ left:500vw; }
+  .stop-inner{ max-width:640px; }
+  .stop h2{
+    font-family:var(--font-display);
+    font-weight:500;
+    font-size:clamp(2.2rem, 5vw, 3.6rem);
+    line-height:1.05;
+    margin:0 0 .35em;
+    text-shadow:0 4px 26px rgba(10,6,20,.55);
+  }
+  .stop .kicker{
+    font-family:var(--font-ui);
+    font-size:.82rem;
+    color:var(--ink-dim);
+    margin-bottom:.9em;
+    text-shadow:0 2px 14px rgba(10,6,20,.6);
+  }
+  .stop p{
+    font-family:var(--font-display);
+    font-size:clamp(1.08rem, 1.6vw, 1.3rem);
+    line-height:1.5;
+    color:var(--ink);
+    max-width:46ch;
+    margin:0 0 .7em;
+    text-shadow:0 2px 18px rgba(10,6,20,.5);
+  }
+  .stop p.dim{ color:var(--ink-dim); font-size:1.02rem; }
+
+  /* hero */
+  #stop-0{ align-items:center; }
+  #stop-0 h2{ font-size:clamp(3rem, 9vw, 6rem); }
+  #stop-0 .hint{
+    font-family:var(--font-ui);
+    font-size:.85rem;
+    color:var(--ink-dimmer);
+    margin-top:1.6em;
+    display:flex; align-items:center; gap:.7em;
+  }
+  #stop-0 .hint .k{
+    border:1px solid var(--ink-dimmer);
+    border-radius:4px;
+    padding:.15em .55em;
+    font-size:.78rem;
+  }
+
+  /* waypoint markers (huts / trees / village) drawn with simple shapes */
+  .marker-row{ display:flex; gap:2.4em; flex-wrap:wrap; margin:1.3em 0 .4em; }
+  .marker{ display:flex; flex-direction:column; align-items:flex-start; gap:.5em; max-width:220px; }
+  .marker .glyph{ width:34px; height:34px; opacity:.92; }
+  .marker h3{
+    font-family:var(--font-display); font-weight:600; font-size:1.15rem; margin:0;
+    text-shadow:0 2px 14px rgba(10,6,20,.55);
+  }
+  .marker .meta{ font-family:var(--font-ui); font-size:.72rem; color:var(--ink-dimmer); margin:.15em 0 .3em; }
+  .marker .line{ font-family:var(--font-display); font-size:.98rem; color:var(--ink-dim); margin:0; }
+
+  /* beacon glow at the "now" waypoint */
+  .beacon{
+    position:absolute;
+    width:120px; height:120px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(255,214,150,.5), rgba(255,150,80,.16) 55%, transparent 75%);
+    pointer-events:none;
+    filter:blur(2px);
+  }
+  /* framer: { type:'spring', stiffness: 30, damping: 12, mass: 1.8 } -- slow ambient breathing, decorative only */
+  @keyframes beacon-breathe{
+    0%{ transform:scale(.9); opacity:.7; }
+    50%{ transform:scale(1.12); opacity:1; }
+    100%{ transform:scale(.9); opacity:.7; }
+  }
+  .beacon{ animation:beacon-breathe 7s ease-in-out infinite; }
+
+  .stars{ position:absolute; top:0; left:0; width:100%; height:60%; pointer-events:none; }
+  .stars span{
+    position:absolute; width:2px; height:2px; border-radius:50%;
+    background:#fdf6e8;
+  }
+
+  /* sun */
+  #sun{
+    position:fixed;
+    width:9vmin; height:9vmin;
+    border-radius:50%;
+    pointer-events:none;
+    z-index:1;
+    transform:translate(-50%,-50%);
+  }
+  #sunglow{
+    position:fixed;
+    width:26vmin; height:26vmin;
+    border-radius:50%;
+    pointer-events:none;
+    z-index:1;
+    transform:translate(-50%,-50%);
+    filter:blur(6px);
+  }
+
+  /* nav / controls */
+  .stopnav{
+    position:fixed; left:50%; bottom:4.5vh;
+    transform:translateX(-50%);
+    z-index:5;
+    display:flex; align-items:center; gap:14px;
+    padding:.6em 1em;
+  }
+  .stopnav button.dot{
+    all:unset; cursor:pointer;
+    width:8px; height:8px; border-radius:50%;
+    background:var(--ink-dimmer);
+    /* framer: { type:'spring', stiffness: 500, damping: 25, mass: .5 } -- instant snap, the thing you click */
+    transition:transform .15s cubic-bezier(.34,1.56,.64,1), background .2s ease;
+  }
+  .stopnav button.dot:hover, .stopnav button.dot:focus-visible{ transform:scale(1.4); }
+  .stopnav button.dot.is-active{ background:var(--ink); transform:scale(1.35); box-shadow:0 0 10px 2px rgba(253,246,232,.5); }
+
+  .edge-btn{
+    all:unset; cursor:pointer;
+    position:fixed; top:50%; transform:translateY(-50%);
+    width:52px; height:52px;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--ink-dim);
+    z-index:5;
+    opacity:.55;
+    transition:opacity .2s ease, transform .15s cubic-bezier(.34,1.56,.64,1);
+  }
+  .edge-btn:hover, .edge-btn:focus-visible{ opacity:1; transform:translateY(-50%) scale(1.15); }
+  .edge-btn.prev{ left:1.2vw; }
+  .edge-btn.next{ right:1.2vw; }
+  .edge-btn svg{ width:22px; height:22px; }
+
+  .progress{
+    position:fixed; top:4vh; right:4vw; z-index:5;
+    font-family:var(--font-ui); font-size:.75rem; color:var(--ink-dimmer);
+    letter-spacing:.04em;
+  }
+
+  .links{ display:flex; flex-wrap:wrap; gap:.5em 1.5em; margin-top:1.1em; }
+  .links a{
+    font-family:var(--font-ui);
+    text-decoration:none;
+    color:var(--ink);
+    font-size:.95rem;
+    padding-bottom:2px;
+    border-bottom:1px solid var(--ink-dimmer);
+    transition:border-color .2s ease, color .2s ease;
+  }
+  .links a:hover, .links a:focus-visible{ border-color:#fdf6e8; }
+
+  @media (max-width:640px){
+    .stop{ padding:0 6vw 20vh; }
+    .marker-row{ gap:1.4em; }
+    .marker{ max-width:150px; }
+    .stopnav{ bottom:3vh; }
+    .edge-btn{ width:44px; height:44px; }
+    #sun{ width:14vmin; height:14vmin; }
+    #sunglow{ width:34vmin; height:34vmin; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .beacon{ animation:none; }
+    .stopnav button.dot, .edge-btn{ transition:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress" aria-hidden="true">01 / 06</div>
+
+<button class="edge-btn prev" id="btnPrev" aria-label="Walk back">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M15 5l-7 7 7 7"/></svg>
+</button>
+<button class="edge-btn next" id="btnNext" aria-label="Walk forward">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 5l7 7-7 7"/></svg>
+</button>
+
+<div id="sunglow"></div>
+<div id="sun"></div>
+
+<div id="viewport">
+  <div class="parallax-layer" id="farhills">
+    <svg viewBox="0 0 600 100" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0,72 C30,66 30,78 60,78 C90,78 90,64 120,64 C150,64 150,80 180,80 C210,80 210,62 240,62 C270,62 270,76 300,76 C330,76 330,60 360,60 C390,60 390,78 420,78 C450,78 450,64 480,64 C510,64 510,80 540,80 C570,80 570,66 600,66 L600,100 L0,100 Z" fill="#2c3768" fill-opacity=".55"/>
+    </svg>
+  </div>
+  <div class="parallax-layer" id="midhills">
+    <svg viewBox="0 0 600 100" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0,55 C25,44 25,66 50,66 C75,66 75,38 100,38 C125,38 125,62 150,62 C175,62 175,34 200,34 C225,34 225,60 250,60 C275,60 275,40 300,40 C325,40 325,64 350,64 C375,64 375,36 400,36 C425,36 425,58 450,58 C475,58 475,32 500,32 C525,32 525,62 550,62 C575,62 575,42 600,42 L600,100 L0,100 Z" fill="#221b45" fill-opacity=".72"/>
+    </svg>
+  </div>
+
+  <div id="world">
+    <svg id="ground-svg" viewBox="0 0 600 100" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0,55 C25,50 25,45 50,45 C75,45 75,60 100,60 C125,60 125,40 150,40 C175,40 175,58 200,58 C225,58 225,42 250,42 C275,42 275,60 300,60 C325,60 325,44 350,44 C375,44 375,62 400,62 C425,62 425,46 450,46 C475,46 475,58 500,58 C525,58 525,42 550,42 C575,42 575,55 600,55 L600,100 L0,100 Z" fill="#150f28"/>
+    </svg>
+
+    <section class="stop" id="stop-0">
+      <div class="stop-inner">
+        <h2>Pranav Mishra</h2>
+        <p>Founding LLM Engineer. This is a walk through what I've made, not a page you scroll down.</p>
+        <div class="hint"><span class="k">&larr; &rarr;</span> or scroll, drag, or swipe to walk</div>
+      </div>
+    </section>
+
+    <section class="stop" id="stop-1">
+      <div class="stop-inner">
+        <div class="kicker">Before this</div>
+        <h2>Where I cut my teeth</h2>
+        <div class="marker-row">
+          <div class="marker">
+            <svg class="glyph" viewBox="0 0 34 34"><path d="M17 4 L30 20 H4 Z" fill="#150f28"/><rect x="12" y="20" width="10" height="10" fill="#150f28"/></svg>
+            <h3>WheelPrice</h3>
+            <div class="meta">AI Engineer &middot; remote, Charlotte NC &middot; Jul 2025&ndash;Mar 2026</div>
+          </div>
+          <div class="marker">
+            <svg class="glyph" viewBox="0 0 34 34"><path d="M17 3 L29 21 H5 Z" fill="#150f28"/><rect x="13" y="21" width="8" height="9" fill="#150f28"/></svg>
+            <h3>V-ARE Labs, UIC</h3>
+            <div class="meta">Research Software Engineer &middot; Chicago &middot; Feb 2024&ndash;present</div>
+            <p class="line">Virtual patient systems in Unreal Engine 5, and an audio ML pipeline at 98.52% accuracy.</p>
+          </div>
+          <div class="marker">
+            <svg class="glyph" viewBox="0 0 34 34"><path d="M17 5 L28 19 H6 Z" fill="#150f28"/><rect x="12" y="19" width="10" height="9" fill="#150f28"/></svg>
+            <h3>Bipolar Factory</h3>
+            <div class="meta">Software Developer Intern &middot; Bengaluru &middot; 2023</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="stop" id="stop-2">
+      <div class="stop-inner">
+        <div class="kicker">Research</div>
+        <h2>Three papers, planted along the way</h2>
+        <div class="marker-row">
+          <div class="marker">
+            <svg class="glyph" viewBox="0 0 34 34"><ellipse cx="17" cy="14" rx="10" ry="12" fill="#150f28"/><rect x="15" y="24" width="4" height="8" fill="#150f28"/></svg>
+            <h3>Enterprise Knowledge Retrieval</h3>
+            <div class="meta">Accepted &middot; CAI 2026 / IEEE</div>
+            <p class="line">LLM-generated metadata that makes enterprise retrieval noticeably better.</p>
+          </div>
+          <div class="marker">
+            <svg class="glyph" viewBox="0 0 34 34"><ellipse cx="17" cy="13" rx="11" ry="13" fill="#150f28"/><rect x="15" y="24" width="4" height="8" fill="#150f28"/></svg>
+            <h3>TeamMedAgents</h3>
+            <div class="meta">Under review &middot; PAKDD 2026 &middot; 4 citations</div>
+            <p class="line">Salas's Big Five teamwork model, ported into a multi-agent system. It improved seven of eight medical benchmarks.</p>
+          </div>
+          <div class="marker">
+            <svg class="glyph" viewBox="0 0 34 34"><ellipse cx="17" cy="15" rx="9" ry="11" fill="#150f28"/><rect x="15" y="24" width="4" height="8" fill="#150f28"/></svg>
+            <h3>Small models, medical reasoning</h3>
+            <div class="meta">Under preparation</div>
+            <p class="line">Cost-efficient multi-modal medical reasoning with small language models.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="stop" id="stop-3">
+      <div class="beacon" style="left:20%; bottom:26vh;"></div>
+      <div class="stop-inner">
+        <div class="kicker">Now &middot; April 2026&ndash;present</div>
+        <h2>What I'm building at Alfred_</h2>
+        <p>Alfred_ is a consumer AI executive assistant &mdash; a multi-agent system that runs people's email, calendar, and daily obligations over text, chat, and voice. More than five thousand people use it.</p>
+        <p>I own the reliability layer: risk-scored gating, an eval harness I built from scratch, a scanner that reads live conversations for failures, and a rebuilt memory that makes fabrication structurally impossible, not just discouraged.</p>
+        <p class="dim">I also built the email-rules engine &mdash; about 30% cheaper per user, with 98% of rules now created just by talking to it. Notification latency went from 90 seconds to about 3.</p>
+      </div>
+    </section>
+
+    <section class="stop" id="stop-4">
+      <div class="stop-inner">
+        <div class="kicker">Things I've built</div>
+        <h2>A small village, out of about thirty-two</h2>
+        <div class="marker-row">
+          <div class="marker">
+            <svg class="glyph" viewBox="0 0 34 34"><rect x="8" y="14" width="18" height="16" fill="#150f28"/><path d="M6 14 L17 4 L28 14 Z" fill="#150f28"/></svg>
+            <h3>Stellarium</h3>
+            <p class="line">A CAVE2 VR app rendering over 107,000 astronomical objects in real time.</p>
+          </div>
+          <div class="marker">
+            <svg class="glyph" viewBox="0 0 34 34"><rect x="9" y="15" width="16" height="15" fill="#150f28"/><path d="M7 15 L17 6 L27 15 Z" fill="#150f28"/></svg>
+            <h3>SnAIder-Cut</h3>
+            <p class="line">Generative AI editing an AR scene live. Won the MIT XR Hackathon, 2024.</p>
+          </div>
+          <div class="marker">
+            <svg class="glyph" viewBox="0 0 34 34"><rect x="8" y="14" width="18" height="16" fill="#150f28"/><path d="M6 14 L17 4 L28 14 Z" fill="#150f28"/></svg>
+            <h3>Virtual Van Gogh</h3>
+            <p class="line">A walkable NFT museum. First place, HINT 5.0.</p>
+          </div>
+          <div class="marker">
+            <svg class="glyph" viewBox="0 0 34 34"><rect x="9" y="15" width="16" height="15" fill="#150f28"/><path d="M7 15 L17 6 L27 15 Z" fill="#150f28"/></svg>
+            <h3>EQUITY</h3>
+            <p class="line">An Unreal Engine 5 MetaHuman patient, built for bias research in medicine.</p>
+          </div>
+        </div>
+        <p class="dim" style="margin-top:1em;">Also out there: SnakeAI-MLOps, Neon-Bites, Rusty ANT.</p>
+      </div>
+    </section>
+
+    <section class="stop" id="stop-5">
+      <div class="stars" id="stars"></div>
+      <div class="stop-inner">
+        <div class="kicker">The path continues</div>
+        <h2>Get in touch</h2>
+        <p>Metuchen, NJ. Computer science, University of Illinois Chicago. I read everything that reaches me.</p>
+        <div class="links">
+          <a href="https://github.com/PranavMishra17" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://linkedin.com/in/pranavgamedev" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="https://huggingface.co/Paranoiid" target="_blank" rel="noopener">Hugging Face</a>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<nav class="stopnav" aria-label="Waypoints">
+  <button class="dot is-active" data-i="0" aria-label="Home"></button>
+  <button class="dot" data-i="1" aria-label="Before this"></button>
+  <button class="dot" data-i="2" aria-label="Research"></button>
+  <button class="dot" data-i="3" aria-label="Now"></button>
+  <button class="dot" data-i="4" aria-label="Things I've built"></button>
+  <button class="dot" data-i="5" aria-label="Get in touch"></button>
+</nav>
+
+<script>
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var STOPS = 6;
+
+  var viewportEl = document.getElementById('viewport');
+  var world = document.getElementById('world');
+  var farhills = document.getElementById('farhills');
+  var midhills = document.getElementById('midhills');
+  var sun = document.getElementById('sun');
+  var sunglow = document.getElementById('sunglow');
+  var progressEl = document.getElementById('progress');
+  var dots = Array.prototype.slice.call(document.querySelectorAll('.stopnav .dot'));
+  var btnPrev = document.getElementById('btnPrev');
+  var btnNext = document.getElementById('btnNext');
+
+  var viewportW = window.innerWidth;
+  var maxPos = viewportW * (STOPS - 1);
+  var pos = 0;
+  var currentStation = 0;
+
+  /* momentum / spring state */
+  var velocity = 0;
+  var springVel = 0;
+  var target = 0;
+  var mode = 'idle'; /* idle | free | spring */
+  var dragging = false;
+  var dragStartX = 0, dragLastX = 0, dragLastT = 0, dragVel = 0;
+  var lastWheelT = 0;
+
+  var SKY_STOPS = [
+    [0.00,[170,180,216]],
+    [0.10,[207,211,218]],
+    [0.20,[236,220,176]],
+    [0.35,[244,205,140]],
+    [0.50,[242,150,92]],
+    [0.62,[218,100,64]],
+    [0.75,[166,63,102]],
+    [0.88,[76,44,102]],
+    [1.00,[16,14,42]]
+  ];
+
+  function lerp(a,b,t){ return a+(b-a)*t; }
+  function colorAt(p){
+    p = Math.max(0, Math.min(1, p));
+    for(var i=0;i<SKY_STOPS.length-1;i++){
+      var a = SKY_STOPS[i], b = SKY_STOPS[i+1];
+      if(p >= a[0] && p <= b[0]){
+        var t = (p-a[0])/(b[0]-a[0] || 1);
+        var c = [ lerp(a[1][0],b[1][0],t), lerp(a[1][1],b[1][1],t), lerp(a[1][2],b[1][2],t) ];
+        return 'rgb('+(c[0]|0)+','+(c[1]|0)+','+(c[2]|0)+')';
+      }
+    }
+    return 'rgb(16,14,42)';
+  }
+
+  function clamp(v,min,max){ return Math.max(min, Math.min(max, v)); }
+
+  function render(){
+    world.style.transform = 'translate3d('+(-pos)+'px,0,0)';
+    farhills.style.transform = 'translate3d('+(-pos*0.35)+'px,0,0)';
+    midhills.style.transform = 'translate3d('+(-pos*0.6)+'px,0,0)';
+
+    var progress = maxPos > 0 ? pos / maxPos : 0;
+    var arc = Math.sin(Math.min(progress,0.92) * Math.PI / 0.92);
+    var sunTop = 78 - arc * 56; /* vh, low at start/end, high mid-journey */
+    var sunLeft = 24 + progress * 46; /* vw drift across fixed view */
+    var col = colorAt(progress);
+    var fade = progress > 0.86 ? clamp(1 - (progress-0.86)/0.14, 0, 1) : 1;
+
+    sun.style.left = sunLeft+'vw';
+    sun.style.top = sunTop+'vh';
+    sun.style.background = col;
+    sun.style.boxShadow = '0 0 40px 12px '+col;
+    sun.style.opacity = fade;
+
+    sunglow.style.left = sunLeft+'vw';
+    sunglow.style.top = sunTop+'vh';
+    sunglow.style.background = 'radial-gradient(circle, '+col+'aa, transparent 70%)';
+    sunglow.style.opacity = fade*0.85;
+
+    var nearest = clamp(Math.round(pos/viewportW), 0, STOPS-1);
+    if(nearest !== currentStation){
+      currentStation = nearest;
+      dots.forEach(function(d,i){ d.classList.toggle('is-active', i===nearest); });
+      progressEl.textContent = ('0'+(nearest+1)).slice(-2)+' / 0'+STOPS;
+    }
+  }
+
+  function jumpTo(index, carryVel){
+    index = clamp(index, 0, STOPS-1);
+    target = index * viewportW;
+    if(reduce){
+      pos = target; velocity = 0; springVel = 0; mode = 'idle';
+      render();
+      return;
+    }
+    mode = 'spring';
+    springVel = carryVel || 0;
+  }
+
+  function nearestStationPos(p){
+    return clamp(Math.round(p/viewportW), 0, STOPS-1) * viewportW;
+  }
+
+  /* ---- input: wheel ---- */
+  viewportEl.addEventListener('wheel', function(e){
+    e.preventDefault();
+    var delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+    if(reduce){
+      var dir = delta > 0 ? 1 : -1;
+      var now = performance.now();
+      if(now - lastWheelT > 220){ jumpTo(currentStation + dir); }
+      lastWheelT = now;
+      return;
+    }
+    velocity += delta * 0.7;
+    velocity = clamp(velocity, -60, 60);
+    mode = 'free';
+    lastWheelT = performance.now();
+  }, { passive:false });
+
+  /* ---- input: pointer drag ---- */
+  viewportEl.addEventListener('pointerdown', function(e){
+    if(e.target.closest('a, button')) return;
+    dragging = true;
+    viewportEl.classList.add('dragging');
+    dragStartX = dragLastX = e.clientX;
+    dragLastT = performance.now();
+    dragVel = 0;
+    mode = 'free';
+    velocity = 0;
+    try{ viewportEl.setPointerCapture(e.pointerId); }catch(err){}
+  });
+
+  viewportEl.addEventListener('pointermove', function(e){
+    if(!dragging) return;
+    var dx = dragLastX - e.clientX;
+    var now = performance.now();
+    var dt = Math.max(now - dragLastT, 1);
+    dragVel = dx / dt * 16.6;
+    pos = clamp(pos + dx, 0, maxPos);
+    dragLastX = e.clientX;
+    dragLastT = now;
+    if(reduce) render();
+  });
+
+  function endDrag(){
+    if(!dragging) return;
+    dragging = false;
+    viewportEl.classList.remove('dragging');
+    if(reduce){
+      jumpTo(Math.round(pos/viewportW));
+    } else {
+      velocity = clamp(dragVel, -60, 60);
+      mode = 'free';
+    }
+  }
+  viewportEl.addEventListener('pointerup', endDrag);
+  viewportEl.addEventListener('pointercancel', endDrag);
+
+  /* ---- input: keyboard ---- */
+  window.addEventListener('keydown', function(e){
+    if(e.key === 'ArrowRight'){ jumpTo(currentStation + 1); }
+    else if(e.key === 'ArrowLeft'){ jumpTo(currentStation - 1); }
+  });
+
+  /* ---- input: nav dots + edge buttons ---- */
+  dots.forEach(function(d){
+    d.addEventListener('click', function(){ jumpTo(parseInt(d.getAttribute('data-i'),10)); });
+  });
+  btnPrev.addEventListener('click', function(){ jumpTo(currentStation - 1); });
+  btnNext.addEventListener('click', function(){ jumpTo(currentStation + 1); });
+
+  /* ---- resize ---- */
+  window.addEventListener('resize', function(){
+    var stationBefore = currentStation;
+    viewportW = window.innerWidth;
+    maxPos = viewportW * (STOPS - 1);
+    pos = stationBefore * viewportW;
+    velocity = 0; springVel = 0; mode = 'idle';
+    render();
+  });
+
+  /* ---- physics loop ---- */
+  var FRICTION = 0.935;
+  var SETTLE_THRESH = 0.6;
+  /* framer: { type:'spring', stiffness: 0.045, damping: 0.83, mass: 1 } (ad-hoc per-frame coefficients; a framer spring in the 300/24/1 range reproduces this overshoot-and-lock) */
+  var SPRING_K = 0.045;
+  var SPRING_D = 0.83;
+
+  function frame(){
+    if(!reduce){
+      if(mode === 'free'){
+        pos += velocity;
+        pos = clamp(pos, -40, maxPos + 40);
+        velocity *= FRICTION;
+        var idleWheel = performance.now() - lastWheelT > 80;
+        if(!dragging && idleWheel && Math.abs(velocity) < SETTLE_THRESH){
+          target = nearestStationPos(pos);
+          springVel = velocity;
+          mode = 'spring';
+        }
+      } else if(mode === 'spring'){
+        springVel += (target - pos) * SPRING_K;
+        springVel *= SPRING_D;
+        pos += springVel;
+        if(Math.abs(target - pos) < 0.3 && Math.abs(springVel) < 0.3){
+          pos = target;
+          springVel = 0;
+          mode = 'idle';
+        }
+      }
+      pos = clamp(pos, 0, maxPos);
+      render();
+    }
+    requestAnimationFrame(frame);
+  }
+
+  /* stars, once */
+  (function(){
+    var host = document.getElementById('stars');
+    var n = 26;
+    for(var i=0;i<n;i++){
+      var s = document.createElement('span');
+      s.style.left = (Math.random()*100)+'%';
+      s.style.top = (Math.random()*90)+'%';
+      s.style.opacity = (0.3 + Math.random()*0.6).toFixed(2);
+      host.appendChild(s);
+    }
+  })();
+
+  render();
+  requestAnimationFrame(frame);
+})();
+</script>
+
+</body>
+</html>

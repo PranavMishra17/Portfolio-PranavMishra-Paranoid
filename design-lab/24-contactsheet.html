@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Contact Sheet — Pranav Mishra</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f4f2ea;
+  --card:#fffdf7;
+  --black:#121210;
+  --ink:#1b1a17;
+  --ink-soft:#55534c;
+  --grease:#c1391f;   /* the one warm colour: grease pencil */
+  --grease-soft:#c1391f99;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--paper);color:var(--ink)}
+body{font-family:'Inter',system-ui,sans-serif;padding-bottom:70px}
+:focus-visible{outline:3px solid var(--grease);outline-offset:2px}
+img{display:block;width:100%;height:100%;object-fit:cover}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:var(--grease)}
+.hand{font-family:'Caveat',cursive}
+
+/* reveal: no looping motion, one settle. spring: stiffness 210, damping 24, mass 1 */
+.sheet{opacity:0;transform:translateY(10px);transition:opacity .55s cubic-bezier(.22,.9,.32,1),transform .55s cubic-bezier(.22,.9,.32,1)}
+.sheet.ready{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.sheet{transition:none}}
+
+.sheet{max-width:1180px;margin:0 auto;padding:26px 18px 10px}
+
+/* ── roll header, written along the edge of the sheet ───────────── */
+.rollhead{
+  font-family:'Caveat';color:var(--grease);font-size:clamp(1.05rem,2.4vw,1.5rem);
+  border-bottom:2px dashed #c1391f55;padding-bottom:10px;margin-bottom:22px;
+  display:flex;flex-wrap:wrap;gap:6px 18px;
+}
+
+/* ── one strip = one row of the negative ─────────────────────── */
+.strip{margin:0 0 30px}
+.strip-head{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:4px 14px;margin-bottom:6px}
+.strip-head h2{font-size:14px;font-weight:600;letter-spacing:.01em;color:var(--ink)}
+.strip-head .tag{font-family:'Caveat';color:var(--grease);font-size:1.15rem}
+
+.sprock{height:11px;background:var(--black);background-image:radial-gradient(circle,var(--paper) 0 2.3px,transparent 2.5px);background-size:18px 11px;background-position:6px center}
+.filmrow{display:flex;flex-wrap:wrap;gap:5px;background:var(--black);padding:7px}
+
+.frame{position:relative;flex:1 1 130px;min-height:118px;background:#050505;overflow:visible}
+.frame img{filter:saturate(.94) contrast(1.02)}
+.frame .fnum{position:absolute;left:5px;bottom:4px;color:#eee;font-size:11px;opacity:.8;z-index:2}
+.frame.clickable{cursor:pointer}
+.frame.clickable:focus-visible{outline-offset:-3px}
+
+/* solid caption cards: reading text always lives here, never on a photo */
+.frame.solid{
+  background:var(--card);color:var(--ink);flex:2.1 1 280px;min-height:auto;
+  padding:16px 18px;display:flex;flex-direction:column;justify-content:center;gap:8px;
+}
+.frame.solid h3{font-size:15.5px;font-weight:700}
+.frame.solid p, .frame.solid li{font-size:15.5px;line-height:1.62;color:var(--ink)}
+.frame.solid ul{padding-left:1.1em;display:flex;flex-direction:column;gap:5px}
+.frame.solid .meta{font-size:13px;color:var(--ink-soft)}
+
+/* blank/unexposed frame for interests */
+.frame.blank{
+  background:repeating-linear-gradient(135deg,#efece2,#efece2 9px,#e6e2d3 9px,#e6e2d3 18px);
+  display:flex;align-items:flex-end;justify-content:flex-end;padding:6px
+}
+.frame.blank .fnum{position:static;color:#8d8a7c;opacity:1}
+.frame.blank .cat{position:absolute;top:6px;left:7px;font-family:'Caveat';font-size:1.05rem;color:#8d8a7c}
+
+/* research frames: not photographs, so a different surface */
+.frame.doc{
+  background:linear-gradient(180deg,#1d1c19,#101010);
+  background-image:linear-gradient(180deg,#1d1c19,#101010),repeating-linear-gradient(#26251f 0 1px,transparent 1px 9px);
+  background-blend-mode:normal;padding:12px 12px 24px;color:#e9e6da;
+}
+.frame.doc .doctitle{font-size:13.5px;font-weight:600;line-height:1.4}
+.frame.doc .docstat{position:absolute;left:12px;bottom:8px;font-size:11px;color:var(--grease);font-weight:600}
+
+/* grease-pencil circle mark, hand-drawn wobble via svg */
+.mark{position:absolute;inset:-9%;pointer-events:none;z-index:3;overflow:visible}
+.mark path{fill:none;stroke:var(--grease);stroke-width:3;stroke-linecap:round}
+
+/* the surprise frame: rotated in, tucked among the projects */
+.frame.surprise{
+  flex:1 1 150px;transform:rotate(-3deg);background:var(--card);color:var(--ink);
+  padding:10px 12px;box-shadow:0 3px 10px rgba(0,0,0,.25);z-index:4
+}
+.frame.surprise .hand{color:var(--grease);font-size:1.1rem;line-height:1.25;display:block;margin-bottom:4px}
+.frame.surprise p{font-size:13.5px;line-height:1.45}
+
+.margin-note{font-family:'Caveat';color:var(--grease);font-size:1.1rem;margin-top:6px}
+
+/* ── lightbox print ──────────────────────────────────────────── */
+.lightbox{position:fixed;inset:0;background:#000000cc;display:flex;align-items:center;justify-content:center;padding:20px;z-index:50}
+.print{
+  background:#fff;max-width:640px;width:100%;max-height:88vh;overflow:auto;
+  padding:14px 14px 18px;position:relative;
+  /* spring: stiffness 260, damping 20, mass .9 — one overshoot, one settle */
+  animation:pop .32s cubic-bezier(.34,1.42,.44,1) both;
+}
+@media (prefers-reduced-motion:reduce){.print{animation:none}}
+@keyframes pop{from{opacity:0;transform:scale(.94) translateY(6px)}to{opacity:1;transform:none}}
+.print-img{width:100%;aspect-ratio:16/10;background:#111;margin-bottom:12px}
+.print-cap h3{font-size:17px;margin-bottom:6px}
+.print-cap p{font-size:15.5px;line-height:1.6;color:var(--ink)}
+.print-cap .meta{font-size:13px;color:var(--ink-soft);margin-top:8px}
+.print-close{position:absolute;top:8px;right:8px;background:var(--black);color:#fff;padding:6px 12px;font-size:13px}
+
+@media (max-width:480px){
+  .frame{flex:1 1 90px;min-height:92px}
+  .frame.solid{flex:1 1 100%}
+  .print{padding:10px}
+}
+</style>
+</head>
+<body>
+<main class="sheet" id="sheet">
+
+  <div class="rollhead">
+    <span>ROLL 01</span><span>“PORTFOLIO”</span><span>SUBJECT: PRANAV MISHRA — CS, UIC</span><span>SHOT ON: NOW, NEW YORK</span>
+  </div>
+
+  <!-- ═══ ABOUT ═══ -->
+  <section class="strip" aria-label="About">
+    <div class="strip-head"><h2>Frame 001</h2><span class="tag hand">who this is</span></div>
+    <div class="sprock"></div>
+    <div class="filmrow">
+      <div class="frame" style="flex:1 1 150px">
+        <svg viewBox="0 0 100 100" width="100%" height="100%" preserveAspectRatio="xMidYMid slice" style="background:#1a1a18">
+          <circle cx="50" cy="38" r="17" fill="#3a3833"/>
+          <path d="M18 92c4-22 18-33 32-33s28 11 32 33" fill="#3a3833"/>
+        </svg>
+        <span class="fnum">001</span>
+      </div>
+      <div class="frame solid">
+        <p>Pranav Pushkar Mishra. Computer science out of the University of Illinois Chicago, now building the assistant layer at Alfred_ in New York.</p>
+        <p>Everything else on this sheet is real work — the negatives just hadn't been marked up yet.</p>
+      </div>
+    </div>
+    <div class="sprock"></div>
+    <p class="margin-note">Metuchen, NJ · github.com/PranavMishra17 · linkedin.com/in/pranavgamedev</p>
+  </section>
+
+  <!-- ═══ EXPERIENCE — four strips ═══ -->
+  <section class="strip" aria-label="Experience, Bengaluru 2023">
+    <div class="strip-head"><h2>Bengaluru</h2><span class="tag hand">2023</span></div>
+    <div class="sprock"></div>
+    <div class="filmrow">
+      <div class="frame" style="flex:0 1 110px"><img src="/portfolio/public/assets/images/companies/bpf.jpg" alt="Bipolar Factory"><span class="fnum">002</span></div>
+      <div class="frame solid">
+        <h3>Software Developer Intern, Bipolar Factory</h3>
+        <p>Built a streaming platform on the MERN stack, and wrote the in-game chat system in Unity.</p>
+      </div>
+    </div>
+    <div class="sprock"></div>
+  </section>
+
+  <section class="strip" aria-label="Experience, Chicago 2024">
+    <div class="strip-head"><h2>Chicago</h2><span class="tag hand">2024 — present</span></div>
+    <div class="sprock"></div>
+    <div class="filmrow">
+      <div class="frame" style="flex:0 1 110px"><img src="/portfolio/public/assets/images/companies/uic.jpg" alt="UIC V-ARE Labs"><span class="fnum">003</span></div>
+      <div class="frame" style="flex:0 1 150px"><img src="/portfolio/public/assets/images/game_design/equity.png" alt="EQUITY virtual patient"><span class="fnum">004</span></div>
+      <div class="frame solid">
+        <h3>Research Software Engineer, V-ARE Labs at UIC</h3>
+        <p>Builds virtual patients in Unreal Engine 5 for bias research in medicine, and an audio ML pipeline running at 98.52% accuracy.</p>
+      </div>
+    </div>
+    <div class="sprock"></div>
+  </section>
+
+  <section class="strip" aria-label="Experience, remote 2025">
+    <div class="strip-head"><h2>Remote</h2><span class="tag hand">2025</span></div>
+    <div class="sprock"></div>
+    <div class="filmrow">
+      <div class="frame" style="flex:0 1 110px"><img src="/portfolio/public/assets/images/companies/wheelprice.jpg" alt="WheelPrice"><span class="fnum">005</span></div>
+      <div class="frame solid">
+        <h3>AI Engineer, WheelPrice</h3>
+        <p>July 2025 to March 2026, out of Charlotte, NC. Shipped the computer-vision part-fitment feature, and a CMS that took the site to 10,000–20,000 daily readers.</p>
+      </div>
+    </div>
+    <div class="sprock"></div>
+  </section>
+
+  <section class="strip" aria-label="Experience, New York 2026">
+    <div class="strip-head"><h2>New York City</h2><span class="tag hand">2026 — now</span></div>
+    <div class="sprock"></div>
+    <div class="filmrow">
+      <div class="frame" style="flex:0 1 110px">
+        <img src="/portfolio/public/assets/images/companies/alfred.svg" alt="Alfred_" style="object-fit:contain;background:#fff;padding:14px">
+        <span class="fnum">006</span>
+        <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><path d="M14 50 Q10 15 50 12 Q92 10 88 50 Q90 90 50 89 Q9 91 14 50Z"/></svg>
+      </div>
+      <div class="frame solid">
+        <h3>Founding LLM Engineer, Alfred_</h3>
+        <ul>
+          <li>Notification latency, email to text: about 90 seconds down to about 3. The security-code path: 189 seconds at p90 down to instant.</li>
+          <li>Replaced per-message model calls in the email-rules engine with a deterministic three-stage matcher — about 30% cheaper per user, and roughly 98% of rules are now created just by chatting.</li>
+          <li>Rebuilt working memory so the assistant can't fabricate facts about your inbox, enforced by tests rather than by hoping the model behaves.</li>
+        </ul>
+        <p class="meta">A consumer AI assistant over text, chat and voice. 5,000+ subscribers in production.</p>
+      </div>
+    </div>
+    <div class="sprock"></div>
+    <p class="margin-note">circled — the current one</p>
+  </section>
+
+  <!-- ═══ PROJECTS ═══ -->
+  <section class="strip" aria-label="Projects">
+    <div class="strip-head"><h2>Things built</h2><span class="tag hand">click a frame to enlarge</span></div>
+    <div class="sprock"></div>
+    <div class="filmrow" id="projectsRow">
+      <button class="frame clickable" data-title="Stellarium" data-img="/portfolio/public/assets/images/game_design/stellarium.png" data-body="107,000 astronomical objects rendered live inside CAVE2, a room whose four walls are screens." data-meta="V-ARE Labs, UIC">
+        <img src="/portfolio/public/assets/images/game_design/stellarium.png" alt="Stellarium"><span class="fnum">007</span>
+      </button>
+      <button class="frame clickable" data-title="SnAIder-Cut" data-img="/portfolio/public/assets/images/game_design/snaider.png" data-body="Generative AI editing an augmented scene from the inside, while you stand in it." data-meta="Winner, MIT XR 2024">
+        <img src="/portfolio/public/assets/images/game_design/snaider.png" alt="SnAIder-Cut"><span class="fnum">008</span>
+        <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><path d="M13 52 Q8 14 51 11 Q93 9 89 51 Q91 92 49 90 Q7 93 13 52Z"/></svg>
+      </button>
+      <button class="frame clickable" data-title="EQUITY" data-img="/portfolio/public/assets/images/game_design/eq1.png" data-body="An Unreal Engine 5 virtual patient built for bias research in medicine." data-meta="V-ARE Labs, UIC">
+        <img src="/portfolio/public/assets/images/game_design/eq1.png" alt="EQUITY"><span class="fnum">009</span>
+      </button>
+      <button class="frame clickable" data-title="Virtual Van Gogh" data-img="/portfolio/public/assets/images/game_design/van%20gogh.jpg" data-body="A walkable museum where the paintings hang on a chain, not a wall." data-meta="First place, HINT 5.0">
+        <img src="/portfolio/public/assets/images/game_design/van%20gogh.jpg" alt="Virtual Van Gogh"><span class="fnum">010</span>
+        <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><path d="M12 51 Q9 13 50 10 Q94 8 90 50 Q92 91 50 91 Q8 92 12 51Z"/></svg>
+      </button>
+      <button class="frame clickable" data-title="Neon-Bites" data-img="/portfolio/public/assets/images/game_design/neon.png" data-body="Cyberpunk food delivery that takes its physics seriously." data-meta="Personal project">
+        <img src="/portfolio/public/assets/images/game_design/neon.png" alt="Neon-Bites"><span class="fnum">011</span>
+      </button>
+      <button class="frame clickable" data-title="AI Mafia" data-img="/portfolio/public/assets/images/game_design/mafia.png" data-body="Language models playing a social deduction game — lying to each other on purpose." data-meta="Personal project">
+        <img src="/portfolio/public/assets/images/game_design/mafia.png" alt="AI Mafia"><span class="fnum">012</span>
+      </button>
+
+      <!-- surprise: not on the shot list -->
+      <div class="frame surprise" aria-label="Surprise, awards">
+        <span class="hand">extra — wasn't on the list</span>
+        <p>MIT XR 2024, winner — SnAIder-Cut.<br>HINT 5.0, first place — Virtual Van Gogh.</p>
+        <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><path d="M15 50 Q11 16 50 13 Q90 11 87 50 Q89 89 50 88 Q10 90 15 50Z"/></svg>
+      </div>
+
+      <button class="frame clickable" data-title="Big5-Agents" data-img="/portfolio/public/assets/images/ai_ml/big5.png" data-body="The teamwork paper below, as runnable code — the Big Five personality model wired between agents." data-meta="Research code">
+        <img src="/portfolio/public/assets/images/ai_ml/big5.png" alt="Big5-Agents"><span class="fnum">013</span>
+      </button>
+      <button class="frame clickable" data-title="SnakeAI-MLOps" data-img="/portfolio/public/assets/images/ai_ml/snake.png" data-body="Four reinforcement-learning methods racing on the same game, live." data-meta="Live and playable" data-link="https://pranavmishra17.github.io/SnakeAI-MLOps/">
+        <img src="/portfolio/public/assets/images/ai_ml/snake.png" alt="SnakeAI-MLOps"><span class="fnum">014</span>
+        <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><path d="M14 49 Q10 15 49 12 Q91 10 88 49 Q90 90 49 89 Q9 91 14 49Z"/></svg>
+      </button>
+      <button class="frame clickable" data-title="Rusty ANT" data-img="/portfolio/public/assets/images/game_design/rust.png" data-body="Ants evolving under selection pressure, written in Rust." data-meta="Personal project">
+        <img src="/portfolio/public/assets/images/game_design/rust.png" alt="Rusty ANT"><span class="fnum">015</span>
+      </button>
+    </div>
+    <div class="sprock"></div>
+  </section>
+
+  <!-- ═══ RESEARCH ═══ -->
+  <section class="strip" aria-label="Research publications">
+    <div class="strip-head"><h2>Papers</h2><span class="tag hand">not photographs — marked differently</span></div>
+    <div class="sprock"></div>
+    <div class="filmrow">
+      <button class="frame doc clickable" style="flex:1 1 200px" data-title="A systematic framework for enterprise knowledge retrieval" data-body="Lets a model write metadata for each chunk before it's stored. 82.5% precision against 73.3% for content alone." data-meta="Accepted, CAI 2026 at IEEE · arxiv.org/pdf/2512.05411">
+        <span class="doctitle">A systematic framework for enterprise knowledge retrieval</span>
+        <span class="docstat">ACCEPTED · CAI 2026</span>
+      </button>
+      <button class="frame doc clickable" style="flex:1 1 200px" data-title="TeamMedAgents" data-body="The Big Five teamwork model from organisational psychology, built as real mechanisms between agents. Better on seven of eight medical benchmarks." data-meta="Under review, PAKDD 2026 · 4 citations · arxiv.org/pdf/2508.08115">
+        <span class="doctitle">TeamMedAgents</span>
+        <span class="docstat">UNDER REVIEW · PAKDD 2026</span>
+      </button>
+      <button class="frame doc clickable" style="flex:1 1 200px" data-title="Cost-efficient multi-modal medical reasoning with small models" data-body="In preparation." data-meta="Under preparation">
+        <span class="doctitle">Cost-efficient multi-modal medical reasoning with small models</span>
+        <span class="docstat">IN PREPARATION</span>
+      </button>
+    </div>
+    <div class="sprock"></div>
+  </section>
+
+  <!-- ═══ INTERESTS — unexposed ═══ -->
+  <section class="strip" aria-label="Interests">
+    <div class="strip-head"><h2>Off the clock</h2><span class="tag hand">unexposed — not shot yet</span></div>
+    <div class="sprock"></div>
+    <div class="filmrow">
+      <div class="frame blank"><span class="cat">books</span><span class="fnum">016</span></div>
+      <div class="frame blank"><span class="cat">books</span><span class="fnum">017</span></div>
+      <div class="frame blank"><span class="cat">films</span><span class="fnum">018</span></div>
+      <div class="frame blank"><span class="cat">films</span><span class="fnum">019</span></div>
+      <div class="frame blank"><span class="cat">games</span><span class="fnum">020</span></div>
+      <div class="frame blank"><span class="cat">games</span><span class="fnum">021</span></div>
+    </div>
+    <div class="sprock"></div>
+    <p class="margin-note">placeholders — swap these for the real ones. He reads, watches films, plays games — titles pending.</p>
+  </section>
+
+</main>
+
+<div class="lightbox" id="lightbox" hidden>
+  <div class="print" role="dialog" aria-modal="true" aria-labelledby="lbTitle">
+    <button class="print-close" id="lbClose" type="button">Close</button>
+    <div class="print-img" id="lbImg"></div>
+    <div class="print-cap">
+      <h3 id="lbTitle"></h3>
+      <p id="lbBody"></p>
+      <p class="meta" id="lbMeta"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var sheet = document.getElementById('sheet');
+  function reveal(){ sheet.classList.add('ready'); }
+  if (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches){
+    reveal();
+  } else {
+    requestAnimationFrame(function(){ requestAnimationFrame(reveal); });
+    setTimeout(reveal, 400); // fallback: rAF does not run in a hidden document
+  }
+
+  var lightbox = document.getElementById('lightbox');
+  var lbImg = document.getElementById('lbImg');
+  var lbTitle = document.getElementById('lbTitle');
+  var lbBody = document.getElementById('lbBody');
+  var lbMeta = document.getElementById('lbMeta');
+  var lastFocused = null;
+
+  function openFrom(btn){
+    lastFocused = btn;
+    var img = btn.getAttribute('data-img');
+    lbImg.style.background = img ? "#111 url('"+img+"') center/cover no-repeat" : '#111';
+    lbTitle.textContent = btn.getAttribute('data-title') || '';
+    lbBody.textContent = btn.getAttribute('data-body') || '';
+    var meta = btn.getAttribute('data-meta') || '';
+    var link = btn.getAttribute('data-link');
+    lbMeta.textContent = meta + (link ? '  ·  ' + link : '');
+    lightbox.hidden = false;
+    document.getElementById('lbClose').focus();
+  }
+  function close(){
+    lightbox.hidden = true;
+    if (lastFocused) lastFocused.focus();
+  }
+
+  document.querySelectorAll('.frame.clickable').forEach(function(btn){
+    btn.addEventListener('click', function(){ openFrom(btn); });
+  });
+  document.getElementById('lbClose').addEventListener('click', close);
+  lightbox.addEventListener('click', function(e){ if (e.target === lightbox) close(); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !lightbox.hidden) close(); });
+})();
+</script>
+</body>
+</html>

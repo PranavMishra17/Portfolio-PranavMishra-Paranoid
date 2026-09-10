@@ -1,0 +1,203 @@
+/* src/variants/v8/v8.css — "Monograph"
+   Scoped entirely under .v8. Nothing here leaks to / or to any other variant. */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap');
+
+.v8 {
+  --ground:  #101013;
+  --ground-2:#17171b;
+  --plate:   #1d1d22;
+  --ivory:   #efebe2;
+  --ivory-2: #b6b1a6;
+  --ivory-3: #7d7970;
+  --brass:   #b79154;
+  --rule:    #2c2c33;
+
+  --display: 'Cormorant Garamond', Georgia, serif;
+  --text:    'Jost', system-ui, -apple-system, sans-serif;
+
+  background: var(--ground);
+  color: var(--ivory);
+  font-family: var(--text);
+  font-weight: 300;
+  min-height: 100vh;
+  /* No overflow-x here on purpose. Setting one axis to anything but `visible` makes the other
+     compute to `auto`, which turns this block into its own scroll container — window.scrollY
+     then never moves and every scroll-driven thing on the page silently dies. */
+}
+.v8 *, .v8 *::before, .v8 *::after { box-sizing: border-box; }
+.v8 button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; text-align: left; }
+.v8 a { color: var(--brass); text-decoration: none; border-bottom: 1px solid rgba(183,145,84,.35); }
+.v8 a:hover { border-bottom-color: var(--brass); }
+.v8 :focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; }
+.v8 img { display: block; max-width: 100%; }
+.v8 h1, .v8 h2, .v8 h3, .v8 h4 { margin: 0; font-weight: 400; }
+.v8 p { margin: 0; }
+
+/* ── running head: a book's, not a website's ────────────────── */
+.v8-head {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 30;
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: clamp(16px, 2vw, 26px) clamp(20px, 4vw, 60px);
+  font-size: 11.5px; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--ivory-3);
+  background: linear-gradient(to bottom, rgba(16,16,19,.94), rgba(16,16,19,0));
+  pointer-events: none;
+}
+.v8-head .now { color: var(--ivory-2); transition: opacity .3s ease; }
+
+.v8-wrap { max-width: 1120px; margin: 0 auto; padding: 0 clamp(20px, 4vw, 60px); }
+
+/* ── act one: the title page ────────────────────────────────── */
+.v8-title {
+  min-height: 100vh; display: flex; flex-direction: column; justify-content: center;
+  padding: 12vh 0 8vh;
+}
+.v8-title h1 {
+  font-family: var(--display);
+  font-size: clamp(52px, 9vw, 132px); line-height: .92; letter-spacing: -.015em;
+}
+.v8-title h1 em { font-style: italic; color: var(--brass); }
+.v8-rule { height: 1px; background: var(--rule); margin: clamp(22px, 3vw, 38px) 0; }
+.v8-title .say {
+  font-family: var(--display); font-style: italic;
+  font-size: clamp(20px, 2.6vw, 30px); line-height: 1.4; color: var(--ivory-2);
+  max-width: 30ch;
+}
+.v8-title .meta {
+  margin-top: clamp(22px, 3vw, 40px);
+  font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: var(--ivory-3);
+  line-height: 2.2;
+}
+
+/* ── shared act furniture ───────────────────────────────────── */
+.v8-act { padding: clamp(70px, 11vh, 130px) 0; border-top: 1px solid var(--rule); }
+.v8-actno {
+  font-size: 11.5px; letter-spacing: .24em; text-transform: uppercase;
+  color: var(--brass); margin-bottom: 1.1rem;
+}
+.v8-h2 {
+  font-family: var(--display);
+  font-size: clamp(30px, 4.4vw, 54px); line-height: 1.06; letter-spacing: -.01em;
+  max-width: 20ch; margin-bottom: clamp(20px, 2.6vw, 34px);
+}
+.v8-col { max-width: 62ch; }
+.v8-col p { font-size: 15.5px; line-height: 1.75; color: var(--ivory-2); }
+.v8-col p + p { margin-top: .95rem; }
+.v8-col b { color: var(--ivory); font-weight: 400; }
+
+/* the measured table */
+.v8-table { margin-top: clamp(28px, 3.4vw, 46px); }
+.v8-tr {
+  display: grid; grid-template-columns: 1fr auto auto; gap: 1.2rem;
+  align-items: baseline; padding: .85rem 0; border-bottom: 1px solid var(--rule);
+}
+.v8-tr:first-child { border-top: 1px solid var(--rule); }
+.v8-tr .k { font-size: 14.5px; color: var(--ivory-2); }
+.v8-tr .was {
+  font-size: 14px; color: var(--ivory-3); font-variant-numeric: tabular-nums;
+  text-decoration: line-through; text-decoration-thickness: 1px;
+}
+.v8-tr .now {
+  font-family: var(--display); font-size: 26px; color: var(--brass);
+  font-variant-numeric: tabular-nums; min-width: 4.4ch; text-align: right;
+}
+
+/* history, compact — it must not eat a screen */
+.v8-hist { margin-top: clamp(30px, 4vw, 50px); }
+.v8-hrow {
+  display: grid; grid-template-columns: 9rem 1fr; gap: 1.4rem;
+  padding: .95rem 0; border-bottom: 1px solid var(--rule); align-items: baseline;
+}
+.v8-hrow .yr { font-size: 12.5px; letter-spacing: .12em; color: var(--ivory-3); font-variant-numeric: tabular-nums; }
+.v8-hrow h4 { font-family: var(--display); font-size: 19px; line-height: 1.25; }
+.v8-hrow p { font-size: 14.5px; line-height: 1.6; color: var(--ivory-2); margin-top: .3rem; max-width: 58ch; }
+
+/* ── act three: the plates ──────────────────────────────────── */
+.v8-plates { display: grid; gap: clamp(44px, 6vw, 84px); margin-top: clamp(26px, 3vw, 40px); }
+.v8-fig { display: grid; gap: clamp(14px, 1.8vw, 22px); }
+.v8-fig .shot {
+  background: var(--plate); border: 1px solid var(--rule); overflow: hidden;
+  aspect-ratio: 16 / 9;
+}
+.v8-fig .shot img { width: 100%; height: 100%; object-fit: cover; filter: saturate(.9) contrast(1.03); }
+.v8-fig .cap { display: grid; grid-template-columns: 5.4rem 1fr; gap: 1.2rem; align-items: start; }
+.v8-fig .no {
+  font-size: 11.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--brass);
+  padding-top: .35rem;
+}
+.v8-fig h3 { font-family: var(--display); font-size: clamp(22px, 2.4vw, 30px); line-height: 1.15; }
+.v8-fig .sub { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--ivory-3); margin-top: .35rem; }
+.v8-fig .say { font-size: 15.5px; line-height: 1.7; color: var(--ivory-2); margin-top: .7rem; max-width: 56ch; }
+.v8-fig .lk { display: flex; gap: 1.5rem; margin-top: .8rem; flex-wrap: wrap; font-size: 14px; }
+/* alternate the plates so the page has a rhythm rather than a stack */
+.v8-fig:nth-child(even) { margin-left: auto; max-width: 92%; }
+.v8-fig:nth-child(odd)  { max-width: 92%; }
+
+.v8-all { margin-top: clamp(40px, 5vw, 64px); }
+.v8-all button {
+  font-size: 13px; letter-spacing: .16em; text-transform: uppercase; color: var(--brass);
+  border-bottom: 1px solid rgba(183,145,84,.4); padding-bottom: 3px;
+}
+
+/* ── act four: the colophon ─────────────────────────────────── */
+.v8-two { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: clamp(28px, 4vw, 58px); }
+.v8-entry { padding: 1.15rem 0; border-bottom: 1px solid var(--rule); }
+.v8-entry:first-child { border-top: 1px solid var(--rule); }
+.v8-entry .st { font-size: 11.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ivory-3); margin-bottom: .35rem; }
+.v8-entry .st.acc { color: var(--brass); }
+.v8-entry h4 { font-family: var(--display); font-size: 20px; line-height: 1.22; }
+.v8-entry p { font-size: 14.5px; line-height: 1.65; color: var(--ivory-2); margin-top: .4rem; max-width: 54ch; }
+.v8-slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-top: 1rem; }
+.v8-slot { border: 1px dashed var(--rule); padding: .7rem .8rem; min-height: 74px; }
+.v8-slot span { display: block; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ivory-3); margin-bottom: .3rem; }
+.v8-slot b { font-family: var(--display); font-weight: 400; font-size: 17px; color: var(--ivory-3); }
+.v8-note { font-family: var(--display); font-style: italic; font-size: 16px; color: var(--ivory-3); margin-top: 1rem; }
+
+.v8-foot {
+  border-top: 1px solid var(--rule); margin-top: clamp(50px, 7vw, 90px);
+  padding: clamp(30px, 4vw, 50px) 0 clamp(50px, 7vw, 80px);
+  display: flex; flex-wrap: wrap; gap: 1rem 2rem; align-items: baseline;
+  font-size: 13.5px; color: var(--ivory-3);
+}
+
+/* ── overlay ────────────────────────────────────────────────── */
+.v8-scrim { position: fixed; inset: 0; z-index: 40; background: rgba(6,6,8,.72); }
+.v8-modal {
+  position: fixed; z-index: 41; inset: clamp(12px, 4vh, 50px) clamp(12px, 5vw, 84px);
+  background: var(--ground-2); border: 1px solid var(--rule);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.v8-mhead { padding: clamp(18px, 2.4vw, 30px) clamp(20px, 2.8vw, 36px) 0; }
+.v8-mhead .row { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; }
+.v8-mhead h2 { font-family: var(--display); font-size: clamp(24px, 2.6vw, 32px); }
+.v8-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 1rem 0 .8rem; }
+.v8-chips button {
+  font-size: 12.5px; letter-spacing: .06em; padding: .34rem .8rem;
+  border: 1px solid var(--rule); color: var(--ivory-2);
+}
+.v8-chips button:hover { border-color: var(--ivory-3); }
+.v8-chips button[aria-pressed='true'] { background: var(--brass); border-color: var(--brass); color: #14120d; }
+.v8-mbody { overflow-y: auto; padding: .4rem clamp(20px, 2.8vw, 36px) clamp(28px, 3vw, 42px); }
+.v8-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 20px; }
+.v8-card .shot { aspect-ratio: 16/10; background: var(--plate); border: 1px solid var(--rule); overflow: hidden; }
+.v8-card .shot img { width: 100%; height: 100%; object-fit: cover; }
+.v8-card h4 { font-family: var(--display); font-size: 18px; line-height: 1.2; margin: .55rem 0 .18rem; }
+.v8-card .tag { font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--ivory-3); }
+.v8-card .tag em { font-style: normal; color: var(--brass); }
+.v8-card p { font-size: 13.5px; line-height: 1.55; color: var(--ivory-2); margin-top: .3rem; }
+.v8-card .lk { display: flex; gap: 1rem; margin-top: .45rem; font-size: 13px; }
+.v8-shut { font-size: 12.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--ivory-3); border-bottom: 1px solid var(--rule); padding-bottom: 2px; }
+.v8-count { font-size: 12.5px; color: var(--ivory-3); }
+
+@media (max-width: 760px) {
+  .v8-head { letter-spacing: .14em; font-size: 10.5px; }
+  .v8-fig .cap { grid-template-columns: 1fr; gap: .3rem; }
+  .v8-fig:nth-child(even), .v8-fig:nth-child(odd) { max-width: 100%; margin-left: 0; }
+  .v8-hrow { grid-template-columns: 1fr; gap: .2rem; }
+  .v8-modal { inset: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v8 * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

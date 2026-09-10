@@ -1,0 +1,452 @@
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&display=swap');
+
+.v12 {
+  --paper: #f4efe6;
+  --paper-2: #ebe4d7;
+  --ink: #1b1a17;
+  --ink-2: #4a463f;
+  --pencil: #b3352b;
+  --rule: #cfc6b5;
+  --serif: 'Newsreader', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --mono: 'IBM Plex Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+
+  min-height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 18px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.v12 *,
+.v12 *::before,
+.v12 *::after {
+  box-sizing: border-box;
+}
+
+.v12 a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--pencil);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 3px;
+}
+.v12 a:hover,
+.v12 a:focus-visible {
+  color: var(--pencil);
+}
+
+.v12-frame {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: 0;
+  max-width: 1320px;
+  margin: 0 auto;
+}
+
+/* ---------- build column ---------- */
+
+.v12-build {
+  padding: 48px 56px 120px 48px;
+  border-right: 1px solid var(--rule);
+  min-width: 0;
+}
+
+.v12-tag {
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  margin: 0 0 12px;
+}
+
+.v12-hero {
+  padding-bottom: 40px;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 56px;
+}
+
+.v12-name {
+  font-family: var(--serif);
+  font-weight: 500;
+  font-size: clamp(46px, 7vw, 92px);
+  line-height: 0.98;
+  letter-spacing: -0.02em;
+  margin: 8px 0 20px;
+  font-variation-settings: 'opsz' 72;
+}
+
+.v12-line {
+  font-size: clamp(19px, 2vw, 24px);
+  line-height: 1.45;
+  max-width: 34ch;
+  margin: 0 0 20px;
+}
+
+.v12-pencil {
+  font-family: var(--serif);
+  font-style: italic;
+  color: var(--pencil);
+  font-size: 17px;
+  line-height: 1.55;
+  max-width: 48ch;
+  margin: 0;
+  position: relative;
+  padding-left: 18px;
+}
+.v12-pencil::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 10px;
+  height: 1.5px;
+  background: var(--pencil);
+  transform: rotate(-12deg);
+}
+
+.v12-section {
+  margin-bottom: 72px;
+  scroll-margin-top: 24px;
+}
+
+.v12-section h2 {
+  font-weight: 500;
+  font-size: clamp(26px, 3vw, 36px);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin: 0 0 20px;
+  max-width: 24ch;
+}
+
+.v12-section p {
+  max-width: 62ch;
+  margin: 0 0 16px;
+}
+
+/* findings */
+
+.v12-findings {
+  border-top: 1px solid var(--rule);
+}
+
+.v12-finding {
+  padding: 32px 0 28px;
+  border-bottom: 1px solid var(--rule);
+  position: relative;
+}
+.v12-finding:hover .v12-finding-num,
+.v12-finding:focus-within .v12-finding-num {
+  color: var(--pencil);
+}
+
+.v12-finding-head {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  column-gap: 12px;
+  align-items: baseline;
+  margin-bottom: 18px;
+}
+
+.v12-finding-num {
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--ink-2);
+  grid-row: 1 / span 2;
+  padding-top: 6px;
+}
+
+.v12-finding h3 {
+  font-weight: 500;
+  font-size: 28px;
+  line-height: 1.1;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.v12-meta {
+  grid-column: 2;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--ink-2);
+  margin: 6px 0 0 !important;
+}
+
+.v12-rows {
+  margin: 0;
+  display: grid;
+  gap: 12px;
+  padding-left: 56px;
+}
+
+.v12-row {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  column-gap: 16px;
+}
+
+.v12-row dt {
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  padding-top: 5px;
+}
+
+.v12-row dd {
+  margin: 0;
+  max-width: 60ch;
+}
+
+.v12-note {
+  margin: 18px 0 0 56px !important;
+}
+
+/* method */
+
+.v12-method {
+  margin: 0;
+  padding-left: 0;
+  list-style: none;
+  counter-reset: v12m;
+  max-width: 62ch;
+}
+.v12-method li {
+  counter-increment: v12m;
+  position: relative;
+  padding-left: 48px;
+  margin-bottom: 16px;
+}
+.v12-method li::before {
+  content: counter(v12m, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: 5px;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.v12-debrief {
+  padding-top: 32px;
+  border-top: 2px solid var(--ink);
+}
+
+.v12-contact {
+  font-size: 21px;
+  line-height: 1.5;
+}
+
+.v12-links {
+  font-family: var(--mono);
+  font-size: 15px;
+}
+
+/* ---------- log column ---------- */
+
+.v12-log {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper-2);
+  font-family: var(--mono);
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+.v12-log-head {
+  padding: 28px 24px 16px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.v12-log-toggle {
+  all: unset;
+  display: block;
+  width: 100%;
+  cursor: default;
+}
+
+.v12-log-title {
+  display: block;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.v12-log-latest,
+.v12-log-chev {
+  display: none;
+}
+
+.v12-log-sub {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--ink-2);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  align-items: baseline;
+}
+
+.v12-observe {
+  all: unset;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--pencil);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.v12-observe:focus-visible {
+  outline: 2px solid var(--pencil);
+  outline-offset: 2px;
+}
+
+.v12-log-lines {
+  list-style: none;
+  margin: 0;
+  padding: 16px 24px 32px;
+  overflow-y: auto;
+  flex: 1;
+  scroll-behavior: smooth;
+}
+
+.v12-log-line {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  column-gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--rule);
+  animation: v12-in 320ms ease-out both;
+}
+.v12-log-line:last-child {
+  border-bottom: 0;
+}
+
+.v12-stamp {
+  color: var(--pencil);
+  font-size: 13px;
+  padding-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+@keyframes v12-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- narrow ---------- */
+
+@media (max-width: 900px) {
+  .v12 {
+    font-size: 17px;
+  }
+  .v12-frame {
+    grid-template-columns: 1fr;
+  }
+  .v12-build {
+    border-right: 0;
+    padding: 32px 20px 200px;
+  }
+  .v12-rows,
+  .v12-note {
+    padding-left: 0;
+  }
+  .v12-note {
+    margin-left: 0 !important;
+  }
+  .v12-row {
+    grid-template-columns: 1fr;
+    row-gap: 4px;
+  }
+  .v12-finding-head {
+    grid-template-columns: 32px 1fr;
+  }
+  .v12-finding h3 {
+    font-size: 24px;
+  }
+
+  .v12-log {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    height: auto;
+    max-height: 64px;
+    border-top: 1px solid var(--rule);
+    box-shadow: 0 -8px 24px rgba(27, 26, 23, 0.08);
+    transition: max-height 240ms ease;
+    overflow: hidden;
+    z-index: 5;
+  }
+  .v12-log.is-open {
+    max-height: 70vh;
+  }
+  .v12-log-head {
+    padding: 10px 16px 8px;
+  }
+  .v12-log-toggle {
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 20px;
+    align-items: center;
+  }
+  .v12-log-title {
+    grid-column: 1;
+    font-size: 11px;
+  }
+  .v12-log-latest {
+    display: block;
+    grid-column: 1;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .v12-log-chev {
+    display: block;
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    text-align: right;
+    color: var(--pencil);
+  }
+  .v12-log.is-open .v12-log-latest {
+    display: none;
+  }
+  .v12-log-sub {
+    display: none;
+  }
+  .v12-log.is-open .v12-log-sub {
+    display: flex;
+  }
+  .v12-log-lines {
+    padding: 8px 16px 24px;
+    max-height: calc(70vh - 96px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v12-log-line {
+    animation: none;
+  }
+  .v12-log-lines {
+    scroll-behavior: auto;
+  }
+  .v12-log {
+    transition: none;
+  }
+}
