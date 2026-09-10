@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import './hub.css';
 
 const VARIANTS = [
+  { path: '/v5', name: 'Variant five', note: 'A day outside, then home. Computed sky, colour taken from it, a hand-drawn pixel room with a real window.' },
   { path: '/v1', name: 'Variant one', note: 'The day is the navigation. A timetable rail, a sky that keeps its time, a drawn room at dusk.' },
   { path: '/v2', name: 'Variant two', note: 'The horizon. Sky above, ground below, words only on the ground; the room typeset in HTML.' },
   { path: '/v3', name: 'Variant three', note: 'The rail is a sundial. Sections sit at their hour on one line; a sun slides down it with a clock.' },
