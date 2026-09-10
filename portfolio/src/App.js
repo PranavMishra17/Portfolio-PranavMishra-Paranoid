@@ -15,6 +15,7 @@ const V4 = lazy(() => import('./variants/v4'));
 const V5 = lazy(() => import('./variants/v5'));
 const V6 = lazy(() => import('./variants/v6'));
 const Bomb = lazy(() => import('./variants/bomb'));
+const Bomb2 = lazy(() => import('./variants/bomb2'));
 const V8 = lazy(() => import('./variants/v8'));
 const V9 = lazy(() => import('./variants/v9'));
 const V10 = lazy(() => import('./variants/v10'));
@@ -40,6 +41,7 @@ function App() {
         <Route path="/v5" element={<Suspense fallback={wait}><V5 /></Suspense>} />
         <Route path="/v6" element={<Suspense fallback={wait}><V6 /></Suspense>} />
         <Route path="/bomb" element={<Suspense fallback={wait}><Bomb /></Suspense>} />
+        <Route path="/bomb2" element={<Suspense fallback={wait}><Bomb2 /></Suspense>} />
         <Route path="/v8" element={<Suspense fallback={wait}><V8 /></Suspense>} />
         <Route path="/v9" element={<Suspense fallback={wait}><V9 /></Suspense>} />
         <Route path="/v10" element={<Suspense fallback={wait}><V10 /></Suspense>} />

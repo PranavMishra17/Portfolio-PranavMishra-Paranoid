@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import './hub.css';
 
 const VARIANTS = [
+  { path: '/bomb2', name: 'Bomb, second pass', note: 'Same detonation, square tiles on a dark minimal surface, a pinned checkpoint control, and a cursor that changes over links and projects.' },
   { path: '/bomb', name: 'Bomb', note: 'Bring the wall down. Four brick walls, a bomb for a cursor, hold to light the fuse, load a checkpoint to put it back. The room is behind the last wall.' },
   { path: '/v5', name: 'Variant five', note: 'Words on the sky, a slim rail, prints laid on a table, stamped papers, and the pixel room where nearly everything reacts.' },
   { path: '/v6', name: 'Variant six', note: 'Same sky and room, set like Weather: one centred column, serif, no rail, projects as a list that reveals each image.' },
