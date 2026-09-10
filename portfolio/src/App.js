@@ -1,14 +1,19 @@
 // src/App.js
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import MainPortfolio from './MainPortfolio';
 import ResumeViewer from './components/ResumeViewer';
-import VariantsHub from './variants/hub';
-import V1 from './variants/v1';
-import V2 from './variants/v2';
-import V3 from './variants/v3';
-import V4 from './variants/v4';
 import './App.css';
+
+// Revamp proposals — see PORTFOLIO-BRIEF.md at the repo root. Each variant is additive and
+// self-contained, and lazy-loaded so one variant's chunk never affects another route.
+const VariantsHub = lazy(() => import('./variants/hub'));
+const V1 = lazy(() => import('./variants/v1'));
+const V2 = lazy(() => import('./variants/v2'));
+const V3 = lazy(() => import('./variants/v3'));
+const V4 = lazy(() => import('./variants/v4'));
+
+const wait = <div style={{ minHeight: '100vh' }} />;
 
 function App() {
   return (
@@ -16,12 +21,11 @@ function App() {
       <Routes>
         <Route path="/" element={<MainPortfolio />} />
         <Route path="/resume" element={<ResumeViewer />} />
-        {/* Revamp proposals — see PORTFOLIO-BRIEF.md at the repo root. Each variant is additive and self-contained. */}
-        <Route path="/variants" element={<VariantsHub />} />
-        <Route path="/v1" element={<V1 />} />
-        <Route path="/v2" element={<V2 />} />
-        <Route path="/v3" element={<V3 />} />
-        <Route path="/v4" element={<V4 />} />
+        <Route path="/variants" element={<Suspense fallback={wait}><VariantsHub /></Suspense>} />
+        <Route path="/v1" element={<Suspense fallback={wait}><V1 /></Suspense>} />
+        <Route path="/v2" element={<Suspense fallback={wait}><V2 /></Suspense>} />
+        <Route path="/v3" element={<Suspense fallback={wait}><V3 /></Suspense>} />
+        <Route path="/v4" element={<Suspense fallback={wait}><V4 /></Suspense>} />
       </Routes>
     </Router>
   );
