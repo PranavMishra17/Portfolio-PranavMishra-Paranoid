@@ -4,10 +4,10 @@ import { Link } from 'react-router-dom';
 import './hub.css';
 
 const VARIANTS = [
-  { path: '/v1', name: 'Variant one', note: 'Built by the lead agent, first pass.' },
-  { path: '/v2', name: 'Variant two', note: 'Built by the lead agent, second pass.' },
-  { path: '/v3', name: 'Variant three', note: 'Built by an independent agent.' },
-  { path: '/v4', name: 'Variant four', note: 'Built by an independent agent.' },
+  { path: '/v1', name: 'Variant one', note: 'The day is the navigation. A timetable rail, a sky that keeps its time, a drawn room at dusk.' },
+  { path: '/v2', name: 'Variant two', note: 'The horizon. Sky above, ground below, words only on the ground; the room typeset in HTML.' },
+  { path: '/v3', name: 'Variant three', note: 'The rail is a sundial. Sections sit at their hour on one line; a sun slides down it with a clock.' },
+  { path: '/v4', name: 'Variant four', note: 'A sundial rail with a horizon line the sun sinks below; an ink-on-paper room.' },
 ];
 
 export default function VariantsHub() {
