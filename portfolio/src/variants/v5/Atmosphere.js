@@ -165,7 +165,7 @@ function makeEngine(canvas) {
         for (let i = 0; i < 3; i += 1) {
           let c = m + (v[i] - m) * 2.4;
           c = Math.min(1, Math.max(0, c));
-          c = lerp(c, 1, 0.4);
+          c = lerp(c, 1, 0.52);
           if (i === 0) c += 0.09 * dusk;
           if (i === 1) c -= 0.02 * dusk;
           if (i === 2) c += 0.07 * dusk * (1 - yn);

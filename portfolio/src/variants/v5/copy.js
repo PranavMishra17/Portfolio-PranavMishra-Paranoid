@@ -10,7 +10,6 @@ export const INTRO = {
     'I’ve also built voice agents, chat agents, computer-vision features, and a long tail of small ML projects. Before all that I made games, and things for rooms whose walls are screens. I still do.',
     'Computer science at the University of Illinois Chicago. I live in Metuchen, New Jersey.',
   ],
-  scrollHint: 'The sky keeps going as you scroll. My room is at the bottom.',
   photo: '/assets/images/default/profile_default.jpg',
   photoAlt: 'Pranav Mishra, smiling, with the Chicago skyline behind him in winter',
 };

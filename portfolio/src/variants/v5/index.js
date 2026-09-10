@@ -1,10 +1,8 @@
 // Variant 5 — "A day outside, then home."
 //
-// The page is a day spent outdoors: a computed sky with a real sun and low ridges, running the full
-// length of the page and driven by scroll alone. It ends at home: a pixel-art room, drawn by hand,
-// whose window is transparent to that same sky. The left rail is a solid column that takes its
-// colour from the sky, with my face and name pinned at the top and four big tabs. Text always sits
-// on paper. Headings take their colour from the sun.
+// A computed sky runs the length of the page, driven by scroll alone. Words sit straight on it, as in
+// Weather: no plates, thin rules, generous space. A slim text rail on the left. It ends at home: a
+// pixel-art room whose window is transparent to that same sky, and where nearly everything reacts.
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Atmosphere from './Atmosphere';
 import Overlay from './Overlay';
@@ -57,14 +55,7 @@ function useScroll() {
   return { t, active };
 }
 
-function dayWord(light) {
-  if (!light) return 'morning';
-  const e = light.elDeg;
-  if (light.t < 0.5) return e < 12 ? 'early morning' : e < 34 ? 'morning' : 'almost noon';
-  return e < 4 ? 'sunset' : e < 16 ? 'evening' : 'afternoon';
-}
-
-function Rail({ active, light }) {
+function Rail({ active }) {
   const go = (id) => (e) => {
     e.preventDefault();
     const el = document.getElementById(id);
@@ -73,11 +64,9 @@ function Rail({ active, light }) {
     el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
   };
   return (
-    <aside className="v5-rail">
-      <a href="#hey" className="v5-rail-me" onClick={go('hey')}>
-        <img className="v5-rail-photo" src={INTRO.photo} alt="" />
-        <span className="v5-rail-name">Pranav Mishra</span>
-        <span className="v5-rail-role">AI engineer, New York</span>
+    <aside className={`v5-rail${active === 'room' ? ' off' : ''}`}>
+      <a href="#hey" className="v5-rail-name" onClick={go('hey')}>
+        Pranav Mishra
       </a>
       <nav aria-label="Sections">
         <ul className="v5-tabs">
@@ -99,20 +88,17 @@ function Rail({ active, light }) {
           </li>
         ))}
       </ul>
-      <div className="v5-day" aria-hidden="true">
-        <span className="v5-day-word">It is {dayWord(light)}.</span>
-        <span className="v5-day-bar">
-          <i style={{ left: `${((light && light.sunX) || 0.16) * 100}%`, bottom: `${Math.max(0, Math.min(100, ((light ? light.elDeg : 7) / 50) * 100))}%` }} />
-        </span>
-      </div>
     </aside>
   );
 }
 
+// each print gets its own small tilt and drop, like photographs laid on a table
+const TILT = [-1.6, 1.2, -0.8, 1.8, -1.2, 0.9];
+const DROP = [0, 34, 12, 26, 0, 40];
+
 export default function V5() {
   const { t, active } = useScroll();
   const rootRef = useRef(null);
-  const [light, setLight] = useState(null);
   const [overlay, setOverlay] = useState(false);
   const [role, setRole] = useState(null);
   const [more, setMore] = useState(false);
@@ -121,14 +107,11 @@ export default function V5() {
   const closeRole = useCallback(() => setRole(null), []);
 
   const onLight = useCallback((l) => {
-    setLight(l);
     const el = rootRef.current;
     if (!el) return;
-    el.style.setProperty('--rail-bg', l.railBg);
     el.style.setProperty('--accent', l.accent);
     el.style.setProperty('--accent-ink', l.accentInk);
     el.style.setProperty('--sun', l.sun);
-    el.style.setProperty('--zenith', l.zenith);
   }, []);
 
   useEffect(() => {
@@ -148,28 +131,27 @@ export default function V5() {
   return (
     <div className="v5" ref={rootRef}>
       <Atmosphere t={t} onLight={onLight} />
-      <Rail active={active} light={light} />
+      <Rail active={active} />
 
       <main className="v5-main">
         <section className="v5-screen" id="hey">
-          <div className="v5-slab v5-hey">
+          <div className="v5-hey">
             <div className="v5-face">
               <img src={INTRO.photo} alt={INTRO.photoAlt} />
             </div>
-            <div className="v5-hey-text">
+            <div>
               <h1 className="v5-hello">{INTRO.hello}</h1>
               {INTRO.paragraphs.map((p) => (
                 <p className="v5-p" key={p}>
                   {p}
                 </p>
               ))}
-              <p className="v5-p v5-soft v5-hint">{INTRO.scrollHint}</p>
             </div>
           </div>
         </section>
 
         <section className="v5-screen" id="work">
-          <div className="v5-slab">
+          <div className="v5-col">
             <h2 className="v5-h2">
               What I do at{' '}
               <a className="v5-link" href={ALFRED.url} target="_blank" rel="noopener noreferrer">
@@ -194,7 +176,7 @@ export default function V5() {
               ))}
             </ul>
             <button type="button" className="v5-more" aria-expanded={more} onClick={() => setMore((v) => !v)}>
-              {more ? 'Less about that' : 'More about that'}
+              {more ? 'Less' : 'More about that'}
             </button>
             {more ? (
               <ul className="v5-bullets">
@@ -221,18 +203,18 @@ export default function V5() {
         </section>
 
         <section className="v5-screen" id="made">
-          <div className="v5-slab wide">
+          <div className="v5-col wide">
             <h2 className="v5-h2">Things I made</h2>
-            <ul className="v5-cards">
-              {FEATURED.map((p) => (
-                <li className="v5-card" key={p.id}>
-                  <a className="v5-card-link" href={p.link} target="_blank" rel="noopener noreferrer">
-                    <div className={`v5-card-img${p.square ? ' sq' : ''}`}>
+            <ul className="v5-prints">
+              {FEATURED.map((p, i) => (
+                <li className="v5-print-item" key={p.id} style={{ '--tilt': `${TILT[i % TILT.length]}deg`, '--drop': `${DROP[i % DROP.length]}px` }}>
+                  <a className="v5-print-link" href={p.link} target="_blank" rel="noopener noreferrer">
+                    <span className={`v5-print${p.square ? ' sq' : ''}`}>
                       <img src={p.image} alt="" loading="lazy" />
-                    </div>
-                    <h3 className="v5-card-t">{p.name}</h3>
-                    <p className="v5-card-line">{p.line}</p>
-                    <span className="v5-card-go">{p.action}</span>
+                    </span>
+                    <span className="v5-print-t">{p.name}</span>
+                    <span className="v5-print-line">{p.line}</span>
+                    <span className="v5-print-go">{p.action}</span>
                   </a>
                 </li>
               ))}
@@ -242,24 +224,30 @@ export default function V5() {
                 See everything, {ALL_PROJECTS.length} things and {PAPERS.length} papers
               </button>
             </p>
+
             <h3 className="v5-h3">Three papers</h3>
-            <ul className="v5-papers">
-              {PAPERS.map((p) => (
-                <li key={p.id}>
-                  <span className={`v5-status${p.accepted ? ' acc' : ''}`}>{p.status}</span>
-                  <span className="v5-paper-t">
+            <ul className="v5-offprints">
+              {PAPERS.map((p, i) => (
+                <li className="v5-offprint" key={p.id} style={{ '--tilt': `${[-0.8, 0.6, -0.4][i]}deg` }}>
+                  <span className={`v5-stamp${p.accepted ? ' acc' : ''}`}>{p.status}</span>
+                  <h4 className="v5-offprint-t">{p.short}</h4>
+                  <p className="v5-offprint-line">{p.line}</p>
+                  <p className="v5-offprint-venue">
+                    {p.venue}
+                    {p.citations ? `. ${p.citations} citations` : ''}
+                  </p>
+                  <p className="v5-links">
                     {p.pdf ? (
                       <a className="v5-link" href={p.pdf} target="_blank" rel="noopener noreferrer">
-                        {p.short}
+                        Paper
                       </a>
-                    ) : (
-                      p.short
-                    )}
-                  </span>
-                  <span className="v5-paper-venue">
-                    {p.venue}
-                    {p.citations ? `, ${p.citations} citations` : ''}
-                  </span>
+                    ) : null}
+                    {p.code ? (
+                      <a className="v5-link" href={p.code} target="_blank" rel="noopener noreferrer">
+                        Code
+                      </a>
+                    ) : null}
+                  </p>
                 </li>
               ))}
             </ul>
@@ -268,6 +256,16 @@ export default function V5() {
       </main>
 
       <Room t={t} onSeeAll={openOverlay} />
+      <p className="v5-end">
+        Pranav Pushkar Mishra.{' '}
+        <a className="v5-link" href={LINKS[5].href}>
+          Email
+        </a>{' '}
+        <a className="v5-link" href="/resume">
+          Resume
+        </a>
+      </p>
+
       <Overlay open={overlay} onClose={closeOverlay} />
       <Panel open={Boolean(role)} title={role ? role.company : ''} onClose={closeRole}>
         {role ? (
@@ -294,4 +292,3 @@ export default function V5() {
     </div>
   );
 }
-

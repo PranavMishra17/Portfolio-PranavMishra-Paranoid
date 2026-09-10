@@ -143,10 +143,10 @@ export function rasterize(grid, out, { night = 0, lamp = null, hover = 0 }) {
         d[o + 3] = 0;
         // but an outline can still be drawn around a hovered object into a transparent pixel
         if (hover && isEdge(ids, i, x, y, hover)) {
-          d[o] = 255;
-          d[o + 1] = 246;
-          d[o + 2] = 200;
-          d[o + 3] = 255;
+          d[o] = 240;
+          d[o + 1] = 226;
+          d[o + 2] = 190;
+          d[o + 3] = 150;
         }
         continue;
       }
@@ -176,13 +176,13 @@ export function rasterize(grid, out, { night = 0, lamp = null, hover = 0 }) {
       }
       if (hover) {
         if (ids[i] === hover) {
-          r += (255 - r) * 0.22;
-          gg += (255 - gg) * 0.22;
-          b += (255 - b) * 0.18;
+          r += (255 - r) * 0.09;
+          gg += (255 - gg) * 0.09;
+          b += (255 - b) * 0.06;
         } else if (isEdge(ids, i, x, y, hover)) {
-          r = 255;
-          gg = 246;
-          b = 200;
+          r += (244 - r) * 0.5;
+          gg += (230 - gg) * 0.5;
+          b += (190 - b) * 0.5;
         }
       }
       d[o] = r > 255 ? 255 : r;

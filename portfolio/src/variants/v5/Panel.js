@@ -10,7 +10,7 @@ export default function Panel({ open, title, onClose, children }) {
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', onKey);
-    if (closeRef.current) closeRef.current.focus();
+    if (closeRef.current) closeRef.current.focus({ preventScroll: true });
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 

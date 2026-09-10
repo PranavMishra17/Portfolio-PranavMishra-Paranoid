@@ -20,7 +20,7 @@ export default function Overlay({ open, onClose }) {
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', onKey);
-    if (closeRef.current) closeRef.current.focus();
+    if (closeRef.current) closeRef.current.focus({ preventScroll: true });
     return () => {
       document.body.style.overflow = prev;
       window.removeEventListener('keydown', onKey);

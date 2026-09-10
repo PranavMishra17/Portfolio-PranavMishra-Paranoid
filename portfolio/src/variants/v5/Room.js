@@ -1,18 +1,16 @@
 // Variant 5 — the room as the page's footer. A pixel-art canvas with transparent window panes, so the
-// sky that runs behind the whole page is the sky in the window. Hover names things, click opens
-// them, the lamp switches, the screens scroll, the tea steams, and now and then a bird goes past.
+// sky that runs behind the whole page is the sky in the window. Hover names things. Click does
+// something to most of them, and opens the rest.
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { W, H, createGrid, painter, rasterize } from './pixel/engine';
 import { drawRoom, HOTSPOTS, LAMP } from './pixel/scene';
 import Panel from './Panel';
 import { ABOUT_LONG, ALFRED, ALFRED_ROLE, BEFORE, FEATURED, LINKS, PAPERS, TROPHIES } from './copy';
-import { BOOKS, FILMS, GAMES, MAGNETS, FAMILY_PHOTO, FOOTBALL, SAMPLE_NOTE } from './personal';
+import { BOOKS, FILMS, GAMES, MAGNETS, FAMILY_PHOTO, FOOTBALL } from './personal';
 
 const TITLES = {
-  lamp: 'The lamp',
   me: 'About me',
   photo: 'A family photo',
-  mug: 'Tea',
   laptop: 'About me',
   monitorA: 'Where I have worked',
   monitorB: 'Three papers',
@@ -24,16 +22,14 @@ const TITLES = {
   games: 'Games',
   books2: 'Books',
   fridge: 'Fridge magnets',
-  plant: 'The plant',
   ball: 'Football',
-  window: 'The window',
 };
 
-// on phones the room stays, but only the personal things are listed as buttons under it
-const PERSONAL = ['window', 'poster1', 'poster2', 'poster3', 'trophies', 'books', 'games', 'fridge', 'photo', 'ball', 'plant', 'mug', 'lamp'];
+// on phones the drawing stays, and these get buttons under it
+const PERSONAL = ['window', 'lamp', 'poster1', 'poster2', 'poster3', 'trophies', 'books', 'games', 'fridge', 'photo', 'ball', 'plant', 'mug', 'pc'];
 
 function Sample() {
-  return <p className="v5-sample">{SAMPLE_NOTE}</p>;
+  return <p className="v5-sample">Sample titles.</p>;
 }
 
 export function WorkHistory() {
@@ -95,30 +91,8 @@ export function PaperList() {
   );
 }
 
-function Content({ k, onSeeAll, lampOn, toggleLamp }) {
+function Content({ k, onSeeAll }) {
   switch (k) {
-    case 'window':
-      return (
-        <>
-          <p className="v5-p">That is not a picture. The panes are transparent, so what you see through them is the sky that has been behind this whole page, wherever you have scrolled it to. Scroll back up and it is morning in the window again.</p>
-          <p className="v5-links">
-            <button type="button" className="v5-link" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-              Back to the morning
-            </button>
-          </p>
-        </>
-      );
-    case 'lamp':
-      return (
-        <>
-          <p className="v5-p">It comes on by itself when the sky goes down. You can also just switch it.</p>
-          <p className="v5-links">
-            <button type="button" className="v5-link" onClick={toggleLamp}>
-              {lampOn ? 'Switch it off' : 'Switch it on'}
-            </button>
-          </p>
-        </>
-      );
     case 'me':
     case 'laptop':
       return (
@@ -147,9 +121,9 @@ function Content({ k, onSeeAll, lampOn, toggleLamp }) {
       const f = FILMS[Number(k.slice(-1)) - 1];
       return (
         <>
-          <Sample />
           <h3 className="v5-plist-t">{f.title}</h3>
           <p className="v5-p">{f.why}</p>
+          <Sample />
         </>
       );
     }
@@ -158,7 +132,7 @@ function Content({ k, onSeeAll, lampOn, toggleLamp }) {
         <ul className="v5-plist">
           {TROPHIES.map((t) => (
             <li key={t.id}>
-              <div className="v5-card-img">
+              <div className="v5-print">
                 <img src={t.image} alt="" loading="lazy" />
               </div>
               <h3 className="v5-plist-t">{t.title}</h3>
@@ -171,7 +145,6 @@ function Content({ k, onSeeAll, lampOn, toggleLamp }) {
     case 'books2':
       return (
         <>
-          <Sample />
           <ul className="v5-plist">
             {BOOKS.map((b) => (
               <li key={b.title}>
@@ -182,12 +155,12 @@ function Content({ k, onSeeAll, lampOn, toggleLamp }) {
               </li>
             ))}
           </ul>
+          <Sample />
         </>
       );
     case 'games':
       return (
         <>
-          <Sample />
           <ul className="v5-plist">
             {GAMES.map((g) => (
               <li key={g.title}>
@@ -196,12 +169,12 @@ function Content({ k, onSeeAll, lampOn, toggleLamp }) {
               </li>
             ))}
           </ul>
+          <Sample />
         </>
       );
     case 'fridge':
       return (
         <>
-          <Sample />
           <ul className="v5-plist">
             {MAGNETS.map((m) => (
               <li key={m.place}>
@@ -210,39 +183,30 @@ function Content({ k, onSeeAll, lampOn, toggleLamp }) {
               </li>
             ))}
           </ul>
+          <Sample />
         </>
       );
     case 'photo':
       return (
         <>
-          <Sample />
           <p className="v5-p">{FAMILY_PHOTO.caption}</p>
+          <Sample />
         </>
       );
     case 'ball':
       return (
         <>
           <p className="v5-p">{FOOTBALL.line}</p>
-          <Sample />
-          <p className="v5-p">{FOOTBALL.extra}</p>
+          <p className="v5-p v5-soft">{FOOTBALL.extra}</p>
         </>
       );
-    case 'plant':
-      return (
-        <>
-          <Sample />
-          <p className="v5-p">It does not have a name yet. That is the kind of thing that goes here.</p>
-        </>
-      );
-    case 'mug':
-      return <p className="v5-p">There is always a mug on the desk. What is in it is a detail for later.</p>;
     case 'projects':
       return (
         <>
           <ul className="v5-plist">
             {FEATURED.map((p) => (
               <li key={p.id}>
-                <div className={`v5-card-img${p.square ? ' sq' : ''}`}>
+                <div className={`v5-print${p.square ? ' sq' : ''}`}>
                   <img src={p.image} alt="" loading="lazy" />
                 </div>
                 <h3 className="v5-plist-t">{p.title}</h3>
@@ -275,9 +239,11 @@ export default function Room({ t, onSeeAll }) {
   }, []);
   const img = useMemo(() => off.getContext('2d').createImageData(W, H), [off]);
 
-  const [hover, setHover] = useState(null); // hotspot object
-  const [open, setOpen] = useState(null); // key
+  const [hover, setHover] = useState(null);
+  const [open, setOpen] = useState(null);
   const [lampOverride, setLampOverride] = useState(null);
+  const [st, setSt] = useState({ curtains: false, fridgeOpen: false, pcOn: true, plant: 0, mugHot: true });
+  const fx = useRef({ wave: 0, bounce: 0, sparkle: 0 }); // short animations, counted down by the loop
   const frame = useRef(0);
   const bird = useRef(null);
   const reduce = useMemo(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches, []);
@@ -288,16 +254,15 @@ export default function Room({ t, onSeeAll }) {
   const render = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    drawRoom(g, { frame: frame.current, lampOn, bird: bird.current });
+    drawRoom(g, { frame: frame.current, lampOn, bird: bird.current, st: { ...st, ...fx.current } });
     rasterize(grid, img, { night, lamp: { ...LAMP, on: lampOn }, hover: hover ? hover.id : 0 });
     off.getContext('2d').putImageData(img, 0, 0);
     const ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(off, 0, 0, W, H, 0, 0, canvas.width, canvas.height);
-  }, [g, grid, img, off, night, lampOn, hover]);
+  }, [g, grid, img, off, night, lampOn, hover, st]);
 
-  // size the canvas to its box in whole pixels per grid cell where possible
   useEffect(() => {
     const canvas = canvasRef.current;
     const wrap = wrapRef.current;
@@ -321,7 +286,6 @@ export default function Room({ t, onSeeAll }) {
     render();
   }, [render]);
 
-  // the small animations: steam, typing, scrolling code, an occasional bird
   useEffect(() => {
     if (reduce) return undefined;
     let last = 0;
@@ -331,6 +295,10 @@ export default function Room({ t, onSeeAll }) {
       if (now - last < 170) return;
       last = now;
       frame.current += 1;
+      const f = fx.current;
+      if (f.wave > 0) f.wave -= 1;
+      if (f.bounce > 0) f.bounce -= 1;
+      if (f.sparkle > 0) f.sparkle -= 1;
       if (bird.current) {
         bird.current.x += 2;
         bird.current.f += 1;
@@ -352,28 +320,60 @@ export default function Room({ t, onSeeAll }) {
     const gy = ((e.clientY - r.top) / r.height) * H;
     return HOTSPOTS.find((h) => gx >= h.x && gx < h.x + h.w && gy >= h.y && gy < h.y + h.h) || null;
   };
+
+  const act = useCallback(
+    (key) => {
+      switch (key) {
+        case 'lamp':
+          setLampOverride(!lampOn);
+          return;
+        case 'window':
+          setSt((s) => ({ ...s, curtains: !s.curtains }));
+          return;
+        case 'mug':
+          setSt((s) => ({ ...s, mugHot: !s.mugHot }));
+          return;
+        case 'plant':
+          setSt((s) => ({ ...s, plant: (s.plant + 1) % 3 }));
+          return;
+        case 'pc':
+          setSt((s) => ({ ...s, pcOn: !s.pcOn }));
+          return;
+        case 'fridge':
+          setSt((s) => ({ ...s, fridgeOpen: !s.fridgeOpen }));
+          setOpen('fridge');
+          return;
+        case 'me':
+          fx.current.wave = 8;
+          setOpen('me');
+          return;
+        case 'trophies':
+          fx.current.sparkle = 12;
+          setOpen('trophies');
+          return;
+        case 'ball':
+          fx.current.bounce = 8;
+          setOpen('ball');
+          return;
+        default:
+          setOpen(key);
+      }
+    },
+    [lampOn],
+  );
+
   const onMove = (e) => {
     const h = hit(e);
     if ((h && h.id) !== (hover && hover.id)) setHover(h);
   };
   const onClick = (e) => {
     const h = hit(e);
-    if (!h) return;
-    if (h.key === 'lamp') {
-      setLampOverride(!lampOn);
-      return;
-    }
-    setOpen(h.key);
+    if (h) act(h.key);
   };
-  const toggleLamp = useCallback(() => setLampOverride((v) => (v === null ? !(night > 0.45) : !v)), [night]);
   const close = useCallback(() => setOpen(null), []);
 
   return (
     <footer className="v5-room" id="room">
-      <div className="v5-room-head">
-        <h2 className="v5-h2">My room</h2>
-        <p className="v5-p v5-soft">How it was in my bachelor days. Everything in it opens something. The window is not a picture.</p>
-      </div>
       <div className="v5-stage" ref={wrapRef}>
         <canvas
           ref={canvasRef}
@@ -381,36 +381,26 @@ export default function Room({ t, onSeeAll }) {
           onMouseMove={onMove}
           onMouseLeave={() => setHover(null)}
           onClick={onClick}
-          aria-label="A pixel-art drawing of my room. Use the list below to open each thing."
+          aria-label="A pixel-art drawing of my room"
           role="img"
         />
       </div>
       <p className="v5-caption" aria-live="polite">
-        {hover ? hover.label : 'Hover over anything. Click to open it.'}
+        {hover ? hover.label : ''}
       </p>
 
       <ul className="v5-room-list" aria-label="Everything in the room">
         {HOTSPOTS.filter((h) => PERSONAL.includes(h.key)).map((h) => (
-          <li key={h.key} className={PERSONAL.includes(h.key) ? 'personal' : ''}>
-            <button
-              type="button"
-              className="v5-room-item"
-              onClick={() => (h.key === 'lamp' ? setLampOverride(!lampOn) : setOpen(h.key))}
-              onFocus={() => setHover(h)}
-              onBlur={() => setHover(null)}
-            >
+          <li key={h.key}>
+            <button type="button" className="v5-room-item" onClick={() => act(h.key)} onFocus={() => setHover(h)} onBlur={() => setHover(null)}>
               {h.label}
             </button>
           </li>
         ))}
       </ul>
 
-      <div className="v5-colophon">
-        <p>Pranav Pushkar Mishra. Metuchen, New Jersey. The books, posters, games and magnets are samples until I write my own.</p>
-      </div>
-
       <Panel open={Boolean(open)} title={open ? TITLES[open] || '' : ''} onClose={close}>
-        {open ? <Content k={open} onSeeAll={onSeeAll} lampOn={lampOn} toggleLamp={toggleLamp} /> : null}
+        {open ? <Content k={open} onSeeAll={onSeeAll} /> : null}
       </Panel>
     </footer>
   );
