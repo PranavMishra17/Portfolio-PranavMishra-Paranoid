@@ -1,0 +1,11 @@
+body.hub-body { background: #eef2f4; color: #1d2529; font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; }
+.hub { min-height: 100vh; padding: clamp(32px, 8vh, 96px) clamp(20px, 6vw, 80px); max-width: 880px; margin: 0 auto; }
+.hub-head h1 { font-size: clamp(26px, 3.4vw, 40px); font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; margin: 0 0 14px; }
+.hub-head p { font-size: 16px; line-height: 1.6; color: #4a565d; max-width: 62ch; margin: 0 0 36px; }
+.hub-head a { color: #1d2529; text-decoration: underline; text-underline-offset: 3px; }
+.hub-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
+.hub-card { display: grid; grid-template-columns: 72px 1fr; grid-template-rows: auto auto; column-gap: 18px; row-gap: 2px; align-items: baseline; padding: 18px 20px; background: #ffffff; border: 1px solid #d5dde2; border-radius: 6px; text-decoration: none; color: inherit; transition: border-color .15s ease, transform .15s ease; }
+.hub-card:hover, .hub-card:focus-visible { border-color: #1d2529; transform: translateX(3px); outline: none; }
+.hub-route { grid-row: 1 / span 2; font-family: ui-monospace, 'Cascadia Mono', Menlo, monospace; font-size: 15px; color: #5d6b74; }
+.hub-name { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
+.hub-note { font-size: 15px; color: #5d6b74; line-height: 1.5; }
