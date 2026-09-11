@@ -19,7 +19,7 @@ const FUSE_MS = 880;
 const WICK = 'M26 15 C 30 7.5, 37 10, 38 2.5';
 
 const Detonator = forwardRef(function Detonator(
-  { mode, grid, field = 'tighten', armed, onBlast, reduced },
+  { surface = 'plaster', grid, armed, onBlast, reduced },
   ref
 ) {
   const canvasRef = useRef(null);
@@ -34,16 +34,16 @@ const Detonator = forwardRef(function Detonator(
   const holdRef = useRef(null);
   const pointRef = useRef({ x: null, y: null });
   const heatRef = useRef(0);
-  const fieldRef = useRef(field);
-  const ringsRef = useRef([]);
-  const lastRingRef = useRef(0);
+  const surfaceRef = useRef(surface);
+  const trailRef = useRef([]);
+  const lastTrailRef = useRef(0);
   const armedRef = useRef(armed);
   const shakeRef = useRef(0);
   const [held, setHeld] = useState(false);
   const [dead, setDead] = useState(false); // frames never arrived; the wall is not survivable
 
   armedRef.current = armed;
-  fieldRef.current = field;
+  surfaceRef.current = surface;
 
   const rest = useCallback((p = 0) => {
     const burnt = burntRef.current;
@@ -101,7 +101,7 @@ const Detonator = forwardRef(function Detonator(
       cv.style.width = `${W}px`;
       cv.style.height = `${H}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      if (!wallRef.current) wallRef.current = new Wall({ W, H, dpr, mode, grid });
+      if (!wallRef.current) wallRef.current = new Wall({ W, H, dpr, surface, grid });
       else wallRef.current.resize(W, H);
     };
 
@@ -149,13 +149,8 @@ const Detonator = forwardRef(function Detonator(
       wall.step(now, dt);
       wall.draw(ctx);
       // the field is pure decoration: the first thing dropped when frames get expensive
-      if (fieldRef.current === 'ripple') {
-        // age the rings, drop the ones that have travelled out
-        ringsRef.current = ringsRef.current
-          .map((r) => ({ ...r, age: (now - r.t0) / 1100 }))
-          .filter((r) => r.age < 1);
-      }
-      if (slow < 12) wall.drawField(ctx, pointRef.current.x, pointRef.current.y, heatRef.current, fieldRef.current, ringsRef.current);
+      trailRef.current = trailRef.current.filter((p) => now - p.t0 < 1500);
+      if (slow < 12) wall.drawField(ctx, pointRef.current.x, pointRef.current.y, heatRef.current, now, trailRef.current);
 
       if (shakeRef.current > 0) {
         shakeRef.current -= dt;
@@ -203,16 +198,14 @@ const Detonator = forwardRef(function Detonator(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* ── the Lab can change how it fails, and whether the blocks are hinted ── */
+  /* ── the Lab can change the material, and whether the blocks are hinted ── */
   useEffect(() => {
     const wall = wallRef.current;
     if (!wall) return;
-    wall.mode = mode;
-    if (wall.grid !== grid) {
-      wall.grid = grid;
-      wall.paintFace();
-    }
-  }, [mode, grid]);
+    wall.hint = grid === 'faint';
+    if (wall.surface.key !== surface) wall.setSurface(surface);
+    else wall.paintFace();
+  }, [surface, grid]);
 
   /* ── pointer ── */
   useEffect(() => {
@@ -221,11 +214,11 @@ const Detonator = forwardRef(function Detonator(
       const b = stickRef.current;
       if (b) b.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
       pointRef.current = { x: e.clientX, y: e.clientY };
-      if (fieldRef.current === 'ripple') {
+      if (surfaceRef.current === 'ink') {
         const now = performance.now();
-        if (now - lastRingRef.current > 260 && ringsRef.current.length < 5) {
-          lastRingRef.current = now;
-          ringsRef.current.push({ x: e.clientX, y: e.clientY, t0: now, age: 0 });
+        if (now - lastTrailRef.current > 40 && trailRef.current.length < 40) {
+          lastTrailRef.current = now;
+          trailRef.current.push({ x: e.clientX, y: e.clientY, t0: now });
         }
       }
       if (holdRef.current) {

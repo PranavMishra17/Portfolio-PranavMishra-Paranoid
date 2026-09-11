@@ -12,10 +12,10 @@ const KEY = 'v19.lab';
 
 export const DEFAULTS = {
   land: 'plate',      // how the first screen is arranged
-  field: 'tighten',   // what the wall does under the cursor
-  grid: 'hidden',     // the block rule at rest — hidden, so the field is the only way to see it
-  blast: 'burst',     // how the wall comes apart
+  surface: 'plaster', // what the wall is made of — its look, its cursor, its failure
+  grid: 'hidden',     // the plaster's block rule at rest
   projects: 'frame',  // how the projects are laid out
+  papers: 'pages',    // how the papers are shown
   room: 'warm',       // the room's light
   type: 'technical',  // the type pairing
   plant: 'stems',     // how the plant grows
@@ -35,22 +35,14 @@ const OPTIONS = [
     ],
   },
   {
-    key: 'field',
-    title: 'The wall, under the cursor',
+    key: 'surface',
+    title: 'The wall is made of',
     choices: [
-      { v: 'tighten', label: 'Tighten', hint: 'The blocks near the dynamite draw themselves in.' },
-      { v: 'torch', label: 'Torch', hint: 'The seams exist only inside the light.' },
-      { v: 'lift', label: 'Lift', hint: 'The nearest blocks come loose — a shadow, a hair of offset.' },
-      { v: 'ripple', label: 'Ripple', hint: 'Moving sends a ring out through the seams.' },
-    ],
-  },
-  {
-    key: 'blast',
-    title: 'The wall comes apart',
-    choices: [
-      { v: 'burst', label: 'Burst', hint: 'It comes at you, then away to the top left.' },
-      { v: 'collapse', label: 'Collapse', hint: 'A ring of failure spreads outward and the face gives way.' },
-      { v: 'shatter', label: 'Shatter', hint: 'Real collisions. Slabs knock each other out of the way.' },
+      { v: 'plaster', label: 'Plaster', hint: 'Off-white. The blocks under the dynamite draw themselves in. It bursts.' },
+      { v: 'graph', label: 'Graph paper', hint: 'Blue-grey lines. The cursor is a lens that bends them. It tears into leaves that flip.' },
+      { v: 'dots', label: 'Halftone', hint: 'A field of dots that swell and back away from you. It dissolves.' },
+      { v: 'iso', label: 'Isometric', hint: 'A tile floor. Tiles rise under the cursor, and are pulled off one by one.' },
+      { v: 'ink', label: 'Ink', hint: 'No grid. You leave wet ink on the paper. The blast opens a ragged hole.' },
     ],
   },
   {
@@ -61,6 +53,18 @@ const OPTIONS = [
       { v: 'beside', label: 'Beside', hint: 'The frame is a tall column on the left; the tiles stack beside it.' },
       { v: 'fill', label: 'Fill', hint: 'No frame. Whatever you point at becomes the ground under all the tiles.' },
       { v: 'spec', label: 'Spec', hint: 'No big picture. A spec sheet — name, stack, links — beside the tiles.' },
+      { v: 'wall', label: 'Wall', hint: 'A mosaic of tiles at two sizes. Click one and it grows in place.' },
+      { v: 'reel', label: 'Reel', hint: 'Two strips moving past each other. Stop one with the cursor.' },
+    ],
+  },
+  {
+    key: 'papers',
+    title: 'The papers',
+    choices: [
+      { v: 'pages', label: 'Pages', hint: 'The front page of each.' },
+      { v: 'abstract', label: 'Abstract', hint: 'The abstract is the layout — typeset, numbers picked out.' },
+      { v: 'cv', label: 'CV', hint: 'One bibliographic line each, the count in the margin.' },
+      { v: 'figure', label: 'Figure', hint: 'The result, drawn. Data first, title second.' },
     ],
   },
   {
@@ -93,9 +97,9 @@ const OPTIONS = [
   },
   {
     key: 'grid',
-    title: 'The blocks, before the blast',
+    title: 'Plaster, before the blast',
     choices: [
-      { v: 'hidden', label: 'Hidden', hint: 'Plaster. The field is the only way to see the seams.' },
+      { v: 'hidden', label: 'Hidden', hint: 'The field is the only way to see the seams.' },
       { v: 'faint', label: 'Hinted', hint: 'A faint rule where the wall will break.' },
     ],
   },

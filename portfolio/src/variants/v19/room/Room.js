@@ -13,7 +13,7 @@
 // picture in the site and becomes part of it.
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { createGrid, rasterize, W, H } from './engine';
+import { createGrid, rasterize, W, H, OY } from './engine';
 import { drawScene, HOTSPOTS, LIGHTS, SCREENS } from './scene';
 import { BOOKS, GAMES, MAGNETS, POSTERS, TROPHIES, FAMILY, MEDALS } from '../personal';
 import { ALL_PROJECTS, PAPERS, ROLES, ALFRED, ME, LINKS, MORE_LINKS } from '../copy';
@@ -64,6 +64,17 @@ function List({ items }) {
 function Slip({ hotspot, onClose }) {
   if (!hotspot) return null;
   const { key } = hotspot;
+  const sc = hotspot.screen;
+  let place = null;
+  if (sc) {
+    const w = Math.min(380, sc.stageW * 0.42);
+    const gap = 18;
+    const right = sc.left + sc.width + gap;
+    const fitsRight = right + w < sc.stageW - 12;
+    const left = fitsRight ? right : Math.max(12, sc.left - gap - w);
+    const top = Math.max(12, Math.min(sc.top + sc.height / 2 - 120, sc.stageH - 12 - 300));
+    place = { left, top, width: w, side: fitsRight ? 'right' : 'left', pointerY: Math.max(18, Math.min(sc.top + sc.height / 2 - top, 280)) };
+  }
   const body = () => {
     switch (key) {
       case 'monitorA':
@@ -158,7 +169,13 @@ function Slip({ hotspot, onClose }) {
   const content = body();
   if (!content) return null;
   return (
-    <aside className="v19-slip" data-keep-open="" role="dialog" aria-label={hotspot.label}>
+    <aside
+      className={`v19-slip${place ? ` is-${place.side}` : ''}`}
+      style={place ? { left: place.left, top: place.top, width: place.width, '--py': `${place.pointerY}px` } : undefined}
+      data-keep-open=""
+      role="dialog"
+      aria-label={hotspot.label}
+    >
       <span className="v19-slip-pin" aria-hidden="true" />
       <button type="button" className="v19-slip-x" onClick={onClose} aria-label="Close">×</button>
       <p className="v19-slip-eye">{content.eye}</p>
@@ -246,8 +263,8 @@ export default function Room({ sectionRef, onTop }) {
     const paintScreens = (now) => {
       const st = stateRef.current;
       if (!st.pc) return;
-      const a = SCREENS.monitorA;
-      const b = SCREENS.monitorB;
+      const a = { ...SCREENS.monitorA, y: SCREENS.monitorA.y + OY };
+      const b = { ...SCREENS.monitorB, y: SCREENS.monitorB.y + OY };
       const shots = shotsRef.current;
       if (shots.length) {
         const img = shots[Math.floor(now / SCREEN_MS) % shots.length];
@@ -370,9 +387,21 @@ export default function Room({ sectionRef, onTop }) {
     const offX = (r.width - drawnW) / 2;
     const offY = r.height - drawnH; // anchored to the bottom, so the floor is always there
     const x = (e.clientX - r.left - offX) / scale;
-    const y = (e.clientY - r.top - offY) / scale;
-    if (x < 0 || y < 0 || x >= W || y >= H) return null;
-    return HOTSPOTS.find((h) => x >= h.x && x < h.x + h.w && y >= h.y && y < h.y + h.h) || null;
+    const y = (e.clientY - r.top - offY) / scale - OY;
+    if (x < 0 || y < -OY || x >= W || y >= H - OY) return null;
+    const hit = HOTSPOTS.find((h) => x >= h.x && x < h.x + h.w && y >= h.y && y < h.y + h.h) || null;
+    if (hit) {
+      // where the object sits on screen, relative to the stage — the slip is placed beside it
+      hit.screen = {
+        left: offX + hit.x * scale,
+        top: offY + (hit.y + OY) * scale,
+        width: hit.w * scale,
+        height: hit.h * scale,
+        stageW: r.width,
+        stageH: r.height,
+      };
+    }
+    return hit;
   }, []);
 
   const onMove = useCallback(

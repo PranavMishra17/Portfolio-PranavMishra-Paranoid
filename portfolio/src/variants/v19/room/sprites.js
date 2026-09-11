@@ -65,20 +65,38 @@ const BODY = [
   '...jjjjjjjjjjjjjjj...',
 ];
 
-export const SIT = HEAD.concat(BODY);
+const BASE = HEAD.concat(BODY);
+
+// Nearest-neighbour upscale by 3/2: every second row and column is doubled, which keeps the
+// pixel art honest while making him 31 wide and 63 tall.
+function up(rows) {
+  const out = [];
+  rows.forEach((row, y) => {
+    const cells = [];
+    row.split('').forEach((ch, x) => {
+      cells.push(ch);
+      if (x % 2 === 1) cells.push(ch);
+    });
+    const line = cells.join('');
+    out.push(line);
+    if (y % 2 === 1) out.push(line);
+  });
+  return out;
+}
+
+export const SIT = up(BASE);
 
 // The near arm comes up and out. Two frames, so it moves.
 function wave(frame) {
-  const rows = SIT.map((r) => r.split(''));
-  const up = frame === 0 ? 0 : 2;
-  // sleeve rising from the right shoulder, hand at the top
+  const rows = BASE.map((r) => r.split(''));
+  const lift = frame === 0 ? 0 : 2;
   for (let i = 0; i < 9; i += 1) {
-    const y = 19 - i - up;
+    const y = 19 - i - lift;
     if (y < 2) continue;
     rows[y][19] = 'd';
     rows[y][20] = 'd';
   }
-  const hy = 10 - up;
+  const hy = 10 - lift;
   if (hy >= 0) {
     rows[hy][19] = 's';
     rows[hy][20] = 's';
@@ -87,15 +105,14 @@ function wave(frame) {
       rows[hy - 1][20] = 's';
     }
   }
-  // the arm no longer rests on the desk on that side
   for (let y = 19; y <= 21; y += 1) rows[y][20] = '.';
-  return rows.map((r) => r.join(''));
+  return up(rows.map((r) => r.join('')));
 }
 export const WAVE = [wave(0), wave(1)];
 
 // Asleep: the head has dropped forward and to one side, the shoulders have sagged.
 export const SLEEP = (() => {
-  const rows = SIT.map((r) => r.split(''));
+  const rows = BASE.map((r) => r.split(''));
   const out = rows.map((r) => r.slice());
   // head rows shift down four and right two
   for (let y = 0; y < 13; y += 1) for (let x = 0; x < 21; x += 1) out[y][x] = '.';
@@ -110,5 +127,5 @@ export const SLEEP = (() => {
   }
   // shoulders sag: the collar row goes
   for (let x = 0; x < 21; x += 1) if (out[13][x] === 'w') out[13][x] = 'd';
-  return out.map((r) => r.join(''));
+  return up(out.map((r) => r.join('')));
 })();

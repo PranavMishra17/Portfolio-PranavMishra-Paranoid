@@ -7,7 +7,7 @@
 // The wall is the page's own paper and there is no cornice, so the top of the room can be
 // masked straight into the page above it. Draw order carries the depth; he is drawn last.
 
-import { painter, W, H } from './engine';
+import { painter, W, H, OY } from './engine';
 import { BOOKS, GAMES, MAGNETS, POSTERS } from '../personal';
 import { SIT, WAVE, SLEEP, LEGEND } from './sprites';
 
@@ -20,11 +20,11 @@ export const SCREENS = {
   monitorB: { x: 140, y: 60, w: 46, h: 29 },
 };
 
-export const HIM = { x: 125, y: 56, w: 21, h: 42 };
+export const HIM = { x: 121, y: 35, w: 31, h: 63 };
 
 /* Hit-test order: first match wins, so small things in front come first. */
 export const HOTSPOTS = [
-  { id: 2, key: 'me', label: 'Me', kind: 'hand', x: 122, y: 54, w: 27, h: 44 },
+  { id: 2, key: 'me', label: 'Me', kind: 'hand', x: 119, y: 33, w: 36, h: 65 },
   { id: 1, key: 'lamp', label: 'The lamp', kind: 'hand', x: 60, y: 54, w: 24, h: 16 },
   { id: 3, key: 'photo', label: 'Family', kind: 'zoom', x: 72, y: 80, w: 20, h: 19 },
   { id: 4, key: 'mug', label: 'Tea', kind: 'hand', x: 92, y: 87, w: 12, h: 12 },
@@ -43,7 +43,7 @@ export const HOTSPOTS = [
   { id: 17, key: 'plant', label: 'A plant', kind: 'hand', x: 228, y: 86, w: 22, h: 46 },
   { id: 18, key: 'ball', label: 'Football and boots', kind: 'hand', x: 10, y: 134, w: 58, h: 24 },
   { id: 19, key: 'window', label: 'The window', kind: 'hand', x: 212, y: 12, w: 64, h: 56 },
-  { id: 20, key: 'lights', label: 'String lights', kind: 'hand', x: 6, y: 0, w: 276, h: 11 },
+  { id: 20, key: 'lights', label: 'String lights', kind: 'hand', x: 6, y: -34, w: 276, h: 13 },
 ];
 
 export const LIGHTS = {
@@ -62,9 +62,9 @@ export const LIGHTS = {
 function shell(g) {
   g.setId(0);
   // the wall: lighter toward the top, so the mask into the page has nothing to hide
-  for (let y = 0; y < FLOOR_Y; y += 1) {
-    const k = y / FLOOR_Y;
-    const c = k < 0.18 ? 'wallLit' : k < 0.4 ? ((y * 7) % 5 < 2 ? 'wallLit' : 'wall') : 'wall';
+  for (let y = -OY; y < FLOOR_Y; y += 1) {
+    const k = (y + OY) / (FLOOR_Y + OY);
+    const c = k < 0.3 ? 'wallLit' : k < 0.5 ? (((y + OY) * 7) % 5 < 2 ? 'wallLit' : 'wall') : 'wall';
     g.hline(0, y, W, c);
   }
   // light off the window, right; the shelf corner, left, a touch dimmer
@@ -103,7 +103,7 @@ function stringLights(g, on, t) {
   for (let x = 6; x < W - 4; x += 1) {
     const p = (x - 6) / (W - 10);
     const sag = Math.sin(((p * SPANS) % 1) * Math.PI) * 7;
-    const y = 3 + Math.round(sag);
+    const y = 3 - OY + Math.round(sag);
     g.px(x, y, 'cable');
     if ((x - 6) % 12 === 6) bulbs.push([x, y + 1]);
   }
@@ -398,17 +398,20 @@ function games(g) {
 
 function chair(g) {
   g.setId(0);
-  g.rect(118, 74, 36, 40, 'ink2');
-  g.rect(120, 76, 32, 36, 'grey3');
-  for (let y = 78; y < 111; y += 3) g.hline(121, y, 30, 'ink2');
-  g.rect(120, 76, 32, 3, 'ink2');
-  g.rect(114, 90, 4, 16, 'ink2');
-  g.rect(154, 90, 4, 16, 'ink2');
-  g.rect(116, 114, 40, 4, 'ink2');
-  g.rect(134, 118, 4, 8, 'metal3');
-  g.rect(124, 126, 24, 2, 'metal3');
-  g.px(123, 128, 'ink');
-  g.px(148, 128, 'ink');
+  // the back stops at his shoulders and a narrow headrest sits behind his head — so the chair
+  // reads as big without standing in front of the posters
+  g.rect(114, 52, 44, 62, 'ink2');
+  g.rect(116, 54, 40, 58, 'grey3');
+  for (let y = 58; y < 110; y += 4) g.hline(117, y, 38, 'ink2');
+  g.rect(126, 40, 20, 12, 'ink2');     // headrest, behind his head only
+  g.rect(128, 42, 16, 8, 'grey3');
+  g.rect(108, 86, 6, 22, 'ink2');      // arms
+  g.rect(158, 86, 6, 22, 'ink2');
+  g.rect(110, 114, 52, 5, 'ink2');     // seat edge
+  g.rect(133, 119, 6, 8, 'metal3');
+  g.rect(120, 126, 32, 3, 'metal3');
+  g.px(119, 129, 'ink');
+  g.px(152, 129, 'ink');
 }
 
 /* ── the right corner ──────────────────────────────────────────────── */
@@ -619,7 +622,7 @@ function person(g, mode, frame, t) {
 /* ── the whole thing ───────────────────────────────────────────────── */
 
 export function drawScene(grid, state) {
-  const g = painter(grid);
+  const g = painter(grid, OY);
   const t = state.t || 0;
   shell(g);
   stringLights(g, state.string, t);

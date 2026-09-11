@@ -262,6 +262,108 @@ export default function Projects({ sectionRef }) {
     );
   }
 
+  /* ── wall: a mosaic. Featured tiles are 2×2; click any tile and it grows where it stands. ── */
+  if (look === 'wall') {
+    const big = new Set(NOW_BUILDING.map((p) => p.id));
+    const shownList = all ? list : list.slice(0, Math.max(3, cols * 3 - 4));
+    return (
+      <section className="v19-slab v19-projects is-wall" ref={sectionRef} id="projects" aria-label="Projects">
+        <div className="v19-slab-in v19-projects-in" ref={wrapRef}>
+          {head}
+          <div className="v19-mosaic" style={{ '--cols': cols }} data-keep-open="">
+            {shownList.map((p) => {
+              const isOpen = open === p.id;
+              return (
+                <button
+                  type="button"
+                  key={p.id}
+                  className={`v19-mtile${big.has(p.id) ? ' is-big' : ''}${isOpen ? ' is-open' : ''}${peek === p.id ? ' is-live' : ''}`}
+                  onMouseEnter={() => onPeek(p.id)}
+                  onMouseLeave={onRest}
+                  onClick={() => onPick(p.id)}
+                  aria-label={p.name}
+                  data-keep-open=""
+                >
+                  <span className="v19-tile-shot" aria-hidden="true" style={{ backgroundImage: `url("${p.image}")` }} />
+                  <span className="v19-mtile-name">{p.name}</span>
+                  {isOpen ? (
+                    <span className="v19-mtile-open">
+                      <span className="v19-view-eye"><span>{p.category}</span></span>
+                      <b>{p.name}</b>
+                      <i>{p.line}</i>
+                      <Links p={p} />
+                    </span>
+                  ) : null}
+                  <span className="v19-tile-rule" aria-hidden="true" />
+                </button>
+              );
+            })}
+            {hidden > 0 && !all ? (
+              <button type="button" className="v19-mtile v19-mtile-more" onClick={() => setAll(true)} data-keep-open="">
+                <span className="v19-tile-more-l">Show all</span>
+              </button>
+            ) : null}
+          </div>
+          {fewer}
+        </div>
+      </section>
+    );
+  }
+
+  /* ── reel: two strips moving past each other. The cursor stops the one it is on. ── */
+  if (look === 'reel') {
+    const half = Math.ceil(list.length / 2);
+    const rows = [list.slice(0, half), list.slice(half)];
+    return (
+      <section className="v19-slab v19-projects is-reel" ref={sectionRef} id="projects" aria-label="Projects">
+        <div className="v19-slab-in v19-projects-in" ref={wrapRef}>
+          {head}
+          <div className={`v19-reel${open ? ' is-held' : ''}`} data-keep-open="">
+            {rows.map((row, ri) => (
+              <div className={`v19-strip${ri ? ' is-back' : ''}`} key={ri}>
+                <div className="v19-strip-in">
+                  {row.concat(row).map((p, i) => (
+                    <button
+                      type="button"
+                      key={`${p.id}-${i}`}
+                      className={`v19-frame-tile${open === p.id ? ' is-picked' : ''}`}
+                      onMouseEnter={() => onPeek(p.id)}
+                      onMouseLeave={onRest}
+                      onClick={() => onPick(p.id)}
+                      aria-label={p.name}
+                      tabIndex={i >= row.length ? -1 : 0}
+                      data-keep-open=""
+                    >
+                      <span className="v19-tile-shot" aria-hidden="true" style={{ backgroundImage: `url("${p.image}")` }} />
+                      <span className="v19-frame-no" aria-hidden="true" />
+                      <span className="v19-mtile-name">{p.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className={`v19-band${open ? ' is-open' : ''}`} data-keep-open="">
+            {open ? (
+              <>
+                <div className="v19-band-frame"><img src={shown.image} alt="" className={shown.square ? 'is-square' : ''} /></div>
+                <div className="v19-band-words">
+                  <p className="v19-view-eye">
+                    <span>{shown.category}</span>
+                    <button type="button" className="v19-view-close" onClick={close} data-keep-open="">Close</button>
+                  </p>
+                  <h3 className="v19-view-name">{shown.name}</h3>
+                  <p className="v19-view-line">{shown.line}</p>
+                  <Links p={shown} />
+                </div>
+              </>
+            ) : null}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   if (look === 'spec') {
     return (
       <section className="v19-slab v19-projects is-spec" ref={sectionRef} id="projects" aria-label="Projects">

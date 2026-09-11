@@ -1,38 +1,17 @@
-// v19 — the wall.
+// v19 — the wall. One class, five materials (see surfaces.js).
 //
-// One layer, and only one. It is plaster with a warm spotlight thrown across it from above and,
-// if you want it, the faintest rule where the big blocks meet — the graph-paper hint, at block
-// scale rather than graph scale. Nothing about it says "tiles" until it fails.
+// The face is painted ONCE into an offscreen canvas by the surface. Every block then blits
+// its own region of that canvas, so a block carries exactly the paper it was cut from. The
+// surface also owns what the cursor does and how each block is kicked, so switching surface
+// switches the whole feel — the look at rest, the look under the hand, and the failure.
 //
-// The face is painted ONCE into an offscreen canvas. Every block then blits its own region of
-// that canvas, so a block carries exactly the plaster, the light and the rule it had while it
-// was part of the wall. That is the whole reason this looks like a wall coming apart rather
-// than a grid of coloured rectangles falling over.
-//
-// Three ways for it to fail, chosen in the Lab:
-//   shatter  — matter-js. Real collisions; blocks knock each other aside.
-//   collapse — a ring of failure travels outward, gravity takes each block as it is reached.
-//   burst    — the face comes at you: blocks accelerate toward the viewer and past the frame.
+// Everything leaves up and to the left, toward the corner the way-back control lives in.
 
-import Matter from 'matter-js';
+import { SURFACES } from './surfaces';
 
-const { Engine, Bodies, Body, Composite } = Matter;
-
-// Off-white, and only off-white. No spotlight, no warm corner, no cool corner — he asked for
-// the wall to stop being an atmosphere and start being a wall.
-const SURFACE = {
-  high: '#f4f3f0',
-  mid: '#eeedea',
-  low: '#e8e7e3',
-  rule: 'rgba(30, 30, 28, 0.07)',
-  ruleLive: 'rgba(30, 30, 28, 0.30)',
-  edgeLight: 'rgba(255, 255, 253, 0.75)',
-  edgeDark: 'rgba(40, 40, 38, 0.18)',
-  side: 'rgba(52, 52, 50, 0.11)',
-};
-
-// Blocks leave up and to the left, toward the corner the "put it back" control lives in.
-const GRAVITY = { x: -640, y: -1180 };
+const EDGE_LIGHT = 'rgba(255, 255, 253, 0.75)';
+const EDGE_DARK = 'rgba(40, 40, 38, 0.18)';
+const SIDE = 'rgba(52, 52, 50, 0.11)';
 
 function rnd(seed) {
   let s = (seed >>> 0) || 1;
@@ -45,37 +24,25 @@ function rnd(seed) {
 const easeOutCubic = (t) => 1 - (1 - t) ** 3;
 const easeOutBack = (t) => 1 + 2.2 * (t - 1) ** 3 + 1.4 * (t - 1) ** 2;
 
-export function blockGrid(W, H, size) {
-  // Whole blocks only, sized so the wall divides evenly — a half block at the edge reads as a
-  // mistake the moment the wall breaks.
-  const cols = Math.max(3, Math.round(W / size));
-  const rows = Math.max(3, Math.round(H / size));
-  const bw = W / cols;
-  const bh = H / rows;
-  const out = [];
-  for (let r = 0; r < rows; r += 1) {
-    for (let c = 0; c < cols; c += 1) {
-      out.push({ x: c * bw, y: r * bh, w: bw, h: bh, r, c });
-    }
-  }
-  return { rects: out, bw, bh, cols, rows };
-}
-
 export default class Wall {
-  constructor({ W, H, dpr, mode = 'shatter', grid = 'faint' }) {
-    this.mode = mode;
-    this.grid = grid;
+  constructor({ W, H, dpr, surface = 'plaster', grid = 'hidden' }) {
     this.dpr = dpr;
+    this.hint = grid === 'faint';
     this.state = 'intact'; // intact | failing | gone | returning
     this.face = document.createElement('canvas');
+    this.setSurface(surface);
     this.layout(W, H);
+  }
+
+  setSurface(key) {
+    this.surface = SURFACES[key] || SURFACES.plaster;
+    if (this.W) this.layout(this.W, this.H);
   }
 
   layout(W, H) {
     this.W = W;
     this.H = H;
-    const size = Math.max(118, Math.min(230, Math.round(Math.min(W, H) / 5.2)));
-    const g = blockGrid(W, H, size);
+    const g = this.surface.grid(W, H);
     this.rects = g.rects;
     this.bw = g.bw;
     this.bh = g.bh;
@@ -87,7 +54,6 @@ export default class Wall {
     const wasIntact = this.state === 'intact';
     this.layout(W, H);
     if (!wasIntact) {
-      // mid-collapse resizes cannot be reconciled honestly; land the final state instead
       this.state = 'gone';
       this.alpha = 0;
     }
@@ -101,19 +67,14 @@ export default class Wall {
       cy: rc.y + rc.h / 2,
       x: rc.x + rc.w / 2,
       y: rc.y + rc.h / 2,
-      vx: 0,
-      vy: 0,
-      rot: 0,
-      va: 0,
-      scale: 1,
-      alpha: 1,
+      vx: 0, vy: 0, rot: 0, va: 0, z: 0,
+      scale: 1, alpha: 1, flip: 0, lift: 0,
       seed: r(),
       at: 0,
       live: false,
     }));
     this.alpha = 1;
-    this.engine = null;
-    this.bodies = null;
+    this.iris = 0;
     this.t0 = 0;
     this.cleared = false;
   }
@@ -123,8 +84,6 @@ export default class Wall {
     this.resetBlocks();
   }
 
-  /* ── the surface, painted once ────────────────────────────────────── */
-
   paintFace() {
     const { W, H, dpr, face } = this;
     face.width = Math.max(1, Math.round(W * dpr));
@@ -132,113 +91,13 @@ export default class Wall {
     const ctx = face.getContext('2d');
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, W, H);
-
-    // one very slow wash, top to bottom, entirely neutral
-    const wash = ctx.createLinearGradient(0, 0, 0, H);
-    wash.addColorStop(0, SURFACE.high);
-    wash.addColorStop(0.6, SURFACE.mid);
-    wash.addColorStop(1, SURFACE.low);
-    ctx.fillStyle = wash;
-    ctx.fillRect(0, 0, W, H);
-
-    // the block rule, if it is wanted: one hairline where the wall will fail, nothing more
-    if (this.grid === 'faint') {
-      ctx.strokeStyle = SURFACE.rule;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      for (let x = this.bw; x < W - 0.5; x += this.bw) {
-        ctx.moveTo(Math.round(x) + 0.5, 0);
-        ctx.lineTo(Math.round(x) + 0.5, H);
-      }
-      for (let y = this.bh; y < H - 0.5; y += this.bh) {
-        ctx.moveTo(0, Math.round(y) + 0.5);
-        ctx.lineTo(W, Math.round(y) + 0.5);
-      }
-      ctx.stroke();
-    }
-
-    // fine tooth, in grey only, so it is a surface rather than a gradient
-    const grain = rnd(90210);
-    ctx.globalAlpha = 0.04;
-    for (let i = 0; i < Math.round((W * H) / 1100); i += 1) {
-      const gx = grain() * W;
-      const gy = grain() * H;
-      ctx.fillStyle = grain() < 0.5 ? '#ffffff' : '#3c3c3a';
-      ctx.fillRect(gx, gy, 1.4, 1.4);
-    }
-    ctx.globalAlpha = 1;
+    this.surface.paint(ctx, W, H, { rects: this.rects, bw: this.bw, bh: this.bh, W, H }, this.hint);
   }
 
-  /**
-   * The field under the cursor. Four different answers to "what does the wall do when you
-   * point at it", chosen in the Lab. All of them draw live over the face and touch only the
-   * blocks inside a radius, so moving the pointer costs a handful of strokes.
-   *
-   *   tighten — the blocks near the pointer draw themselves in; the wall visibly clenches
-   *   torch   — the seams exist only inside the light; the grid is revealed, not changed
-   *   lift    — the nearest blocks come loose: a shadow, a hairline of offset, nothing more
-   *   ripple  — moving sends a ring out through the seams, and it brightens what it crosses
-   */
-  drawField(ctx, px, py, heat, field = 'tighten', rings = []) {
+  drawField(ctx, px, py, heat, t, trail) {
     if (this.state !== 'intact') return;
     ctx.save();
-    ctx.lineWidth = 1;
-
-    if (field === 'ripple') {
-      for (const r of rings) {
-        const age = r.age; // 0..1
-        const radius = 40 + age * 620;
-        const band = 34;
-        const fade = (1 - age) ** 1.4;
-        for (const rc of this.rects) {
-          const cx = rc.x + rc.w / 2;
-          const cy = rc.y + rc.h / 2;
-          const d = Math.abs(Math.hypot(cx - r.x, cy - r.y) - radius);
-          if (d > band) continue;
-          const k = (1 - d / band) * fade;
-          ctx.strokeStyle = `rgba(30,30,28,${(k * 0.34).toFixed(3)})`;
-          ctx.strokeRect(Math.round(rc.x) + 0.5, Math.round(rc.y) + 0.5, Math.round(rc.w) - 1, Math.round(rc.h) - 1);
-        }
-      }
-      ctx.restore();
-      return;
-    }
-
-    if (px == null) {
-      ctx.restore();
-      return;
-    }
-    const reach = Math.min(this.W, this.H) * (0.26 + heat * 0.22);
-
-    for (const rc of this.rects) {
-      const cx = rc.x + rc.w / 2;
-      const cy = rc.y + rc.h / 2;
-      const d = Math.hypot(cx - px, cy - py);
-      if (d > reach) continue;
-      const k = (1 - d / reach) ** 1.7;
-
-      if (field === 'torch') {
-        ctx.strokeStyle = `rgba(30,30,28,${(k * 0.30 + heat * 0.12 * k).toFixed(3)})`;
-        ctx.strokeRect(Math.round(rc.x) + 0.5, Math.round(rc.y) + 0.5, Math.round(rc.w) - 1, Math.round(rc.h) - 1);
-      } else if (field === 'lift') {
-        // a shadow under the block's lower-right edge, and the block itself nudged a hair
-        const off = 1 + k * (2 + heat * 3);
-        ctx.fillStyle = `rgba(30,30,28,${(k * 0.16).toFixed(3)})`;
-        ctx.fillRect(rc.x + off, rc.y + rc.h - 1, rc.w, off + 1);
-        ctx.fillRect(rc.x + rc.w - 1, rc.y + off, off + 1, rc.h);
-        ctx.strokeStyle = `rgba(30,30,28,${(k * 0.22).toFixed(3)})`;
-        ctx.strokeRect(Math.round(rc.x - off * 0.4) + 0.5, Math.round(rc.y - off * 0.4) + 0.5, Math.round(rc.w) - 1, Math.round(rc.h) - 1);
-      } else {
-        const inset = k * (3 + heat * 7);
-        ctx.strokeStyle = `rgba(30,30,28,${(0.05 + k * 0.26 + heat * 0.14 * k).toFixed(3)})`;
-        ctx.strokeRect(
-          Math.round(rc.x + inset) + 0.5,
-          Math.round(rc.y + inset) + 0.5,
-          Math.round(rc.w - inset * 2) - 1,
-          Math.round(rc.h - inset * 2) - 1
-        );
-      }
-    }
+    this.surface.field(ctx, { rects: this.rects, bw: this.bw, bh: this.bh, W: this.W, H: this.H }, px, py, heat, t, trail || []);
     ctx.restore();
   }
 
@@ -249,83 +108,31 @@ export default class Wall {
     this.state = 'failing';
     this.t0 = now;
     this.blast = { x, y };
-    const r = rnd(Math.round(x * 13 + y * 7) + 3);
+    if (this.surface.wipe) return true;
     const near = Math.max(this.bw, this.bh) * 1.35;
-
-    if (this.mode === 'shatter') {
-      this.engine = Engine.create({ enableSleeping: false });
-      // reversed: everything is pulled up and to the left, out past the corner
-      this.engine.gravity.x = -0.62;
-      this.engine.gravity.y = -1.15;
-      // NOTE: created dynamic, then frozen. Building them with isStatic:true in the options
-      // gives infinite mass, and releasing one then produces NaN positions.
-      this.bodies = this.blocks.map((b) => {
-        const body = Bodies.rectangle(b.cx, b.cy, b.rc.w, b.rc.h, {
-          friction: 0.38,
-          frictionAir: 0.008,
-          restitution: 0.12,
-        });
-        Body.setStatic(body, true);
-        body.plugin = { block: b };
-        return body;
-      });
-      Composite.add(this.engine.world, this.bodies);
-    }
-
-    this.blocks.forEach((b, i) => {
+    this.blocks.forEach((b) => {
       const dx = b.cx - x;
       const dy = b.cy - y;
       const d = Math.hypot(dx, dy) || 1;
-      const ux = dx / d;
-      const uy = dy / d;
+      b.ux = dx / d;
+      b.uy = dy / d;
       const close = Math.max(0, 1 - d / near);
-      const reach = Math.max(0, 1 - d / Math.hypot(this.W, this.H));
-      b.close = close;
-      b.ux = ux;
-      b.uy = uy;
-
-      if (this.mode === 'burst') {
-        // toward the viewer, and carried off to the top left. Delay is almost nothing near
-        // the blast and grows with distance — but the whole thing is over inside a second.
-        b.at = now + (close > 0 ? b.seed * 26 : (d - near) * 0.34 + b.seed * 34);
-        b.vz = 3.2 + close * 6.4 + b.seed * 1.1;
-        b.vx = ux * (60 + close * 290 + b.seed * 60) - 130;
-        b.vy = uy * (60 + close * 290 + b.seed * 60) - 190;
-        b.va = (b.seed - 0.5) * (1.1 + close * 3);
-      } else if (this.mode === 'collapse') {
-        // a ring of failure travelling outward, everything drawn up and to the left
-        b.at = now + (d / 2.6) + b.seed * 26;
-        b.vx = ux * (90 + close * 700 + b.seed * 90) - 210;
-        b.vy = uy * (90 + close * 620) - (260 + close * 620 + b.seed * 110);
-        b.va = (b.seed - 0.5) * (2 + close * 5.5);
-      } else {
-        const body = this.bodies[i];
-        b.body = body;
-        b.at = now + (close > 0 ? b.seed * 34 : (d - near) * 0.5 + b.seed * 34);
-        b.kick = {
-          x: ux * (close > 0 ? 17 + close * 19 + r() * 5 : 1.6 + reach * 4.2) - 5,
-          y: uy * (close > 0 ? 16 + close * 17 : 1.4 + reach * 3.4) - (close * 12 + reach * r() * 3 + 6),
-          a: (r() - 0.5) * (0.22 + close * 0.7),
-        };
-      }
+      const k = this.surface.kick(b, close, d, near, b.seed);
+      b.at = now + k.at;
+      b.vx = k.vx;
+      b.vy = k.vy;
+      b.vz = k.vz || 0;
+      b.va = k.va || 0;
+      b.flipRate = k.flip || 0;
+      b.shrinkRate = k.shrink || 0;
+      b.riseRate = k.rise || 0;
+      b.fadeBy = k.fade || 0;
     });
     return true;
   }
 
-  /** Put it back. Whatever a block's transform is right now, it flies home from there. */
   rebuild(now) {
     if (this.state === 'intact' || this.state === 'returning') return;
-    if (this.mode === 'shatter' && this.bodies) {
-      this.blocks.forEach((b) => {
-        if (b.body) {
-          b.x = b.body.position.x;
-          b.y = b.body.position.y;
-          b.rot = b.body.angle;
-        }
-      });
-      this.engine = null;
-      this.bodies = null;
-    }
     const far = Math.hypot(this.W, this.H);
     this.state = 'returning';
     this.t0 = now;
@@ -337,9 +144,7 @@ export default class Wall {
         y: off ? -this.bh * 2 : b.y,
         rot: Number.isFinite(b.rot) ? b.rot : 0,
         scale: Number.isFinite(b.scale) ? Math.max(0.05, b.scale) : 1,
-        alpha: 1,
       };
-      // furthest from the blast left first, so it comes back the way it went
       const d = this.blast ? Math.hypot(b.cx - this.blast.x, b.cy - this.blast.y) : 0;
       b.back = 150 + (1 - d / far) * 210 + b.seed * 60;
       b.live = true;
@@ -352,6 +157,12 @@ export default class Wall {
     const s = Math.min(0.034, dt / 1000);
 
     if (this.state === 'returning') {
+      if (this.surface.wipe) {
+        const p = Math.min(1, t / 520);
+        this.iris = 1 - easeOutCubic(p);
+        if (p >= 1) { this.state = 'intact'; this.resetBlocks(); }
+        return;
+      }
       let done = true;
       for (const b of this.blocks) {
         const p = Math.min(1, Math.max(0, (t - b.back * 0.28) / 460));
@@ -361,83 +172,57 @@ export default class Wall {
         b.y = b.from.y + (b.cy - b.from.y) * e;
         b.rot = b.from.rot * (1 - easeOutCubic(p));
         b.scale = b.from.scale + (1 - b.from.scale) * easeOutCubic(p);
+        b.flip = 0;
+        b.lift = 0;
         b.alpha = Math.min(1, 0.25 + p * 1.4);
       }
-      if (done || t > 1700) {
-        this.state = 'intact';
-        this.resetBlocks();
-      }
+      if (done || t > 1700) { this.state = 'intact'; this.resetBlocks(); }
       return;
     }
 
-    if (this.mode === 'shatter') {
-      for (const b of this.blocks) {
-        if (!b.live && now >= b.at && b.body) {
-          b.live = true;
-          Body.setStatic(b.body, false);
-          Body.setVelocity(b.body, b.kick);
-          Body.setAngularVelocity(b.body, b.kick.a);
-        }
-      }
-      Engine.update(this.engine, 1000 / 60);
-      let visible = false;
-      for (const b of this.blocks) {
-        if (!b.body) continue;
-        b.x = b.body.position.x;
-        b.y = b.body.position.y;
-        b.rot = b.body.angle;
-        if (b.y > -this.bh * 2.2 && b.x > -this.bw * 2.2) visible = true;
-      }
-      if ((!visible && t > 320) || t > 2400) {
-        this.state = 'gone';
-        this.alpha = 0;
-      }
+    if (this.surface.wipe) {
+      // an iris opening from the blast, ragged at the edge, over 700 ms
+      const p = Math.min(1, t / 700);
+      this.iris = easeOutCubic(p);
+      if (p >= 1) { this.state = 'gone'; this.alpha = 0; }
       return;
     }
 
+    const G = this.surface.gravity;
     let visible = false;
     for (const b of this.blocks) {
       if (!b.live) {
-        if (now < b.at) {
-          visible = true;
-          continue;
-        }
+        if (now < b.at) { visible = true; continue; }
         b.live = true;
       }
-      if (this.mode === 'burst') {
-        b.z = (b.z || 0) + b.vz * s * 60;
-        b.scale = 1 + b.z * 0.062;
-        b.vx += GRAVITY.x * s;
-        b.vy += GRAVITY.y * s;
-        b.x += b.vx * s;
-        b.y += b.vy * s;
-        b.rot += b.va * s;
-        b.alpha = Math.max(0, 1 - b.z / 11);
-        if (b.alpha > 0.01 && b.scale < 22) visible = true;
-      } else {
-        b.vx += GRAVITY.x * 1.9 * s;
-        b.vy += GRAVITY.y * 1.9 * s;
-        b.x += b.vx * s;
-        b.y += b.vy * s;
-        b.rot += b.va * s;
-        if (b.y > -this.bh * 2.4 && b.x > -this.bw * 2.4) visible = true;
+      if (b.riseRate && b.lift < 26) {
+        // iso: the tile comes up off the floor before it goes anywhere
+        b.lift += 160 * s;
+        visible = true;
+        continue;
       }
+      b.z += b.vz * s * 60;
+      b.vx += G.x * s;
+      b.vy += G.y * s;
+      b.x += b.vx * s;
+      b.y += b.vy * s;
+      b.rot += b.va * s;
+      if (b.flipRate) b.flip += b.flipRate * s;
+      if (b.shrinkRate) b.scale = Math.max(0, b.scale - b.shrinkRate * s);
+      else if (b.vz) b.scale = 1 + b.z * 0.062;
+      if (b.fadeBy) b.alpha = Math.max(0, 1 - b.z / b.fadeBy);
+      const on = b.alpha > 0.01 && b.scale > 0.02 && b.scale < 22 && b.y > -this.bh * 2.4 && b.x > -this.bw * 2.4;
+      if (on) visible = true;
     }
-    if ((!visible && t > 200) || t > 2400) {
-      this.state = 'gone';
-      this.alpha = 0;
-    }
+    if ((!visible && t > 200) || t > 2400) { this.state = 'gone'; this.alpha = 0; }
   }
 
   /* ── drawing ──────────────────────────────────────────────────────── */
 
   draw(ctx) {
-    const { W, H } = this;
+    const { W, H, dpr } = this;
     if (this.state === 'gone') {
-      if (!this.cleared) {
-        ctx.clearRect(0, 0, W, H);
-        this.cleared = true;
-      }
+      if (!this.cleared) { ctx.clearRect(0, 0, W, H); this.cleared = true; }
       return;
     }
     this.cleared = false;
@@ -448,32 +233,60 @@ export default class Wall {
       return;
     }
 
-    const { dpr } = this;
+    if (this.surface.wipe) {
+      // the face, with a ragged hole cut out of it
+      ctx.drawImage(this.face, 0, 0, W, H);
+      const R = this.iris * Math.hypot(W, H) * 1.05;
+      if (R > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.beginPath();
+        const n = 64;
+        const r = rnd(99);
+        for (let i = 0; i <= n; i += 1) {
+          const a = (i / n) * Math.PI * 2;
+          const rag = 1 + (r() - 0.5) * 0.16 + Math.sin(a * 7) * 0.05 + Math.sin(a * 13) * 0.03;
+          const px = this.blast.x + Math.cos(a) * R * rag;
+          const py = this.blast.y + Math.sin(a) * R * rag;
+          if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+      return;
+    }
+
     for (const b of this.blocks) {
-      if (b.alpha <= 0.01) continue;
+      if (b.alpha <= 0.01 || b.scale <= 0.02) continue;
       const rc = b.rc;
       if ((b.y < -this.bh * 2.4 || b.x < -this.bw * 2.4) && this.state !== 'returning') continue;
+
+      if (this.surface.rhombus) {
+        // iso tiles draw themselves, lifted and moved
+        ctx.save();
+        ctx.translate(b.x - b.cx, b.y - b.cy);
+        this.surface.drawTile(ctx, rc, b.lift, b.alpha, this.face, dpr);
+        ctx.restore();
+        continue;
+      }
+
       ctx.save();
       ctx.globalAlpha = b.alpha;
       ctx.translate(b.x, b.y);
       ctx.rotate(b.rot);
-      ctx.scale(b.scale, b.scale);
-      ctx.drawImage(
-        this.face,
-        rc.x * dpr, rc.y * dpr, rc.w * dpr, rc.h * dpr,
-        -rc.w / 2, -rc.h / 2, rc.w, rc.h
-      );
-      // the block only gets edges once it is a block: a lit top-left, a shaded bottom-right,
-      // and a sliver of the depth it turns out to have had
+      const fx = b.flipRate ? Math.cos(b.flip) : 1; // a leaf turning over
+      ctx.scale(b.scale * fx, b.scale);
+      ctx.drawImage(this.face, rc.x * dpr, rc.y * dpr, rc.w * dpr, rc.h * dpr, -rc.w / 2, -rc.h / 2, rc.w, rc.h);
       const hw = rc.w / 2;
       const hh = rc.h / 2;
-      ctx.fillStyle = SURFACE.edgeLight;
+      ctx.fillStyle = EDGE_LIGHT;
       ctx.fillRect(-hw, -hh, rc.w, 1.25);
       ctx.fillRect(-hw, -hh, 1.25, rc.h);
-      ctx.fillStyle = SURFACE.edgeDark;
+      ctx.fillStyle = EDGE_DARK;
       ctx.fillRect(-hw, hh - 1.6, rc.w, 1.6);
       ctx.fillRect(hw - 1.6, -hh, 1.6, rc.h);
-      ctx.fillStyle = SURFACE.side;
+      ctx.fillStyle = SIDE;
       ctx.fillRect(hw - 4.5, -hh + 2, 4.5, rc.h - 2);
       ctx.restore();
     }

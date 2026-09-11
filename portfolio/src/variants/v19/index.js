@@ -182,9 +182,8 @@ function Page() {
       <div className={`v19-face${blown ? ' is-blown' : ''}`} ref={landRef} aria-hidden={blown ? 'true' : undefined}>
         <Detonator
           ref={detRef}
-          mode={lab.blast}
+          surface={lab.surface}
           grid={lab.grid}
-          field={lab.field}
           armed={!blown}
           reduced={reduced}
           onBlast={onBlast}

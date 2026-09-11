@@ -9,7 +9,10 @@
 // back toward day locally, so turning the lamp on genuinely lights the corner it stands in.
 
 export const W = 288;
-export const H = 162;
+export const H = 198;
+// the scene is authored 288×162; the extra 36 rows at the top are wall that the viewport crop
+// is allowed to lose, so no poster ever gets cut
+export const OY = 36;
 
 // name: [day, night]. Anything self-lit keeps its colour after dark.
 export const PALETTE = {
@@ -120,7 +123,7 @@ export function createGrid() {
 }
 
 /** Drawing helpers bound to a grid. Everything drawn while an id is set is tagged with it. */
-export function painter(grid) {
+export function painter(grid, oy = 0) {
   let id = 0;
   const g = {
     setId(v) {
@@ -128,7 +131,7 @@ export function painter(grid) {
     },
     px(x, y, c) {
       x |= 0;
-      y |= 0;
+      y = (y | 0) + oy;
       if (x < 0 || y < 0 || x >= W || y >= H) return;
       const i = y * W + x;
       if (c === 0 || c === null || c === undefined) {
