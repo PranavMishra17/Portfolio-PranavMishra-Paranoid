@@ -43,7 +43,7 @@ export const BOOKS = [
     cover: bookCover('hitchhikers'),
     title: 'The Hitchhiker’s Guide to the Galaxy',
     author: 'Douglas Adams',
-    note: '“You’ve never actually known what the question is.”',
+    note: 'What is the right question to ask? That line has stuck with me for years. In the book the answer comes before anyone knows the question, and the point is that we do not yet know what the right question is. It still helps me work out what I actually want when I am confused.',
     status: 'Favourite',
     spine: '#3f7d4f',
     sample: false,

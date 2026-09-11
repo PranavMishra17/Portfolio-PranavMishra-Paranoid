@@ -13,7 +13,6 @@ import Work from './sections/Work';
 import Projects from './sections/Projects';
 import Papers from './sections/Papers';
 import Room from './room/Room';
-import Lab, { LabProvider } from './lab';
 import { useSky, useClock } from './hooks';
 import { ME, LINKS } from './copy';
 import './v19.css';
@@ -243,15 +242,10 @@ function Page() {
         </div>
       ) : null}
 
-      <Lab />
     </div>
   );
 }
 
 export default function V19() {
-  return (
-    <LabProvider>
-      <Page />
-    </LabProvider>
-  );
+  return <Page />;
 }

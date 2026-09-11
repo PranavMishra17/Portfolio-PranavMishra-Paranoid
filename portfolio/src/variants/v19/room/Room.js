@@ -19,6 +19,10 @@ import { drawScene, HOTSPOTS, LIGHTS, SCREENS } from './scene';
 import { BOOKS, GAMES, POSTERS, TROPHIES, MEDALS } from '../personal';
 import { ALL_PROJECTS, PAPERS, ROLES, ALFRED, LINKS, MORE_LINKS } from '../copy';
 
+// which project each trophy came out of
+const FROM = { mit: 'snaider-cut', hint: 'virtual-van-gogh' };
+const isYouTube = (u) => /youtu\.?be/i.test(u || '');
+
 const FRAME_MS = 42;
 const SCREEN_MS = 4600;
 const WAVE_MS = 1700;
@@ -60,18 +64,20 @@ function Slip({ hotspot, onClose, onJump }) {
   if (!hotspot) return null;
   const { key } = hotspot;
   const sc = hotspot.screen;
+  const content = body(key);
+  if (!content) return null;
   let place = null;
   if (sc) {
-    const w = Math.min(380, sc.stageW * 0.42);
+    const w = Math.min(content && content.wide ? 560 : 380, sc.stageW * (content && content.wide ? 0.6 : 0.42));
     const gap = 18;
     const right = sc.left + sc.width + gap;
     const fitsRight = right + w < sc.stageW - 12;
     const left = fitsRight ? right : Math.max(12, sc.left - gap - w);
-    const top = Math.max(12, Math.min(sc.top + sc.height / 2 - 120, sc.stageH - 12 - 300));
+    const top = Math.max(12, Math.min(sc.top + sc.height / 2 - 120, sc.stageH - 12 - (content && content.wide ? 560 : 300)));
     place = { left, top, width: w, side: fitsRight ? 'right' : 'left', pointerY: Math.max(18, Math.min(sc.top + sc.height / 2 - top, 280)) };
   }
-  const body = () => {
-    switch (key) {
+  function body(k) {
+    switch (k) {
       case 'monitorA':
         return {
           eye: 'On this screen',
@@ -111,7 +117,34 @@ function Slip({ hotspot, onClose, onJump }) {
           ),
         };
       case 'trophies':
-        return { eye: 'On the shelf', title: 'Won', node: <List items={TROPHIES.map((t) => ({ k: t.name, v: t.what }))} /> };
+        return {
+          eye: 'On the shelf',
+          title: 'Won',
+          wide: true,
+          node: (
+            <div className="v19-slip-cards">
+              {TROPHIES.map((t) => {
+                const project = ALL_PROJECTS.find((p) => p.id === FROM[t.id]);
+                return (
+                  <div className="v19-slip-card" key={t.id}>
+                    <img src={t.image} alt="" />
+                    <div>
+                      <b>{t.name}</b>
+                      <p>{t.what}</p>
+                      {project ? (
+                        <p className="v19-slip-links">
+                          {project.github ? <a href={project.github} target="_blank" rel="noreferrer">GitHub</a> : null}
+                          {project.site ? <a href={project.site} target="_blank" rel="noreferrer">Website</a> : null}
+                          {project.demo ? <a href={project.demo} target="_blank" rel="noreferrer">{isYouTube(project.demo) ? 'YouTube' : 'Demo'}</a> : null}
+                        </p>
+                      ) : null}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ),
+        };
       case 'medals':
         return {
           eye: 'Hanging off the end',
@@ -123,7 +156,25 @@ function Slip({ hotspot, onClose, onJump }) {
           ),
         };
       case 'books':
-        return { eye: 'One shelf', title: 'Books', node: <List items={BOOKS.map((b) => ({ k: b.title, v: b.note, extra: `${b.author} · ${b.status}` }))} /> };
+        return {
+          eye: 'One shelf',
+          title: 'Books',
+          wide: true,
+          node: (
+            <div className="v19-slip-cards is-books">
+              {BOOKS.map((b) => (
+                <div className="v19-slip-card" key={b.id}>
+                  {b.cover ? <img src={b.cover} alt="" onError={(e) => { e.currentTarget.style.display = 'none'; }} /> : null}
+                  <div>
+                    <b>{b.title}</b>
+                    <i>{b.author} · {b.status}</i>
+                    <p>{b.note}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ),
+        };
       case 'games':
         return { eye: 'Video games', title: 'My favourites', node: <List items={GAMES.map((b) => ({ k: b.title, v: b.note }))} /> };
       case 'poster1':
@@ -145,12 +196,10 @@ function Slip({ hotspot, onClose, onJump }) {
       default:
         return null;
     }
-  };
-  const content = body();
-  if (!content) return null;
+  }
   return (
     <aside
-      className={`v19-slip${place ? ` is-${place.side}` : ''}`}
+      className={`v19-slip${place ? ` is-${place.side}` : ''}${content.wide ? ' is-wide' : ''}`}
       style={place ? { left: place.left, top: place.top, width: place.width, '--py': `${place.pointerY}px` } : undefined}
       data-keep-open=""
       role="dialog"
@@ -477,7 +526,7 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
         setHover(id);
         setKind(h ? h.kind : '');
         stateRef.current.sparkle = h ? h.key === 'trophies' || h.key === 'medals' : false;
-        const art = h && (h.key.startsWith('poster') || h.key === 'books' || h.key === 'trophies') ? { key: h.key, ...h.screen } : null;
+        const art = h && h.key.startsWith('poster') ? { key: h.key, ...h.screen } : null;
         hoverScreenRef.current = art;
         setHoverScreen(art);
       }
@@ -600,26 +649,6 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
             style={{ left: hoverScreen.left, top: hoverScreen.top, width: hoverScreen.width, height: hoverScreen.height }}
             onError={(e) => { e.currentTarget.style.display = 'none'; }}
           />
-        ) : null}
-        {hoverScreen && hoverScreen.key === 'trophies' ? (
-          <div className="v19-room-shelf" style={{ left: Math.max(8, hoverScreen.left - 40), top: hoverScreen.top - 8 }}>
-            {TROPHIES.map((t) => (
-              <figure className="v19-room-book is-wide" key={t.id}>
-                <img src={t.image} alt="" />
-                <figcaption><b>{t.name}</b><i>{t.what}</i></figcaption>
-              </figure>
-            ))}
-          </div>
-        ) : null}
-        {hoverScreen && hoverScreen.key === 'books' ? (
-          <div className="v19-room-shelf" style={{ left: hoverScreen.left, top: hoverScreen.top - 8 }}>
-            {BOOKS.map((b) => (
-              <figure className="v19-room-book" key={b.id} style={{ '--spine': b.spine }}>
-                {b.cover ? <img src={b.cover} alt="" onError={(e) => { e.currentTarget.style.display = 'none'; }} /> : null}
-                <figcaption><b>{b.title}</b><i>{b.author}</i></figcaption>
-              </figure>
-            ))}
-          </div>
         ) : null}
 
         {/* the way back up, standing on the rug */}

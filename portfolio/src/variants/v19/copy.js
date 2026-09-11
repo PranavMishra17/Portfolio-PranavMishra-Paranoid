@@ -74,9 +74,8 @@ export const ALFRED = {
   bullets: (alfredRole.description || []).filter((b) => !BANNED.test(b)),
 };
 
-// The numbers, and what actually changed. Fifteen of them; the first ten are the Lab's "Ten"
-// and `top` marks the five that show by default. Every one shipped and was measured on real
-// users. `sketch` is the drawing under the box: a few shapes, described rather than drawn.
+// The five figures. Every one shipped and was measured on real users. `sketch` names the
+// drawing under the box.
 export const FIGURES = [
   {
     id: 'migrate',
@@ -84,12 +83,7 @@ export const FIGURES = [
     now: '3 s',
     label: 'Moved every user onto event-driven ingress, live, in one week',
     note: 'The email backend polled every provider on a timer, so a text about an email arrived about ninety seconds after the email did. Over one week we migrated all of ingress, Gmail, Microsoft Graph and IMAP, for thousands of live users onto per-provider event triggers, with the cron demoted to a backstop and nothing suppressed during the cutover. Delivery went from about 90 seconds to about 3, thirty times faster, and login codes from 189 seconds at p90 to instant. Nobody noticed the migration; everybody noticed the result.',
-    sketches: {
-      a: { kind: 'stopwatch', name: 'Stopwatches' },
-      b: { kind: 'cutover', name: 'Timeline' },
-      c: { kind: 'phones', name: 'Two phones' },
-      d: { kind: 'migrate', name: 'Lanes' },
-    },
+    sketch: { kind: 'migrate' },
   },
   {
     id: 'memory',
@@ -97,11 +91,7 @@ export const FIGURES = [
     now: 'working memory',
     label: 'Working memory that cannot invent your inbox',
     note: 'A model summarising an inbox will confidently invent a thread, or flip who owes whom. I rebuilt working memory so the model never writes an identifier or an owner: code builds a menu of real candidates behind opaque handles, the model only chooses among them and writes prose, and code re-attaches every fact afterwards. That turns a whole class of hallucination from rare into impossible, and a test proves it on every build. Five thousand people read those briefs.',
-    sketches: {
-      a: { kind: 'strict', name: 'Pipeline' },
-      b: { kind: 'menu', name: 'Menu' },
-      c: { kind: 'verdict', name: 'Before, after' },
-    },
+    sketch: { kind: 'strict' },
   },
   {
     id: 'auth',
@@ -109,11 +99,7 @@ export const FIGURES = [
     now: '30×',
     label: 'Alfred_ inside Claude Code, Codex, and any agent that speaks MCP',
     note: 'Alfred_ is an MCP server behind an OAuth 2.0 authorization server I built, so any coding agent, Claude Code, Codex, Antigravity, anything that speaks MCP, can add it as a tool. Measured, 98.3% of the connector\'s traffic was authentication, every call booting a 30 MB dependency tree just to learn who was asking. Auth became a single database lookup and the heavy code loads only when a call needs it. I designed the permission model too: sending mail is a standing grant once you confirm it; creating an event is a fresh, scoped grant every time.',
-    sketches: {
-      a: { kind: 'bars', name: 'Bars', alt: 'Authentication cost, before and after', rows: [{ k: 'each call, before', w: 1, v: '721 ms, booting' }, { k: 'each call, now', w: 0.04, v: 'one lookup', hot: true }, { k: 'share of all traffic', w: 0.983, v: '98.3% was auth' }] },
-      b: { kind: 'socket', name: 'Socket' },
-      c: { kind: 'calltime', name: 'One call' },
-    },
+    sketch: { kind: 'calltime' },
   },
   {
     id: 'harness',
@@ -121,11 +107,7 @@ export const FIGURES = [
     now: 'replayed',
     label: 'Every agent turn, replayable and scored before it ships',
     note: 'A deterministic eval harness for the SMS agent surface: real traces replayed against fixtures, every scenario scored across the full range of outcomes the agent can produce, and regression detection on tool-calling reliability. A change to the agent is measured against production behaviour before it ships, rather than discovered by a user afterwards. Every cost cut on the site has to pass it.',
-    sketches: {
-      a: { kind: 'replay', name: 'Tape' },
-      b: { kind: 'scenarios', name: 'Grid' },
-      c: { kind: 'regress', name: 'Regression' },
-    },
+    sketch: { kind: 'scenarios' },
   },
   {
     id: 'context',
@@ -133,11 +115,7 @@ export const FIGURES = [
     now: 'ahead of the turn',
     label: 'Context that is there before the agent needs it',
     note: 'Alfred_ answers over SMS and on the phone, where a pause is a failure. I own the low-latency context retrieval on those real-time pipelines, so what the agent needs about you is assembled before the turn asks for it, and the tool-calling stability that keeps a multi-agent turn deterministic under production load, retries and partial failures included. Cartesia handles the speech on the voice surface.',
-    sketches: {
-      a: { kind: 'ahead', name: 'Timeline' },
-      b: { kind: 'flow', name: 'Flow', alt: 'A message, the context already assembled, an answer', nodes: ['a message arrives', 'context, already assembled', 'the answer'], foot: 'the retrieval runs ahead of the turn, not inside it' },
-      c: { kind: 'budget', name: 'Budget' },
-    },
+    sketch: { kind: 'budget' },
   },
 ];
 
