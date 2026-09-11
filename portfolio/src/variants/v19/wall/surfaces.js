@@ -1,18 +1,14 @@
 // v19 — what the wall is made of.
 //
 // A surface owns three things and nothing else: how it looks at rest, what the cursor does to
-// it, and how it is cut into pieces. How it comes apart is a separate choice (blasts.js), so
-// any material can fail in any way.
+// it, and how it is cut into pieces. How it comes apart lives in Wall.js and is the same for
+// both: a burst.
 //
-// The rule for every one of them: plain at rest. A blank canvas, no grid, no pattern you could
-// call decoration. Everything only happens under your hand.
+// The rule for both of them: plain at rest. A blank canvas, no grid, no pattern you could call
+// decoration. Everything only happens under your hand.
 //
 //   plaster — off-white. Blocks draw themselves in under the cursor.
-//   clay    — the same wall in warm putty, and the seams are shadow rather than line.
-//   slate   — the same wall in graphite. The seams are light. The landing inverts with it.
 //   iso     — nothing at all until you move: tiles lift out of the blank wall under the cursor.
-//   film    — photographic paper, grain and a vignette. The cursor is a light leak.
-//   frost   — cold glass, fogged. The cursor wipes it clear, and the fog creeps back.
 
 const rnd = (seed) => {
   let s = (seed >>> 0) || 1;
@@ -53,65 +49,38 @@ function squareGrid(W, H, size) {
   return { rects, bw, bh };
 }
 
-/* ── the plaster family ───────────────────────────────────────────────
-   One material, three tempers. Same mechanic: the blocks under the cursor draw themselves in,
-   so you can see the seams the wall will fail along without them ever being decoration. */
+/* ── plaster ──────────────────────────────────────────────────────────
+   The blocks under the cursor draw themselves in, so you can see the seams the wall will fail
+   along without them ever being decoration. */
 
-function plasterFamily({ key, dark = false, tones, seam, grainAlpha = 0.04, grainDark = '#3c3c3a', grainLight = '#ffffff', divisor = 5.2 }) {
-  return {
-    key,
-    dark,
-    grid(W, H) {
-      return squareGrid(W, H, Math.max(118, Math.min(230, Math.round(Math.min(W, H) / divisor))));
-    },
-    paint(ctx, W, H) {
-      wash(ctx, W, H, tones[0], tones[1], tones[2]);
-      speckle(ctx, W, H, 90210, grainAlpha, grainLight, grainDark);
-    },
-    field(ctx, g, px, py, heat) {
-      if (px == null) return;
-      const reach = Math.min(g.W, g.H) * (0.26 + heat * 0.22);
-      ctx.lineWidth = 1;
-      for (const rc of g.rects) {
-        const d = Math.hypot(rc.x + rc.w / 2 - px, rc.y + rc.h / 2 - py);
-        if (d > reach) continue;
-        const k = (1 - d / reach) ** 1.7;
-        const inset = k * (3 + heat * 7);
-        ctx.strokeStyle = `rgba(${seam},${(0.05 + k * 0.26 + heat * 0.14 * k).toFixed(3)})`;
-        ctx.strokeRect(
-          Math.round(rc.x + inset) + 0.5,
-          Math.round(rc.y + inset) + 0.5,
-          Math.round(rc.w - inset * 2) - 1,
-          Math.round(rc.h - inset * 2) - 1
-        );
-      }
-    },
-  };
-}
-
-const plaster = plasterFamily({
+const plaster = {
   key: 'plaster',
-  tones: ['#f4f3f0', '#eeedea', '#e8e7e3'],
-  seam: '30,30,28',
-});
-
-const clay = plasterFamily({
-  key: 'clay',
-  tones: ['#efe8dd', '#e9e0d2', '#e2d7c6'],
-  seam: '92,64,38',
-  grainAlpha: 0.05,
-  grainDark: '#6d5334',
-});
-
-const slate = plasterFamily({
-  key: 'slate',
-  dark: true,
-  tones: ['#2b2b30', '#26262b', '#202025'],
-  seam: '235,235,238',
-  grainAlpha: 0.05,
-  grainDark: '#101014',
-  grainLight: '#8d8d96',
-});
+  grid(W, H) {
+    return squareGrid(W, H, Math.max(118, Math.min(230, Math.round(Math.min(W, H) / 5.2))));
+  },
+  paint(ctx, W, H) {
+    wash(ctx, W, H, '#f4f3f0', '#eeedea', '#e8e7e3');
+    speckle(ctx, W, H, 90210, 0.04, '#ffffff', '#3c3c3a');
+  },
+  field(ctx, g, px, py, heat) {
+    if (px == null) return;
+    const reach = Math.min(g.W, g.H) * (0.26 + heat * 0.22);
+    ctx.lineWidth = 1;
+    for (const rc of g.rects) {
+      const d = Math.hypot(rc.x + rc.w / 2 - px, rc.y + rc.h / 2 - py);
+      if (d > reach) continue;
+      const k = (1 - d / reach) ** 1.7;
+      const inset = k * (3 + heat * 7);
+      ctx.strokeStyle = `rgba(30,30,28,${(0.05 + k * 0.26 + heat * 0.14 * k).toFixed(3)})`;
+      ctx.strokeRect(
+        Math.round(rc.x + inset) + 0.5,
+        Math.round(rc.y + inset) + 0.5,
+        Math.round(rc.w - inset * 2) - 1,
+        Math.round(rc.h - inset * 2) - 1
+      );
+    }
+  },
+};
 
 /* ── iso: nothing until you move ──────────────────────────────────────
    A blank wall that turns out to be a tile floor only where your hand is. The tiles lift on
@@ -179,85 +148,4 @@ const iso = {
   },
 };
 
-/* ── film: paper, grain, and a light leak for a cursor ────────────────
-   The only surface with real tooth in it. Pointing at it is a lamp held behind the sheet: the
-   paper warms, the grain lifts, and the frame lines of the sheet show for as long as you are
-   there. */
-
-const film = {
-  key: 'film',
-  grid(W, H) {
-    return squareGrid(W, H, Math.max(150, Math.round(Math.min(W, H) / 3.4)));
-  },
-  paint(ctx, W, H) {
-    wash(ctx, W, H, '#eeebe4', '#e9e5dd', '#e2ded5');
-    // the vignette a lens leaves, and the tooth of the stock
-    const g = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.28, W / 2, H / 2, Math.max(W, H) * 0.78);
-    g.addColorStop(0, 'rgba(60,52,40,0)');
-    g.addColorStop(1, 'rgba(60,52,40,0.16)');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, W, H);
-    speckle(ctx, W, H, 2489, 0.13, '#ffffff', '#5d5347', 1.2, 420);
-  },
-  field(ctx, g, px, py, heat) {
-    if (px == null) return;
-    const R = Math.min(g.W, g.H) * (0.3 + heat * 0.2);
-    const leak = ctx.createRadialGradient(px, py, 0, px, py, R);
-    leak.addColorStop(0, `rgba(255,236,196,${0.3 + heat * 0.3})`);
-    leak.addColorStop(0.45, `rgba(255,214,158,${0.12 + heat * 0.16})`);
-    leak.addColorStop(1, 'rgba(255,200,140,0)');
-    ctx.fillStyle = leak;
-    ctx.fillRect(px - R, py - R, R * 2, R * 2);
-    // the frame lines of the sheet, only where the light falls
-    ctx.save();
-    ctx.beginPath();
-    ctx.arc(px, py, R, 0, Math.PI * 2);
-    ctx.clip();
-    ctx.lineWidth = 1;
-    ctx.strokeStyle = `rgba(74,60,42,${0.18 + heat * 0.2})`;
-    for (const rc of g.rects) ctx.strokeRect(Math.round(rc.x) + 0.5, Math.round(rc.y) + 0.5, Math.round(rc.w) - 1, Math.round(rc.h) - 1);
-    ctx.restore();
-  },
-};
-
-/* ── frost: cold glass, and a hand wiping it ──────────────────────────
-   The one surface that remembers where you have been: the fog clears under the cursor and
-   closes over again behind you. */
-
-const frost = {
-  key: 'frost',
-  trail: true,
-  grid(W, H) {
-    return squareGrid(W, H, Math.max(74, Math.round(Math.min(W, H) / 8)));
-  },
-  paint(ctx, W, H) {
-    wash(ctx, W, H, '#f4f7f8', '#eef2f3', '#e8eeef');
-    speckle(ctx, W, H, 8123, 0.3, '#ffffff', '#cfdadd', 1.6, 240);
-    speckle(ctx, W, H, 4417, 0.18, '#ffffff', '#c2d0d4', 2.8, 800);
-  },
-  field(ctx, g, px, py, heat, t, trail) {
-    const clear = (x, y, r, a) => {
-      const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
-      grad.addColorStop(0, `rgba(122,152,163,${a})`);
-      grad.addColorStop(0.62, `rgba(140,168,178,${a * 0.55})`);
-      grad.addColorStop(1, 'rgba(160,184,192,0)');
-      ctx.fillStyle = grad;
-      ctx.fillRect(x - r, y - r, r * 2, r * 2);
-    };
-    for (const p of trail) {
-      const age = (t - p.t0) / 2200;
-      if (age > 1) continue;
-      clear(p.x, p.y, 34 + heat * 10, (1 - age) ** 1.6 * 0.46);
-    }
-    if (px != null) {
-      clear(px, py, 40 + heat * 26, 0.5 + heat * 0.18);
-      ctx.strokeStyle = `rgba(255,255,255,${0.5 + heat * 0.3})`;
-      ctx.lineWidth = 1.6;
-      ctx.beginPath();
-      ctx.arc(px, py, 40 + heat * 26, 0, Math.PI * 2);
-      ctx.stroke();
-    }
-  },
-};
-
-export const SURFACES = { plaster, clay, slate, iso, film, frost };
+export const SURFACES = { plaster, iso };

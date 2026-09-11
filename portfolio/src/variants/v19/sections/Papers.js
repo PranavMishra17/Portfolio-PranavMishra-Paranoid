@@ -1,10 +1,16 @@
-// v19 — the papers, three ways. Different objects, not one card restyled.
+// v19 — the papers, five ways. Different objects, not one card restyled.
 //
 //   figure   — the result, drawn: a bar for MetaRAG's 82.5 against 73.3, seven of eight cells
 //              for TeamMedAgents. Data first, the title second. The one he liked.
 //   abstract — a real sheet of paper, opaque, with the opening of the abstract set on it and
 //              the rest a click away. Nothing shows through from the page behind.
 //   brief    — one sheet carrying both: the drawing on the left, the first lines on the right.
+//   plates   — the abstract sheet, and under it the figures as numbered plates with captions,
+//              the way they sit under an abstract in a preprint.
+//   stacked  — no paper at all. Each paper is one wide band set straight on the page: the
+//              title, a strip of figures, the opening in two columns. Papers stack.
+//
+// Every figure is drawn from a number that is in the abstract. Nothing is invented.
 //
 // The citation count is a figure in all three, never a footnote, and the awards underneath open
 // the same way everything else on this site opens.
@@ -25,6 +31,18 @@ const STATE = {
 const RESULT = {
   metarag: { kind: 'bars', label: 'Retrieval precision', a: { v: 82.5, k: 'With generated metadata' }, b: { v: 73.3, k: 'Without' }, unit: '%' },
   teammedagents: { kind: 'count', label: 'Medical benchmarks improved', a: 7, of: 8 },
+};
+
+// The figures for each paper, all straight from its abstract.
+const FIGURES = {
+  metarag: [
+    { kind: 'bars', n: 1, caption: 'Retrieval precision: recursive chunking with TF-IDF weighted embeddings against a content-only semantic baseline.' },
+    { kind: 'gauge', n: 2, caption: 'Hit Rate@10 for naive chunking with prefix-fusion, the best of the three chunking strategies.', label: 'Hit Rate@10', v: 0.925, of: 1 },
+  ],
+  teammedagents: [
+    { kind: 'count', n: 1, caption: 'Benchmarks improved: MedQA, MedMCQA, MMLU-Pro Medical, PubMedQA, DDXPlus, MedBullets, Path-VQA and PMC-VQA.' },
+    { kind: 'ring', n: 2, caption: 'The six teamwork components of the Big Five model, each built as a mechanism between agents and switched on or off in ablation.', label: 'Six components', items: ['Leadership', 'Monitoring', 'Orientation', 'Shared models', 'Closed loop', 'Trust'] },
+  ],
 };
 
 // which project each award came out of, so the award can show its own work
@@ -117,12 +135,76 @@ function Drawing({ p }) {
   );
 }
 
+/* A ruler from nothing to one, with the result marked on it. */
+function Gauge({ f }) {
+  const pct = (f.v / f.of) * 100;
+  return (
+    <div className="v19-fig-gauge" role="img" aria-label={`${f.label} ${f.v}`}>
+      <span className="v19-fig-rule">
+        {Array.from({ length: 11 }).map((_, i) => (
+          <i key={i} className={i % 5 === 0 ? 'is-major' : undefined} style={{ left: `${i * 10}%` }} />
+        ))}
+        <b className="v19-fig-mark" style={{ '--x': `${pct}%` }} />
+      </span>
+      <span className="v19-fig-ends"><i>0</i><i>1</i></span>
+      <b className="v19-fig-v">{f.v}</b>
+    </div>
+  );
+}
+
+/* Six things around a table, every one joined to every other. */
+function Ring({ f }) {
+  const n = f.items.length;
+  const R = 58;
+  const cx = 130;
+  const cy = 78;
+  const pts = f.items.map((_, i) => {
+    const a = -Math.PI / 2 + (i / n) * Math.PI * 2;
+    return { x: cx + Math.cos(a) * R, y: cy + Math.sin(a) * R, a };
+  });
+  return (
+    <svg className="v19-fig-ring" viewBox="0 0 260 156" role="img" aria-label={f.items.join(', ')}>
+      {pts.map((p, i) =>
+        pts.slice(i + 1).map((q, j) => (
+          <line key={`${i}-${j}`} x1={p.x} y1={p.y} x2={q.x} y2={q.y} className="v19-fig-ring-l" />
+        ))
+      )}
+      {pts.map((p, i) => {
+        const c = Math.cos(p.a);
+        const anchor = Math.abs(c) < 0.2 ? 'middle' : c > 0 ? 'start' : 'end';
+        return (
+          <g key={f.items[i]}>
+            <circle cx={p.x} cy={p.y} r="5.5" className="v19-fig-ring-n" style={{ animationDelay: `${i * 70}ms` }} />
+            <text x={p.x + c * 12} y={p.y + Math.sin(p.a) * 12 + 3.5} textAnchor={anchor} className="v19-fig-ring-t">
+              {f.items[i]}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+/* One numbered plate: the drawing and its caption. */
+function Plate({ p, f }) {
+  return (
+    <figure className={`v19-plate is-${f.kind}`}>
+      <div className="v19-plate-art">
+        {f.kind === 'gauge' ? <Gauge f={f} /> : f.kind === 'ring' ? <Ring f={f} /> : <Drawing p={p} />}
+      </div>
+      <figcaption className="v19-plate-cap">
+        <b>Fig. {f.n}</b> {f.caption}
+      </figcaption>
+    </figure>
+  );
+}
+
 /* The opening of an abstract, with the rest a click away. */
-function Abstract({ p, marked }) {
+function Abstract({ p, marked, opening = OPENING }) {
   const [full, setFull] = useState(false);
   const text = p.abstract || '';
-  const long = text.length > OPENING + 40;
-  const cut = full || !long ? text : `${text.slice(0, text.lastIndexOf(' ', OPENING))}…`;
+  const long = text.length > opening + 40;
+  const cut = full || !long ? text : `${text.slice(0, text.lastIndexOf(' ', opening))}…`;
   return (
     <>
       <p className="v19-abs-text">{marked ? <Marked text={cut} /> : cut}</p>
@@ -264,6 +346,78 @@ export default function Papers({ sectionRef }) {
                 </article>
               );
             })}
+          </div>
+          <Won look={look} />
+        </div>
+      </section>
+    );
+  }
+
+  /* ── plates: the sheet, and the figures under it ── */
+  if (look === 'plates') {
+    return (
+      <section className="v19-slab v19-papers is-plates" ref={sectionRef} id="papers" aria-label="Papers">
+        <div className="v19-slab-in">
+          <Head title="Abstracts, with figures." />
+          <div className="v19-abs-row">
+            {PAPERS.map((p) => (
+              <article className="v19-sheet" key={p.id}>
+                <p className="v19-sheet-head">
+                  <span>{p.venue}</span>
+                  <Status p={p} />
+                </p>
+                <h3 className="v19-sheet-title">{p.title}</h3>
+                <Authors p={p} />
+                <div className="v19-sheet-rule" aria-hidden="true" />
+                <p className="v19-abs-label">Abstract</p>
+                <Abstract p={p} marked />
+                <div className="v19-plates">
+                  {(FIGURES[p.id] || []).map((f) => (
+                    <Plate key={f.n} p={p} f={f} />
+                  ))}
+                </div>
+                <div className="v19-sheet-foot">
+                  <Cite n={p.citations} />
+                  <Links p={p} />
+                </div>
+              </article>
+            ))}
+          </div>
+          <Won look={look} />
+        </div>
+      </section>
+    );
+  }
+
+  /* ── stacked: no paper, one wide band per paper, set on the page ── */
+  if (look === 'stacked') {
+    return (
+      <section className="v19-slab v19-papers is-stacked" ref={sectionRef} id="papers" aria-label="Papers">
+        <div className="v19-slab-in">
+          <Head title="Two papers." />
+          <div className="v19-stack">
+            {PAPERS.map((p) => (
+              <article className="v19-band" key={p.id}>
+                <div className="v19-band-head">
+                  <p className="v19-sheet-head">
+                    <span>{p.venue}</span>
+                    <Status p={p} />
+                  </p>
+                  <Cite n={p.citations} />
+                </div>
+                <h3 className="v19-band-title">{p.title}</h3>
+                <p className="v19-brief-line">{p.line}</p>
+                <div className="v19-band-strip">
+                  {(FIGURES[p.id] || []).map((f) => (
+                    <Plate key={f.n} p={p} f={f} />
+                  ))}
+                </div>
+                <div className="v19-band-body">
+                  <Abstract p={p} opening={520} />
+                </div>
+                <Links p={p} />
+              </article>
+            ))}
           </div>
           <Won look={look} />
         </div>

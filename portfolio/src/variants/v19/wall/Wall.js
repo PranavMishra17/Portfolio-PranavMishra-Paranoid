@@ -2,11 +2,24 @@
 //
 // The face is painted ONCE into an offscreen canvas by the surface. Every block then blits its
 // own region of that canvas, so a block carries exactly the paper it was cut from. The surface
-// owns the look and the cursor; the blast owns the failure. Changing either changes the whole
-// feel without touching the other.
+// owns the look and the cursor; the failure is the same for every surface — a burst: it comes
+// at you and past you, then up and to the left, toward the way back.
 
 import { SURFACES } from './surfaces';
-import { BLASTS, DEFAULT_BLAST } from './blasts';
+
+const GRAVITY = { x: -640, y: -1180 };
+
+// per block: when it starts moving, where it is thrown, how it spins, and when it fades
+function burst(b, close, d, near, seed) {
+  return {
+    at: close > 0 ? seed * 26 : (d - near) * 0.34 + seed * 34,
+    vz: 3.2 + close * 6.4 + seed * 1.1,
+    vx: b.ux * (60 + close * 290 + seed * 60) - 130,
+    vy: b.uy * (60 + close * 290 + seed * 60) - 190,
+    va: (seed - 0.5) * (1.1 + close * 3),
+    fade: 11,
+  };
+}
 
 const EDGE_LIGHT = 'rgba(255, 255, 253, 0.75)';
 const EDGE_DARK = 'rgba(40, 40, 38, 0.18)';
@@ -24,12 +37,11 @@ const easeOutCubic = (t) => 1 - (1 - t) ** 3;
 const easeOutBack = (t) => 1 + 2.2 * (t - 1) ** 3 + 1.4 * (t - 1) ** 2;
 
 export default class Wall {
-  constructor({ W, H, dpr, surface = 'plaster', blast = DEFAULT_BLAST }) {
+  constructor({ W, H, dpr, surface = 'plaster' }) {
     this.dpr = dpr;
     this.state = 'intact'; // intact | failing | gone | returning
     this.face = document.createElement('canvas');
     this.surface = SURFACES[surface] || SURFACES.plaster;
-    this.blastKind = BLASTS[blast] || BLASTS[DEFAULT_BLAST];
     this.layout(W, H);
   }
 
@@ -38,10 +50,6 @@ export default class Wall {
     if (!next || next === this.surface) return;
     this.surface = next;
     if (this.W) this.layout(this.W, this.H);
-  }
-
-  setBlast(key) {
-    this.blastKind = BLASTS[key] || BLASTS[DEFAULT_BLAST];
   }
 
   layout(W, H) {
@@ -98,11 +106,11 @@ export default class Wall {
     this.surface.paint(ctx, W, H, { rects: this.rects, bw: this.bw, bh: this.bh, W, H });
   }
 
-  drawField(ctx, px, py, heat, t, trail) {
+  drawField(ctx, px, py, heat, t) {
     if (this.state !== 'intact') return;
     ctx.save();
     try {
-      this.surface.field(ctx, { rects: this.rects, bw: this.bw, bh: this.bh, W: this.W, H: this.H }, px, py, heat, t, trail || []);
+      this.surface.field(ctx, { rects: this.rects, bw: this.bw, bh: this.bh, W: this.W, H: this.H }, px, py, heat, t);
     } catch (err) {
       // the field is decoration; one bad frame of it must never stop the wall drawing
     }
@@ -125,13 +133,12 @@ export default class Wall {
       b.ux = dx / d;
       b.uy = dy / d;
       const close = Math.max(0, 1 - d / near);
-      const k = this.blastKind.kick(b, close, d, near, b.seed);
+      const k = burst(b, close, d, near, b.seed);
       b.at = now + k.at;
       b.vx = k.vx;
       b.vy = k.vy;
       b.vz = k.vz || 0;
       b.va = k.va || 0;
-      b.shrinkRate = k.shrink || 0;
       b.riseRate = lifts ? 1 : 0;
       b.fadeBy = k.fade || 0;
     });
@@ -180,7 +187,7 @@ export default class Wall {
       return;
     }
 
-    const G = this.blastKind.gravity;
+    const G = GRAVITY;
     let visible = false;
     for (const b of this.blocks) {
       if (!b.live) {
@@ -199,8 +206,7 @@ export default class Wall {
       b.x += b.vx * s;
       b.y += b.vy * s;
       b.rot += b.va * s;
-      if (b.shrinkRate) b.scale = Math.max(0, b.scale - b.shrinkRate * s);
-      else if (b.vz) b.scale = 1 + b.z * 0.062;
+      if (b.vz) b.scale = 1 + b.z * 0.062;
       if (b.fadeBy) b.alpha = Math.max(0, 1 - b.z / b.fadeBy);
       const on =
         b.alpha > 0.01 && b.scale > 0.02 && b.scale < 22 &&

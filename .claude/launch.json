@@ -2,17 +2,37 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "dev",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": [
+        "/c",
+        "set PORT=3019&& set BROWSER=none&& npm start"
+      ],
+      "cwd": "portfolio",
+      "port": 3019,
+      "autoPort": false
+    },
+    {
       "name": "portfolio",
       "runtimeExecutable": "python",
-      "runtimeArgs": [".claude/spa_server.py", "4600", "C:/Users/prana/Desktop/Portfolio-PranavMishra-Paranoid/.claude/worktrees/portfolio-revamp-alignment-a7dad8/portfolio/build"],
-      
+      "runtimeArgs": [
+        ".claude/spa_server.py",
+        "4600",
+        "portfolio/build"
+      ],
       "port": 4600,
       "autoPort": false
     },
     {
       "name": "design-lab",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "4458", "--directory", "C:/Users/prana/Desktop/Portfolio-PranavMishra-Paranoid/.claude/worktrees/portfolio-revamp-alignment-a7dad8"],
+      "runtimeArgs": [
+        "-m",
+        "http.server",
+        "4458",
+        "--directory",
+        "."
+      ],
       "port": 4458,
       "autoPort": false
     }

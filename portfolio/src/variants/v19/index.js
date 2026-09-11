@@ -8,19 +8,18 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Detonator from './wall';
-import { SURFACES } from './wall/surfaces';
 import Landing from './sections/Landing';
 import Work from './sections/Work';
 import Projects from './sections/Projects';
 import Papers from './sections/Papers';
 import Room from './room/Room';
 import Lab, { LabProvider, useLab } from './lab';
-import { useSky, useSnap } from './hooks';
+import { useSky } from './hooks';
 import { ME, LINKS } from './copy';
 import './v19.css';
 
 const FONTS =
-  'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=Public+Sans:ital,wght@0,300..700;1,400&display=swap';
+  'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Public+Sans:ital,wght@0,300..700;1,400&display=swap';
 
 // what the middle of the header says, per section
 const WHERE = [
@@ -49,7 +48,6 @@ function Page() {
     window.matchMedia('(pointer: coarse)').matches;
 
   useSky(skyRef, true);
-  useSnap(lab.snap && blown, useCallback(() => sections.current, []));
 
   /* body, fonts, and the scroll the browser must not restore under a wall */
   useEffect(() => {
@@ -154,10 +152,9 @@ function Page() {
   );
 
   const current = WHERE.find((w) => w.id === where) || WHERE[0];
-  const dark = Boolean((SURFACES[lab.surface] || {}).dark);
 
   return (
-    <div className={`v19 land-${lab.land} tex-${lab.texture}${blown ? ' is-open' : ''}`}>
+    <div className={`v19 land-${lab.land}${blown ? ' is-open' : ''}`}>
       <div className="v19-sky" ref={skyRef} aria-hidden="true" />
       <div className="v19-grain" aria-hidden="true" />
 
@@ -212,14 +209,12 @@ function Page() {
 
       {landing ? (
         <div
-          className={`v19-face${blown ? ' is-blown' : ''}${dark ? ' is-dark' : ''}`}
+          className={`v19-face${blown ? ' is-blown' : ''}`}
           aria-hidden={blown ? 'true' : undefined}
         >
           <Detonator
             ref={detRef}
             surface={lab.surface}
-            blast={lab.blast}
-            trigger={lab.trigger}
             armed={!blown}
             reduced={reduced}
             onBlast={onBlast}

@@ -4,9 +4,8 @@
 // in a box that cannot change size. So the variants here are not layouts, they are how the
 // thing is dressed:
 //
-//   frame   — the plain one. Off-white card, picture left, words right.
-//   gallery — hung on a wall: a wide mat around the picture and an engraved label under it.
-//   poster  — the name set large on ink beside the picture, the way a one-sheet is set.
+//   frame  — the plain one. Off-white card, picture left, words right.
+//   poster — the name set large on ink beside the picture, the way a one-sheet is set.
 //
 // In all of them: nothing lifts, recolours or moves on hover; the frame is a fixed box so
 // nothing can reflow; nothing scrolls inside anything else; no counts and no numbers.
@@ -101,12 +100,6 @@ function Frame({ shown, mode, onClose, look }) {
         </p>
         <Links p={shown} />
       </div>
-      {look === 'gallery' ? (
-        <p className="v19-view-plate" aria-hidden="true">
-          <b>{shown.name}</b>
-          <i>{shown.tech.slice(0, 3).join(' · ') || shown.tag}</i>
-        </p>
-      ) : null}
     </div>
   );
 }

@@ -8,16 +8,14 @@
 // He does not walk in any more. He is at the desk when you arrive. Click him and he waves;
 // switch the tower off and he falls asleep in the chair; switch it on and he wakes up.
 //
-// Four looks, from the Lab: evening, morning, late, and paper — the last one renders the whole
-// room in the page's five tones of ink and paper, which is the point where it stops being a
-// picture in the site and becomes part of it.
+// It is evening. The lamp and the string lights are on and it is dusk outside — until you open
+// the window, which lets the day in.
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createGrid, rasterize, W, H } from './engine';
 import { drawScene, HOTSPOTS, LIGHTS, SCREENS } from './scene';
 import { BOOKS, GAMES, MAGNETS, POSTERS, TROPHIES, FAMILY, MEDALS } from '../personal';
 import { ALL_PROJECTS, PAPERS, ROLES, ALFRED, LINKS, MORE_LINKS } from '../copy';
-import { useLab } from '../lab';
 
 const FRAME_MS = 42;
 const SCREEN_MS = 4600;
@@ -25,12 +23,7 @@ const WAVE_MS = 1700;
 
 const TOGGLES = new Set(['lamp', 'lights', 'pc', 'window', 'ball', 'plant', 'mug', 'me']);
 
-const LOOKS = {
-  warm: { night: 0.5, lamp: true, string: true, pc: true, window: false, mono: false },
-  day: { night: 0.0, lamp: false, string: false, pc: true, window: true, mono: false },
-  night: { night: 0.86, lamp: false, string: true, pc: true, window: false, mono: false },
-  mono: { night: 0.28, lamp: true, string: false, pc: true, window: false, mono: true },
-};
+const EVENING = { night: 0.5, lamp: true, string: true, pc: true, windowOpen: false, mono: false };
 
 const ON_SCREEN = ['stellarium', 'mockflow-ai', 'snaider-cut', 'big5-agents', 'equity-project']
   .map((id) => ALL_PROJECTS.find((p) => p.id === id))
@@ -188,14 +181,13 @@ function Slip({ hotspot, onClose }) {
 /* ── the room ───────────────────────────────────────────────────────── */
 
 export default function Room({ sectionRef, onTop }) {
-  const { lab } = useLab();
   const canvasRef = useRef(null);
   const cursorRef = useRef(null);
   const gridRef = useRef(null);
   const imgRef = useRef(null);
   const shotsRef = useRef([]);
   const stateRef = useRef({
-    ...LOOKS.warm,
+    ...EVENING,
     windowT: 0,
     fridgeOpen: false,
     grown: false,
@@ -204,7 +196,6 @@ export default function Room({ sectionRef, onTop }) {
     bounce: 0,
     mode: 'sit', // sit | wave | sleep
     frame: 0,
-    look: 'warm',
     t: 0,
   });
   const hoverRef = useRef(0);
@@ -214,21 +205,6 @@ export default function Room({ sectionRef, onTop }) {
   const [hover, setHover] = useState(0);
   const [openKey, setOpenKey] = useState(null);
   const [kind, setKind] = useState('');
-
-  /* the look, from the Lab: sets the lights and the light, and can be changed underneath */
-  useEffect(() => {
-    const st = stateRef.current;
-    const look = LOOKS[lab.room] || LOOKS.warm;
-    st.look = lab.room;
-    st.night = look.night;
-    st.lamp = look.lamp;
-    st.string = look.string;
-    st.pc = look.pc;
-    st.windowOpen = look.window;
-    st.mono = look.mono;
-    if (st.pc && st.mode === 'sleep') st.mode = 'sit';
-    if (!st.pc && st.mode !== 'sleep') st.mode = 'sleep';
-  }, [lab.room]);
 
   const hotspot = useMemo(() => HOTSPOTS.find((h) => h.id === hover) || null, [hover]);
   const openHotspot = useMemo(() => HOTSPOTS.find((h) => h.key === openKey) || null, [openKey]);
@@ -324,7 +300,7 @@ export default function Room({ sectionRef, onTop }) {
       }
       if (st.mode === 'wave') st.frame = Math.floor(now / 220) % 2;
 
-      // the window open lets the day in, whatever the look
+      // the window open lets the day in
       const night = Math.max(0, st.night - st.windowT * st.night * 0.85);
       const lights = [];
       if (st.lamp) lights.push({ ...LIGHTS.lamp, on: true });
@@ -506,7 +482,7 @@ export default function Room({ sectionRef, onTop }) {
   })();
 
   return (
-    <section className={`v19-room look-${lab.room}`} ref={sectionRef} id="room" aria-label="My room">
+    <section className="v19-room" ref={sectionRef} id="room" aria-label="My room">
       <div className={`v19-room-stage${kind ? ` k-${kind}` : ''}`}>
         <canvas
           ref={canvasRef}

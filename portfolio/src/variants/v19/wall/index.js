@@ -1,47 +1,34 @@
-// v19 — the detonator: the wall, whatever the cursor is today, and the one loop driving both.
+// v19 — the detonator: the wall, the crosshair in your hand, and the one loop driving both.
 //
-// The cursor is a choice now (the Lab):
-//   charge   — no object at all. A ring that fills, reddens and gets angry in your hand.
-//   dynamite — the stick, for when the cartoon is the point.
-//   pin      — a crosshair that tightens to a point and goes red.
-//
-// Every one of them is driven by a single custom property, --p, written once a frame. The art
-// is CSS and SVG reacting to it, so adding a fourth is a stylesheet, not a rewrite.
+// The cursor is four marks that close on a point and go red as you hold. It is driven by a
+// single custom property, --p, written once a frame; the art is CSS reacting to it.
 //
 // Nothing here gates the page on requestAnimationFrame. A watchdog hand-cranks the loop if
 // frames stop arriving, and a guard removes the wall outright if they never start.
 
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import Wall from './Wall';
-import { SURFACES } from './surfaces';
 
 const FUSE_MS = 880;
-const WICK = 'M26 15 C 30 7.5, 37 10, 38 2.5';
 
 const Detonator = forwardRef(function Detonator(
-  { surface = 'plaster', blast = 'burst', trigger = 'charge', armed, onBlast, reduced },
+  { surface = 'plaster', armed, onBlast, reduced },
   ref
 ) {
   const canvasRef = useRef(null);
   const cursorRef = useRef(null);
   const shakeElRef = useRef(null);
-  const wickRef = useRef(null);
-  const emberRef = useRef(null);
   const flashRef = useRef(null);
   const wallRef = useRef(null);
   const holdRef = useRef(null);
   const pointRef = useRef({ x: null, y: null });
   const heatRef = useRef(0);
-  const surfaceRef = useRef(surface);
-  const trailRef = useRef([]);
-  const lastTrailRef = useRef(0);
   const armedRef = useRef(armed);
   const shakeRef = useRef(0);
   const [held, setHeld] = useState(false);
   const [dead, setDead] = useState(false); // frames never arrived; the wall is not survivable
 
   armedRef.current = armed;
-  surfaceRef.current = surface;
 
   /* one write per frame: the fuse, everywhere it shows */
   const rest = useCallback((p = 0) => {
@@ -49,19 +36,6 @@ const Detonator = forwardRef(function Detonator(
     const root = cursorRef.current;
     if (root) root.style.setProperty('--p', p.toFixed(3));
 
-    const wick = wickRef.current;
-    const ember = emberRef.current;
-    if (wick && ember) {
-      try {
-        const len = wick.getTotalLength();
-        const pt = wick.getPointAtLength(len * (1 - p));
-        ember.setAttribute('cx', pt.x.toFixed(2));
-        ember.setAttribute('cy', pt.y.toFixed(2));
-        ember.setAttribute('r', (2.2 + p * 2.8).toFixed(2));
-      } catch (err) {
-        // getPointAtLength throws on a detached node mid-unmount; the ember stays put
-      }
-    }
     const body = shakeElRef.current;
     if (body) {
       if (p <= 0) {
@@ -95,7 +69,7 @@ const Detonator = forwardRef(function Detonator(
       cv.style.width = `${W}px`;
       cv.style.height = `${H}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      if (!wallRef.current) wallRef.current = new Wall({ W, H, dpr, surface, blast });
+      if (!wallRef.current) wallRef.current = new Wall({ W, H, dpr, surface });
       else wallRef.current.resize(W, H);
     };
 
@@ -142,8 +116,7 @@ const Detonator = forwardRef(function Detonator(
 
       wall.step(now, dt);
       wall.draw(ctx);
-      trailRef.current = trailRef.current.filter((p) => now - p.t0 < 2200);
-      if (slow < 12) wall.drawField(ctx, pointRef.current.x, pointRef.current.y, heatRef.current, now, trailRef.current);
+      if (slow < 12) wall.drawField(ctx, pointRef.current.x, pointRef.current.y, heatRef.current, now);
 
       if (shakeRef.current > 0) {
         shakeRef.current -= dt;
@@ -191,14 +164,12 @@ const Detonator = forwardRef(function Detonator(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* ── the Lab can change the material and the failure underneath ── */
+  /* ── the Lab can change the material underneath ── */
   useEffect(() => {
     const wall = wallRef.current;
     if (!wall) return;
     wall.setSurface(surface);
-    wall.setBlast(blast);
-    trailRef.current = [];
-  }, [surface, blast]);
+  }, [surface]);
 
   /* ── pointer ── */
   useEffect(() => {
@@ -207,14 +178,6 @@ const Detonator = forwardRef(function Detonator(
       const c = cursorRef.current;
       if (c) c.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
       pointRef.current = { x: e.clientX, y: e.clientY };
-      const s = SURFACES[surfaceRef.current];
-      if (s && s.trail) {
-        const now = performance.now();
-        if (now - lastTrailRef.current > 34 && trailRef.current.length < 64) {
-          lastTrailRef.current = now;
-          trailRef.current.push({ x: e.clientX, y: e.clientY, t0: now });
-        }
-      }
       if (holdRef.current) {
         holdRef.current.x = e.clientX;
         holdRef.current.y = e.clientY;
@@ -302,47 +265,15 @@ const Detonator = forwardRef(function Detonator(
       <canvas ref={canvasRef} className="v19-wall-canvas" aria-hidden="true" />
       <div className="v19-flash" ref={flashRef} aria-hidden="true" />
 
-      <div className={`v19-cur k-${trigger}${held ? ' is-held' : ''}`} ref={cursorRef} aria-hidden="true">
+      <div className={`v19-cur${held ? ' is-held' : ''}`} ref={cursorRef} aria-hidden="true">
         <div className="v19-cur-body" ref={shakeElRef}>
-          {trigger === 'dynamite' ? (
-            <>
-              <span className="v19-cur-halo" />
-              <svg width="68" height="68" viewBox="0 0 54 54">
-                <g transform="rotate(-14 27 33)">
-                  <rect x="13" y="18" width="9" height="30" rx="2.2" fill="#a8372a" />
-                  <rect x="22" y="15" width="9" height="33" rx="2.2" fill="#c1412f" />
-                  <rect x="31" y="18" width="9" height="30" rx="2.2" fill="#8e2d22" />
-                  <rect x="22" y="15" width="3" height="33" fill="rgba(255,255,255,.16)" />
-                  <rect x="11" y="26" width="31" height="5" fill="#3a3430" />
-                  <rect x="11" y="37" width="31" height="5" fill="#3a3430" />
-                  <rect x="11" y="26" width="31" height="1.4" fill="rgba(255,255,255,.14)" />
-                  <rect x="22" y="27" width="9" height="3" fill="#d8c9a6" />
-                </g>
-                <path ref={wickRef} d={WICK} fill="none" stroke="rgba(58,52,48,.34)" strokeWidth="2.6" strokeLinecap="round" pathLength="1" />
-                <path className="v19-cur-burnt" d={WICK} fill="none" stroke="#3a3430" strokeWidth="2.6" strokeLinecap="round" pathLength="1" strokeDasharray="1" />
-                <circle ref={emberRef} className="v19-cur-ember" cx="38" cy="2.5" r="2.2" />
-              </svg>
-            </>
-          ) : null}
-
-          {trigger === 'pin' ? (
-            <span className="v19-cur-pin">
-              <i className="v19-cur-pin-n" />
-              <i className="v19-cur-pin-e" />
-              <i className="v19-cur-pin-s" />
-              <i className="v19-cur-pin-w" />
-              <i className="v19-cur-pin-c" />
-            </span>
-          ) : null}
-
-          {trigger !== 'dynamite' && trigger !== 'pin' ? (
-            <span className="v19-cur-charge">
-              <i className="v19-cur-ring" />
-              <i className="v19-cur-core" />
-              <i className="v19-cur-brow is-l" />
-              <i className="v19-cur-brow is-r" />
-            </span>
-          ) : null}
+          <span className="v19-cur-pin">
+            <i className="v19-cur-pin-n" />
+            <i className="v19-cur-pin-e" />
+            <i className="v19-cur-pin-s" />
+            <i className="v19-cur-pin-w" />
+            <i className="v19-cur-pin-c" />
+          </span>
         </div>
       </div>
     </>
