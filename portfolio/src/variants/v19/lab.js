@@ -34,6 +34,7 @@ const OPTIONS = [
     choices: [
       { v: 'plaster', label: 'Plaster', hint: 'Off-white. Blocks draw themselves in under your hand.' },
       { v: 'iso', label: 'Isometric', hint: 'Blank until you move — then tiles lift out of it.' },
+      { v: 'iso2', label: 'Isometric 2', hint: 'The same tiles, pre-cut once and blitted, so it holds 60 fps.' },
     ],
   },
   {

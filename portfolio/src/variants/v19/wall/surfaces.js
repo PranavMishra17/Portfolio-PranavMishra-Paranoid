@@ -10,6 +10,8 @@
 //   plaster — off-white. Blocks draw themselves in under the cursor.
 //   iso     — nothing at all until you move: tiles lift out of the blank wall under the cursor.
 
+import iso2 from './iso2';
+
 const rnd = (seed) => {
   let s = (seed >>> 0) || 1;
   return () => {
@@ -148,4 +150,4 @@ const iso = {
   },
 };
 
-export const SURFACES = { plaster, iso };
+export const SURFACES = { plaster, iso, iso2 };

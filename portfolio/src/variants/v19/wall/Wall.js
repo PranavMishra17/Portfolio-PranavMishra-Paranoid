@@ -244,7 +244,7 @@ export default class Wall {
       if (this.surface.rhombus) {
         ctx.save();
         ctx.translate(b.x - b.cx, b.y - b.cy);
-        this.surface.drawTile(ctx, rc, b.lift, b.alpha, this.face, dpr);
+        this.surface.drawTile(ctx, rc, b.lift, b.alpha, this.face, dpr, b);
         ctx.restore();
         continue;
       }
