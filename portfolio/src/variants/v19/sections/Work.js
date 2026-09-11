@@ -2,23 +2,27 @@
 //
 // Three kinds of text and no more: one mono line, one heading, one paragraph. Then the figures:
 // a before struck through, an after that counts up, a line saying what it is. Point at one and
-// the drawing underneath changes to that one specific thing. Click and it tells you why. Five
-// show by default; the Lab can show all ten.
+// the number counts again and the drawing underneath changes to that one specific thing. Click
+// and the why opens BESIDE the drawing, never over it: from the left two boxes the note takes
+// the left and the drawing moves right; from the other three the drawing stays left and the
+// note takes the right. Five show by default; the Lab can show ten, or all fifteen.
 //
-// Underneath the fold: WheelPrice, shut, as one bar. It opens into the same shape at half the
-// size. Everything before that is an after-note, one line each.
+// Underneath the fold: WheelPrice, shut, as one bar with a wheel rolling along it. It opens into
+// the same shape at half the size, with its own drawings. Everything before that is an
+// after-note, one line each.
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ALFRED, AFTER, FIGURES, STACK, WHEELPRICE } from '../copy';
 import { useLab } from '../lab';
 import { useOnScreen, useOpener } from '../hooks';
 
-/* A number that counts to itself once, when it first arrives on screen. */
-function Tick({ value, run }) {
+/* A number that counts to itself when it first arrives on screen, and again whenever you point
+   at it. */
+function Tick({ value, run, again }) {
   const [shown, setShown] = useState(value);
   const numeric = useMemo(() => {
-    const m = String(value).match(/^(−?-?)(\d+(?:\.\d+)?)(.*)$/);
-    return m ? { sign: m[1], n: parseFloat(m[2]), tail: m[3] } : null;
+    const m = String(value).match(/^(−?-?\$?)(\d+(?:[.,]\d+)?)(.*)$/);
+    return m ? { sign: m[1], n: parseFloat(m[2].replace(',', '')), tail: m[3], comma: m[2].includes(',') } : null;
   }, [value]);
 
   useEffect(() => {
@@ -29,11 +33,14 @@ function Tick({ value, run }) {
     let raf = 0;
     const t0 = performance.now();
     const dur = 780;
+    const fmt = (v) => {
+      const s = numeric.n % 1 ? v.toFixed(1) : String(Math.round(v));
+      return numeric.comma ? s.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : s;
+    };
     const tick = (now) => {
       const t = Math.min(1, (now - t0) / dur);
       const e = 1 - (1 - t) ** 3;
-      const v = numeric.n * e;
-      setShown(`${numeric.sign}${numeric.n % 1 ? v.toFixed(1) : Math.round(v)}${numeric.tail}`);
+      setShown(`${numeric.sign}${fmt(numeric.n * e)}${numeric.tail}`);
       if (t < 1) raf = window.requestAnimationFrame(tick);
     };
     raf = window.requestAnimationFrame(tick);
@@ -43,73 +50,160 @@ function Tick({ value, run }) {
       window.cancelAnimationFrame(raf);
       window.clearTimeout(guard);
     };
-  }, [run, numeric, value]);
+  }, [run, again, numeric, value]);
 
   return <span>{shown}</span>;
 }
 
-/* ── one drawing per figure ──────────────────────────────────────────────
-   Small, line-drawn, and about that figure only. They are SVG with the motion in CSS, so a
-   sixth costs a stylesheet block rather than a component. */
+/* ── the drawings ─────────────────────────────────────────────────────
+   Small, line-drawn, and about one figure only. Four are bespoke; the rest are built from a
+   handful of shapes — a run of cells, a flow, a set of bars, a rise — each described in copy.js
+   next to the figure it belongs to, so a sixteenth figure is a line of data, not a component. */
 
-function Sketch({ id }) {
-  if (id === 'otp') {
-    return (
-      <svg className="v19-sk" viewBox="0 0 520 74" role="img" aria-label="A security code arriving instantly">
-        <text className="v19-sk-t" x="0" y="20">code arrives</text>
-        {[0, 1, 2, 3, 4, 5].map((i) => (
-          <g key={i} className="v19-sk-cell" style={{ '--i': i }}>
-            <rect className="v19-sk-box" x={186 + i * 40} y="26" width="32" height="34" rx="3" />
-            <text className="v19-sk-d" x={202 + i * 40} y="51">{[4, 9, 1, 8, 2, 7][i]}</text>
+const T = ({ x, y, cls, children, anchor }) => (
+  <text className={`v19-sk-t${cls ? ` ${cls}` : ''}`} x={x} y={y} textAnchor={anchor}>{children}</text>
+);
+
+/* A run of cells; some are the ones that matter. */
+function Cells({ s }) {
+  const n = s.n || 12;
+  const hot = new Set(s.hot || []);
+  const bw = Math.min(18, Math.floor(400 / n) - 4);
+  return (
+    <svg className="v19-sk" viewBox="0 0 520 74" role="img" aria-label={s.alt}>
+      <T x={0} y={20}>{s.head}</T>
+      {Array.from({ length: n }).map((_, i) => (
+        <rect key={i} className={`v19-sk-tick-box${hot.has(i) ? ' is-hot' : ''}`} style={{ '--i': i }} x={4 + i * (bw + 4)} y={30} width={bw} height={bw} rx="2" />
+      ))}
+      <T x={n * (bw + 4) + 14} y={30 + bw * 0.7} cls="is-hot">{s.tail}</T>
+      <T x={0} y={66} cls={s.strike ? 'is-was' : 'is-small'}>{s.foot}</T>
+    </svg>
+  );
+}
+
+/* Boxes joined by arrows; a bead runs the path; the last box is the point. */
+function Flow({ s }) {
+  const nodes = s.nodes;
+  const gap = 30;
+  const bw = Math.min(120, Math.floor((500 - gap * (nodes.length - 1)) / nodes.length));
+  const x = (i) => i * (bw + gap);
+  return (
+    <svg className="v19-sk" viewBox="0 0 520 74" role="img" aria-label={s.alt}>
+      {nodes.map((nd, i) => (
+        <g key={nd}>
+          <rect className={`v19-sk-box${i === nodes.length - 1 ? ' is-end' : ''}`} x={x(i)} y="18" width={bw} height="30" rx="3" />
+          <T x={x(i) + bw / 2} y={37} cls="is-mid is-centre">{nd}</T>
+          {i < nodes.length - 1 ? <path className="v19-sk-path" d={`M${x(i) + bw} 33 H${x(i + 1)}`} /> : null}
+        </g>
+      ))}
+      {[0, 1, 2].map((i) => (
+        <circle key={i} className="v19-sk-bead is-run" style={{ '--i': i, '--to': `${x(nodes.length - 1)}px` }} cx={x(0) + bw} cy="33" r="3.4" />
+      ))}
+      {s.drop ? (
+        <g className="v19-sk-fail">
+          <path className="v19-sk-cross" d={`M${x(1) + bw + 6} 56 l10 10 M${x(1) + bw + 16} 56 l-10 10`} />
+          <T x={x(1) + bw + 30} y={66} cls="is-small is-was">{s.drop}</T>
+        </g>
+      ) : (
+        <T x={0} y={66} cls="is-small">{s.foot}</T>
+      )}
+    </svg>
+  );
+}
+
+/* Bars, side by side, growing to their value. */
+function Bars({ s }) {
+  const rows = s.rows;
+  const rh = Math.min(16, Math.floor(60 / rows.length) - 4);
+  return (
+    <svg className="v19-sk" viewBox="0 0 520 74" role="img" aria-label={s.alt}>
+      {rows.map((r, i) => {
+        const y = 6 + i * (rh + 6);
+        return (
+          <g key={r.k}>
+            <T x={0} y={y + rh - 3}>{r.k}</T>
+            <rect className={`v19-sk-grow${r.hot ? ' is-hot' : ''}`} style={{ '--i': i }} x="150" y={y} width={Math.round(300 * r.w)} height={rh} rx="2" />
+            <T x={156 + Math.round(300 * r.w)} y={y + rh - 3} cls={r.hot ? 'is-hot' : 'is-small'}>{r.v}</T>
           </g>
-        ))}
-        <text className="v19-sk-t is-hot" x="418" y="51">now</text>
-        <line className="v19-sk-rule" x1="0" y1="43" x2="176" y2="43" />
-        <text className="v19-sk-t is-was" x="0" y="60">189 s ago</text>
-      </svg>
-    );
-  }
+        );
+      })}
+    </svg>
+  );
+}
 
-  if (id === 'cost') {
+/* A rise: columns climbing left to right, to a number. */
+function Rise({ s }) {
+  const cols = s.cols;
+  const cw = Math.floor(360 / cols.length) - 5;
+  return (
+    <svg className="v19-sk" viewBox="0 0 520 74" role="img" aria-label={s.alt}>
+      <T x={0} y={40}>{s.head}</T>
+      {cols.map((h, i) => (
+        <rect key={i} className={`v19-sk-col${i === cols.length - 1 ? ' is-hot' : ''}`} style={{ '--i': i }} x={100 + i * (cw + 5)} y={60 - Math.round(h * 52)} width={cw} height={Math.round(h * 52)} rx="1.5" />
+      ))}
+      <T x={470} y={20} cls="is-hot">{s.tail}</T>
+      <T x={100} y={72} cls="is-small">{s.foot}</T>
+    </svg>
+  );
+}
+
+/* A wheel coming off a car, and a different one going on. */
+function Swap({ s }) {
+  return (
+    <svg className="v19-sk" viewBox="0 0 520 74" role="img" aria-label={s.alt}>
+      <path className="v19-sk-path is-body" d="M60 44 L90 20 H200 L240 44 H300 V56 H40 V44 Z" />
+      <circle className="v19-sk-wheel is-old" cx="100" cy="56" r="12" />
+      <g className="v19-sk-wheel is-new">
+        <circle cx="240" cy="56" r="12" />
+        <path d="M240 44 V68 M228 56 H252 M231.5 47.5 L248.5 64.5 M248.5 47.5 L231.5 64.5" />
+      </g>
+      <T x={330} y={40} cls="is-was">{s.head}</T>
+      <T x={330} y={60} cls="is-small">{s.foot}</T>
+    </svg>
+  );
+}
+
+function Sketch({ f }) {
+  const s = f.sketch;
+  if (!s) return null;
+  if (s.kind === 'cells') return <Cells s={s} />;
+  if (s.kind === 'flow') return <Flow s={s} />;
+  if (s.kind === 'bars') return <Bars s={s} />;
+  if (s.kind === 'rise') return <Rise s={s} />;
+  if (s.kind === 'swap') return <Swap s={s} />;
+
+  if (s.kind === 'cost') {
     return (
-      <svg className="v19-sk" viewBox="0 0 520 74" role="img" aria-label="Most messages decided by a matcher, a few by a model">
-        <text className="v19-sk-t" x="0" y="44">every message</text>
-        <path className="v19-sk-path" d="M110 40 H210" />
-        <path className="v19-sk-path" d="M284 40 H430" />
-        <path className="v19-sk-path" d="M284 40 C 320 40, 330 14, 368 14" />
-        {[0, 1, 2, 3, 4, 5, 6].map((i) => (
-          <circle key={i} className="v19-sk-bead" style={{ '--i': i }} cx="110" cy="40" r="3.4" />
+      <svg className="v19-sk" viewBox="0 0 520 74" role="img" aria-label="A hundred and fifty tools folded into a hundred and ten">
+        {Array.from({ length: 15 }).map((_, i) => (
+          <rect key={i} className={`v19-sk-tick-box${i >= 11 ? ' is-gone' : ''}`} style={{ '--i': i }} x={4 + i * 22} y={26} width={16} height={16} rx="2" />
         ))}
-        <circle className="v19-sk-bead is-up" cx="110" cy="40" r="3.4" />
-        <rect className="v19-sk-gate" x="210" y="26" width="74" height="30" rx="3" />
-        <text className="v19-sk-t is-mid is-centre" x="247" y="45">matcher</text>
-        <rect className="v19-sk-model" x="368" y="2" width="58" height="24" rx="3" />
-        <text className="v19-sk-t is-small is-centre" x="397" y="18">model</text>
-        <text className="v19-sk-t is-hot" x="438" y="44">rule</text>
+        <T x={350} y={38} cls="is-hot">110, every parameter kept</T>
+        <T x={0} y={66} cls="is-was">150 tools weighed on every turn</T>
       </svg>
     );
   }
 
-  if (id === 'rules') {
+  if (s.kind === 'rules') {
     return (
       <svg className="v19-sk" viewBox="0 0 520 74" role="img" aria-label="A sentence becoming a rule">
         <rect className="v19-sk-bubble" x="0" y="10" width="230" height="38" rx="6" />
-        <text className="v19-sk-t is-say" x="14" y="34">“file anything from my landlord”</text>
+        <T x={14} y={34} cls="is-say">“file anything from my landlord”</T>
         <path className="v19-sk-path is-short" d="M240 30 H300" />
         <g className="v19-sk-rule-row">
           <rect className="v19-sk-box is-wide" x="306" y="10" width="200" height="38" rx="3" />
-          <text className="v19-sk-t is-mid" x="322" y="34">from: landlord → Home</text>
+          <T x={322} y={34} cls="is-mid">from: landlord → Home</T>
           <path className="v19-sk-tick" d="M478 30 l7 7 l13 -16" />
         </g>
-        <text className="v19-sk-t is-was" x="0" y="66">it used to be a form with nine fields</text>
+        <T x={0} y={66} cls="is-was">it used to be a form with nine fields</T>
       </svg>
     );
   }
 
-  if (id === 'memory') {
+  if (s.kind === 'memory') {
     return (
       <svg className="v19-sk" viewBox="0 0 520 74" role="img" aria-label="Answers checked against the ledger">
-        <text className="v19-sk-t" x="0" y="16">the ledger</text>
+        <T x={0} y={16}>the ledger</T>
         {[0, 1, 2].map((i) => (
           <g key={i} className="v19-sk-row" style={{ '--i': i }}>
             <rect className="v19-sk-line" x="0" y={26 + i * 16} width={120 - i * 18} height="6" rx="3" />
@@ -117,115 +211,28 @@ function Sketch({ id }) {
         ))}
         <path className="v19-sk-path" d="M150 42 H250" />
         <rect className="v19-sk-box is-wide" x="250" y="22" width="150" height="34" rx="3" />
-        <text className="v19-sk-t is-mid" x="266" y="44">stated in an answer</text>
-        <g className="v19-sk-pass"><path className="v19-sk-tick" d="M420 32 l7 7 l13 -16" /><text className="v19-sk-t is-small" x="452" y="40">kept</text></g>
-        <g className="v19-sk-fail"><path className="v19-sk-cross" d="M420 50 l14 14 M434 50 l-14 14" /><text className="v19-sk-t is-small is-was" x="452" y="64">dropped</text></g>
+        <T x={266} y={44} cls="is-mid">stated in an answer</T>
+        <g className="v19-sk-pass"><path className="v19-sk-tick" d="M420 32 l7 7 l13 -16" /><T x={452} y={40} cls="is-small">kept</T></g>
+        <g className="v19-sk-fail"><path className="v19-sk-cross" d="M420 50 l14 14 M434 50 l-14 14" /><T x={452} y={64} cls="is-small is-was">dropped</T></g>
       </svg>
     );
   }
 
-  if (id === 'auth') {
-    return (
-      <svg className="v19-sk" viewBox="0 0 520 74" role="img" aria-label="Authentication cost, before and after">
-        <text className="v19-sk-t" x="0" y="20">each call</text>
-        <rect className="v19-sk-line" x="90" y="10" width="360" height="12" rx="2" />
-        <text className="v19-sk-t is-was" x="458" y="20">721 ms, booting</text>
-        <rect className="v19-sk-fill is-hot" x="90" y="40" width="12" height="12" rx="2" />
-        <text className="v19-sk-t is-hot" x="110" y="50">one lookup</text>
-        <text className="v19-sk-t is-small" x="0" y="66">98.3% of the traffic was this</text>
-      </svg>
-    );
-  }
-
-  if (id === 'scan') {
-    return (
-      <svg className="v19-sk" viewBox="0 0 520 74" role="img" aria-label="Conversations sorted into real failures and expected behaviour">
-        <text className="v19-sk-t" x="0" y="20">conversations</text>
-        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((i) => (
-          <rect key={i} className={`v19-sk-tick-box${i % 5 === 2 ? ' is-hot' : ''}`} style={{ '--i': i }} x={4 + i * 14} y="30" width="10" height="10" rx="1.5" />
-        ))}
-        <path className="v19-sk-path" d="M190 35 H260" />
-        <rect className="v19-sk-gate" x="260" y="20" width="84" height="30" rx="3" />
-        <text className="v19-sk-t is-mid is-centre" x="302" y="39">scanner</text>
-        <path className="v19-sk-path" d="M344 35 H400" />
-        <rect className="v19-sk-fill is-hot" x="400" y="25" width="10" height="10" rx="1.5" />
-        <rect className="v19-sk-fill is-hot" x="414" y="25" width="10" height="10" rx="1.5" />
-        <text className="v19-sk-t is-hot" x="432" y="34">real</text>
-        <text className="v19-sk-t is-small" x="400" y="62">the rest never reach the queue</text>
-      </svg>
-    );
-  }
-
-  if (id === 'txn') {
-    return (
-      <svg className="v19-sk" viewBox="0 0 520 74" role="img" aria-label="Transactions recovered">
-        <text className="v19-sk-t" x="0" y="20">receipts</text>
-        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((i) => (
-          <rect key={i} className={`v19-sk-tick-box${i < 12 ? ' is-hot' : ''}`} style={{ '--i': i }} x={90 + i * 22} y="26" width="16" height="20" rx="2" />
-        ))}
-        <text className="v19-sk-t is-hot" x="386" y="40">counted</text>
-        <text className="v19-sk-t is-was" x="90" y="66">the model alone was dropping most of them</text>
-      </svg>
-    );
-  }
-
-  if (id === 'sms') {
-    return (
-      <svg className="v19-sk" viewBox="0 0 520 74" role="img" aria-label="A text with no body, then with one">
-        <rect className="v19-sk-bubble" x="0" y="10" width="150" height="34" rx="6" />
-        <text className="v19-sk-t is-was" x="14" y="31">(nothing)</text>
-        <path className="v19-sk-path is-short" d="M160 27 H220" />
-        <rect className="v19-sk-bubble" x="226" y="10" width="270" height="34" rx="6" />
-        <text className="v19-sk-t is-say" x="240" y="31">Re: the lease, "Tuesday works, see you at 3"</text>
-        <text className="v19-sk-t is-small" x="0" y="66">a quote-stripper returning an empty string</text>
-      </svg>
-    );
-  }
-
-  if (id === 'secure') {
-    return (
-      <svg className="v19-sk" viewBox="0 0 520 74" role="img" aria-label="An identifier reaching only its own mailbox">
-        <text className="v19-sk-t" x="0" y="34">a model-supplied id</text>
-        <path className="v19-sk-path" d="M150 30 H230" />
-        <rect className="v19-sk-gate" x="230" y="14" width="70" height="30" rx="3" />
-        <text className="v19-sk-t is-mid is-centre" x="265" y="33">check</text>
-        <path className="v19-sk-path" d="M300 30 H360" />
-        <rect className="v19-sk-box" x="360" y="14" width="60" height="30" rx="3" />
-        <text className="v19-sk-t is-mid is-centre" x="390" y="33">yours</text>
-        <g className="v19-sk-fail"><path className="v19-sk-cross" d="M300 46 l14 14 M314 46 l-14 14" /><text className="v19-sk-t is-small is-was" x="322" y="60">anyone else's</text></g>
-      </svg>
-    );
-  }
-
-  if (id === 'ship') {
-    return (
-      <svg className="v19-sk" viewBox="0 0 520 74" role="img" aria-label="Commits across a day">
-        <text className="v19-sk-t" x="0" y="20">one day</text>
-        {Array.from({ length: 34 }).map((_, i) => (
-          <rect key={i} className="v19-sk-tick-box is-hot" style={{ '--i': i }} x={70 + i * 13} y={26 + ((i * 7) % 3) * 3} width="8" height={18 - ((i * 7) % 3) * 3} rx="1.5" />
-        ))}
-        <text className="v19-sk-t is-small" x="70" y="66">each one checked against production before it counts</text>
-      </svg>
-    );
-  }
-
-  if (id && id.startsWith('wp-')) return null;
-
-  // latency, and the default
+  // latency, the race
   return (
     <svg className="v19-sk" viewBox="0 0 520 74" role="img" aria-label="Mail reaching you in three seconds instead of ninety">
-      <text className="v19-sk-t" x="0" y="26">inbox</text>
-      <text className="v19-sk-t" x="474" y="26">you</text>
+      <T x={0} y={26}>inbox</T>
+      <T x={474} y={26}>you</T>
       <line className="v19-sk-rule" x1="52" y1="38" x2="462" y2="38" />
       <circle className="v19-sk-run is-slow" cx="52" cy="38" r="5" />
       <circle className="v19-sk-run is-fast" cx="52" cy="38" r="6" />
-      <text className="v19-sk-t is-was" x="52" y="64">90 s, polling</text>
-      <text className="v19-sk-t is-hot" x="462" y="64" textAnchor="end">3 s, dispatched</text>
+      <T x={52} y={64} cls="is-was">90 s, polling</T>
+      <T x={462} y={64} cls="is-hot" anchor="end">3 s, dispatched</T>
     </svg>
   );
 }
 
-/* One figure: the before, the after, the line, and the why on request. */
+/* One figure: the before, the after, the line. */
 function Dial({ f, live, isOpen, run, onLive, onPick }) {
   return (
     <div
@@ -245,15 +252,45 @@ function Dial({ f, live, isOpen, run, onLive, onPick }) {
       >
         <span className="v19-dial-was">{f.was}</span>
         <span className="v19-dial-now">
-          <Tick value={f.now} run={run} />
+          <Tick value={f.now} run={run} again={live} />
         </span>
         <span className="v19-dial-label">{f.label}</span>
         <span className="v19-dial-mark" aria-hidden="true">{isOpen ? '−' : '+'}</span>
       </button>
-      <div className="v19-dial-note" hidden={!isOpen}>
-        <p>{f.note}</p>
+    </div>
+  );
+}
+
+/* The row under the dials: the drawing, and the note beside it when one is open. Which side
+   the note takes depends on which column the open box is in, so it never covers the drawing. */
+function Row({ figures, live, open, cols = 5 }) {
+  const figure = figures.find((f) => f.id === open) || figures.find((f) => f.id === live) || figures[0];
+  const opened = figures.find((f) => f.id === open);
+  const col = opened ? figures.indexOf(opened) % cols : -1;
+  const noteLeft = opened && col < 2;
+  return (
+    <div className={`v19-sk-row${opened ? ' has-note' : ''}${noteLeft ? ' note-left' : ''}`}>
+      {opened ? (
+        <div className="v19-sk-note" key={`n-${opened.id}`} data-keep-open="">
+          <p>{opened.note}</p>
+        </div>
+      ) : null}
+      <div className="v19-sk-wrap" key={figure.id}>
+        <Sketch f={figure} />
       </div>
     </div>
+  );
+}
+
+/* The wheel that rolls along the WheelPrice bar. */
+function Wheel() {
+  return (
+    <svg className="v19-wp-wheel" viewBox="0 0 40 40" aria-hidden="true">
+      <circle cx="20" cy="20" r="18" className="v19-wp-tyre" />
+      <circle cx="20" cy="20" r="11" className="v19-wp-rim" />
+      <path d="M20 9 V31 M9 20 H31 M12.2 12.2 L27.8 27.8 M27.8 12.2 L12.2 27.8" className="v19-wp-spoke" />
+      <circle cx="20" cy="20" r="2.4" className="v19-wp-hub" />
+    </svg>
   );
 }
 
@@ -262,10 +299,12 @@ export default function Work({ sectionRef }) {
   const ref = useRef(null);
   const seen = useOnScreen(ref);
   const { open, toggle } = useOpener();
-  const shown = lab.now === 'ten' ? FIGURES : FIGURES.filter((f) => f.top);
+  const shown = lab.now === 'all' ? FIGURES : lab.now === 'ten' ? FIGURES.slice(0, 10) : FIGURES.filter((f) => f.top);
   const [live, setLive] = useState(shown[0].id);
   const [past, setPast] = useState(false);
-  const figure = shown.find((f) => f.id === live) || shown[0];
+  const [wpLive, setWpLive] = useState(WHEELPRICE.figures[0].id);
+  const pastRef = useRef(null);
+  const pastSeen = useOnScreen(pastRef, '-30%');
 
   return (
     <section className="v19-work" ref={sectionRef} id="work" aria-label="What I do now">
@@ -301,15 +340,13 @@ export default function Work({ sectionRef }) {
             </aside>
           </header>
 
-          <div className={`v19-dials${shown.length > 5 ? ' is-ten' : ''}`} onMouseLeave={() => setLive(shown[0].id)}>
+          <div className={`v19-dials${shown.length > 5 ? ' is-many' : ''}`} onMouseLeave={() => setLive(shown[0].id)}>
             {shown.map((f) => (
               <Dial key={f.id} f={f} live={live === f.id} isOpen={open === f.id} run={seen} onLive={setLive} onPick={toggle} />
             ))}
           </div>
 
-          <div className="v19-sk-wrap" key={figure.id}>
-            <Sketch id={figure.id} />
-          </div>
+          <Row figures={shown} live={live} open={open} />
 
           <div className="v19-work-under">
             <p className="v19-mini">Built on</p>
@@ -322,10 +359,10 @@ export default function Work({ sectionRef }) {
         </div>
       </div>
 
-      {/* below the fold: the one before Alfred_, shut */}
-      <div className="v19-past">
+      {/* below the fold: the one before Alfred_, shut, with a wheel rolling along it */}
+      <div className="v19-past" ref={pastRef}>
         <div className="v19-slab-in">
-          <div className={`v19-wp${past ? ' is-open' : ''}`} data-keep-open="">
+          <div className={`v19-wp${past ? ' is-open' : ''}${pastSeen ? ' is-seen' : ''}`} data-keep-open="">
             <button
               type="button"
               className="v19-wp-bar"
@@ -341,15 +378,17 @@ export default function Work({ sectionRef }) {
               <span className="v19-wp-say">{WHEELPRICE.short}</span>
               <span className="v19-wp-when">{WHEELPRICE.when}</span>
               <span className="v19-wp-chev" aria-hidden="true" />
+              <span className="v19-wp-road" aria-hidden="true"><Wheel /></span>
             </button>
 
             <div className="v19-wp-open" hidden={!past}>
               <p className="v19-lede">{WHEELPRICE.about}</p>
-              <div className="v19-dials is-small">
+              <div className="v19-dials is-small" onMouseLeave={() => setWpLive(WHEELPRICE.figures[0].id)}>
                 {WHEELPRICE.figures.map((f) => (
-                  <Dial key={f.id} f={f} live={false} isOpen={open === f.id} run={past} onLive={() => {}} onPick={toggle} />
+                  <Dial key={f.id} f={f} live={wpLive === f.id} isOpen={open === f.id} run={past} onLive={setWpLive} onPick={toggle} />
                 ))}
               </div>
+              <Row figures={WHEELPRICE.figures} live={wpLive} open={open} cols={4} />
               <p className="v19-chiprow is-stack">
                 {WHEELPRICE.stack.map((t) => (
                   <span className="v19-chip" key={t}>{t}</span>

@@ -3,9 +3,11 @@
 //   figure   — the result, drawn. Data first, the title second.
 //   abstract — a real sheet of paper, opaque, with the opening of the abstract set on it and
 //              the rest a click away. Nothing shows through from the page behind.
-//   brief    — one sheet carrying both: the drawing on the left, the first lines on the right.
-//   plates   — the abstract sheet, and under it the figures as numbered plates with captions,
-//              the way they sit under an abstract in a preprint. The one he picked.
+//   brief    — one sheet carrying both: every figure down the left, the title, the one line and
+//              two lines of the abstract on the right, the rest a click away — inline, on the
+//              last line, so the sheet has no gaps in it.
+//   plates   — the abstract sheet, and under it two figures as plates, side by side, the same
+//              size, captions beneath: symmetrical, the way a figures page is.
 //   stacked  — one sheet per paper, full width: the figures beside the title, the whole abstract
 //              in one justified column. Papers stack.
 //
@@ -230,7 +232,7 @@ function Steps({ f }) {
       {f.steps.map((s, i) => (
         <circle key={s.k} cx={L + slot * i + slot / 2} cy={y(s.b)} r="3" className="v19-steps-dot" />
       ))}
-      <text x={L + slot / 2} y={y(f.steps[0].b) + 12} className="v19-steps-v is-line" textAnchor="middle">{f.series[1]}</text>
+      <text x={W - 2} y={10} className="v19-steps-v is-line" textAnchor="end">{f.series[1]} (line) · {f.series[0]} (bars)</text>
       <text x={L + slot * (n - 1) + slot / 2 + 8} y={y(f.steps[n - 1].b) - 6} className="v19-steps-v is-line" textAnchor="middle">{f.steps[n - 1].b}</text>
     </svg>
   );
@@ -314,20 +316,25 @@ function Plate({ f, small }) {
   );
 }
 
-/* The opening of an abstract, with the rest a click away. */
-function Abstract({ p, marked, opening = OPENING }) {
+/* The opening of an abstract, with the rest a click away. With `inline` the link sits on the
+   last line of the text itself rather than on a line of its own. */
+function Abstract({ p, marked, opening = OPENING, inline = false }) {
   const [full, setFull] = useState(false);
   const text = p.abstract || '';
   const long = opening > 0 && text.length > opening + 40;
   const cut = full || !long ? text : `${text.slice(0, text.lastIndexOf(' ', opening))}…`;
+  const more = long ? (
+    <button type="button" className={`v19-abs-more${inline ? ' is-inline' : ''}`} onClick={() => setFull((f) => !f)} aria-expanded={full} data-keep-open="">
+      {full ? 'Less' : 'Read the whole abstract'}
+    </button>
+  ) : null;
   return (
     <>
-      <p className="v19-abs-text">{marked ? <Marked text={cut} /> : cut}</p>
-      {long ? (
-        <button type="button" className="v19-abs-more" onClick={() => setFull((f) => !f)} aria-expanded={full} data-keep-open="">
-          {full ? 'Less' : 'Read the whole abstract'}
-        </button>
-      ) : null}
+      <p className="v19-abs-text">
+        {marked ? <Marked text={cut} /> : cut}
+        {inline && more ? <> {more}</> : null}
+      </p>
+      {!inline ? more : null}
     </>
   );
 }
@@ -451,25 +458,25 @@ export default function Papers({ sectionRef }) {
         <div className="v19-slab-in">
           <Head title="Two papers, briefly." />
           <div className="v19-brief-row">
-            {PAPERS.map((p) => {
-              const f = first(p);
-              return (
-                <article className="v19-brief" key={p.id}>
-                  <div className="v19-brief-fig">
-                    <p className="v19-fig-label">{f ? f.label : 'Result'}</p>
-                    <Drawing f={f} />
+            {PAPERS.map((p) => (
+              <article className="v19-brief" key={p.id}>
+                <div className="v19-brief-fig">
+                  {(FIGURES[p.id] || []).map((f) => (
+                    <Plate key={f.n} f={f} small />
+                  ))}
+                </div>
+                <div className="v19-brief-words">
+                  <SheetHead p={p} />
+                  <h3 className="v19-sheet-title">{p.title}</h3>
+                  <p className="v19-brief-line">{p.line}</p>
+                  <Abstract p={p} opening={190} inline />
+                  <div className="v19-sheet-foot">
                     <Cite n={p.citations} />
-                  </div>
-                  <div className="v19-brief-words">
-                    <SheetHead p={p} />
-                    <h3 className="v19-sheet-title">{p.title}</h3>
-                    <p className="v19-brief-line">{p.line}</p>
-                    <Abstract p={p} />
                     <Links p={p} />
                   </div>
-                </article>
-              );
-            })}
+                </div>
+              </article>
+            ))}
           </div>
           <Won look={look} />
         </div>
@@ -493,7 +500,7 @@ export default function Papers({ sectionRef }) {
                 <p className="v19-abs-label">Abstract</p>
                 <Abstract p={p} marked />
                 <div className="v19-plates">
-                  {(FIGURES[p.id] || []).map((f) => (
+                  {(FIGURES[p.id] || []).slice(0, 2).map((f) => (
                     <Plate key={f.n} f={f} />
                   ))}
                 </div>

@@ -33,7 +33,7 @@ export const HIM = { x: 130, y: 44, w: 28, h: 28 };
 
 /* Hit-test order: first match wins, so what is nearest to you comes first. */
 export const HOTSPOTS = [
-  { id: 2, key: 'me', label: 'Me', kind: 'hand', x: 128, y: 42, w: 32, h: 30 },
+  { id: 2, key: 'me', label: 'Me', kind: 'hand', x: 128, y: 36, w: 36, h: 36 },
   { id: 3, key: 'photo', label: 'Family', kind: 'zoom', x: 76, y: 64, w: 20, h: 22 },
   { id: 4, key: 'mug', label: 'Tea', kind: 'hand', x: 195, y: 72, w: 14, h: 14 },
   { id: 5, key: 'laptop', label: 'Where I have worked', kind: 'zoom', x: 208, y: 56, w: 38, h: 30 },
@@ -42,13 +42,15 @@ export const HOTSPOTS = [
   { id: 7, key: 'monitorB', label: 'Two papers', kind: 'zoom', x: 154, y: 54, w: 42, h: 30 },
   { id: 8, key: 'pc', label: 'The tower', kind: 'hand', x: 50, y: 86, w: 28, h: 34 },
   { id: 9, key: 'games', label: 'Games', kind: 'zoom', x: 78, y: 102, w: 28, h: 18 },
-  { id: 10, key: 'poster1', label: POSTERS[0].title, kind: 'zoom', x: 89, y: 12, w: 30, h: 32 },
-  { id: 11, key: 'poster2', label: POSTERS[1].title, kind: 'zoom', x: 129, y: 12, w: 30, h: 32 },
-  { id: 12, key: 'poster3', label: POSTERS[2].title, kind: 'zoom', x: 169, y: 12, w: 30, h: 32 },
+  { id: 10, key: 'poster1', label: POSTERS[0].title, kind: 'zoom', x: 84, y: 12, w: 30, h: 32 },
+  { id: 11, key: 'poster2', label: POSTERS[1].title, kind: 'zoom', x: 124, y: 12, w: 30, h: 32 },
+  { id: 12, key: 'poster3', label: POSTERS[2].title, kind: 'zoom', x: 164, y: 12, w: 30, h: 32 },
   { id: 13, key: 'trophies', label: 'MIT XR 2024 and HINT 5.0', kind: 'zoom', x: 38, y: 36, w: 24, h: 20 },
   { id: 14, key: 'medals', label: 'Medals', kind: 'zoom', x: 40, y: 56, w: 20, h: 18 },
   { id: 15, key: 'books', label: 'Books', kind: 'zoom', x: 6, y: 32, w: 32, h: 24 },
-  { id: 17, key: 'plant', label: 'A plant', kind: 'hand', x: 228, y: 86, w: 26, h: 38 },
+  { id: 17, key: 'coffee', label: 'The coffee machine', kind: 'hand', x: 224, y: 84, w: 30, h: 40 },
+  { id: 21, key: 'clock', label: 'The clock', kind: 'zoom', x: 20, y: 12, w: 20, h: 20 },
+  { id: 22, key: 'radio', label: 'The radio', kind: 'hand', x: 258, y: 50, w: 24, h: 14 },
   { id: 16, key: 'fridge', label: 'The fridge', kind: 'zoom', x: 254, y: 64, w: 32, h: 60 },
   { id: 18, key: 'ball', label: 'Football and boots', kind: 'hand', x: 8, y: 118, w: 70, h: 26 },
   { id: 19, key: 'window', label: 'The window', kind: 'hand', x: 194, y: 8, w: 72, h: 50 },
@@ -250,7 +252,7 @@ function poster(g, id, x, y, which) {
 
 /* ── the window, which opens ───────────────────────────────────────── */
 
-function windowUnit(g, openT, t) {
+function windowUnit(g, openT, t, storm) {
   const x = 198;
   const y = 10;
   const w = 64;
@@ -260,10 +262,21 @@ function windowUnit(g, openT, t) {
   g.rect(x - 2, y - 2, w + 4, h + 4, 'wood3');
   for (let i = 0; i < h; i += 1) {
     const k = i / h;
-    g.hline(x, y + i, w, k < 0.34 ? 'sky1' : k < 0.62 ? 'sky2' : 'sky3');
+    g.hline(x, y + i, w, storm ? (k < 0.5 ? 'grey3' : 'grey') : k < 0.34 ? 'sky1' : k < 0.62 ? 'sky2' : 'sky3');
   }
-  const sunY = y + 27 - Math.round(Math.sin(t / 4200) * 2);
-  g.disc(x + 44, sunY, 6, 'sun');
+  if (!storm) {
+    const sunY = y + 27 - Math.round(Math.sin(t / 4200) * 2);
+    g.disc(x + 44, sunY, 6, 'sun');
+  } else {
+    // rain, falling at an angle; a fresh drop every few columns
+    for (let i = 0; i < 30; i += 1) {
+      const rx = x + 2 + ((i * 53 + (i % 3) * 11) % (w - 4));
+      const speed = 2 + (i % 3);
+      const ry = y + ((Math.floor(t / 48) * speed + i * 29 + (i * i) % 17) % (h - 2));
+      g.px(rx, ry, 'rain');
+      g.px(rx, ry + 1, 'rain');
+    }
+  }
   for (let i = 0; i < w; i += 1) {
     const hh = 33 + Math.round(Math.sin(i / 9) * 3 + Math.sin(i / 21) * 4);
     g.rect(x + i, y + hh, 1, h - hh, 'hill');
@@ -287,9 +300,9 @@ function windowUnit(g, openT, t) {
 
   g.setId(0);
   const pull = Math.round(e * 3);
-  for (let i = 0; i < 7 - pull; i += 1) g.rect(x - 5 + i, y - 4, 1, h + 6, i % 2 ? 'cream' : 'sand');
+  for (let i = 0; i < 5 - pull; i += 1) g.rect(x - 3 + i, y - 4, 1, h + 6, i % 2 ? 'cream' : 'sand');
   for (let i = 0; i < 7 - pull; i += 1) g.rect(x + w + 4 - i, y - 4, 1, h + 6, i % 2 ? 'cream' : 'sand');
-  g.rect(x - 7, y - 6, w + 14, 2, 'wood3');
+  g.rect(x - 4, y - 6, w + 11, 2, 'wood3');
 }
 
 /* ── the desk and what stands on it ────────────────────────────────── */
@@ -394,8 +407,12 @@ function tower(g, on, t) {
   for (let y = 110; y < 116; y += 2) for (let x = 56; x < 72; x += 2) g.px(x, y, 'grey3');
   if (on && Math.sin(t / 700) > 0.4) g.px(71, 104, 'white');
   g.setId(0);
-  g.line(66, 118, 74, 122, 'cable');
-  g.line(74, 122, 104, 122, 'cable');
+  // the cable, into a socket on the skirting behind it
+  g.line(56, 116, 48, 118, 'cable');
+  g.vline(48, 104, 14, 'cable');
+  g.rect(46, 100, 5, 5, 'grey3');
+  g.px(47, 102, 'ink');
+  g.px(49, 102, 'ink');
 }
 
 function games(g) {
@@ -442,14 +459,15 @@ function person(g, mode, frame, t) {
    seen from here. Two frames, one up, one further up. */
 function waving(g, frame) {
   g.setId(2);
-  const x = 163;
   const lift = frame ? 3 : 0;
-  g.rect(x, 76 - lift, 4, 12, 'shirt');
-  g.rect(x, 70 - lift, 4, 7, 'skin');
-  g.rect(x - 1, 66 - lift, 6, 5, 'skin');
-  g.px(x - 1, 65 - lift, 'skin');
-  g.px(x + 1, 64 - lift, 'skin');
-  g.px(x + 3, 65 - lift, 'skin');
+  // the upper arm, from his right shoulder up and out
+  for (let i = 0; i < 8; i += 1) g.rect(150 + i, 63 - i, 3, 3, 'shirt');
+  // the forearm, straight up, and the hand
+  g.rect(157, 45 - lift, 4, 13 + lift, 'skin');
+  g.rect(156, 40 - lift, 6, 5, 'skin');
+  g.px(156, 39 - lift, 'skin');
+  g.px(158, 38 - lift, 'skin');
+  g.px(160, 39 - lift, 'skin');
   g.setId(0);
 }
 
@@ -472,32 +490,74 @@ function chair(g) {
 
 /* ── the right corner and the floor ────────────────────────────────── */
 
-function plant(g, grown, t) {
+function coffee(g, brewing, t) {
   g.setId(17);
-  const sway = Math.round(Math.sin(t / 900));
-  const sway2 = Math.round(Math.sin(t / 620 + 1));
-  const px0 = 230;
-  const potY = 108;
-  g.rect(px0, potY, 20, 14, 'pot');
-  g.rect(px0, potY, 20, 3, 'wood2');
-  g.rect(px0 + 1, potY + 14, 18, 2, 'wood3');
-  g.rect(px0 + 2, potY + 3, 16, 2, 'floorDark');
-  const cx = px0 + 10;
-  [[cx - 3, 0], [cx, 3], [cx + 3, 1]].forEach(([sx, drop], si) => {
-    const top = (grown ? 82 : 90) + drop;
-    g.rect(sx, top, 1, potY - top, 'green3');
-    const leaves = (grown ? 5 : 4) - (si % 2);
-    for (let i = 0; i < leaves; i += 1) {
-      const y = top + 2 + i * 4;
-      const dir = (i + si) % 2 ? 1 : -1;
-      const len = 4 + ((i + si) % 3);
-      for (let k = 1; k <= len; k += 1) {
-        const x = sx + dir * k + (i % 2 ? sway : sway2);
-        g.px(x, y + Math.round(k / 3), k > len - 2 ? 'leaf' : 'leaf2');
-        if (k < len - 1) g.px(x, y + 1 + Math.round(k / 3), 'leaf2');
-      }
+  // a small side table
+  g.rect(224, 104, 30, 3, 'woodTop');
+  g.rect(224, 107, 30, 2, 'wood');
+  g.rect(226, 109, 2, 16, 'wood3');
+  g.rect(250, 109, 2, 16, 'wood3');
+  // the machine
+  g.rect(229, 86, 20, 18, 'steel');
+  g.rect(229, 86, 20, 4, 'ink2');
+  g.rect(231, 90, 16, 2, 'grey3');
+  g.rect(233, 92, 6, 3, 'ink2'); // the group head
+  g.px(236, 95, 'grey3');
+  g.rect(229, 100, 20, 4, 'grey3'); // the drip tray
+  g.px(246, 88, brewing ? 'led' : 'ledRed');
+  // a cup under the spout
+  g.rect(234, 96, 6, 4, 'cream');
+  g.px(240, 97, 'cream');
+  if (brewing) {
+    g.rect(235, 97, 4, 2, 'coffee');
+    const k = Math.floor(t / 240) % 3;
+    g.px(235 + k, 93 - k, 'grey2');
+    g.px(238 - k, 92 - k, 'grey2');
+    g.px(237, 94 - ((k + 1) % 3), 'grey2');
+  }
+  g.setId(0);
+}
+
+/* The clock on the wall keeps the real time. */
+function clock(g, hour) {
+  g.setId(21);
+  const cx = 30;
+  const cy = 22;
+  g.disc(cx, cy, 8, 'ink2');
+  g.disc(cx, cy, 7, 'cream');
+  [[0, -5], [5, 0], [0, 5], [-5, 0]].forEach(([dx, dy]) => g.px(cx + dx, cy + dy, 'ink2'));
+  const hm = ((hour % 12) / 12) * Math.PI * 2 - Math.PI / 2;
+  const mm = ((hour % 1)) * Math.PI * 2 - Math.PI / 2;
+  g.line(cx, cy, cx + Math.round(Math.cos(hm) * 3), cy + Math.round(Math.sin(hm) * 3), 'ink');
+  g.line(cx, cy, cx + Math.round(Math.cos(mm) * 5), cy + Math.round(Math.sin(mm) * 5), 'ink');
+  g.px(cx, cy, 'red');
+  g.setId(0);
+}
+
+/* A radio on top of the fridge. Playing, it shows its levels and lets out a note now and then. */
+function radio(g, on, t) {
+  g.setId(22);
+  g.rect(258, 54, 24, 10, 'wood3');
+  g.rect(259, 55, 22, 8, 'wood2');
+  g.rect(261, 57, 8, 4, 'ink2'); // the speaker
+  g.dither(261, 57, 8, 4, 'ink2', 'grey3');
+  g.rect(271, 57, 8, 1, 'ink2');
+  g.px(278, 59, on ? 'led' : 'grey3');
+  g.rect(279, 48, 1, 6, 'grey3'); // the aerial
+  if (on) {
+    for (let i = 0; i < 4; i += 1) {
+      const lv = 1 + Math.floor(Math.abs(Math.sin(t / 160 + i * 1.3)) * 3);
+      g.rect(271 + i * 2, 62 - lv, 1, lv, 'screenGrn');
     }
-  });
+    const k = Math.floor(t / 500) % 4;
+    const nx = 284 - k;
+    const ny = 48 - k * 3;
+    g.px(nx, ny, 'ink');
+    g.px(nx, ny - 1, 'ink');
+    g.px(nx, ny - 2, 'ink');
+    g.px(nx + 1, ny - 2, 'ink');
+    g.px(nx - 1, ny + 1, 'ink');
+  }
   g.setId(0);
 }
 
@@ -584,28 +644,47 @@ function ball(g, bounce) {
     if (Math.abs(i - sw / 2) < sw / 3) g.px(dx, 141, 'floorDark');
   }
   g.setId(18);
+  const cx = 20;
   const by = 132 - bounce;
-  g.disc(20, by, 8, 'ball');
-  g.rect(17, by - 3, 6, 2, 'ballDark');
-  g.rect(16, by - 1, 8, 2, 'ballDark');
-  g.rect(17, by + 1, 6, 2, 'ballDark');
-  g.px(18, by + 3, 'ballDark');
-  g.px(22, by + 3, 'ballDark');
-  g.line(17, by - 3, 14, by - 6, 'ballDark');
-  g.line(23, by - 3, 26, by - 6, 'ballDark');
-  g.line(16, by + 1, 12, by + 3, 'ballDark');
-  g.line(24, by + 1, 28, by + 3, 'ballDark');
-  g.px(15, by - 4, 'white');
-  g.px(16, by - 5, 'white');
-  [40, 54].forEach((bx) => {
-    g.rect(bx, 132, 11, 5, 'boot');
-    g.rect(bx + 1, 130, 9, 2, 'boot');
-    g.rect(bx + 6, 127, 5, 4, 'boot');
-    g.rect(bx + 6, 126, 5, 1, 'grey3');
-    g.rect(bx, 137, 12, 2, 'bootSole');
-    for (let i = 0; i < 3; i += 1) g.px(bx + 7, 128 + i, 'cream');
-    g.px(bx + 2, 133, 'cream');
-    g.px(bx + 4, 133, 'cream');
+  g.disc(cx, by, 8, 'ball');
+  // the shade on the underside, and the panels: one in the middle, five around it
+  for (let yy = 4; yy <= 8; yy += 1) for (let xx = -6; xx <= 6; xx += 1) if (xx * xx + yy * yy <= 64 && (xx + yy) % 2 === 0) g.px(cx + xx, by + yy, 'grey2');
+  g.rect(cx - 2, by - 2, 4, 3, 'ballDark');
+  g.px(cx - 1, by - 3, 'ballDark');
+  g.px(cx, by - 3, 'ballDark');
+  g.rect(cx - 6, by - 5, 2, 2, 'ballDark');
+  g.rect(cx + 4, by - 5, 2, 2, 'ballDark');
+  g.rect(cx - 7, by + 1, 2, 2, 'ballDark');
+  g.rect(cx + 5, by + 1, 2, 2, 'ballDark');
+  g.rect(cx - 1, by + 5, 3, 2, 'ballDark');
+  g.line(cx - 2, by - 2, cx - 5, by - 4, 'ballDark');
+  g.line(cx + 1, by - 2, cx + 4, by - 4, 'ballDark');
+  g.line(cx - 2, by, cx - 6, by + 1, 'ballDark');
+  g.line(cx + 1, by, cx + 5, by + 1, 'ballDark');
+  g.line(cx, by + 1, cx, by + 5, 'ballDark');
+  g.px(cx - 4, by - 6, 'white');
+  g.px(cx - 5, by - 5, 'white');
+  g.px(cx - 3, by - 7, 'white');
+
+  // the boots: a toe, a tongue, laces, a sole with studs
+  [40, 55].forEach((bx, i) => {
+    const flip = i === 1;
+    const heelX = flip ? bx + 9 : bx;
+    const toeX = flip ? bx : bx + 8;
+    g.rect(bx, 131, 13, 6, 'boot');
+    g.rect(heelX, 126, 5, 6, 'boot');
+    g.rect(heelX + (flip ? -1 : 0), 125, 6, 1, 'grey3'); // the collar
+    g.rect(toeX, 133, 5, 4, 'boot');
+    g.px(toeX + (flip ? 0 : 4), 132, 'boot');
+    g.rect(heelX + (flip ? -2 : 4), 128, 3, 2, 'cream'); // the tongue
+    g.px(heelX + (flip ? -1 : 5), 130, 'cream'); // laces
+    g.px(heelX + (flip ? -2 : 6), 131, 'cream');
+    g.px(bx + 2, 134, 'grey3'); // the stripe
+    g.px(bx + 4, 134, 'grey3');
+    g.rect(bx, 137, 13, 1, 'bootSole');
+    g.px(bx + 2, 138, 'bootSole'); // studs
+    g.px(bx + 6, 138, 'bootSole');
+    g.px(bx + 10, 138, 'bootSole');
   });
   g.setId(0);
 }
@@ -617,10 +696,12 @@ export function drawScene(grid, state) {
   const t = state.t || 0;
   shell(g);
   stringLights(g, state.string, t);
-  POSTERS.forEach((p, i) => poster(g, 10 + i, 89 + i * 40, 12, i));
-  windowUnit(g, state.windowT || 0, t);
+  POSTERS.forEach((p, i) => poster(g, 10 + i, 84 + i * 40, 12, i));
+  clock(g, state.hour || 0);
+  windowUnit(g, state.windowT || 0, t, Boolean(state.storm));
   shelf(g, state.sparkle, t);
   fridge(g, state.fridgeOpen, t);
+  radio(g, state.radio, t);
   rug(g);
   desk(g);
   tower(g, state.pc, t);
@@ -633,7 +714,7 @@ export function drawScene(grid, state) {
   person(g, state.mode, state.frame, t);
   if (state.mode === 'wave') waving(g, state.frame);
   chair(g);
-  plant(g, state.grown, t);
+  coffee(g, state.brewing, t);
   ball(g, state.bounce || 0);
   return grid;
 }

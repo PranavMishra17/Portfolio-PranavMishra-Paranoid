@@ -24,9 +24,19 @@ const HOURS = [
 ];
 
 const lerp = (a, b, t) => Math.round(a + (b - a) * t);
-const mix3 = (a, b, t) => `rgb(${lerp(a[0], b[0], t)},${lerp(a[1], b[1], t)},${lerp(a[2], b[2], t)})`;
+// every colour is pulled most of the way toward the paper, so the hour is a tint, not a wash
+const PAPER = [240, 238, 233];
+const FADE = 0.55;
+const fade = (c) => c.map((v, i) => v + (PAPER[i] - v) * FADE);
+const mix3 = (a, b, t) => {
+  const fa = fade(a);
+  const fb = fade(b);
+  return `rgb(${lerp(fa[0], fb[0], t)},${lerp(fa[1], fb[1], t)},${lerp(fa[2], fb[2], t)})`;
+};
 
-/** The three sky colours at a fractional hour of the day. */
+/** The three sky colours at a fractional hour of the day, and where the sun or the moon is:
+    a faint glow that rises in the east and sets in the west, so the hour reads even when the
+    colours are this quiet. */
 export function skyAt(hour) {
   const h = ((hour % 24) + 24) % 24;
   let i = 0;
@@ -34,7 +44,18 @@ export function skyAt(hour) {
   const a = HOURS[i];
   const b = HOURS[i + 1];
   const t = (h - a[0]) / (b[0] - a[0]);
-  return { top: mix3(a[1], b[1], t), mid: mix3(a[2], b[2], t), bot: mix3(a[3], b[3], t) };
+  const day = h >= 5.5 && h <= 19;
+  const p = day ? (h - 5.5) / 13.5 : (((h + 24 - 19) % 24) / 10.5);
+  const arc = Math.sin(Math.PI * Math.min(1, Math.max(0, p)));
+  return {
+    top: mix3(a[1], b[1], t),
+    mid: mix3(a[2], b[2], t),
+    bot: mix3(a[3], b[3], t),
+    sunX: `${Math.round(8 + p * 84)}%`,
+    sunY: `${Math.round(70 - arc * 58)}%`,
+    sunA: day ? (0.16 + arc * 0.2).toFixed(3) : (0.06 + arc * 0.08).toFixed(3),
+    sunC: day ? '255, 226, 170' : '214, 222, 248',
+  };
 }
 
 /** How dark the room is at that hour, 0..1. It never goes past 0.72: the darkest night is still
@@ -82,6 +103,10 @@ export function useSky(ref, hour) {
       el.style.setProperty('--sky-top', c.top);
       el.style.setProperty('--sky-mid', c.mid);
       el.style.setProperty('--sky-bot', c.bot);
+      el.style.setProperty('--sun-x', c.sunX);
+      el.style.setProperty('--sun-y', c.sunY);
+      el.style.setProperty('--sun-a', c.sunA);
+      el.style.setProperty('--sun-c', c.sunC);
     };
 
     const onScroll = () => {

@@ -172,17 +172,13 @@ export default function Projects({ sectionRef }) {
           {visible.map((p) => (
             <Tile key={p.id} p={p} live={peek === p.id} picked={open === p.id} onPeek={onPeek} onRest={onRest} onPick={onPick} />
           ))}
-          {hidden > 0 && !all ? (
-            <button type="button" className="v19-tile v19-tile-more" onClick={() => setAll(true)} data-keep-open="">
-              <span className="v19-tile-more-l">Show all</span>
+          {hidden > 0 ? (
+            <button type="button" className="v19-tile v19-tile-more" onClick={() => setAll((a) => !a)} data-keep-open="">
+              <span className="v19-tile-more-l">{all ? 'Show fewer' : 'Show all'}</span>
               <span className="v19-tile-rule" aria-hidden="true" />
             </button>
           ) : null}
         </div>
-
-        {all ? (
-          <button type="button" className="v19-fewer" onClick={() => setAll(false)} data-keep-open="">Show fewer</button>
-        ) : null}
       </div>
     </section>
   );

@@ -45,7 +45,13 @@ body.v19-locked { overflow: hidden; }
 .v19 :where(img) { display: block; max-width: 100%; }
 .v19 :where(button) { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-align: left; }
 .v19 :where(a) { color: inherit; text-decoration: none; }
-.v19 :focus-visible { outline: 2px solid var(--ember); outline-offset: 3px; border-radius: 3px; }
+.v19 :focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; border-radius: 3px; }
+.v19 button:focus:not(:focus-visible), .v19 a:focus:not(:focus-visible) { outline: 0; }
+/* the things that open: no box drawn around them on click, ever. Keyboard focus shows as the
+   same rule along the bottom edge that pointing at them shows. */
+.v19-dial-face:focus, .v19-won-face:focus, .v19-wp-bar:focus, .v19-role-line:focus, .v19-abs-more:focus, .v19-tile:focus { outline: 0; }
+.v19-dial-face:focus-visible::after { transform: scaleX(1); }
+.v19-won-face:focus-visible, .v19-wp-bar:focus-visible, .v19-role-line:focus-visible { box-shadow: inset 0 -3px 0 var(--ember); }
 .v19 [hidden] { display: none !important; }
 
 /* ── the sky, and the tooth over it ──────────────────────────────────── */
@@ -56,6 +62,12 @@ body.v19-locked { overflow: hidden; }
   --sky-bot: #f6efe4;
   position: fixed; inset: 0; z-index: 0; pointer-events: none;
   background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 48%, var(--sky-bot) 100%);
+  transition: background 420ms linear;
+}
+/* the sun by day, the moon by night: one soft glow, where it would be at this hour */
+.v19-sky::after {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(circle at var(--sun-x, 50%) var(--sun-y, 20%), rgba(var(--sun-c, 255, 226, 170), var(--sun-a, .2)) 0, rgba(var(--sun-c, 255, 226, 170), 0) 30vmax);
   transition: background 420ms linear;
 }
 .v19-grain {
@@ -89,6 +101,10 @@ body.v19-locked { overflow: hidden; }
 .v19-bar-who i { font-style: normal; font-size: 12px; color: var(--ink-3); white-space: nowrap; }
 
 .v19-bar-where { flex: 1; display: flex; align-items: center; justify-content: center; gap: 14px; min-width: 0; }
+.v19-bar-step { width: 22px; height: 22px; position: relative; opacity: .55; transition: opacity 150ms ease; flex: none; }
+.v19-bar-step:hover { opacity: 1; }
+.v19-bar-step::before { content: ''; position: absolute; left: 8px; top: 7px; width: 7px; height: 7px; border-left: 2px solid var(--ink); border-bottom: 2px solid var(--ink); transform: rotate(45deg); }
+.v19-bar-step.is-next::before { transform: rotate(-135deg); left: 5px; }
 .v19-bar-where > span { font-family: var(--display); font-size: 13.5px; font-weight: 500; color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; animation: v19-pop 220ms ease; }
 .v19-bar-dots { display: flex; gap: 6px; }
 .v19-bar-dots button { width: 22px; height: 5px; border-radius: 3px; background: var(--rule); transition: background 160ms ease, width 200ms cubic-bezier(.2,.9,.3,1); }
@@ -98,7 +114,11 @@ body.v19-locked { overflow: hidden; }
 .v19-bar-links { display: flex; gap: 2px; }
 .v19-bar-links a { padding: 7px 11px; border-radius: 2px; font-family: var(--display); font-size: 13px; font-weight: 500; color: var(--ink-2); transition: background 140ms ease, color 140ms ease; }
 .v19-bar-links a:hover { background: var(--ink); color: var(--paper-2); }
-@media (max-width: 860px) { .v19-bar-who i, .v19-bar-where > span { display: none; } }
+@media (max-width: 860px) { .v19-bar-who i, .v19-bar-step { width: 22px; height: 22px; position: relative; opacity: .55; transition: opacity 150ms ease; flex: none; }
+.v19-bar-step:hover { opacity: 1; }
+.v19-bar-step::before { content: ''; position: absolute; left: 8px; top: 7px; width: 7px; height: 7px; border-left: 2px solid var(--ink); border-bottom: 2px solid var(--ink); transform: rotate(45deg); }
+.v19-bar-step.is-next::before { transform: rotate(-135deg); left: 5px; }
+.v19-bar-where > span { display: none; } }
 @media (max-width: 600px) { .v19-bar-links { display: none; } }
 
 /* ── the wall, and the landing on it ─────────────────────────────────── */
@@ -254,23 +274,34 @@ body.v19-locked { overflow: hidden; }
   background: rgba(255, 255, 253, .7); border: 1px solid var(--rule-2);
   transition: background 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
 }
-.v19-dial.is-live .v19-dial-face, .v19-dial.is-open .v19-dial-face {
-  background: var(--paper-2); border-color: rgba(193, 65, 47, .36);
-  box-shadow: inset 0 -2px 0 var(--ember);
-}
-.v19-dial-was { display: block; font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); text-decoration: line-through; text-decoration-color: rgba(193,65,47,.6); }
+.v19-dial.is-live .v19-dial-face, .v19-dial.is-open .v19-dial-face { background: var(--paper-2); }
+/* the only mark of being pointed at or open: a rule along the bottom edge, drawn in */
+.v19-dial-face::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--ember); transform: scaleX(0); transform-origin: left; transition: transform 200ms cubic-bezier(.2,.9,.3,1); }
+.v19-dial.is-live .v19-dial-face::after, .v19-dial.is-open .v19-dial-face::after { transform: scaleX(1); }
+.v19-dial-face { position: relative; overflow: hidden; }
+/* the before: struck through by a line that draws itself when you point at it */
+.v19-dial-was { position: relative; display: inline-block; font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); }
+.v19-dial-was::after { content: ''; position: absolute; left: 0; right: 0; top: 55%; height: 1.5px; background: rgba(193,65,47,.75); transform-origin: left; }
+.v19-dial.is-live .v19-dial-was::after { animation: v19-strike 360ms cubic-bezier(.2,.9,.3,1); }
+@keyframes v19-strike { from { transform: scaleX(0); } }
 .v19-dial-now { display: block; font-family: var(--display); font-size: clamp(25px, 2.9vw, 36px); font-weight: var(--display-w); letter-spacing: var(--display-tr); line-height: 1.12; margin-top: 2px; font-variant-numeric: tabular-nums; }
 .v19-dial-label { display: block; font-size: 13.5px; line-height: 1.48; color: var(--ink-2); margin-top: 5px; min-height: 2.7em; }
-.v19-dial-mark { position: absolute; right: 12px; top: 10px; font-family: var(--mono); font-size: 15px; color: var(--ember); }
+.v19-dial-mark { position: absolute; right: 12px; top: 10px; font-family: var(--mono); font-size: 15px; color: var(--ember); transition: transform 200ms ease; }
+.v19-dial.is-live .v19-dial-mark { transform: rotate(90deg); }
+.v19-dial.is-open .v19-dial-mark { transform: none; }
 .v19-dials.is-small .v19-dial-now { font-size: clamp(20px, 2vw, 26px); }
 .v19-dials.is-small .v19-dial-label { font-size: 13px; min-height: 0; }
-.v19-dials.is-ten .v19-dial-now { font-size: clamp(22px, 2.4vw, 30px); }
-.v19-dial-note {
-  position: absolute; left: 0; right: 0; top: calc(100% + 8px); z-index: 12; min-width: 280px;
-  padding: 14px 16px; border-radius: 3px; background: var(--paper-2); border: 1px solid var(--rule);
-  box-shadow: 0 24px 44px -28px rgba(50, 44, 34, .85); animation: v19-pop 150ms cubic-bezier(.2,.9,.3,1);
-}
-.v19-dial-note p { font-size: 14.5px; line-height: 1.6; color: var(--ink-2); max-width: 46ch; }
+.v19-dials.is-many .v19-dial-now { font-size: clamp(22px, 2.4vw, 30px); }
+.v19-dials.is-many .v19-dial-label { min-height: 0; }
+/* the row under the boxes: the drawing, and the note beside it — never over it */
+.v19-sk-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(16px, 2.4vw, 36px); align-items: center; margin: clamp(10px, 1.8vh, 22px) 0 clamp(6px, 1.2vh, 14px); min-height: 96px; }
+.v19-sk-row.has-note { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.v19-sk-row.note-left .v19-sk-note { order: 0; }
+.v19-sk-row.note-left .v19-sk-wrap { order: 1; justify-content: flex-end; }
+.v19-sk-row:not(.note-left) .v19-sk-note { order: 1; }
+.v19-sk-note { padding: 14px 16px; border-radius: 3px; background: var(--paper-2); border: 1px solid var(--rule-2); border-left: 3px solid var(--ember); animation: v19-pop 180ms cubic-bezier(.2,.9,.3,1); }
+.v19-sk-note p { font-size: 14.5px; line-height: 1.6; color: var(--ink-2); max-width: 52ch; }
+@media (max-width: 760px) { .v19-sk-row.has-note { grid-template-columns: 1fr; } .v19-sk-row.note-left .v19-sk-wrap { justify-content: flex-start; } }
 
 .v19-work-under { margin-top: clamp(10px, 1.8vh, 20px); }
 .v19-chiprow.is-stack { gap: 6px; margin-top: 0; }
@@ -278,7 +309,7 @@ body.v19-locked { overflow: hidden; }
 
 /* ── the drawing under the dials: one per figure ──────────────────────── */
 
-.v19-sk-wrap { margin: clamp(10px, 1.8vh, 22px) 0 clamp(6px, 1.2vh, 14px); min-height: 88px; display: flex; align-items: center; }
+.v19-sk-wrap { min-height: 88px; display: flex; align-items: center; min-width: 0; }
 .v19-sk { width: 100%; max-width: 620px; height: 88px; overflow: visible; animation: v19-fade 300ms ease; }
 .v19-sk-t { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; fill: var(--ink-2); }
 .v19-sk-t.is-small { font-size: 10px; fill: var(--ink-3); }
@@ -292,8 +323,25 @@ body.v19-locked { overflow: hidden; }
 .v19-sk-box, .v19-sk-gate, .v19-sk-model, .v19-sk-bubble { fill: rgba(255,255,253,.8); stroke: var(--rule); stroke-width: 1.2; }
 .v19-sk-line { fill: rgba(23,23,26,.16); }
 .v19-sk-fill.is-hot { fill: var(--ember); }
-.v19-sk-tick-box { fill: rgba(23,23,26,.14); opacity: 0; animation: v19-cell 3.6s ease-out infinite; animation-delay: calc(var(--i) * 45ms); }
+.v19-sk-tick-box { fill: rgba(23,23,26,.14); animation: v19-cell-in 420ms ease both; animation-delay: calc(var(--i) * 45ms); }
+@keyframes v19-cell-in { from { opacity: 0; transform: translateY(4px); } }
 .v19-sk-tick-box.is-hot { fill: var(--ember); }
+.v19-sk-tick-box.is-gone { fill: none; stroke: var(--rule); stroke-dasharray: 2 2; }
+.v19-sk-box.is-end { stroke: var(--ember); }
+.v19-sk-bead.is-run { fill: var(--ember); animation: v19-bead-run 2.6s linear infinite; animation-delay: calc(var(--i) * 800ms); }
+@keyframes v19-bead-run { 0% { transform: translateX(0); opacity: 0; } 8% { opacity: 1; } 92% { opacity: 1; } 100% { transform: translateX(calc(var(--to) - 120px)); opacity: 0; } }
+.v19-sk-grow { fill: rgba(23,23,26,.16); transform-origin: left; transform-box: fill-box; animation: v19-grow 900ms cubic-bezier(.2,.9,.3,1) both; animation-delay: calc(var(--i) * 120ms); }
+.v19-sk-grow.is-hot { fill: var(--ember); }
+.v19-sk-col { fill: rgba(23,23,26,.16); transform-origin: bottom; transform-box: fill-box; animation: v19-grow-y 800ms cubic-bezier(.2,.9,.3,1) both; animation-delay: calc(var(--i) * 90ms); }
+.v19-sk-col.is-hot { fill: var(--ember); }
+.v19-sk-path.is-body { stroke: var(--ink-3); stroke-width: 1.6; }
+.v19-sk-wheel { fill: rgba(255,255,253,.8); stroke: var(--ink-2); stroke-width: 1.6; }
+.v19-sk-wheel.is-old { stroke-dasharray: 3 3; animation: v19-wheel-off 3.4s ease-in-out infinite; }
+.v19-sk-wheel.is-new { transform-box: fill-box; transform-origin: center; animation: v19-wheel-on 3.4s linear infinite; }
+.v19-sk-wheel.is-new circle { fill: rgba(255,255,253,.8); stroke: var(--ember); }
+.v19-sk-wheel.is-new path { fill: none; stroke: var(--ember); }
+@keyframes v19-wheel-off { 0%, 20% { opacity: 1; transform: translateY(0); } 50%, 100% { opacity: .25; transform: translateY(8px); } }
+@keyframes v19-wheel-on { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
 /* latency — one crawls, one is already there */
 .v19-sk-run.is-slow { fill: var(--ink-3); animation: v19-slowrun 5s linear infinite; }
@@ -356,12 +404,23 @@ body.v19-locked { overflow: hidden; }
 
 /* ── below the fold: the one before Alfred_ ───────────────────────────── */
 
-.v19-wp { border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule-2); background: rgba(255,255,253,.5); }
+.v19-wp { position: relative; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule-2); background: rgba(255,255,253,.5); transition: background 200ms ease; }
+.v19-wp.is-seen:not(.is-open) { background: rgba(255,255,253,.72); }
 .v19-wp-bar {
-  width: 100%; display: grid; grid-template-columns: 34px 13rem minmax(0, 1fr) auto 18px;
-  gap: 16px; align-items: center; padding: 16px 8px 16px 12px;
+  position: relative; width: 100%; display: grid; grid-template-columns: 38px 13rem minmax(0, 1fr) auto 18px;
+  gap: 16px; align-items: center; padding: 22px 8px 26px 12px;
   transition: background 150ms ease, padding-left 180ms ease;
 }
+/* the road along the bottom of the bar, and the wheel that rolls it while the bar is shut */
+.v19-wp-road { position: absolute; left: 12px; right: 12px; bottom: 6px; height: 1px; background: var(--rule-2); pointer-events: none; }
+.v19-wp-wheel { position: absolute; bottom: 0; left: 0; width: 22px; height: 22px; opacity: 0; transition: opacity 300ms ease; }
+.v19-wp.is-seen:not(.is-open) .v19-wp-wheel { opacity: 1; animation: v19-roll 11s linear infinite; }
+.v19-wp-bar:hover .v19-wp-wheel { animation-duration: 3.6s; }
+.v19-wp-tyre { fill: var(--ink); }
+.v19-wp-rim { fill: var(--paper-2); }
+.v19-wp-spoke { stroke: var(--ink-2); stroke-width: 2; fill: none; }
+.v19-wp-hub { fill: var(--ember); }
+@keyframes v19-roll { from { left: 0; transform: rotate(0deg); } to { left: calc(100% - 22px); transform: rotate(2160deg); } }
 .v19-wp-bar:hover { background: rgba(23,23,26,.035); padding-left: 18px; }
 .v19-wp-logo { width: 34px; height: 34px; object-fit: cover; border-radius: 3px; }
 .v19-wp-who { display: flex; flex-direction: column; line-height: 1.25; min-width: 0; }
@@ -369,6 +428,8 @@ body.v19-locked { overflow: hidden; }
 .v19-wp-who i { font-style: normal; font-size: 12.5px; color: var(--ink-3); }
 .v19-wp-say { font-size: 14.5px; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .v19-wp-when { font-family: var(--mono); font-size: 11px; color: var(--ink-3); white-space: nowrap; }
+.v19-wp.is-seen:not(.is-open) .v19-wp-chev { animation: v19-nudge 2.2s ease-in-out infinite; }
+@keyframes v19-nudge { 0%, 100% { translate: 0 0; } 50% { translate: 0 4px; } }
 .v19-wp-chev { width: 9px; height: 9px; border-right: 2px solid var(--ink-3); border-bottom: 2px solid var(--ink-3); transform: rotate(45deg); transition: transform 200ms ease; }
 .v19-wp.is-open .v19-wp-chev { transform: rotate(-135deg); }
 @media (max-width: 860px) {
@@ -468,7 +529,6 @@ body.v19-locked { overflow: hidden; }
 .v19-tile.is-picked { border-color: var(--ember); }
 .v19-tile-more { display: grid; place-content: center; background: var(--paper-2); text-align: center; }
 .v19-tile-more-l { font-family: var(--display); font-size: clamp(11px, 1.05vw, 14px); font-weight: 600; letter-spacing: .02em; color: var(--ink); }
-.v19-fewer { align-self: flex-start; font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ember); border-bottom: 1px solid rgba(193,65,47,.4); }
 
 /* ── the papers ──────────────────────────────────────────────────────── */
 
@@ -528,24 +588,40 @@ body.v19-locked { overflow: hidden; }
   box-shadow: 0 20px 40px -36px rgba(40, 36, 28, .95);
 }
 @media (max-width: 900px) { .v19-brief { grid-template-columns: 1fr; } }
-.v19-brief-fig { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; border-right: 1px solid var(--rule-2); padding-right: clamp(12px, 2vw, 30px); }
+.v19-brief-fig { display: flex; flex-direction: column; justify-content: space-between; gap: 14px; border-right: 1px solid var(--rule-2); padding-right: clamp(12px, 2vw, 30px); }
 @media (max-width: 900px) { .v19-brief-fig { border-right: 0; padding-right: 0; border-bottom: 1px solid var(--rule-2); padding-bottom: 16px; } }
-.v19-brief-fig .v19-fig-bars, .v19-brief-fig .v19-fig-count, .v19-brief-fig .v19-g3, .v19-brief-fig .v19-steps { width: 100%; margin-top: 2px; }
+.v19-brief-fig .v19-plate { width: 100%; }
+.v19-brief-words { display: flex; flex-direction: column; justify-content: center; }
+.v19-brief-words .v19-sheet-foot { padding-top: 14px; }
 .v19-fig .v19-g3, .v19-fig .v19-steps { margin-top: 14px; }
 .v19-brief-fig .v19-fig-bar { grid-template-columns: 8.5rem minmax(0, 1fr) 3.6rem; }
 .v19-brief-line { font-size: 15.5px; line-height: 1.6; color: var(--ink); margin-top: 12px; max-width: 54ch; }
-.v19-brief-words .v19-abs-text { font-size: 13.5px; line-height: 1.66; margin-top: 10px; text-align: left; }
+.v19-brief-words .v19-abs-text { font-size: 13.5px; line-height: 1.66; margin-top: 10px; text-align: justify; hyphens: auto; }
+.v19-abs-more.is-inline { display: inline; margin: 0; font-size: 10.5px; vertical-align: baseline; white-space: nowrap; }
 .v19-brief-words .v19-view-links { margin-top: 14px; }
 
 /* plates — numbered figures under the abstract, with captions */
-.v19-plates { display: grid; grid-template-columns: 1fr; gap: clamp(14px, 1.8vw, 24px); margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--rule-2); }
-.v19-plate { margin: 0; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 14px; align-items: center; }
-@media (max-width: 560px) { .v19-plate { grid-template-columns: 1fr; } }
-.v19-plate-art { border: 1px solid var(--rule-2); border-radius: 2px; padding: 14px; background: #fff; min-height: 110px; display: flex; flex-direction: column; justify-content: center; }
+.v19-plates { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(14px, 1.8vw, 24px); margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--rule-2); }
+@media (max-width: 560px) { .v19-plates { grid-template-columns: 1fr; } }
+.v19-plate { margin: 0; display: grid; grid-template-rows: auto 1fr; gap: 10px; align-items: start; }
+.v19-plate-art { border: 1px solid var(--rule-2); border-radius: 2px; padding: 14px; background: #fff; height: 168px; display: flex; flex-direction: column; justify-content: center; }
+.v19-plate-art > * { width: 100%; }
+/* the drawings at plate size */
+.v19-plate-art .v19-g3 { grid-template-columns: 4.4rem repeat(3, minmax(0, 1fr)); gap: 2px; }
+.v19-plate-art .v19-g3-h, .v19-plate-art .v19-g3-k { font-size: 7.5px; letter-spacing: .04em; }
+.v19-plate-art .v19-g3-k { padding-right: 4px; }
+.v19-plate-art .v19-g3-c { font-size: 10.5px; padding: 6px 0; }
+.v19-plate-art .v19-fig-bar { grid-template-columns: 5.6rem minmax(0, 1fr) 3rem; gap: 6px; }
+.v19-plate-art .v19-fig-bars.is-tokens .v19-fig-k { font-size: 9px; }
+.v19-plate-art .v19-fig-bars.is-tokens .v19-fig-v { font-size: 11.5px; }
+.v19-plate-art .v19-fig-cells span { height: 18px; }
+.v19-plate-art .v19-fig-count .v19-fig-v { font-size: 16px; }
+.v19-plate-art .v19-gap-row { grid-template-columns: 4.2rem minmax(0, 1fr) 4.6rem; gap: 6px; }
+.v19-plate-art .v19-gap-k, .v19-plate-art .v19-gap-v { font-size: 9px; }
 .v19-plate-cap { font-size: 12.5px; line-height: 1.55; color: var(--ink-3); }
 .v19-plate-cap b { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); margin-right: 6px; }
-.v19-plate.is-small { grid-template-columns: 1fr; gap: 8px; align-items: start; }
-.v19-plate.is-small .v19-plate-art { padding: 10px 12px; min-height: 0; }
+.v19-plate.is-small { gap: 8px; }
+.v19-plate.is-small .v19-plate-art { padding: 10px 12px; height: auto; min-height: 0; }
 .v19-plate.is-small .v19-plate-cap { font-size: 12px; }
 
 /* the 3 x 3 */
@@ -677,6 +753,16 @@ body.v19-locked { overflow: hidden; }
   mask-image: linear-gradient(to bottom, transparent 0, #000 5%);
 }
 .v19-room-stage:not(.k-hand):not(.k-zoom) .v19-room-canvas { cursor: default; }
+
+/* the real picture, sat exactly over its pixelated self while you point at it */
+.v19-room-art { position: absolute; z-index: 4; object-fit: cover; pointer-events: none; image-rendering: auto; box-shadow: 0 10px 30px -12px rgba(0,0,0,.6); animation: v19-clear 260ms ease both; }
+@keyframes v19-clear { from { opacity: 0; filter: blur(6px); } to { opacity: 1; filter: blur(0); } }
+.v19-room-shelf { position: absolute; z-index: 4; display: flex; gap: 8px; padding: 8px; background: rgba(253,251,246,.94); border: 1px solid var(--rule-2); border-radius: 3px; transform: translateY(-100%); pointer-events: none; animation: v19-clear 220ms ease both; }
+.v19-room-book { margin: 0; width: 84px; display: flex; flex-direction: column; gap: 5px; }
+.v19-room-book img { width: 84px; height: 118px; object-fit: cover; border-radius: 2px; background: var(--spine); }
+.v19-room-book figcaption { line-height: 1.25; }
+.v19-room-book b { display: block; font-family: var(--display); font-size: 11px; font-weight: 600; letter-spacing: -.01em; color: var(--ink); }
+.v19-room-book i { display: block; font-style: normal; font-family: var(--mono); font-size: 9.5px; color: var(--ink-3); margin-top: 2px; }
 
 /* the way back up, standing on the rug */
 .v19-top {

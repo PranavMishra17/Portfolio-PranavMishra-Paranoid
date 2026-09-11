@@ -8,10 +8,11 @@
 // 28 wide, 28 tall — a head eighteen pixels across in a room two hundred and eighty-eight
 // across, which is a person rather than a doll and still leaves the chair bigger than him.
 //
-// legend: h hair · s skin · S shadowed skin · d shirt · D shirt shadow · w collar
+// legend: h hair · H lighter hair, the strands · s skin · S shadowed skin · d shirt · D shirt shadow · w collar
 
 export const LEGEND = {
   h: 'hair',
+  H: 'hair2',
   s: 'skin',
   S: 'skin2',
   d: 'shirt',
@@ -20,17 +21,17 @@ export const LEGEND = {
 };
 
 const BUST = [
-  '..........hhhhhhhh..........',
-  '........hhhhhhhhhhhh........',
-  '.......hhhhhhhhhhhhhh.......',
-  '......hhhhhhhhhhhhhhhh......',
-  '......hhhhhhhhhhhhhhhh......',
-  '.....hhhhhhhhhhhhhhhhhh.....',
-  '.....hhhhhhhhhhhhhhhhhh.....',
-  '.....shhhhhhhhhhhhhhhhS.....',
-  '.....sshhhhhhhhhhhhhhSS.....',
-  '.....sssshhhhhhhhhhSSSS.....',
-  '......ssssssssssssssSS......',
+  '.........hhHhhhhhHh.........',
+  '.......hhHhhhhHhhhhhh.......',
+  '......hHhhhhhhhhhhHhhh......',
+  '.....hhhhhHhhhhhhhhhhhh.....',
+  '.....hHhhhhhhhhHhhhhhHh.....',
+  '....hhhhhhhHhhhhhhhhhhhh....',
+  '....hhHhhhhhhhhhhhhHhhhh....',
+  '....hhhhhhhhhhHhhhhhhhhh....',
+  '...sshhhhHhhhhhhhhhhhhHSS...',
+  '...sshhhhhhhhhhhhhhhhhhSS...',
+  '....sshhhhhhhhhhhhhhhhSS....',
   '......ssssssssssssssSS......',
   '.......ssssssssssssSS.......',
   '........ssssssssssSS........',

@@ -15,6 +15,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createGrid, rasterize, W, H, ROOF } from './engine';
 import { nightAt } from '../hooks';
+import { useLab } from '../lab';
 import { drawScene, HOTSPOTS, LIGHTS, SCREENS } from './scene';
 import { BOOKS, GAMES, MAGNETS, POSTERS, TROPHIES, FAMILY, MEDALS } from '../personal';
 import { ALL_PROJECTS, PAPERS, ROLES, ALFRED, LINKS, MORE_LINKS } from '../copy';
@@ -23,9 +24,10 @@ const FRAME_MS = 42;
 const SCREEN_MS = 4600;
 const WAVE_MS = 1700;
 
-const TOGGLES = new Set(['lamp', 'lights', 'pc', 'window', 'ball', 'plant', 'mug', 'me']);
+const TOGGLES = new Set(['lamp', 'lights', 'pc', 'window', 'ball', 'coffee', 'mug', 'me', 'radio']);
+const BREW_MS = 6000;
 
-const EVENING = { night: 0.5, lamp: true, string: true, pc: true, windowOpen: false, mono: false };
+const EVENING = { night: 0.5, lamp: true, string: true, pc: true, windowOpen: false, mono: false, brewing: false, radio: false, storm: false, hour: 19 };
 
 const ON_SCREEN = ['stellarium', 'mockflow-ai', 'snaider-cut', 'big5-agents', 'equity-project']
   .map((id) => ALL_PROJECTS.find((p) => p.id === id))
@@ -56,7 +58,7 @@ function List({ items }) {
   );
 }
 
-function Slip({ hotspot, onClose }) {
+function Slip({ hotspot, onClose, clockHour = 0 }) {
   if (!hotspot) return null;
   const { key } = hotspot;
   const sc = hotspot.screen;
@@ -141,6 +143,16 @@ function Slip({ hotspot, onClose }) {
             </>
           ),
         };
+      case 'clock': {
+        const hh = Math.floor(((clockHour % 24) + 24) % 24);
+        const mm = Math.floor((clockHour % 1) * 60);
+        const ampm = hh >= 12 ? 'pm' : 'am';
+        return {
+          eye: 'On the wall',
+          title: `${((hh + 11) % 12) + 1}:${String(mm).padStart(2, '0')} ${ampm}`,
+          node: <p className="v19-slip-p">The clock in the room, and the light in it, keep the time where you are.</p>,
+        };
+      }
       case 'poster1':
       case 'poster2':
       case 'poster3': {
@@ -183,7 +195,11 @@ function Slip({ hotspot, onClose }) {
 /* ── the room ───────────────────────────────────────────────────────── */
 
 export default function Room({ sectionRef, onTop, hour = 19 }) {
+  const { lab } = useLab();
   const canvasRef = useRef(null);
+  const artRef = useRef({ posters: [], books: [] });
+  const hoverScreenRef = useRef(null);
+  const [hoverScreen, setHoverScreen] = useState(null);
   const cursorRef = useRef(null);
   const gridRef = useRef(null);
   const imgRef = useRef(null);
@@ -212,9 +228,29 @@ export default function Room({ sectionRef, onTop, hour = 19 }) {
   useEffect(() => {
     const st = stateRef.current;
     st.night = nightAt(hour);
+    st.hour = hour;
     st.lamp = st.night > 0.15;
     st.string = st.night > 0.15;
   }, [hour]);
+
+  /* the surprise: a storm outside, the radio on, the lights doing something */
+  useEffect(() => {
+    const st = stateRef.current;
+    st.storm = lab.room === 'surprise';
+    if (st.storm) st.radio = true;
+  }, [lab.room]);
+
+  /* the real pictures, if they are there: pixelated onto the wall and the shelf */
+  useEffect(() => {
+    let alive = true;
+    Promise.all(POSTERS.map((p) => (p.image ? load(p.image) : Promise.resolve(null)))).then((imgs) => {
+      if (alive) artRef.current.posters = imgs;
+    });
+    Promise.all(BOOKS.map((b) => (b.cover ? load(b.cover) : Promise.resolve(null)))).then((imgs) => {
+      if (alive) artRef.current.books = imgs;
+    });
+    return () => { alive = false; };
+  }, []);
 
   const hotspot = useMemo(() => HOTSPOTS.find((h) => h.id === hover) || null, [hover]);
   const openHotspot = useMemo(() => HOTSPOTS.find((h) => h.key === openKey) || null, [openKey]);
@@ -242,6 +278,33 @@ export default function Room({ sectionRef, onTop, hour = 19 }) {
     let alive = true;
     let lastDraw = 0;
     let lastFrame = 0;
+
+    /* the real posters and covers, downsampled onto the drawn ones */
+    const paintArt = () => {
+      const st = stateRef.current;
+      const tint = st.night > 0.6 ? 'rgba(150,164,200,1)' : st.night > 0.2 ? 'rgba(196,200,214,1)' : 'rgba(240,240,238,1)';
+      const blit = (img, x, y, w, h) => {
+        if (!img || !img.width) return;
+        const scale = Math.max(w / img.width, h / img.height);
+        const sw = w / scale;
+        const sh = h / scale;
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(x, y, w, h);
+        ctx.clip();
+        ctx.imageSmoothingEnabled = true;
+        ctx.drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, x, y, w, h);
+        ctx.globalCompositeOperation = 'multiply';
+        ctx.fillStyle = tint;
+        ctx.fillRect(x, y, w, h);
+        ctx.restore();
+        ctx.globalCompositeOperation = 'source-over';
+      };
+      artRef.current.posters.forEach((img, i) => {
+        const hs = HOTSPOTS.find((h) => h.key === `poster${i + 1}`);
+        if (hs) blit(img, hs.x, hs.y + ROOF, hs.w, hs.h);
+      });
+    };
 
     const paintScreens = (now) => {
       const st = stateRef.current;
@@ -282,6 +345,8 @@ export default function Room({ sectionRef, onTop, hour = 19 }) {
       ctx.fillStyle = st.mono ? '#68676a' : '#2f6a8f';
       ctx.fillRect(b.x + 3, b.y + b.h - 3, 7, 1);
 
+      paintArt();
+
       // he is nearer than the screens: put his own pixels back over whatever landed on them
       const grid = gridRef.current;
       const frame = imgRef.current;
@@ -310,8 +375,9 @@ export default function Room({ sectionRef, onTop, hour = 19 }) {
       }
       if (st.mode === 'wave') st.frame = Math.floor(now / 220) % 2;
 
-      // the window open lets the day in
-      const night = Math.max(0, st.night - st.windowT * st.night * 0.85);
+      // the window open lets the day in; in a storm, lightning does now and then
+      const flash = st.storm && (now % 7000) < 140;
+      const night = flash ? 0 : Math.max(0, st.night - st.windowT * st.night * 0.85);
       const lights = [];
       if (st.lamp) lights.push({ ...LIGHTS.lamp, y: LIGHTS.lamp.y + ROOF, on: true });
       if (st.pc) lights.push({ ...LIGHTS.screens, y: LIGHTS.screens.y + ROOF, on: true });
@@ -397,6 +463,9 @@ export default function Room({ sectionRef, onTop, hour = 19 }) {
         setHover(id);
         setKind(h ? h.kind : '');
         stateRef.current.sparkle = h ? h.key === 'trophies' || h.key === 'medals' : false;
+        const art = h && (h.key.startsWith('poster') || h.key === 'books') ? { key: h.key, ...h.screen } : null;
+        hoverScreenRef.current = art;
+        setHoverScreen(art);
       }
       const c = cursorRef.current;
       if (c) c.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
@@ -408,6 +477,7 @@ export default function Room({ sectionRef, onTop, hour = 19 }) {
     hoverRef.current = 0;
     setHover(0);
     setKind('');
+    setHoverScreen(null);
     stateRef.current.sparkle = false;
   }, []);
 
@@ -453,7 +523,13 @@ export default function Room({ sectionRef, onTop, hour = 19 }) {
             }, 42);
             break;
           }
-          case 'plant': st.grown = !st.grown; break;
+          case 'coffee': {
+            st.brewing = true;
+            st.cold = false; // the mug on the desk is hot again
+            window.setTimeout(() => { stateRef.current.brewing = false; }, BREW_MS);
+            break;
+          }
+          case 'radio': st.radio = !st.radio; break;
           case 'mug': st.cold = !st.cold; break;
           default: break;
         }
@@ -489,6 +565,8 @@ export default function Room({ sectionRef, onTop, hour = 19 }) {
     if (hotspot.key === 'books') return BOOKS.map((b) => b.title).join(' · ');
     if (hotspot.key === 'me') return stateRef.current.mode === 'sleep' ? 'Asleep. Switch the tower on.' : 'Me';
     if (hotspot.key === 'pc') return stateRef.current.pc ? 'The tower — switch it off and see' : 'The tower';
+    if (hotspot.key === 'coffee') return stateRef.current.brewing ? 'Brewing' : 'The coffee machine';
+    if (hotspot.key === 'radio') return stateRef.current.radio ? 'The radio — playing' : 'The radio';
     return hotspot.label;
   })();
 
@@ -505,7 +583,28 @@ export default function Room({ sectionRef, onTop, hour = 19 }) {
           role="img"
         />
         <p className={`v19-room-cap${caption ? ' on' : ''}`}>{caption}</p>
-        <Slip hotspot={openHotspot} onClose={() => setOpenKey(null)} />
+        <Slip hotspot={openHotspot} onClose={() => setOpenKey(null)} clockHour={hour} />
+
+        {/* the real picture, over the pixelated one, while you point at it */}
+        {hoverScreen && hoverScreen.key.startsWith('poster') && POSTERS[Number(hoverScreen.key.slice(-1)) - 1].image ? (
+          <img
+            className="v19-room-art"
+            src={POSTERS[Number(hoverScreen.key.slice(-1)) - 1].image}
+            alt=""
+            style={{ left: hoverScreen.left, top: hoverScreen.top, width: hoverScreen.width, height: hoverScreen.height }}
+            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+          />
+        ) : null}
+        {hoverScreen && hoverScreen.key === 'books' ? (
+          <div className="v19-room-shelf" style={{ left: hoverScreen.left, top: hoverScreen.top - 8 }}>
+            {BOOKS.map((b) => (
+              <figure className="v19-room-book" key={b.id} style={{ '--spine': b.spine }}>
+                {b.cover ? <img src={b.cover} alt="" onError={(e) => { e.currentTarget.style.display = 'none'; }} /> : null}
+                <figcaption><b>{b.title}</b><i>{b.author}</i></figcaption>
+              </figure>
+            ))}
+          </div>
+        ) : null}
 
         {/* the way back up, standing on the rug */}
         <button type="button" className="v19-top" onClick={onTop} data-keep-open="">

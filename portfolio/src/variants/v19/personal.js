@@ -11,9 +11,17 @@
 // qntm's *There Is No Antimemetics Division* — spelled correctly below. If he meant a different
 // book, this is the line to change.
 
+// Real cover art goes in public/assets/images/room/books/<id>.jpg (portrait, ~400x600) and
+// public/assets/images/room/posters/<id>.jpg (portrait, ~600x900). If a file is there it is
+// pixelated onto the wall or the shelf and clears to the real picture when pointed at; if it
+// is not, the drawn one stays.
+const bookCover = (id) => `/assets/images/room/books/${id}.jpg`;
+const posterArt = (id) => `/assets/images/room/posters/${id}.jpg`;
+
 export const BOOKS = [
   {
     id: 'dune',
+    cover: bookCover('dune'),
     title: 'Dune',
     author: 'Frank Herbert',
     note: 'Working through the trilogy right now.',
@@ -23,6 +31,7 @@ export const BOOKS = [
   },
   {
     id: 'antimemetics',
+    cover: bookCover('antimemetics'),
     title: 'There Is No Antimemetics Division',
     author: 'qntm',
     note: 'Read it recently. A horror novel about things you cannot remember having read.',
@@ -32,6 +41,7 @@ export const BOOKS = [
   },
   {
     id: 'hitchhikers',
+    cover: bookCover('hitchhikers'),
     title: 'The Hitchhiker’s Guide to the Galaxy',
     author: 'Douglas Adams',
     note: 'The one I actually love.',
@@ -41,6 +51,7 @@ export const BOOKS = [
   },
   {
     id: 'stranger',
+    cover: bookCover('stranger'),
     title: 'The Stranger',
     author: 'Albert Camus',
     note: 'Short, and it stays with you longer than its page count deserves.',
@@ -53,6 +64,7 @@ export const BOOKS = [
 export const POSTERS = [
   {
     id: 'hollywood',
+    image: posterArt('hollywood'),
     title: 'Once Upon a Time in Hollywood',
     by: 'Quentin Tarantino',
     year: '2019',
@@ -63,6 +75,7 @@ export const POSTERS = [
   },
   {
     id: 'wasseypur',
+    image: posterArt('wasseypur'),
     title: 'Gangs of Wasseypur',
     by: 'Anurag Kashyap',
     year: '2012',
@@ -73,6 +86,7 @@ export const POSTERS = [
   },
   {
     id: 'dune2',
+    image: posterArt('dune2'),
     title: 'Dune: Part Two',
     by: 'Denis Villeneuve',
     year: '2024',

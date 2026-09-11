@@ -67,20 +67,21 @@ export const ALFRED = {
     { k: 'People relying on it', v: '5,000+' },
     { k: 'Reaches you by', v: 'text · chat · voice' },
     { k: 'Also runs inside', v: 'Claude · ChatGPT' },
-    { k: 'Mine to keep right', v: 'memory · rules · evals' },
+    { k: 'My half', v: 'memory · rules · evals' },
   ],
   bullets: (alfredRole.description || []).filter((b) => !BANNED.test(b)),
 };
 
-// What it is built on. Chips, not sentences.
+// What it is built on. Chips, not sentences, and only the words you would say out loud.
 export const STACK = [
-  'TypeScript', 'Deno', 'Postgres', 'Supabase', 'RLS', 'SECURITY DEFINER RPCs', 'pg_cron',
-  'Claude', 'Gemini', 'DeepSeek', 'MCP server', 'OAuth 2.0', 'Gmail', 'Microsoft Graph', 'IMAP',
-  'Eval harness', 'React', 'Vite',
+  'TypeScript', 'Deno', 'Postgres', 'Supabase', 'Vercel', 'React', 'Vite',
+  'Multi-agent', 'MCP', 'OAuth 2.0', 'Claude', 'Gemini', 'DeepSeek',
+  'Gmail', 'Microsoft Graph', 'Eval harness', 'Security',
 ];
 
-// The numbers, and what actually changed. Ten of them; `top` marks the five that show by
-// default. Every one is a thing that shipped and was measured on real users.
+// The numbers, and what actually changed. Fifteen of them; the first ten are the Lab's "Ten"
+// and `top` marks the five that show by default. Every one shipped and was measured on real
+// users. `sketch` is the drawing under the box: a few shapes, described rather than drawn.
 export const FIGURES = [
   {
     id: 'latency',
@@ -89,6 +90,7 @@ export const FIGURES = [
     now: '3 s',
     label: 'Email lands as a text message',
     note: 'The delay was a polling timer, not compute. Delivery now fires the moment a notification is queued, with the cron demoted to a backstop. Thirty times faster, nothing suppressed. The same change carried to security codes, which had been arriving 189 seconds late at p90.',
+    sketch: { kind: 'race' },
   },
   {
     id: 'memory',
@@ -97,6 +99,7 @@ export const FIGURES = [
     now: 'tests',
     label: 'Invented facts about your inbox',
     note: 'Working memory was rebuilt as a strict-ID pipeline: the model only chooses from a menu of real candidates that code built, and never writes an identifier or an owner. A whole class of fabrication is structurally impossible rather than probabilistically rare, and a test proves it.',
+    sketch: { kind: 'memory' },
   },
   {
     id: 'cost',
@@ -104,7 +107,8 @@ export const FIGURES = [
     was: '150 tools',
     now: '−30%',
     label: 'Tools the agent weighs on every turn',
-    note: 'Consolidated to about 110 with every documented parameter restored, not dropped. I built the smarter routing layer first, measured it against a real eval set, and threw it away when it did not beat the simpler thing. The saving was re-measured after I caught my own first estimate using the wrong unit.',
+    note: 'Consolidated to about 110 with every documented parameter restored, not dropped. I built the smarter routing layer first, measured it against a real eval set, and threw it away when it did not beat the simpler thing. Roughly $195 to $245 a month in inference, re-measured after I caught my own first estimate using the wrong unit.',
+    sketch: { kind: 'cost' },
   },
   {
     id: 'auth',
@@ -113,6 +117,7 @@ export const FIGURES = [
     now: '30×',
     label: 'Faster for anyone who plugs Alfred_ in',
     note: 'Alfred_ is a public connector you can add to Claude or ChatGPT, behind an OAuth 2.0 server I built. 98.3% of its traffic was authentication booting a 30 MB dependency tree. Auth is now one database call and the dependency loads only when it is needed.',
+    sketch: { kind: 'bars', alt: 'Authentication cost, before and after', rows: [{ k: 'each call, before', w: 1, v: '721 ms, booting' }, { k: 'each call, now', w: 0.04, v: 'one lookup', hot: true }, { k: 'of all traffic', w: 0.983, v: '98.3% was this' }] },
   },
   {
     id: 'scan',
@@ -121,6 +126,7 @@ export const FIGURES = [
     now: '9 waves',
     label: 'Precision passes on the failure scanner',
     note: 'A scanner reads real conversations, separates genuine agent failures from expected behaviour, and files the real ones. Nine precision waves so far, because a bug queue is only useful if the team trusts it. It sits on an eval harness with trace replay and regression detection.',
+    sketch: { kind: 'flow', alt: 'Conversations sorted into real failures and expected behaviour', nodes: ['conversations', 'scanner', 'real bugs'], foot: 'the rest never reach the queue' },
   },
   {
     id: 'txn',
@@ -128,6 +134,7 @@ export const FIGURES = [
     now: '92%',
     label: 'Transactions recovered in the weekly money report',
     note: 'An LLM-only classifier was silently losing most of what it should have counted. A deterministic fallback recovered roughly ninety-two percent of it, and a ceiling now stops a single mis-read amount from becoming the headline number.',
+    sketch: { kind: 'cells', alt: 'Transactions recovered', head: 'receipts', n: 13, hot: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], tail: 'counted', foot: 'the model alone was dropping most of them', strike: true },
   },
   {
     id: 'rules',
@@ -135,6 +142,7 @@ export const FIGURES = [
     now: '98%',
     label: 'Rules made just by talking to it',
     note: 'You say what you want and it writes the rule. Under it: a deterministic matcher, a preview of what a new rule would have caught, and a judgement pass on every fire so a rule that matched but fired wrong is labelled instead of counted.',
+    sketch: { kind: 'rules' },
   },
   {
     id: 'sms',
@@ -142,6 +150,7 @@ export const FIGURES = [
     now: '0',
     label: 'Texts that arrived with no body',
     note: 'One in six thread-reply notifications was empty. Two hypotheses ruled out, then traced to a quote-stripper returning an empty string on one common HTML shape. Found by checking production against itself, not by a report.',
+    sketch: { kind: 'cells', alt: 'One text in six arriving empty', head: 'thread replies', n: 12, hot: [2, 8], tail: 'arrived empty', foot: 'a quote-stripper returning an empty string' },
   },
   {
     id: 'secure',
@@ -149,13 +158,55 @@ export const FIGURES = [
     now: '3',
     label: 'Path-traversal holes found and closed',
     note: 'Three independent code paths where a model-supplied identifier could reach another user\'s mailbox. Plus a connector that defaulted new connections to full write access, fixed the day it was found, after two real clients had already connected.',
+    sketch: { kind: 'flow', alt: 'An identifier reaching only its own mailbox', nodes: ['a model-supplied id', 'check', 'your mailbox'], drop: 'anyone else\'s' },
   },
   {
-    id: 'ship',
-    was: 'weeks',
-    now: 'same day',
-    label: 'From design to measured on real users',
-    note: 'Hundreds of production PRs across the tenure, routinely twenty to fifty commits in a day during a push, each verified against live data before it is called done. Including the one I pulled back fleet-wide within a day of launch when it risked churn.',
+    id: 'dupes',
+    was: '9.7%',
+    now: '0',
+    label: 'Calendar texts that were sent twice',
+    note: 'One calendar reminder in ten went out twice. Deduplicated on the content of the message rather than a weaker signal, and the in-flight window tightened so an email could not be sent twice either.',
+    sketch: { kind: 'cells', alt: 'One reminder in ten sent twice', head: 'reminders', n: 10, hot: [6], tail: 'sent twice', foot: 'now deduplicated on what the message says' },
+  },
+  {
+    id: 'weeks',
+    was: '11 weeks',
+    now: 'found',
+    label: 'A silent bug dropping every user\'s timezone',
+    note: 'A query asked for two columns an earlier migration had quietly removed, so on every calendar turn the assistant lost the user\'s whole profile: name, timezone, language, preferences. Every user outside Eastern time got the wrong timezone for eleven weeks. Nothing threw.',
+    sketch: { kind: 'flow', alt: 'A profile lost on every calendar turn', nodes: ['calendar turn', 'profile lookup', 'timezone kept'], foot: 'two columns a migration had dropped; nothing ever threw' },
+  },
+  {
+    id: 'crons',
+    was: 'green',
+    now: '100%',
+    label: 'Scheduled jobs failing behind a green dashboard',
+    note: 'Cron reported success when the job was queued, not when it ran. Every scheduled job had been failing while every panel read green, including a fleet-wide auth change that returned 401 to all of them. Fixed, then made impossible to miss again.',
+    sketch: { kind: 'bars', alt: 'Jobs queued against jobs delivered', rows: [{ k: 'queued', w: 1, v: 'green' }, { k: 'delivered', w: 0.02, v: 'none', hot: true }] },
+  },
+  {
+    id: 'push',
+    was: '15%',
+    now: '0',
+    label: 'Poller ticks that were staging nothing',
+    note: 'Case-sensitive matching in a registry left four mailboxes with no real-time push at all, and fifteen percent of poller ticks doing no work every cycle. Fixed by sharding the poller phase, and paired with a monitor that checks real ingestion against a verified baseline.',
+    sketch: { kind: 'cells', alt: 'Poller ticks staging nothing', head: 'poller ticks', n: 20, hot: [3, 9, 15], tail: 'empty', foot: 'and four mailboxes with no push at all' },
+  },
+  {
+    id: 'blame',
+    was: '44%',
+    now: 'theirs',
+    label: 'Connector errors that were really provider outages',
+    note: 'Nearly half of one error category over thirty days was mail providers being down, logged as Alfred_\'s own defects. The error path now keeps the real cause instead of collapsing everything into one bucket, so the number on the dashboard means something.',
+    sketch: { kind: 'bars', alt: 'Errors that were ours against errors that were the provider\'s', rows: [{ k: 'logged as ours', w: 1, v: '100%' }, { k: 'actually the provider', w: 0.44, v: '44%', hot: true }] },
+  },
+  {
+    id: 'guard',
+    was: '104 checks',
+    now: '0 catches',
+    label: 'A safety guard that had never once worked',
+    note: 'A duplicate-action guard had run 104 times in thirty days and caught nothing, which is not what a working guard looks like. Measured before it mattered, then fixed, before it removed a user from an event they had said yes to.',
+    sketch: { kind: 'cells', alt: 'A hundred and four checks, no catches', head: '104 checks', n: 16, hot: [], tail: '0 catches', foot: 'a working guard does not look like this' },
   },
 ];
 
@@ -196,6 +247,7 @@ WHEELPRICE.figures = [
     now: '10–20k',
     label: 'Readers a day, from a CMS built from scratch',
     note: 'A decoupled Node and React service with server-side rendering, a dynamic sitemap, Open Graph and Article schema, and Redis with tag-based invalidation after the first viral spike knocked it over. Long-tail fitment queries finally had a page to land on.',
+    sketch: { kind: 'rise', alt: 'Readers a day, rising after the blog shipped', head: 'readers a day', cols: [0.04, 0.05, 0.05, 0.2, 0.42, 0.6, 0.78, 1], tail: '10–20k', foot: 'search traffic, once there was a page to land on' },
   },
   {
     id: 'wp-agent',
@@ -203,6 +255,7 @@ WHEELPRICE.figures = [
     now: '4 tools',
     label: 'A fitment assistant that cannot speculate',
     note: 'Bolt pattern, offset, hub bore and diameter, in plain English. The agent can only call four tools, and the lookup reports its own coverage so the answer says "I have partial data" instead of smoothing over the gap. Fewer fitment tickets.',
+    sketch: { kind: 'flow', alt: 'A question about a car, classified, looked up, answered from data', nodes: ['“will these fit my Civic?”', 'classify', 'lookup', 'fits, 92% coverage'], foot: 'it can only answer from the four tools; never from memory' },
   },
   {
     id: 'wp-funnel',
@@ -210,6 +263,7 @@ WHEELPRICE.figures = [
     now: 'mobile',
     label: 'Where checkout was actually failing',
     note: 'An event schema, an ETL and a dashboard showed the cliff was between checkout and payment, and only on phones: 45% completion against 80% on desktop, a 60-second gateway timeout, and 30 seconds of idle before people left. A heartbeat, pre-filled fields and an earlier fitment confirmation, since the gateway was not mine to change.',
+    sketch: { kind: 'bars', alt: 'Checkout completion by device', rows: [{ k: 'desktop, paid', w: 0.8, v: '80%' }, { k: 'mobile, paid', w: 0.45, v: '45%', hot: true }, { k: 'idle before leaving', w: 0.5, v: '30 s, on a 60 s timeout' }] },
   },
   {
     id: 'wp-cv',
@@ -217,6 +271,7 @@ WHEELPRICE.figures = [
     now: 'shelved',
     label: 'The wheel-swap visualiser I chose not to ship',
     note: 'A fine-tuned detector, a homography to match the angle, alpha blending at the edges. The first version was not good enough, and a half-good version would have cost more trust than none. Deprioritised on purpose.',
+    sketch: { kind: 'swap', alt: 'A wheel on a car photo, swapped for another', head: 'detect, warp, blend', foot: 'not good enough to ship, so it did not' },
   },
 ];
 WHEELPRICE.stack = ['Node.js', 'React', 'TypeScript', 'MongoDB', 'Redis', 'FastAPI', 'XGBoost', 'YOLO', 'OpenCV'];

@@ -171,6 +171,13 @@ function Page() {
         </button>
 
         <div className="v19-bar-where" aria-live="polite">
+          <button
+            type="button"
+            className="v19-bar-step is-prev"
+            onClick={() => jump(WHERE[Math.max(0, WHERE.findIndex((w) => w.id === where) - 1)].id)}
+            aria-label="Previous section"
+            title="Previous section"
+          />
           <span key={current.id}>{current.label}</span>
           <ol className="v19-bar-dots" aria-label="Sections">
             {WHERE.map((w) => (
@@ -185,6 +192,13 @@ function Page() {
               </li>
             ))}
           </ol>
+          <button
+            type="button"
+            className="v19-bar-step is-next"
+            onClick={() => jump(WHERE[Math.min(WHERE.length - 1, WHERE.findIndex((w) => w.id === where) + 1)].id)}
+            aria-label="Next section"
+            title="Next section"
+          />
         </div>
 
         <nav className="v19-bar-links" aria-label="Elsewhere">
