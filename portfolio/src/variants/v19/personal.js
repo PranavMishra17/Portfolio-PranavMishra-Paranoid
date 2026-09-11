@@ -11,12 +11,11 @@
 // qntm's *There Is No Antimemetics Division* — spelled correctly below. If he meant a different
 // book, this is the line to change.
 
-// Real cover art goes in public/assets/images/room/books/<id>.jpg (portrait, ~400x600) and
-// public/assets/images/room/posters/<id>.jpg (portrait, ~600x900). If a file is there it is
-// pixelated onto the wall or the shelf and clears to the real picture when pointed at; if it
-// is not, the drawn one stays.
-const bookCover = (id) => `/assets/images/room/books/${id}.jpg`;
-const posterArt = (id) => `/assets/images/room/posters/${id}.jpg`;
+// Real cover art lives in public/assets/images/room/<id>.jpg, one flat folder for posters and
+// books alike. If a file is there it is pixelated onto the wall or the shelf and clears to the
+// real picture when pointed at; if it is not, the drawn one stays.
+const bookCover = (id) => `/assets/images/room/${id}.jpg`;
+const posterArt = (id) => `/assets/images/room/${id}.jpg`;
 
 export const BOOKS = [
   {

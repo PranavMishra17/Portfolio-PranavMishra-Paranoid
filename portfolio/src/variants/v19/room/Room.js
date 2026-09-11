@@ -285,15 +285,48 @@ export default function Room({ sectionRef, onTop, hour = 19 }) {
       const tint = st.night > 0.6 ? 'rgba(150,164,200,1)' : st.night > 0.2 ? 'rgba(196,200,214,1)' : 'rgba(240,240,238,1)';
       const blit = (img, x, y, w, h) => {
         if (!img || !img.width) return;
-        const scale = Math.max(w / img.width, h / img.height);
-        const sw = w / scale;
-        const sh = h / scale;
+        // a 2,500-pixel poster brought straight down to thirty is noise; come down in steps
+        // once, then keep the small one
+        if (!img.__small) {
+          const scale = Math.max(w / img.width, h / img.height);
+          const sw = w / scale;
+          const sh = h / scale;
+          let cur = img;
+          let cw = sw;
+          let ch = sh;
+          let sx = (img.width - sw) / 2;
+          let sy = (img.height - sh) / 2;
+          while (cw > w * 2.5) {
+            const nw = Math.max(w, Math.round(cw / 2));
+            const nh = Math.max(h, Math.round(ch / 2));
+            const c = document.createElement('canvas');
+            c.width = nw;
+            c.height = nh;
+            const cx = c.getContext('2d');
+            cx.imageSmoothingEnabled = true;
+            cx.imageSmoothingQuality = 'high';
+            cx.drawImage(cur, sx, sy, cw, ch, 0, 0, nw, nh);
+            cur = c;
+            cw = nw;
+            ch = nh;
+            sx = 0;
+            sy = 0;
+          }
+          const small = document.createElement('canvas');
+          small.width = w;
+          small.height = h;
+          const scx = small.getContext('2d');
+          scx.imageSmoothingEnabled = true;
+          scx.imageSmoothingQuality = 'high';
+          scx.drawImage(cur, sx, sy, cw, ch, 0, 0, w, h);
+          img.__small = small; // eslint-disable-line no-param-reassign
+        }
         ctx.save();
         ctx.beginPath();
         ctx.rect(x, y, w, h);
         ctx.clip();
-        ctx.imageSmoothingEnabled = true;
-        ctx.drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, x, y, w, h);
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(img.__small, x, y);
         ctx.globalCompositeOperation = 'multiply';
         ctx.fillStyle = tint;
         ctx.fillRect(x, y, w, h);
