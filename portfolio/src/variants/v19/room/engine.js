@@ -9,7 +9,12 @@
 // back toward day locally, so turning the lamp on genuinely lights the corner it stands in.
 
 export const W = 288;
-export const H = 152;
+// The room proper is 152 tall. Above it is a roof band: ceiling and the top of the wall, so
+// that when the canvas covers a wide viewport and crops the top, what goes is wall and not
+// the posters. Everything in scene.js is drawn in room coordinates; the painter adds ROOF.
+export const ROOM_H = 152;
+export const ROOF = 26;
+export const H = ROOM_H + ROOF;
 // The canvas covers the viewport, so a wide window crops the top and a narrow one crops the
 // sides. Everything that matters is inside this box; outside it is wall, floor and curtain.
 export const SAFE = { top: 20, side: 16 };

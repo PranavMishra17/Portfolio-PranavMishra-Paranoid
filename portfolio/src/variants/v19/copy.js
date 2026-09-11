@@ -57,62 +57,106 @@ export const ALFRED = {
   logo: alfredRole.companyLogo
     ? (alfredRole.companyLogo.startsWith('/') ? alfredRole.companyLogo : `/${alfredRole.companyLogo}`)
     : '/assets/images/companies/alfred.svg',
-  // the introduction: who I am, then what the thing is, then which half is mine
-  hello: 'Right now I am a founding engineer at',
+  // one line above the heading, one heading, one paragraph. Nothing else introduces it.
+  eyebrow: 'Founding LLM Engineer',
+  hello: 'At',
+  claim: 'I own the half that has to be right.',
   about:
-    'Alfred_ is an assistant that reads your email, keeps your calendar and handles the small obligations — over text message, chat and voice.',
-  mine: 'I own the half where being wrong is expensive: memory, rules, evals and the plumbing under them.',
+    'Alfred_ is an assistant that reads your email, keeps your calendar and handles the small obligations, over text, chat and voice, for five thousand people. My half is memory, rules, evals, cost and the plumbing under them.',
+  glance: [
+    { k: 'People relying on it', v: '5,000+' },
+    { k: 'Reaches you by', v: 'text · chat · voice' },
+    { k: 'Also runs inside', v: 'Claude · ChatGPT' },
+    { k: 'Mine to keep right', v: 'memory · rules · evals' },
+  ],
   bullets: (alfredRole.description || []).filter((b) => !BANNED.test(b)),
 };
 
-// The numbers, and what actually changed. `path` drives the little signal diagram.
+// What it is built on. Chips, not sentences.
+export const STACK = [
+  'TypeScript', 'Deno', 'Postgres', 'Supabase', 'RLS', 'SECURITY DEFINER RPCs', 'pg_cron',
+  'Claude', 'Gemini', 'DeepSeek', 'MCP server', 'OAuth 2.0', 'Gmail', 'Microsoft Graph', 'IMAP',
+  'Eval harness', 'React', 'Vite',
+];
+
+// The numbers, and what actually changed. Ten of them; `top` marks the five that show by
+// default. Every one is a thing that shipped and was measured on real users.
 export const FIGURES = [
   {
     id: 'latency',
+    top: true,
     was: '90 s',
     now: '3 s',
     label: 'Email lands as a text message',
-    note: 'It used to poll. Now the mail event dispatches straight through, so the message arrives while you are still looking at your phone.',
-    path: ['inbox', 'event', 'dispatch', 'you'],
+    note: 'The delay was a polling timer, not compute. Delivery now fires the moment a notification is queued, with the cron demoted to a backstop. Thirty times faster, nothing suppressed. The same change carried to security codes, which had been arriving 189 seconds late at p90.',
   },
   {
-    id: 'otp',
-    was: '189 s',
-    now: 'instant',
-    label: 'Security codes, at p90',
-    note: 'The same change, carried to the one path where waiting three minutes for a login code is unacceptable.',
-    path: ['inbox', 'otp', 'you'],
+    id: 'memory',
+    top: true,
+    was: 'hope',
+    now: 'tests',
+    label: 'Invented facts about your inbox',
+    note: 'Working memory was rebuilt as a strict-ID pipeline: the model only chooses from a menu of real candidates that code built, and never writes an identifier or an owner. A whole class of fabrication is structurally impossible rather than probabilistically rare, and a test proves it.',
   },
   {
     id: 'cost',
-    was: 'per message',
+    top: true,
+    was: '150 tools',
     now: '−30%',
-    label: 'Model cost per user',
-    note: 'The email-rules engine used to ask a model about every single message. I replaced it with a three-stage matcher that simply decides, and kept a model in the loop only where judgement is genuinely needed.',
-    path: ['message', 'matcher', 'rule'],
+    label: 'Tools the agent weighs on every turn',
+    note: 'Consolidated to about 110 with every documented parameter restored, not dropped. I built the smarter routing layer first, measured it against a real eval set, and threw it away when it did not beat the simpler thing. The saving was re-measured after I caught my own first estimate using the wrong unit.',
+  },
+  {
+    id: 'auth',
+    top: true,
+    was: '721 ms',
+    now: '30×',
+    label: 'Faster for anyone who plugs Alfred_ in',
+    note: 'Alfred_ is a public connector you can add to Claude or ChatGPT, behind an OAuth 2.0 server I built. 98.3% of its traffic was authentication booting a 30 MB dependency tree. Auth is now one database call and the dependency loads only when it is needed.',
+  },
+  {
+    id: 'scan',
+    top: true,
+    was: 'reading logs',
+    now: '9 waves',
+    label: 'Precision passes on the failure scanner',
+    note: 'A scanner reads real conversations, separates genuine agent failures from expected behaviour, and files the real ones. Nine precision waves so far, because a bug queue is only useful if the team trusts it. It sits on an eval harness with trace replay and regression detection.',
+  },
+  {
+    id: 'txn',
+    was: 'dropped',
+    now: '92%',
+    label: 'Transactions recovered in the weekly money report',
+    note: 'An LLM-only classifier was silently losing most of what it should have counted. A deterministic fallback recovered roughly ninety-two percent of it, and a ceiling now stops a single mis-read amount from becoming the headline number.',
   },
   {
     id: 'rules',
     was: 'a form',
     now: '98%',
     label: 'Rules made just by talking to it',
-    note: 'Almost nobody opens the rule builder any more. You say what you want and it writes the rule.',
-    path: ['you', 'chat', 'rule'],
+    note: 'You say what you want and it writes the rule. Under it: a deterministic matcher, a preview of what a new rule would have caught, and a judgement pass on every fire so a rule that matched but fired wrong is labelled instead of counted.',
   },
   {
-    id: 'memory',
-    was: 'hope',
-    now: 'tests',
-    label: 'Invented facts about your inbox',
-    note: 'Working memory is rebuilt so the assistant cannot state something nobody told it. That is enforced by tests, not by a prompt asking it nicely.',
-    path: ['ledger', 'memory', 'answer'],
+    id: 'sms',
+    was: '16.4%',
+    now: '0',
+    label: 'Texts that arrived with no body',
+    note: 'One in six thread-reply notifications was empty. Two hypotheses ruled out, then traced to a quote-stripper returning an empty string on one common HTML shape. Found by checking production against itself, not by a report.',
   },
-];
-
-export const HARDENING = [
-  'Postgres on Supabase, hardened with row-level security and SECURITY DEFINER RPCs — which caught a cross-user data-leak class sitting on default PUBLIC grants.',
-  'An eval harness written from scratch, plus a scanner that reads live conversations for failures before a user reports one.',
-  'Idempotent, collision-safe migrations, and a memory store tuned for how Postgres actually stores it.',
+  {
+    id: 'secure',
+    was: 'same day',
+    now: '3',
+    label: 'Path-traversal holes found and closed',
+    note: 'Three independent code paths where a model-supplied identifier could reach another user\'s mailbox. Plus a connector that defaulted new connections to full write access, fixed the day it was found, after two real clients had already connected.',
+  },
+  {
+    id: 'ship',
+    was: 'weeks',
+    now: 'same day',
+    label: 'From design to measured on real users',
+    note: 'Hundreds of production PRs across the tenure, routinely twenty to fifty commits in a day during a push, each verified against live data before it is called done. Including the one I pulled back fleet-wide within a day of launch when it risked churn.',
+  },
 ];
 
 const ROLE_LINE = {
@@ -142,12 +186,40 @@ export const ROLES = experiences
 // The one before Alfred_ that ran for months rather than weeks. It gets the same treatment,
 // at half the size, and it stays shut until you ask for it.
 export const WHEELPRICE = ROLES.find((r) => r.id === 'wheelprice-intern') || ROLES[0];
-WHEELPRICE.short = 'AI engineer, two-person engineering team.';
-WHEELPRICE.story = [
-  'Computer vision for automotive part fitment — the part in the photograph, matched to the part that actually fits.',
-  'A CMS the writers could use without me, which took the site to ten to twenty thousand readers a day.',
-  'The one-time-password flow, shipped to production and still the path nobody is allowed to break.',
+WHEELPRICE.short = 'AI engineer on a two-person team. I built the data and AI layer.';
+WHEELPRICE.about =
+  'A marketplace for automotive wheels. Two engineers, no DevOps, so I picked the problems as well as solving them.';
+WHEELPRICE.figures = [
+  {
+    id: 'wp-blog',
+    was: 'no search traffic',
+    now: '10–20k',
+    label: 'Readers a day, from a CMS built from scratch',
+    note: 'A decoupled Node and React service with server-side rendering, a dynamic sitemap, Open Graph and Article schema, and Redis with tag-based invalidation after the first viral spike knocked it over. Long-tail fitment queries finally had a page to land on.',
+  },
+  {
+    id: 'wp-agent',
+    was: 'guessing',
+    now: '4 tools',
+    label: 'A fitment assistant that cannot speculate',
+    note: 'Bolt pattern, offset, hub bore and diameter, in plain English. The agent can only call four tools, and the lookup reports its own coverage so the answer says "I have partial data" instead of smoothing over the gap. Fewer fitment tickets.',
+  },
+  {
+    id: 'wp-funnel',
+    was: '35% lost',
+    now: 'mobile',
+    label: 'Where checkout was actually failing',
+    note: 'An event schema, an ETL and a dashboard showed the cliff was between checkout and payment, and only on phones: 45% completion against 80% on desktop, a 60-second gateway timeout, and 30 seconds of idle before people left. A heartbeat, pre-filled fields and an earlier fitment confirmation, since the gateway was not mine to change.',
+  },
+  {
+    id: 'wp-cv',
+    was: 'YOLO',
+    now: 'shelved',
+    label: 'The wheel-swap visualiser I chose not to ship',
+    note: 'A fine-tuned detector, a homography to match the angle, alpha blending at the edges. The first version was not good enough, and a half-good version would have cost more trust than none. Deprioritised on purpose.',
+  },
 ];
+WHEELPRICE.stack = ['Node.js', 'React', 'TypeScript', 'MongoDB', 'Redis', 'FastAPI', 'XGBoost', 'YOLO', 'OpenCV'];
 
 // Everything before that is an after-note. One line each, opened only if you want it.
 export const AFTER = ROLES.filter((r) => r.id !== WHEELPRICE.id);
@@ -245,14 +317,32 @@ export const NOW_BUILDING = ['mockflow-ai', 'big5-agents', 'soulengine']
 
 const PAPER_LINE = {
   metarag:
-    'If the model writes metadata about a chunk before you store it, retrieval gets measurably better — 82.5% precision against 73.3%.',
+    'How you chunk and how you fold metadata in are not independent choices. Run the full 3 × 3 and the interaction is the finding: NDCG@10 0.813 for fixed-size chunks with the metadata written into the text, against 0.669 without it.',
   teammedagents:
-    'The Big Five teamwork model, built as real mechanisms between agents rather than a prompt asking them to cooperate. Better on seven of eight medical benchmarks.',
+    'Five teamwork behaviours from organisational psychology, built as switchable mechanisms between agents. A 4B model with the right coordination lands on the accuracy-per-token frontier on seven of eight benchmarks, at two to eight times fewer tokens than the other multi-agent frameworks.',
 };
 
 // He asked for the SLM paper to come off the page — it covers the same ground as
 // TeamMedAgents. It stays in src/data/publications.js untouched; it is dropped here.
 const PAPERS_OFF = new Set(['slm-teammedagents']);
+
+// The versions that are live on arXiv today (both revised 31 Mar 2026). src/data carries the
+// earlier text; these win at render time. TeamMedAgents was retitled at v3.
+const PAPER_NOW = {
+  metarag: {
+    venue: 'IEEE CAI 2026',
+    arxiv: '2512.05411',
+    abstract:
+      'In enterprise settings, efficiently retrieving relevant information from large and complex knowledge bases is essential for operational productivity and informed decision-making. This research presents a systematic empirical framework for metadata enrichment using large language models (LLMs) to enhance document retrieval in Retrieval-Augmented Generation (RAG) systems. Our approach employs a structured pipeline that dynamically generates meaningful metadata for document segments, substantially improving their semantic representations and retrieval accuracy. Through a controlled 3 × 3 experimental matrix, we compare three chunking strategies — semantic, recursive, and naive — and evaluate their interactions with three embedding techniques — content-only, TF-IDF weighted, and prefix-fusion — isolating the contribution of each component through ablation analysis. The results demonstrate that metadata-enriched approaches consistently outperform content-only baselines, with recursive chunking paired with TF-IDF weighted embeddings yielding 82.5% precision and naive chunking with prefix-fusion achieving the strongest ranking quality (NDCG 0.813). Our evaluation employs cross-encoder reranking for silver-standard ground truth generation, with statistical significance confirmed via Bonferroni-corrected paired t-tests. These findings confirm that metadata enrichment improves vector space organization and retrieval effectiveness while maintaining sub-30 ms P95 latency, providing a quantitative decision framework for deploying high-performance, scalable RAG systems in enterprise settings.',
+  },
+  teammedagents: {
+    title: 'TeamMedAgents: Pareto-Efficient Multi-Agent Medical Reasoning Through Teamwork Theory',
+    venue: 'arXiv, under submission',
+    arxiv: '2508.08115',
+    abstract:
+      'Complex medical reasoning has historically required frontier language models to achieve clinically-acceptable accuracy, creating computational barriers that limit deployment in resource-constrained clinical settings. We present TeamMedAgents, a modular multi-agent framework that translates Salas et al.\'s evidence-based teamwork theory into computational mechanisms — shared mental models, team leadership, team orientation, trust networks, and mutual monitoring — enabling Small Language Models to perform multi-step clinical reasoning efficiently. Evaluation across 8 medical benchmarks demonstrates that TeamMedAgents advances the Pareto efficiency frontier by 1–2 orders of magnitude, achieving competitive accuracy at substantially lower token cost than MDAgents, MedAgents, DyLAN, and ReConcile. The framework exhibits the lowest cross-dataset variance among multi-agent approaches, enabling deployment without per-task tuning. Our results establish that theory-grounded coordination mechanisms provide essential scaffolding for deploying efficient medical AI in resource-constrained clinical environments.',
+  },
+};
 
 // NEEDS CONFIRMATION — he said the citation counts are now "10 or 6 in each" and the numbers
 // in src/data/publications.js are stale. These two are my reading of that and should be
@@ -261,13 +351,14 @@ const CITATIONS = { teammedagents: 10, metarag: 6 };
 
 export const PAPERS = publications.filter((p) => !PAPERS_OFF.has(p.id)).map((p) => ({
   id: p.id,
-  title: p.title,
-  venue: p.venue,
+  title: (PAPER_NOW[p.id] || {}).title || p.title,
+  venue: (PAPER_NOW[p.id] || {}).venue || p.venue,
+  arxiv: (PAPER_NOW[p.id] || {}).arxiv || '',
   status: p.status,
   year: p.year || (String(p.venue || '').match(/\b(20\d\d)\b/) || [])[1] || '—',
   authors: p.authors,
   line: PAPER_LINE[p.id] || '',
-  abstract: p.abstract || '',
+  abstract: (PAPER_NOW[p.id] || {}).abstract || p.abstract || '',
   doi: p.doi || '',
   pdf: p.pdfLink || '',
   code: p.codeLink || '',

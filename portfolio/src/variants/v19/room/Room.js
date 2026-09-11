@@ -8,11 +8,13 @@
 // He does not walk in any more. He is at the desk when you arrive. Click him and he waves;
 // switch the tower off and he falls asleep in the chair; switch it on and he wakes up.
 //
-// It is evening. The lamp and the string lights are on and it is dusk outside — until you open
-// the window, which lets the day in.
+// The room keeps the page's clock. It is as dark in here as it is outside at this hour — never
+// darker than a blue evening — and the lamp and the string lights come on when it is. Open the
+// window and the day comes in, whatever the hour.
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { createGrid, rasterize, W, H } from './engine';
+import { createGrid, rasterize, W, H, ROOF } from './engine';
+import { nightAt } from '../hooks';
 import { drawScene, HOTSPOTS, LIGHTS, SCREENS } from './scene';
 import { BOOKS, GAMES, MAGNETS, POSTERS, TROPHIES, FAMILY, MEDALS } from '../personal';
 import { ALL_PROJECTS, PAPERS, ROLES, ALFRED, LINKS, MORE_LINKS } from '../copy';
@@ -180,7 +182,7 @@ function Slip({ hotspot, onClose }) {
 
 /* ── the room ───────────────────────────────────────────────────────── */
 
-export default function Room({ sectionRef, onTop }) {
+export default function Room({ sectionRef, onTop, hour = 19 }) {
   const canvasRef = useRef(null);
   const cursorRef = useRef(null);
   const gridRef = useRef(null);
@@ -205,6 +207,14 @@ export default function Room({ sectionRef, onTop }) {
   const [hover, setHover] = useState(0);
   const [openKey, setOpenKey] = useState(null);
   const [kind, setKind] = useState('');
+
+  /* the hour, from the page: how dark, and whether the lights are on */
+  useEffect(() => {
+    const st = stateRef.current;
+    st.night = nightAt(hour);
+    st.lamp = st.night > 0.15;
+    st.string = st.night > 0.15;
+  }, [hour]);
 
   const hotspot = useMemo(() => HOTSPOTS.find((h) => h.id === hover) || null, [hover]);
   const openHotspot = useMemo(() => HOTSPOTS.find((h) => h.key === openKey) || null, [openKey]);
@@ -236,8 +246,8 @@ export default function Room({ sectionRef, onTop }) {
     const paintScreens = (now) => {
       const st = stateRef.current;
       if (!st.pc) return;
-      const a = SCREENS.monitorA;
-      const b = SCREENS.monitorB;
+      const a = { ...SCREENS.monitorA, y: SCREENS.monitorA.y + ROOF };
+      const b = { ...SCREENS.monitorB, y: SCREENS.monitorB.y + ROOF };
       const shots = shotsRef.current;
       if (shots.length) {
         const img = shots[Math.floor(now / SCREEN_MS) % shots.length];
@@ -303,9 +313,9 @@ export default function Room({ sectionRef, onTop }) {
       // the window open lets the day in
       const night = Math.max(0, st.night - st.windowT * st.night * 0.85);
       const lights = [];
-      if (st.lamp) lights.push({ ...LIGHTS.lamp, on: true });
-      if (st.pc) lights.push({ ...LIGHTS.screens, on: true });
-      if (st.string) LIGHTS.string.forEach((l) => lights.push({ ...l, on: true }));
+      if (st.lamp) lights.push({ ...LIGHTS.lamp, y: LIGHTS.lamp.y + ROOF, on: true });
+      if (st.pc) lights.push({ ...LIGHTS.screens, y: LIGHTS.screens.y + ROOF, on: true });
+      if (st.string) LIGHTS.string.forEach((l) => lights.push({ ...l, y: l.y + ROOF, on: true }));
 
       drawScene(gridRef.current, st);
       rasterize(gridRef.current, imgRef.current, { night, lights, hover: hoverRef.current, mono: st.mono });
@@ -360,14 +370,15 @@ export default function Room({ sectionRef, onTop }) {
     const offX = (r.width - drawnW) / 2;
     const offY = r.height - drawnH; // anchored to the bottom, so the floor is always there
     const x = (e.clientX - r.left - offX) / scale;
-    const y = (e.clientY - r.top - offY) / scale;
-    if (x < 0 || y < 0 || x >= W || y >= H) return null;
+    const gy = (e.clientY - r.top - offY) / scale;
+    if (x < 0 || gy < 0 || x >= W || gy >= H) return null;
+    const y = gy - ROOF; // hotspots are in room coordinates; the roof sits above them
     const hit = HOTSPOTS.find((h) => x >= h.x && x < h.x + h.w && y >= h.y && y < h.y + h.h) || null;
     if (hit) {
       // where the object sits on screen, relative to the stage — the slip is placed beside it
       hit.screen = {
         left: offX + hit.x * scale,
-        top: offY + hit.y * scale,
+        top: offY + (hit.y + ROOF) * scale,
         width: hit.w * scale,
         height: hit.h * scale,
         stageW: r.width,

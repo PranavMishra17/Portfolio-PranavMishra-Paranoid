@@ -15,7 +15,7 @@
 //
 // Room is 288 × 144. The floor is at 106; the desk surface at 84.
 
-import { painter, W, H } from './engine';
+import { painter, W, ROOM_H as H, ROOF } from './engine';
 import { BOOKS, GAMES, MAGNETS, POSTERS } from '../personal';
 import { SIT, SLEEP, LEGEND } from './sprites';
 
@@ -52,17 +52,17 @@ export const HOTSPOTS = [
   { id: 16, key: 'fridge', label: 'The fridge', kind: 'zoom', x: 254, y: 64, w: 32, h: 60 },
   { id: 18, key: 'ball', label: 'Football and boots', kind: 'hand', x: 8, y: 118, w: 70, h: 26 },
   { id: 19, key: 'window', label: 'The window', kind: 'hand', x: 194, y: 8, w: 72, h: 50 },
-  { id: 20, key: 'lights', label: 'String lights', kind: 'hand', x: 4, y: 0, w: 280, h: 12 },
+  { id: 20, key: 'lights', label: 'String lights', kind: 'hand', x: 4, y: -ROOF, w: 280, h: 14 },
 ];
 
 export const LIGHTS = {
   lamp: { x: 68, y: 52, r: 78, warm: 1, strength: 0.95 },
   screens: { x: 144, y: 66, r: 70, warm: 0.15, strength: 0.7 },
   string: [
-    { x: 36, y: 6, r: 46, warm: 1, strength: 0.5 },
-    { x: 108, y: 9, r: 46, warm: 1, strength: 0.5 },
-    { x: 180, y: 9, r: 46, warm: 1, strength: 0.5 },
-    { x: 252, y: 6, r: 46, warm: 1, strength: 0.5 },
+    { x: 36, y: 8 - ROOF, r: 46, warm: 1, strength: 0.5 },
+    { x: 108, y: 11 - ROOF, r: 46, warm: 1, strength: 0.5 },
+    { x: 180, y: 11 - ROOF, r: 46, warm: 1, strength: 0.5 },
+    { x: 252, y: 8 - ROOF, r: 46, warm: 1, strength: 0.5 },
   ],
 };
 
@@ -70,6 +70,11 @@ export const LIGHTS = {
 
 function shell(g) {
   g.setId(0);
+  // the roof band: a ceiling line, then wall, above everything that matters
+  g.rect(0, -ROOF, W, ROOF, 'wallLit');
+  g.hline(0, -ROOF, W, 'wallDim');
+  g.hline(0, -ROOF + 1, W, 'wallDim');
+  g.hline(0, -ROOF + 2, W, 'wall');
   for (let y = 0; y < FLOOR_Y; y += 1) {
     const k = y / FLOOR_Y;
     const c = k < 0.22 ? 'wallLit' : k < 0.42 ? ((y * 7) % 5 < 2 ? 'wallLit' : 'wall') : 'wall';
@@ -78,7 +83,7 @@ function shell(g) {
   // light off the window on the right; the shelf corner on the left a touch dimmer
   for (let x = 170; x < W; x += 1) {
     const k = (x - 170) / (W - 170);
-    for (let y = 0; y < FLOOR_Y - 4; y += 1) {
+    for (let y = -ROOF + 3; y < FLOOR_Y - 4; y += 1) {
       if (k > 0.7) g.px(x, y, 'wallLit');
       else if (k > 0.3 && (x * 3 + y * 5) % 7 === 0) g.px(x, y, 'wallLit');
     }
@@ -104,6 +109,9 @@ function shell(g) {
   g.hline(0, FLOOR_Y, W, 'floorDark');
 }
 
+// the string lights hang just under the ceiling
+const LIGHT_Y = 4 - ROOF;
+
 function stringLights(g, on, t) {
   g.setId(20);
   const bulbs = [];
@@ -111,7 +119,7 @@ function stringLights(g, on, t) {
   for (let x = 4; x < W - 2; x += 1) {
     const p = (x - 4) / (W - 6);
     const sag = Math.sin(((p * SPANS) % 1) * Math.PI) * 6;
-    const y = 2 + Math.round(sag);
+    const y = LIGHT_Y + Math.round(sag);
     g.px(x, y, 'cable');
     if ((x - 4) % 12 === 6) bulbs.push([x, y + 1]);
   }
@@ -605,7 +613,7 @@ function ball(g, bounce) {
 /* ── the whole thing, back to front ────────────────────────────────── */
 
 export function drawScene(grid, state) {
-  const g = painter(grid);
+  const g = painter(grid, ROOF);
   const t = state.t || 0;
   shell(g);
   stringLights(g, state.string, t);

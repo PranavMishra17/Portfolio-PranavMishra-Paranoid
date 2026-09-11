@@ -1,14 +1,16 @@
 // v19 — the work. Alfred_ takes the whole first screen and nothing else is on it.
 //
-// Five boxes: a before struck through, an after that counts up, a line saying what it is. Point
-// at one and the drawing underneath changes to that one specific thing — not a generic diagram
-// with the labels swapped. Click and it tells you why.
+// Three kinds of text and no more: one mono line, one heading, one paragraph. Then the figures:
+// a before struck through, an after that counts up, a line saying what it is. Point at one and
+// the drawing underneath changes to that one specific thing. Click and it tells you why. Five
+// show by default; the Lab can show all ten.
 //
 // Underneath the fold: WheelPrice, shut, as one bar. It opens into the same shape at half the
 // size. Everything before that is an after-note, one line each.
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ALFRED, AFTER, FIGURES, HARDENING, WHEELPRICE } from '../copy';
+import { ALFRED, AFTER, FIGURES, STACK, WHEELPRICE } from '../copy';
+import { useLab } from '../lab';
 import { useOnScreen, useOpener } from '../hooks';
 
 /* A number that counts to itself once, when it first arrives on screen. */
@@ -122,6 +124,93 @@ function Sketch({ id }) {
     );
   }
 
+  if (id === 'auth') {
+    return (
+      <svg className="v19-sk" viewBox="0 0 520 74" role="img" aria-label="Authentication cost, before and after">
+        <text className="v19-sk-t" x="0" y="20">each call</text>
+        <rect className="v19-sk-line" x="90" y="10" width="360" height="12" rx="2" />
+        <text className="v19-sk-t is-was" x="458" y="20">721 ms, booting</text>
+        <rect className="v19-sk-fill is-hot" x="90" y="40" width="12" height="12" rx="2" />
+        <text className="v19-sk-t is-hot" x="110" y="50">one lookup</text>
+        <text className="v19-sk-t is-small" x="0" y="66">98.3% of the traffic was this</text>
+      </svg>
+    );
+  }
+
+  if (id === 'scan') {
+    return (
+      <svg className="v19-sk" viewBox="0 0 520 74" role="img" aria-label="Conversations sorted into real failures and expected behaviour">
+        <text className="v19-sk-t" x="0" y="20">conversations</text>
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((i) => (
+          <rect key={i} className={`v19-sk-tick-box${i % 5 === 2 ? ' is-hot' : ''}`} style={{ '--i': i }} x={4 + i * 14} y="30" width="10" height="10" rx="1.5" />
+        ))}
+        <path className="v19-sk-path" d="M190 35 H260" />
+        <rect className="v19-sk-gate" x="260" y="20" width="84" height="30" rx="3" />
+        <text className="v19-sk-t is-mid is-centre" x="302" y="39">scanner</text>
+        <path className="v19-sk-path" d="M344 35 H400" />
+        <rect className="v19-sk-fill is-hot" x="400" y="25" width="10" height="10" rx="1.5" />
+        <rect className="v19-sk-fill is-hot" x="414" y="25" width="10" height="10" rx="1.5" />
+        <text className="v19-sk-t is-hot" x="432" y="34">real</text>
+        <text className="v19-sk-t is-small" x="400" y="62">the rest never reach the queue</text>
+      </svg>
+    );
+  }
+
+  if (id === 'txn') {
+    return (
+      <svg className="v19-sk" viewBox="0 0 520 74" role="img" aria-label="Transactions recovered">
+        <text className="v19-sk-t" x="0" y="20">receipts</text>
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((i) => (
+          <rect key={i} className={`v19-sk-tick-box${i < 12 ? ' is-hot' : ''}`} style={{ '--i': i }} x={90 + i * 22} y="26" width="16" height="20" rx="2" />
+        ))}
+        <text className="v19-sk-t is-hot" x="386" y="40">counted</text>
+        <text className="v19-sk-t is-was" x="90" y="66">the model alone was dropping most of them</text>
+      </svg>
+    );
+  }
+
+  if (id === 'sms') {
+    return (
+      <svg className="v19-sk" viewBox="0 0 520 74" role="img" aria-label="A text with no body, then with one">
+        <rect className="v19-sk-bubble" x="0" y="10" width="150" height="34" rx="6" />
+        <text className="v19-sk-t is-was" x="14" y="31">(nothing)</text>
+        <path className="v19-sk-path is-short" d="M160 27 H220" />
+        <rect className="v19-sk-bubble" x="226" y="10" width="270" height="34" rx="6" />
+        <text className="v19-sk-t is-say" x="240" y="31">Re: the lease, "Tuesday works, see you at 3"</text>
+        <text className="v19-sk-t is-small" x="0" y="66">a quote-stripper returning an empty string</text>
+      </svg>
+    );
+  }
+
+  if (id === 'secure') {
+    return (
+      <svg className="v19-sk" viewBox="0 0 520 74" role="img" aria-label="An identifier reaching only its own mailbox">
+        <text className="v19-sk-t" x="0" y="34">a model-supplied id</text>
+        <path className="v19-sk-path" d="M150 30 H230" />
+        <rect className="v19-sk-gate" x="230" y="14" width="70" height="30" rx="3" />
+        <text className="v19-sk-t is-mid is-centre" x="265" y="33">check</text>
+        <path className="v19-sk-path" d="M300 30 H360" />
+        <rect className="v19-sk-box" x="360" y="14" width="60" height="30" rx="3" />
+        <text className="v19-sk-t is-mid is-centre" x="390" y="33">yours</text>
+        <g className="v19-sk-fail"><path className="v19-sk-cross" d="M300 46 l14 14 M314 46 l-14 14" /><text className="v19-sk-t is-small is-was" x="322" y="60">anyone else's</text></g>
+      </svg>
+    );
+  }
+
+  if (id === 'ship') {
+    return (
+      <svg className="v19-sk" viewBox="0 0 520 74" role="img" aria-label="Commits across a day">
+        <text className="v19-sk-t" x="0" y="20">one day</text>
+        {Array.from({ length: 34 }).map((_, i) => (
+          <rect key={i} className="v19-sk-tick-box is-hot" style={{ '--i': i }} x={70 + i * 13} y={26 + ((i * 7) % 3) * 3} width="8" height={18 - ((i * 7) % 3) * 3} rx="1.5" />
+        ))}
+        <text className="v19-sk-t is-small" x="70" y="66">each one checked against production before it counts</text>
+      </svg>
+    );
+  }
+
+  if (id && id.startsWith('wp-')) return null;
+
   // latency, and the default
   return (
     <svg className="v19-sk" viewBox="0 0 520 74" role="img" aria-label="Mail reaching you in three seconds instead of ninety">
@@ -136,13 +225,47 @@ function Sketch({ id }) {
   );
 }
 
+/* One figure: the before, the after, the line, and the why on request. */
+function Dial({ f, live, isOpen, run, onLive, onPick }) {
+  return (
+    <div
+      className={`v19-dial${live ? ' is-live' : ''}${isOpen ? ' is-open' : ''}`}
+      onMouseEnter={() => onLive(f.id)}
+      data-keep-open={isOpen ? '' : undefined}
+    >
+      <button
+        type="button"
+        className="v19-dial-face"
+        onClick={() => {
+          onLive(f.id);
+          onPick(f.id);
+        }}
+        aria-expanded={isOpen}
+        data-keep-open=""
+      >
+        <span className="v19-dial-was">{f.was}</span>
+        <span className="v19-dial-now">
+          <Tick value={f.now} run={run} />
+        </span>
+        <span className="v19-dial-label">{f.label}</span>
+        <span className="v19-dial-mark" aria-hidden="true">{isOpen ? '−' : '+'}</span>
+      </button>
+      <div className="v19-dial-note" hidden={!isOpen}>
+        <p>{f.note}</p>
+      </div>
+    </div>
+  );
+}
+
 export default function Work({ sectionRef }) {
+  const { lab } = useLab();
   const ref = useRef(null);
   const seen = useOnScreen(ref);
   const { open, toggle } = useOpener();
-  const [live, setLive] = useState(FIGURES[0].id);
+  const shown = lab.now === 'ten' ? FIGURES : FIGURES.filter((f) => f.top);
+  const [live, setLive] = useState(shown[0].id);
   const [past, setPast] = useState(false);
-  const figure = FIGURES.find((f) => f.id === live) || FIGURES[0];
+  const figure = shown.find((f) => f.id === live) || shown[0];
 
   return (
     <section className="v19-work" ref={sectionRef} id="work" aria-label="What I do now">
@@ -152,7 +275,7 @@ export default function Work({ sectionRef }) {
             <div>
               <p className="v19-eye">
                 <span className="v19-dot is-live" aria-hidden="true" />
-                {ALFRED.when} · {ALFRED.where}
+                {ALFRED.eyebrow} · {ALFRED.when}
               </p>
               <h2 className="v19-h2">
                 {ALFRED.hello}{' '}
@@ -160,17 +283,17 @@ export default function Work({ sectionRef }) {
                   <img src={ALFRED.logo} alt="" />
                   <span>{ALFRED.company}</span>
                 </a>
+                , {ALFRED.claim}
               </h2>
               <p className="v19-lede">{ALFRED.about}</p>
-              <p className="v19-lede is-mine">{ALFRED.mine}</p>
             </div>
 
             <aside className="v19-glance">
               <p className="v19-mini">At a glance</p>
               <dl>
-                <div><dt>People relying on it</dt><dd>5,000+</dd></div>
-                <div><dt>Reaches you by</dt><dd>text · chat · voice</dd></div>
-                <div><dt>Mine to keep right</dt><dd>memory · rules</dd></div>
+                {ALFRED.glance.map((g) => (
+                  <div key={g.k}><dt>{g.k}</dt><dd>{g.v}</dd></div>
+                ))}
               </dl>
               <a className="v19-glance-go" href={ALFRED.url} target="_blank" rel="noreferrer">
                 get-alfred.ai
@@ -178,41 +301,10 @@ export default function Work({ sectionRef }) {
             </aside>
           </header>
 
-          <div className="v19-dials" onMouseLeave={() => setLive(FIGURES[0].id)}>
-            {FIGURES.map((f) => {
-              const isOpen = open === f.id;
-              return (
-                <div
-                  className={`v19-dial${live === f.id ? ' is-live' : ''}${isOpen ? ' is-open' : ''}`}
-                  key={f.id}
-                  onMouseEnter={() => setLive(f.id)}
-                  data-keep-open={isOpen ? '' : undefined}
-                >
-                  <button
-                    type="button"
-                    className="v19-dial-face"
-                    onClick={() => {
-                      setLive(f.id);
-                      toggle(f.id);
-                    }}
-                    aria-expanded={isOpen}
-                    data-keep-open=""
-                  >
-                    <span className="v19-dial-was">{f.was}</span>
-                    <span className="v19-dial-now">
-                      <Tick value={f.now} run={seen} />
-                    </span>
-                    <span className="v19-dial-label">{f.label}</span>
-                    <span className="v19-dial-more" aria-hidden="true">
-                      {isOpen ? 'Close' : 'Why'}
-                    </span>
-                  </button>
-                  <div className="v19-dial-note" hidden={!isOpen}>
-                    <p>{f.note}</p>
-                  </div>
-                </div>
-              );
-            })}
+          <div className={`v19-dials${shown.length > 5 ? ' is-ten' : ''}`} onMouseLeave={() => setLive(shown[0].id)}>
+            {shown.map((f) => (
+              <Dial key={f.id} f={f} live={live === f.id} isOpen={open === f.id} run={seen} onLive={setLive} onPick={toggle} />
+            ))}
           </div>
 
           <div className="v19-sk-wrap" key={figure.id}>
@@ -220,12 +312,12 @@ export default function Work({ sectionRef }) {
           </div>
 
           <div className="v19-work-under">
-            <p className="v19-mini">Underneath</p>
-            <ul className="v19-ticks">
-              {HARDENING.map((h) => (
-                <li key={h}>{h}</li>
+            <p className="v19-mini">Built on</p>
+            <p className="v19-chiprow is-stack">
+              {STACK.map((t) => (
+                <span className="v19-chip" key={t}>{t}</span>
               ))}
-            </ul>
+            </p>
           </div>
         </div>
       </div>
@@ -252,28 +344,17 @@ export default function Work({ sectionRef }) {
             </button>
 
             <div className="v19-wp-open" hidden={!past}>
-              <ol className="v19-story">
-                {WHEELPRICE.story.map((s, i) => (
-                  <li key={s} style={{ '--i': i }}>
-                    <span className="v19-story-dot" aria-hidden="true" />
-                    {s}
-                  </li>
+              <p className="v19-lede">{WHEELPRICE.about}</p>
+              <div className="v19-dials is-small">
+                {WHEELPRICE.figures.map((f) => (
+                  <Dial key={f.id} f={f} live={false} isOpen={open === f.id} run={past} onLive={() => {}} onPick={toggle} />
                 ))}
-              </ol>
-              <div className="v19-wp-side">
-                <p className="v19-chiprow">
-                  {WHEELPRICE.tech.slice(0, 8).map((t) => (
-                    <span className="v19-chip" key={t}>{t}</span>
-                  ))}
-                </p>
-                {WHEELPRICE.url ? (
-                  <p>
-                    <a className="v19-a" href={WHEELPRICE.url} target="_blank" rel="noreferrer">
-                      {WHEELPRICE.company}
-                    </a>
-                  </p>
-                ) : null}
               </div>
+              <p className="v19-chiprow is-stack">
+                {WHEELPRICE.stack.map((t) => (
+                  <span className="v19-chip" key={t}>{t}</span>
+                ))}
+              </p>
             </div>
           </div>
 

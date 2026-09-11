@@ -1,39 +1,87 @@
-// v19 — the three behaviours the whole page leans on.
+// v19 — the behaviours the whole page leans on: the clock, the sky, the opener.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-/* ────────────────────────── the sky ──────────────────────────
-   Weather, not Vantage. Slight gradients of colour changing as you scroll — no sun, no show.
-   Four stops across the page, lerped, written straight onto one fixed element. */
+/* ────────────────────────── the clock and the sky ──────────────────────────
+   The page is painted for the time of day it is opened. One palette per hour of the day,
+   interpolated, so the colour is never a step. Every stop stays light enough for dark ink on
+   it: the darkest night is a dusty blue, not black. Scrolling drifts the hour forward a little
+   — the bottom of the page is about an hour and a half later than the top — so the colour
+   moves as you go without ever becoming a different day. */
 
-const STOPS = [
-  { top: [217, 230, 239], mid: [238, 240, 233], bot: [246, 239, 228] }, // pale morning
-  { top: [207, 224, 234], mid: [234, 238, 230], bot: [244, 234, 217] }, // clear midday
-  { top: [216, 219, 230], mid: [238, 229, 217], bot: [242, 220, 196] }, // warm afternoon
-  { top: [220, 208, 218], mid: [239, 220, 201], bot: [238, 201, 168] }, // golden
-  { top: [203, 194, 214], mid: [228, 207, 194], bot: [223, 181, 151] }, // dusk, at the room
+const HOURS = [
+  [0, [168, 180, 206], [190, 196, 214], [206, 204, 214]], // night
+  [3, [160, 172, 200], [182, 190, 210], [200, 200, 212]], // the deep of it
+  [5, [178, 180, 208], [206, 198, 214], [226, 208, 206]], // before dawn
+  [7, [198, 200, 222], [236, 214, 200], [246, 208, 178]], // sunrise
+  [9, [206, 224, 236], [234, 238, 232], [246, 240, 228]], // morning
+  [12, [196, 220, 238], [230, 238, 236], [244, 240, 230]], // midday
+  [15, [210, 224, 232], [238, 234, 220], [246, 232, 208]], // afternoon
+  [17, [216, 214, 222], [240, 222, 196], [244, 208, 164]], // golden
+  [19, [200, 192, 216], [236, 204, 186], [236, 182, 150]], // sunset
+  [21, [178, 182, 212], [204, 196, 214], [216, 196, 196]], // dusk
+  [24, [168, 180, 206], [190, 196, 214], [206, 204, 214]], // and round
 ];
 
 const lerp = (a, b, t) => Math.round(a + (b - a) * t);
-const mix = (a, b, t, k) => `rgb(${lerp(a[k][0], b[k][0], t)},${lerp(a[k][1], b[k][1], t)},${lerp(a[k][2], b[k][2], t)})`;
+const mix3 = (a, b, t) => `rgb(${lerp(a[0], b[0], t)},${lerp(a[1], b[1], t)},${lerp(a[2], b[2], t)})`;
 
-export function useSky(ref, enabled = true) {
+/** The three sky colours at a fractional hour of the day. */
+export function skyAt(hour) {
+  const h = ((hour % 24) + 24) % 24;
+  let i = 0;
+  while (i < HOURS.length - 2 && HOURS[i + 1][0] <= h) i += 1;
+  const a = HOURS[i];
+  const b = HOURS[i + 1];
+  const t = (h - a[0]) / (b[0] - a[0]);
+  return { top: mix3(a[1], b[1], t), mid: mix3(a[2], b[2], t), bot: mix3(a[3], b[3], t) };
+}
+
+/** How dark the room is at that hour, 0..1. It never goes past 0.72: the darkest night is still
+    a blue room with the lamp on, not a black one. */
+export function nightAt(hour) {
+  const h = ((hour % 24) + 24) % 24;
+  const pts = [
+    [0, 0.72], [4, 0.72], [5.5, 0.55], [7, 0.25], [8.5, 0.04], [16.5, 0.04],
+    [18, 0.2], [19.5, 0.45], [21, 0.62], [22.5, 0.72], [24, 0.72],
+  ];
+  let i = 0;
+  while (i < pts.length - 2 && pts[i + 1][0] <= h) i += 1;
+  const [h0, v0] = pts[i];
+  const [h1, v1] = pts[i + 1];
+  return v0 + (v1 - v0) * ((h - h0) / (h1 - h0));
+}
+
+// how far the hour drifts from the top of the page to the bottom
+export const DRIFT = 1.5;
+
+/** The hour to paint for: the real clock, kept current, or a fixed hour from the Lab. */
+export function useClock(fixed) {
+  const read = () => {
+    const d = new Date();
+    return d.getHours() + d.getMinutes() / 60;
+  };
+  const [now, setNow] = useState(read);
   useEffect(() => {
-    if (!enabled) return undefined;
+    if (fixed !== 'now') return undefined;
+    setNow(read());
+    const t = window.setInterval(() => setNow(read()), 60000);
+    return () => window.clearInterval(t);
+  }, [fixed]);
+  return fixed === 'now' ? now : Number(fixed);
+}
+
+export function useSky(ref, hour) {
+  useEffect(() => {
     const el = ref.current;
     if (!el) return undefined;
     let ticking = false;
 
     const apply = (p) => {
-      const n = STOPS.length - 1;
-      const scaled = Math.min(Math.max(p, 0), 0.9999) * n;
-      const i = Math.floor(scaled);
-      const t = scaled - i;
-      const a = STOPS[i];
-      const b = STOPS[Math.min(i + 1, n)];
-      el.style.setProperty('--sky-top', mix(a, b, t, 'top'));
-      el.style.setProperty('--sky-mid', mix(a, b, t, 'mid'));
-      el.style.setProperty('--sky-bot', mix(a, b, t, 'bot'));
+      const c = skyAt(hour + p * DRIFT);
+      el.style.setProperty('--sky-top', c.top);
+      el.style.setProperty('--sky-mid', c.mid);
+      el.style.setProperty('--sky-bot', c.bot);
     };
 
     const onScroll = () => {
@@ -56,7 +104,7 @@ export function useSky(ref, enabled = true) {
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
     };
-  }, [ref, enabled]);
+  }, [ref, hour]);
 }
 
 /* ────────────────────────── the opener ──────────────────────────

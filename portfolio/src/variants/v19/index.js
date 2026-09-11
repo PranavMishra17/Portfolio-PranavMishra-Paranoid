@@ -14,7 +14,7 @@ import Projects from './sections/Projects';
 import Papers from './sections/Papers';
 import Room from './room/Room';
 import Lab, { LabProvider, useLab } from './lab';
-import { useSky } from './hooks';
+import { useSky, useClock, DRIFT } from './hooks';
 import { ME, LINKS } from './copy';
 import './v19.css';
 
@@ -47,7 +47,8 @@ function Page() {
     window.matchMedia &&
     window.matchMedia('(pointer: coarse)').matches;
 
-  useSky(skyRef, true);
+  const hour = useClock(lab.hour);
+  useSky(skyRef, hour);
 
   /* body, fonts, and the scroll the browser must not restore under a wall */
   useEffect(() => {
@@ -204,7 +205,7 @@ function Page() {
         <Work sectionRef={(el) => { sections.current[0] = el; }} />
         <Projects sectionRef={(el) => { sections.current[1] = el; }} />
         <Papers sectionRef={(el) => { sections.current[2] = el; }} />
-        <Room sectionRef={(el) => { sections.current[3] = el; }} onTop={home} />
+        <Room sectionRef={(el) => { sections.current[3] = el; }} onTop={home} hour={hour + DRIFT} />
       </main>
 
       {landing ? (

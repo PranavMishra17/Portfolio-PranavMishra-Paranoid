@@ -46,6 +46,7 @@ body.v19-locked { overflow: hidden; }
 .v19 :where(button) { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-align: left; }
 .v19 :where(a) { color: inherit; text-decoration: none; }
 .v19 :focus-visible { outline: 2px solid var(--ember); outline-offset: 3px; border-radius: 3px; }
+.v19 [hidden] { display: none !important; }
 
 /* ── the sky, and the tooth over it ──────────────────────────────────── */
 
@@ -240,12 +241,13 @@ body.v19-locked { overflow: hidden; }
 .v19-glance { background: rgba(255, 255, 253, .7); border: 1px solid var(--rule-2); border-radius: 3px; padding: 15px 16px; }
 .v19-glance dl > div { display: flex; justify-content: space-between; align-items: baseline; gap: 14px; padding: 7px 0; border-top: 1px solid var(--rule-2); }
 .v19-glance dt { font-size: 13px; color: var(--ink-3); }
-.v19-glance dd { margin: 0; font-family: var(--mono); font-size: 13px; color: var(--ink); text-align: right; }
+.v19-glance dd { margin: 0; font-family: var(--mono); font-size: 13px; color: var(--ink); text-align: right; white-space: nowrap; }
 .v19-glance-go { display: inline-block; margin-top: 10px; font-size: 13px; font-weight: 600; color: var(--ember); border-bottom: 1px solid rgba(193,65,47,.35); }
 
 .v19-dials { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: clamp(14px, 2.4vh, 28px); }
-@media (max-width: 1000px) { .v19-dials { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 520px) { .v19-dials { grid-template-columns: 1fr; } }
+.v19-dials.is-small { grid-template-columns: repeat(4, 1fr); margin-top: 14px; }
+@media (max-width: 1000px) { .v19-dials, .v19-dials.is-small { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .v19-dials, .v19-dials.is-small { grid-template-columns: 1fr; } }
 .v19-dial { position: relative; }
 .v19-dial-face {
   width: 100%; display: block; padding: 13px 14px 11px; border-radius: 3px;
@@ -259,7 +261,10 @@ body.v19-locked { overflow: hidden; }
 .v19-dial-was { display: block; font-family: var(--mono); font-size: 11.5px; color: var(--ink-3); text-decoration: line-through; text-decoration-color: rgba(193,65,47,.6); }
 .v19-dial-now { display: block; font-family: var(--display); font-size: clamp(25px, 2.9vw, 36px); font-weight: var(--display-w); letter-spacing: var(--display-tr); line-height: 1.12; margin-top: 2px; font-variant-numeric: tabular-nums; }
 .v19-dial-label { display: block; font-size: 13.5px; line-height: 1.48; color: var(--ink-2); margin-top: 5px; min-height: 2.7em; }
-.v19-dial-more { display: inline-block; margin-top: 8px; font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--ember); }
+.v19-dial-mark { position: absolute; right: 12px; top: 10px; font-family: var(--mono); font-size: 15px; color: var(--ember); }
+.v19-dials.is-small .v19-dial-now { font-size: clamp(20px, 2vw, 26px); }
+.v19-dials.is-small .v19-dial-label { font-size: 13px; min-height: 0; }
+.v19-dials.is-ten .v19-dial-now { font-size: clamp(22px, 2.4vw, 30px); }
 .v19-dial-note {
   position: absolute; left: 0; right: 0; top: calc(100% + 8px); z-index: 12; min-width: 280px;
   padding: 14px 16px; border-radius: 3px; background: var(--paper-2); border: 1px solid var(--rule);
@@ -268,9 +273,8 @@ body.v19-locked { overflow: hidden; }
 .v19-dial-note p { font-size: 14.5px; line-height: 1.6; color: var(--ink-2); max-width: 46ch; }
 
 .v19-work-under { margin-top: clamp(10px, 1.8vh, 20px); }
-.v19-ticks li { position: relative; padding-left: 17px; font-size: 14px; line-height: 1.58; color: var(--ink-2); max-width: 74ch; }
-.v19-ticks li + li { margin-top: 7px; }
-.v19-ticks li::before { content: ''; position: absolute; left: 0; top: .72em; width: 9px; height: 2px; background: var(--ember); }
+.v19-chiprow.is-stack { gap: 6px; margin-top: 0; }
+.v19-chiprow.is-stack .v19-chip { font-size: 11.5px; padding: 5px 10px; background: rgba(255,255,253,.7); border: 1px solid var(--rule-2); color: var(--ink-2); }
 
 /* ── the drawing under the dials: one per figure ──────────────────────── */
 
@@ -287,6 +291,9 @@ body.v19-locked { overflow: hidden; }
 .v19-sk-path { stroke: var(--rule); stroke-width: 1.4; fill: none; }
 .v19-sk-box, .v19-sk-gate, .v19-sk-model, .v19-sk-bubble { fill: rgba(255,255,253,.8); stroke: var(--rule); stroke-width: 1.2; }
 .v19-sk-line { fill: rgba(23,23,26,.16); }
+.v19-sk-fill.is-hot { fill: var(--ember); }
+.v19-sk-tick-box { fill: rgba(23,23,26,.14); opacity: 0; animation: v19-cell 3.6s ease-out infinite; animation-delay: calc(var(--i) * 45ms); }
+.v19-sk-tick-box.is-hot { fill: var(--ember); }
 
 /* latency — one crawls, one is already there */
 .v19-sk-run.is-slow { fill: var(--ink-3); animation: v19-slowrun 5s linear infinite; }
@@ -368,20 +375,10 @@ body.v19-locked { overflow: hidden; }
   .v19-wp-bar { grid-template-columns: 30px minmax(0, 1fr) 18px; }
   .v19-wp-say, .v19-wp-when { display: none; }
 }
-.v19-wp-open { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 280px); gap: clamp(18px, 3vw, 44px); padding: 6px 12px 22px 62px; animation: v19-pop 200ms ease; }
-@media (max-width: 860px) { .v19-wp-open { grid-template-columns: 1fr; padding-left: 12px; } }
-.v19-story { position: relative; }
-.v19-story::before { content: ''; position: absolute; left: 4px; top: 8px; bottom: 8px; width: 1px; background: var(--rule); }
-.v19-story li {
-  position: relative; padding-left: 24px; font-size: 15px; line-height: 1.6; color: var(--ink-2);
-  max-width: 62ch; animation: v19-story-in 420ms cubic-bezier(.2,.9,.3,1) both;
-  animation-delay: calc(var(--i) * 90ms);
-}
-.v19-story li + li { margin-top: 12px; }
-.v19-story-dot { position: absolute; left: 0; top: .55em; width: 9px; height: 9px; border-radius: 50%; background: var(--paper-2); border: 2px solid var(--ember); }
-@keyframes v19-story-in { from { opacity: 0; transform: translateX(-8px); } }
-.v19-wp-side { padding-top: 4px; }
-
+.v19-wp-open { padding: 4px 12px 22px 62px; animation: v19-pop 200ms ease; }
+.v19-wp-open .v19-lede { margin-top: 0; font-size: 15px; }
+.v19-wp-open .v19-chiprow.is-stack { margin-top: 14px; }
+@media (max-width: 860px) { .v19-wp-open { padding-left: 12px; } }
 .v19-after { margin-top: clamp(22px, 4vh, 42px); }
 .v19-role { border-top: 1px solid var(--rule-2); }
 .v19-role:last-child { border-bottom: 1px solid var(--rule-2); }
@@ -533,7 +530,8 @@ body.v19-locked { overflow: hidden; }
 @media (max-width: 900px) { .v19-brief { grid-template-columns: 1fr; } }
 .v19-brief-fig { display: flex; flex-direction: column; gap: 12px; align-items: flex-start; border-right: 1px solid var(--rule-2); padding-right: clamp(12px, 2vw, 30px); }
 @media (max-width: 900px) { .v19-brief-fig { border-right: 0; padding-right: 0; border-bottom: 1px solid var(--rule-2); padding-bottom: 16px; } }
-.v19-brief-fig .v19-fig-bars, .v19-brief-fig .v19-fig-count { width: 100%; margin-top: 2px; }
+.v19-brief-fig .v19-fig-bars, .v19-brief-fig .v19-fig-count, .v19-brief-fig .v19-g3, .v19-brief-fig .v19-steps { width: 100%; margin-top: 2px; }
+.v19-fig .v19-g3, .v19-fig .v19-steps { margin-top: 14px; }
 .v19-brief-fig .v19-fig-bar { grid-template-columns: 8.5rem minmax(0, 1fr) 3.6rem; }
 .v19-brief-line { font-size: 15.5px; line-height: 1.6; color: var(--ink); margin-top: 12px; max-width: 54ch; }
 .v19-brief-words .v19-abs-text { font-size: 13.5px; line-height: 1.66; margin-top: 10px; text-align: left; }
@@ -541,48 +539,76 @@ body.v19-locked { overflow: hidden; }
 
 /* plates — numbered figures under the abstract, with captions */
 .v19-plates { display: grid; grid-template-columns: 1fr; gap: clamp(14px, 1.8vw, 24px); margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--rule-2); }
-.v19-plate { margin: 0; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 14px; align-items: center; }
+.v19-plate { margin: 0; display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 14px; align-items: center; }
 @media (max-width: 560px) { .v19-plate { grid-template-columns: 1fr; } }
-.v19-plate-art { border: 1px solid var(--rule-2); border-radius: 2px; padding: 14px; background: rgba(255,255,253,.5); min-height: 118px; display: flex; flex-direction: column; justify-content: center; }
-.v19-plate-art .v19-fig-bars, .v19-plate-art .v19-fig-count { margin-top: 0; }
-.v19-plate-art .v19-fig-bar { grid-template-columns: 8.5rem minmax(0, 1fr) 3.6rem; gap: 8px; }
-.v19-plate-art .v19-fig-k { font-size: 12px; }
-.v19-plate-art .v19-fig-track, .v19-plate-art .v19-fig-cells span { height: 20px; }
-.v19-plate-art .v19-fig-v { font-size: 17px; }
+.v19-plate-art { border: 1px solid var(--rule-2); border-radius: 2px; padding: 14px; background: #fff; min-height: 110px; display: flex; flex-direction: column; justify-content: center; }
 .v19-plate-cap { font-size: 12.5px; line-height: 1.55; color: var(--ink-3); }
 .v19-plate-cap b { font-family: var(--mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); margin-right: 6px; }
+.v19-plate.is-small { grid-template-columns: 1fr; gap: 8px; align-items: start; }
+.v19-plate.is-small .v19-plate-art { padding: 10px 12px; min-height: 0; }
+.v19-plate.is-small .v19-plate-cap { font-size: 12px; }
 
-/* the ruler */
-.v19-fig-gauge { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto; gap: 4px 16px; align-items: center; }
-.v19-fig-rule { position: relative; height: 22px; border-bottom: 1px solid var(--ink-3); grid-column: 1; }
-.v19-fig-rule i { position: absolute; bottom: 0; width: 1px; height: 6px; background: var(--ink-3); }
-.v19-fig-rule i.is-major { height: 11px; }
-.v19-fig-mark { position: absolute; left: var(--x); bottom: -1px; width: 3px; height: 22px; margin-left: -1.5px; background: var(--ember); animation: v19-slide 900ms cubic-bezier(.2,.9,.3,1); }
-@keyframes v19-slide { from { left: 0; } }
-.v19-fig-ends { grid-column: 1; display: flex; justify-content: space-between; font-family: var(--mono); font-size: 10px; color: var(--ink-3); }
-.v19-fig-gauge .v19-fig-v { grid-column: 2; grid-row: 1 / span 2; font-size: 26px; }
+/* the 3 x 3 */
+.v19-g3 { display: grid; grid-template-columns: 6.4rem repeat(3, minmax(0, 1fr)); gap: 3px; align-items: stretch; }
+.v19-g3-h, .v19-g3-k { font-family: var(--mono); font-size: 9.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); align-self: center; }
+.v19-g3-h { text-align: center; padding-bottom: 2px; }
+.v19-g3-k { padding-right: 6px; text-align: right; }
+.v19-g3-c {
+  font-family: var(--mono); font-size: 12.5px; font-variant-numeric: tabular-nums; text-align: center; padding: 8px 0; border-radius: 2px;
+  background: rgba(23, 23, 26, calc(.04 + .16 * var(--k))); color: var(--ink);
+  animation: v19-fade 400ms ease both; animation-delay: calc(var(--i) * 40ms);
+}
+.v19-g3-c.is-best { background: var(--ember); color: #fff; font-weight: 700; }
 
-/* the ring */
-.v19-fig-ring { width: 100%; max-width: 300px; height: auto; display: block; margin: 0 auto; }
-.v19-fig-ring-l { stroke: var(--rule); stroke-width: 1; }
-.v19-fig-ring-n { fill: var(--ember); animation: v19-pop 400ms ease both; }
-.v19-fig-ring-t { font-family: var(--mono); font-size: 8.5px; fill: var(--ink-2); letter-spacing: .02em; }
+/* the steps */
+.v19-steps { width: 100%; height: auto; display: block; overflow: visible; }
+.v19-steps-grid { stroke: var(--rule-2); stroke-width: 1; }
+.v19-steps-ax { font-family: var(--mono); font-size: 8.5px; fill: var(--ink-3); }
+.v19-steps-bar { fill: var(--ember); transform-origin: 50% 100%; transform-box: fill-box; animation: v19-grow-y 700ms cubic-bezier(.2,.9,.3,1) both; animation-delay: calc(var(--i) * 80ms); }
+@keyframes v19-grow-y { from { transform: scaleY(0); } }
+.v19-steps-v { font-family: var(--mono); font-size: 8.5px; fill: var(--ink); }
+.v19-steps-v.is-line { fill: var(--ink-3); }
+.v19-steps-line { fill: none; stroke: var(--ink-3); stroke-width: 1.4; stroke-dasharray: 3 3; }
+.v19-steps-dot { fill: var(--ink-2); }
 
-/* stacked — no paper, one band per paper, set straight on the page */
-.v19-stack { display: flex; flex-direction: column; }
-.v19-band { padding: clamp(20px, 3vh, 34px) 0; border-top: 1px solid var(--rule); }
-.v19-band:first-child { border-top: 0; padding-top: 0; }
+/* the tokens */
+.v19-fig-bars.is-tokens .v19-fig-bar { grid-template-columns: 6.6rem minmax(0, 1fr) 3.4rem; gap: 8px; }
+.v19-fig-bars.is-tokens .v19-fig-k { font-family: var(--mono); font-size: 10.5px; letter-spacing: .04em; }
+.v19-fig-bars.is-tokens .v19-fig-track { height: 14px; }
+.v19-fig-bars.is-tokens .v19-fig-fill { animation-delay: calc(var(--i) * 70ms); }
+.v19-fig-bars.is-tokens .v19-fig-v { font-size: 13px; font-family: var(--mono); font-weight: 500; }
+
+/* the gap */
+.v19-gap { display: flex; flex-direction: column; gap: 5px; }
+.v19-gap-legend { display: flex; gap: 14px; font-family: var(--mono); font-size: 9.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 4px; }
+.v19-gap-legend i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+.v19-gap-legend i.is-a, .v19-gap-dot.is-a { background: var(--ember); }
+.v19-gap-legend i.is-b, .v19-gap-dot.is-b { background: var(--ink); }
+.v19-gap-row { display: grid; grid-template-columns: 5.4rem minmax(0, 1fr) 5.6rem; gap: 8px; align-items: center; animation: v19-fade 400ms ease both; animation-delay: calc(var(--i) * 50ms); }
+.v19-gap-k { font-family: var(--mono); font-size: 10px; letter-spacing: .04em; color: var(--ink-2); }
+.v19-gap-track { position: relative; height: 12px; }
+.v19-gap-track::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: var(--rule-2); }
+.v19-gap-line { position: absolute; left: var(--a); width: calc(var(--b) - var(--a)); top: 50%; height: 2px; margin-top: -1px; background: var(--rule); }
+.v19-gap-dot { position: absolute; left: var(--x); top: 50%; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; }
+.v19-gap-v { font-family: var(--mono); font-size: 10.5px; font-weight: 500; color: var(--ink-2); text-align: right; font-variant-numeric: tabular-nums; }
+
+/* stacked — one sheet per paper, the figures beside the title, the abstract one column */
+.v19-stack { display: flex; flex-direction: column; gap: clamp(16px, 2.6vw, 30px); }
+.v19-band {
+  display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(280px, 1fr); gap: clamp(20px, 3vw, 48px);
+  background: #fdfcf7; border: 1px solid rgba(23,23,26,.12); border-radius: 1px;
+  padding: clamp(20px, 2.4vw, 34px) clamp(18px, 2.2vw, 32px);
+  box-shadow: 0 1px 0 rgba(255,255,255,.9) inset, 0 20px 40px -34px rgba(40, 36, 28, .95);
+}
+@media (max-width: 900px) { .v19-band { grid-template-columns: 1fr; } }
 .v19-band-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 14px; }
-.v19-band-title { font-family: var(--display); font-weight: var(--display-w); font-size: clamp(22px, 2.6vw, 36px); line-height: 1.12; letter-spacing: -.03em; margin-top: 12px; max-width: 26ch; }
-.v19-band .v19-brief-line { max-width: 64ch; }
-.v19-band-strip { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(14px, 2.4vw, 36px); margin-top: 20px; }
-@media (max-width: 760px) { .v19-band-strip { grid-template-columns: 1fr; } }
-.v19-band-strip .v19-plate-art { background: none; border: 0; padding: 0; min-height: 0; }
-.v19-band-strip .v19-plate { grid-template-columns: 1fr; gap: 10px; align-items: start; border-left: 2px solid var(--rule); padding-left: 16px; }
-.v19-band-body { margin-top: 18px; max-width: 108ch; }
-.v19-band-body .v19-abs-text { columns: 2; column-gap: clamp(20px, 3vw, 44px); text-align: left; margin-top: 0; font-size: 14px; }
-@media (max-width: 760px) { .v19-band-body .v19-abs-text { columns: 1; } }
+.v19-band-title { font-family: var(--display); font-weight: var(--display-w); font-size: clamp(20px, 2.2vw, 30px); line-height: 1.16; letter-spacing: -.025em; margin-top: 12px; }
+.v19-band .v19-brief-line { max-width: 60ch; font-size: 15px; }
+.v19-band-body { max-width: 66ch; }
+.v19-band-body .v19-abs-text { text-align: justify; hyphens: auto; font-size: 14px; line-height: 1.7; }
 .v19-band .v19-view-links { margin-top: 14px; }
+.v19-band-figs { display: flex; flex-direction: column; gap: 14px; border-left: 1px solid var(--rule-2); padding-left: clamp(14px, 2vw, 28px); }
+@media (max-width: 900px) { .v19-band-figs { border-left: 0; padding-left: 0; border-top: 1px solid var(--rule-2); padding-top: 16px; } }
 
 /* what the papers sit on: the awards, which open */
 .v19-won { margin-top: clamp(22px, 3.6vh, 44px); padding-top: clamp(14px, 2vh, 22px); border-top: 1px solid var(--rule-2); }
@@ -602,9 +628,7 @@ body.v19-locked { overflow: hidden; }
 .v19-won-name { font-family: var(--display); font-size: 17px; font-weight: var(--display-w); letter-spacing: -.02em; margin-top: 4px; }
 .v19-won-line { font-size: 13.5px; line-height: 1.56; color: var(--ink-2); margin-top: 4px; }
 /* each design dresses the awards its own way */
-.v19-won.is-abstract .v19-won-one, .v19-won.is-brief .v19-won-one, .v19-won.is-plates .v19-won-one { background: #fdfcf7; border-color: rgba(23,23,26,.12); }
-.v19-won.is-stacked .v19-won-one { background: none; border: 0; border-top: 1px solid var(--rule-2); border-radius: 0; }
-.v19-won.is-stacked .v19-won-one.is-open { box-shadow: none; }
+.v19-won.is-abstract .v19-won-one, .v19-won.is-brief .v19-won-one, .v19-won.is-plates .v19-won-one, .v19-won.is-stacked .v19-won-one { background: #fdfcf7; border-color: rgba(23,23,26,.12); }
 .v19-won.is-figure .v19-won-one { border-left: 3px solid var(--brass); }
 
 /* ── the Lab ─────────────────────────────────────────────────────────── */
@@ -644,7 +668,8 @@ body.v19-locked { overflow: hidden; }
 /* ── the room: covers the screen, run into the page above it ─────────── */
 
 .v19-room { position: relative; z-index: 2; margin-top: clamp(20px, 5vh, 60px); }
-.v19-room-stage { position: relative; width: 100%; height: calc(100vh - var(--bar)); line-height: 0; }
+/* never shorter than it takes to show the posters on a wide screen: the canvas covers by width there */
+.v19-room-stage { position: relative; width: 100%; height: max(calc(100vh - var(--bar)), 56vw); line-height: 0; }
 .v19-room-canvas {
   display: block; width: 100%; height: 100%; object-fit: cover; object-position: center bottom;
   image-rendering: pixelated; image-rendering: crisp-edges; cursor: none;

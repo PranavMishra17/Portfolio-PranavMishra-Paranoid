@@ -13,8 +13,10 @@ const KEY = 'v19.lab';
 export const DEFAULTS = {
   land: 'plate',      // the first screen — each one brings its own type with it
   surface: 'plaster', // what the wall is made of: its look, its cursor
+  now: 'five',        // how many of the Alfred_ figures show
   projects: 'frame',  // how the frame and its tiles are dressed
-  papers: 'figure',   // how a paper is shown
+  papers: 'plates',   // how a paper is shown
+  hour: 'now',        // the clock: real time, or a fixed hour to preview
 };
 
 const OPTIONS = [
@@ -35,6 +37,14 @@ const OPTIONS = [
     ],
   },
   {
+    key: 'now',
+    title: 'Alfred_, in numbers',
+    choices: [
+      { v: 'five', label: 'Five', hint: 'The five that matter most.' },
+      { v: 'ten', label: 'Ten', hint: 'All ten, to pick the five from.' },
+    ],
+  },
+  {
     key: 'projects',
     title: 'The work, framed',
     choices: [
@@ -50,7 +60,22 @@ const OPTIONS = [
       { v: 'abstract', label: 'Abstract', hint: 'Set on real paper, the first lines only.' },
       { v: 'brief', label: 'Brief', hint: 'The figure and the abstract on one sheet.' },
       { v: 'plates', label: 'Plates', hint: 'The sheet, and the figures under it as numbered plates.' },
-      { v: 'stacked', label: 'Stacked', hint: 'No paper. One wide band per paper, set on the page.' },
+      { v: 'stacked', label: 'Stacked', hint: 'One sheet per paper, the figures beside the title, the abstract in one column.' },
+    ],
+  },
+  {
+    key: 'hour',
+    title: 'The time of day',
+    choices: [
+      { v: 'now', label: 'Now', hint: 'The real clock. The sky and the room follow it.' },
+      { v: 5, label: '05', hint: 'Before dawn.' },
+      { v: 7, label: '07', hint: 'Sunrise.' },
+      { v: 10, label: '10', hint: 'Morning.' },
+      { v: 13, label: '13', hint: 'Midday.' },
+      { v: 16, label: '16', hint: 'Afternoon.' },
+      { v: 18, label: '18', hint: 'Golden hour.' },
+      { v: 20, label: '20', hint: 'Dusk.' },
+      { v: 23, label: '23', hint: 'Night. Still blue.' },
     ],
   },
 ];

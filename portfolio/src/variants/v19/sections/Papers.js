@@ -1,25 +1,21 @@
 // v19 — the papers, five ways. Different objects, not one card restyled.
 //
-//   figure   — the result, drawn: a bar for MetaRAG's 82.5 against 73.3, seven of eight cells
-//              for TeamMedAgents. Data first, the title second. The one he liked.
+//   figure   — the result, drawn. Data first, the title second.
 //   abstract — a real sheet of paper, opaque, with the opening of the abstract set on it and
 //              the rest a click away. Nothing shows through from the page behind.
 //   brief    — one sheet carrying both: the drawing on the left, the first lines on the right.
 //   plates   — the abstract sheet, and under it the figures as numbered plates with captions,
-//              the way they sit under an abstract in a preprint.
-//   stacked  — no paper at all. Each paper is one wide band set straight on the page: the
-//              title, a strip of figures, the opening in two columns. Papers stack.
+//              the way they sit under an abstract in a preprint. The one he picked.
+//   stacked  — one sheet per paper, full width: the figures beside the title, the whole abstract
+//              in one justified column. Papers stack.
 //
-// Every figure is drawn from a number that is in the abstract. Nothing is invented.
-//
-// The citation count is a figure in all three, never a footnote, and the awards underneath open
-// the same way everything else on this site opens.
+// Every figure is a table from the paper itself, redrawn. Nothing is invented and nothing is
+// there for decoration: each one shows the thing the paper is actually about.
 
 import React, { useState } from 'react';
 import { PAPERS, ALL_PROJECTS } from '../copy';
 import { TROPHIES } from '../personal';
 import { useLab } from '../lab';
-import { useOpener } from '../hooks';
 
 const STATE = {
   ACCEPTED: { label: 'Accepted', cls: 'is-acc' },
@@ -27,21 +23,81 @@ const STATE = {
   'Under Preparation': { label: 'In preparation', cls: 'is-prep' },
 };
 
-// The one number each paper is about, kept beside the copy so the drawing has a truth.
-const RESULT = {
-  metarag: { kind: 'bars', label: 'Retrieval precision', a: { v: 82.5, k: 'With generated metadata' }, b: { v: 73.3, k: 'Without' }, unit: '%' },
-  teammedagents: { kind: 'count', label: 'Medical benchmarks improved', a: 7, of: 8 },
-};
+/* ── the figures, from the papers' own tables ──────────────────────── */
 
-// The figures for each paper, all straight from its abstract.
 const FIGURES = {
   metarag: [
-    { kind: 'bars', n: 1, caption: 'Retrieval precision: recursive chunking with TF-IDF weighted embeddings against a content-only semantic baseline.' },
-    { kind: 'gauge', n: 2, caption: 'Hit Rate@10 for naive chunking with prefix-fusion, the best of the three chunking strategies.', label: 'Hit Rate@10', v: 0.925, of: 1 },
+    {
+      kind: 'grid3',
+      n: 1,
+      label: 'NDCG@10, the full 3 × 3',
+      caption:
+        'Three chunking strategies against three ways of folding the metadata in. Fixed-size chunks with the metadata written into the text is the best cell, and the same metadata makes some cells worse. The interaction is the finding.',
+      cols: ['Semantic', 'Naive', 'Recursive'],
+      rows: [
+        { k: 'Content only', v: [0.73, 0.669, 0.782] },
+        { k: 'Prefix-fusion', v: [0.699, 0.813, 0.8] },
+        { k: 'TF-IDF 90:10', v: [0.617, 0.687, 0.695] },
+      ],
+      best: [1, 1],
+    },
+    {
+      kind: 'steps',
+      n: 2,
+      label: 'Adding the metadata one category at a time',
+      caption:
+        'Semantic chunks, prefix-fusion. Hit Rate@10 stops moving after the first category while NDCG keeps climbing: the metadata is improving the order of what is found, not how much is found.',
+      steps: [
+        { k: 'none', a: 0.615, b: 0.7 },
+        { k: 'technical', a: 0.66, b: 0.775 },
+        { k: '+ semantic', a: 0.683, b: 0.775 },
+        { k: '+ content', a: 0.699, b: 0.775 },
+      ],
+      series: ['NDCG@10', 'Hit Rate@10'],
+    },
   ],
   teammedagents: [
-    { kind: 'count', n: 1, caption: 'Benchmarks improved: MedQA, MedMCQA, MMLU-Pro Medical, PubMedQA, DDXPlus, MedBullets, Path-VQA and PMC-VQA.' },
-    { kind: 'ring', n: 2, caption: 'The six teamwork components of the Big Five model, each built as a mechanism between agents and switched on or off in ablation.', label: 'Six components', items: ['Leadership', 'Monitoring', 'Orientation', 'Shared models', 'Closed loop', 'Trust'] },
+    {
+      kind: 'count',
+      n: 1,
+      label: 'On the accuracy-per-token frontier',
+      caption:
+        'Optimal or near-optimal on seven of eight benchmarks. The exception is PathVQA, where ReConcile is more accurate at a similar cost.',
+      a: 7,
+      of: 8,
+    },
+    {
+      kind: 'tokens',
+      n: 2,
+      label: 'Tokens per question, Gemma-3-4B',
+      caption:
+        'TeamMedAgents averages 2,748 tokens a question. The other multi-agent frameworks spend 2.1 to 7.6 times that for comparable accuracy.',
+      bars: [
+        { k: 'TeamMedAgents', x: 1, t: '2,748', hot: true },
+        { k: 'ReConcile', x: 2.1, t: '2.1×' },
+        { k: 'DyLAN', x: 2.6, t: '2.6×' },
+        { k: 'MedAgents', x: 7.0, t: '7.0×' },
+        { k: 'MDAgents', x: 7.6, t: '7.6×' },
+      ],
+    },
+    {
+      kind: 'gap',
+      n: 3,
+      label: 'Accuracy, 4B against frontier, same teamwork',
+      caption:
+        'Gemma-3-4B against GPT-4o on the eight benchmarks. The gap is narrow where the task is reasoning over evidence you are given, and wide where it is recall. Coordination helps a model reason; it cannot help it remember.',
+      rows: [
+        { k: 'DDXPlus', a: 65.3, b: 74.9 },
+        { k: 'PMC-VQA', a: 43.2, b: 56.4 },
+        { k: 'PathVQA', a: 59.7, b: 76.8 },
+        { k: 'PubMedQA', a: 59.0, b: 78.3 },
+        { k: 'MedMCQA', a: 53.3, b: 85.4 },
+        { k: 'MMLU-Pro', a: 35.6, b: 79.7 },
+        { k: 'MedBullets', a: 33.9, b: 78.8 },
+        { k: 'MedQA', a: 45.5, b: 90.7 },
+      ],
+      series: ['Gemma-3-4B', 'GPT-4o'],
+    },
   ],
 };
 
@@ -74,7 +130,7 @@ function Links({ p }) {
   return (
     <p className="v19-view-links">
       {p.pdf ? <a href={p.pdf} target="_blank" rel="noreferrer">PDF</a> : null}
-      {p.doi ? <a href={p.doi} target="_blank" rel="noreferrer">DOI</a> : null}
+      {p.doi ? <a href={p.doi} target="_blank" rel="noreferrer">{p.arxiv ? `arXiv ${p.arxiv}` : 'DOI'}</a> : null}
       {p.code ? <a href={p.code} target="_blank" rel="noreferrer">Code</a> : null}
     </p>
   );
@@ -96,7 +152,7 @@ function Status({ p }) {
 
 /* Numbers in a run of prose, picked out. */
 function Marked({ text }) {
-  const parts = String(text).split(/(\d+(?:\.\d+)?%?)/g);
+  const parts = String(text).split(/((?<![A-Za-z])\d+(?:[.,]\d+)?%?)/g);
   return (
     <>
       {parts.map((s, i) => (/^\d/.test(s) ? <mark key={i}>{s}</mark> : <React.Fragment key={i}>{s}</React.Fragment>))}
@@ -104,93 +160,152 @@ function Marked({ text }) {
   );
 }
 
-/* The drawing. Shared by figure and brief. */
-function Drawing({ p }) {
-  const r = RESULT[p.id];
-  if (!r) return null;
-  if (r.kind === 'bars') {
-    return (
-      <div className="v19-fig-bars" role="img" aria-label={`${r.a.k} ${r.a.v}${r.unit}, ${r.b.k} ${r.b.v}${r.unit}`}>
-        {[r.a, r.b].map((bar, i) => (
-          <div className="v19-fig-bar" key={bar.k}>
-            <span className="v19-fig-k">{bar.k}</span>
-            <span className="v19-fig-track">
-              <span className={`v19-fig-fill${i === 0 ? ' is-hot' : ''}`} style={{ '--w': `${bar.v}%` }} />
-            </span>
-            <b className="v19-fig-v">{bar.v}{r.unit}</b>
-          </div>
-        ))}
-      </div>
-    );
-  }
+/* ── the drawings ──────────────────────────────────────────────────── */
+
+/* A 3 × 3 of numbers, shaded by value, the best cell picked out. */
+function Grid3({ f }) {
+  const all = f.rows.flatMap((r) => r.v);
+  const lo = Math.min(...all);
+  const hi = Math.max(...all);
   return (
-    <div className="v19-fig-count" role="img" aria-label={`${r.a} of ${r.of}`}>
-      <div className="v19-fig-cells">
-        {Array.from({ length: r.of }).map((_, i) => (
-          <span key={i} className={i < r.a ? 'on' : ''} />
-        ))}
-      </div>
-      <b className="v19-fig-v">{r.a} of {r.of}</b>
+    <div className="v19-g3" role="img" aria-label={`${f.label}: best ${hi}`}>
+      <span className="v19-g3-corner" />
+      {f.cols.map((c) => (
+        <span className="v19-g3-h" key={c}>{c}</span>
+      ))}
+      {f.rows.map((r, ri) => (
+        <React.Fragment key={r.k}>
+          <span className="v19-g3-k">{r.k}</span>
+          {r.v.map((v, ci) => {
+            const k = (v - lo) / (hi - lo || 1);
+            const best = f.best[0] === ri && f.best[1] === ci;
+            return (
+              <span
+                className={`v19-g3-c${best ? ' is-best' : ''}`}
+                key={ci}
+                style={{ '--k': k.toFixed(2), '--i': ri * 3 + ci }}
+              >
+                {v.toFixed(3)}
+              </span>
+            );
+          })}
+        </React.Fragment>
+      ))}
     </div>
   );
 }
 
-/* A ruler from nothing to one, with the result marked on it. */
-function Gauge({ f }) {
-  const pct = (f.v / f.of) * 100;
+/* Two series over four steps: bars for the one that moves, a line for the one that does not. */
+function Steps({ f }) {
+  const W = 300;
+  const H = 96;
+  const L = 34;
+  const B = 18;
+  const n = f.steps.length;
+  const slot = (W - L) / n;
+  const bw = slot * 0.42;
+  const y = (v) => H - B - ((v - 0.55) / 0.3) * (H - B - 10);
   return (
-    <div className="v19-fig-gauge" role="img" aria-label={`${f.label} ${f.v}`}>
-      <span className="v19-fig-rule">
-        {Array.from({ length: 11 }).map((_, i) => (
-          <i key={i} className={i % 5 === 0 ? 'is-major' : undefined} style={{ left: `${i * 10}%` }} />
-        ))}
-        <b className="v19-fig-mark" style={{ '--x': `${pct}%` }} />
-      </span>
-      <span className="v19-fig-ends"><i>0</i><i>1</i></span>
-      <b className="v19-fig-v">{f.v}</b>
-    </div>
-  );
-}
-
-/* Six things around a table, every one joined to every other. */
-function Ring({ f }) {
-  const n = f.items.length;
-  const R = 58;
-  const cx = 130;
-  const cy = 78;
-  const pts = f.items.map((_, i) => {
-    const a = -Math.PI / 2 + (i / n) * Math.PI * 2;
-    return { x: cx + Math.cos(a) * R, y: cy + Math.sin(a) * R, a };
-  });
-  return (
-    <svg className="v19-fig-ring" viewBox="0 0 260 156" role="img" aria-label={f.items.join(', ')}>
-      {pts.map((p, i) =>
-        pts.slice(i + 1).map((q, j) => (
-          <line key={`${i}-${j}`} x1={p.x} y1={p.y} x2={q.x} y2={q.y} className="v19-fig-ring-l" />
-        ))
-      )}
-      {pts.map((p, i) => {
-        const c = Math.cos(p.a);
-        const anchor = Math.abs(c) < 0.2 ? 'middle' : c > 0 ? 'start' : 'end';
+    <svg className="v19-steps" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${f.series[0]} rises from ${f.steps[0].a} to ${f.steps[n - 1].a}; ${f.series[1]} stays at ${f.steps[n - 1].b}`}>
+      {[0.6, 0.7, 0.8].map((g) => (
+        <g key={g}>
+          <line x1={L} x2={W} y1={y(g)} y2={y(g)} className="v19-steps-grid" />
+          <text x={L - 5} y={y(g) + 3} className="v19-steps-ax">{g.toFixed(1)}</text>
+        </g>
+      ))}
+      {f.steps.map((s, i) => {
+        const x = L + slot * i + (slot - bw) / 2;
         return (
-          <g key={f.items[i]}>
-            <circle cx={p.x} cy={p.y} r="5.5" className="v19-fig-ring-n" style={{ animationDelay: `${i * 70}ms` }} />
-            <text x={p.x + c * 12} y={p.y + Math.sin(p.a) * 12 + 3.5} textAnchor={anchor} className="v19-fig-ring-t">
-              {f.items[i]}
-            </text>
+          <g key={s.k}>
+            <rect x={x} y={y(s.a)} width={bw} height={H - B - y(s.a)} className="v19-steps-bar" style={{ '--i': i }} />
+            <text x={x + bw / 2} y={y(s.a) - 4} className="v19-steps-v" textAnchor="middle">{s.a.toFixed(3)}</text>
+            <text x={L + slot * i + slot / 2} y={H - 4} className="v19-steps-ax" textAnchor="middle">{s.k}</text>
           </g>
         );
       })}
+      <polyline
+        className="v19-steps-line"
+        points={f.steps.map((s, i) => `${L + slot * i + slot / 2},${y(s.b)}`).join(' ')}
+      />
+      {f.steps.map((s, i) => (
+        <circle key={s.k} cx={L + slot * i + slot / 2} cy={y(s.b)} r="3" className="v19-steps-dot" />
+      ))}
+      <text x={L + slot / 2} y={y(f.steps[0].b) + 12} className="v19-steps-v is-line" textAnchor="middle">{f.series[1]}</text>
+      <text x={L + slot * (n - 1) + slot / 2 + 8} y={y(f.steps[n - 1].b) - 6} className="v19-steps-v is-line" textAnchor="middle">{f.steps[n - 1].b}</text>
     </svg>
   );
 }
 
-/* One numbered plate: the drawing and its caption. */
-function Plate({ p, f }) {
+/* Cells, most of them lit. */
+function Count({ f }) {
   return (
-    <figure className={`v19-plate is-${f.kind}`}>
+    <div className="v19-fig-count" role="img" aria-label={`${f.a} of ${f.of}`}>
+      <div className="v19-fig-cells">
+        {Array.from({ length: f.of }).map((_, i) => (
+          <span key={i} className={i < f.a ? 'on' : ''} />
+        ))}
+      </div>
+      <b className="v19-fig-v">{f.a} of {f.of}</b>
+    </div>
+  );
+}
+
+/* Horizontal bars, the first one the unit. */
+function Tokens({ f }) {
+  const max = Math.max(...f.bars.map((b) => b.x));
+  return (
+    <div className="v19-fig-bars is-tokens" role="img" aria-label={f.bars.map((b) => `${b.k} ${b.t}`).join(', ')}>
+      {f.bars.map((bar, i) => (
+        <div className="v19-fig-bar" key={bar.k}>
+          <span className="v19-fig-k">{bar.k}</span>
+          <span className="v19-fig-track">
+            <span className={`v19-fig-fill${bar.hot ? ' is-hot' : ''}`} style={{ '--w': `${(bar.x / max) * 100}%`, '--i': i }} />
+          </span>
+          <b className="v19-fig-v">{bar.t}</b>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* Two dots per row joined by a line: the small model and the large one. */
+function Gap({ f }) {
+  return (
+    <div className="v19-gap" role="img" aria-label={f.rows.map((r) => `${r.k} ${r.a} against ${r.b}`).join(', ')}>
+      <div className="v19-gap-legend">
+        <span><i className="is-a" />{f.series[0]}</span>
+        <span><i className="is-b" />{f.series[1]}</span>
+      </div>
+      {f.rows.map((r, i) => (
+        <div className="v19-gap-row" key={r.k} style={{ '--i': i }}>
+          <span className="v19-gap-k">{r.k}</span>
+          <span className="v19-gap-track">
+            <i className="v19-gap-line" style={{ '--a': `${r.a}%`, '--b': `${r.b}%` }} />
+            <i className="v19-gap-dot is-a" style={{ '--x': `${r.a}%` }} />
+            <i className="v19-gap-dot is-b" style={{ '--x': `${r.b}%` }} />
+          </span>
+          <b className="v19-gap-v">{r.a.toFixed(1)} · {r.b.toFixed(1)}</b>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function Drawing({ f }) {
+  if (!f) return null;
+  if (f.kind === 'grid3') return <Grid3 f={f} />;
+  if (f.kind === 'steps') return <Steps f={f} />;
+  if (f.kind === 'tokens') return <Tokens f={f} />;
+  if (f.kind === 'gap') return <Gap f={f} />;
+  return <Count f={f} />;
+}
+
+/* One numbered plate: the drawing and its caption. */
+function Plate({ f, small }) {
+  return (
+    <figure className={`v19-plate is-${f.kind}${small ? ' is-small' : ''}`}>
       <div className="v19-plate-art">
-        {f.kind === 'gauge' ? <Gauge f={f} /> : f.kind === 'ring' ? <Ring f={f} /> : <Drawing p={p} />}
+        <Drawing f={f} />
       </div>
       <figcaption className="v19-plate-cap">
         <b>Fig. {f.n}</b> {f.caption}
@@ -203,7 +318,7 @@ function Plate({ p, f }) {
 function Abstract({ p, marked, opening = OPENING }) {
   const [full, setFull] = useState(false);
   const text = p.abstract || '';
-  const long = text.length > opening + 40;
+  const long = opening > 0 && text.length > opening + 40;
   const cut = full || !long ? text : `${text.slice(0, text.lastIndexOf(' ', opening))}…`;
   return (
     <>
@@ -217,20 +332,27 @@ function Abstract({ p, marked, opening = OPENING }) {
   );
 }
 
-/* ── the awards, which open ─────────────────────────────────────────── */
+/* ── the awards, which open — each on its own ────────────────────────── */
 
 function Won({ look }) {
-  const { open, toggle, close } = useOpener();
+  const [open, setOpen] = useState(() => new Set());
+  const flip = (id) =>
+    setOpen((cur) => {
+      const next = new Set(cur);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   return (
     <div className={`v19-won is-${look}`}>
       <p className="v19-mini">Won</p>
       <div className="v19-won-row">
         {TROPHIES.map((t) => {
-          const isOpen = open === t.id;
+          const isOpen = open.has(t.id);
           const project = ALL_PROJECTS.find((p) => p.id === FROM[t.id]);
           return (
-            <article className={`v19-won-one${isOpen ? ' is-open' : ''}`} key={t.id} data-keep-open={isOpen ? '' : undefined}>
-              <button type="button" className="v19-won-face" onClick={() => toggle(t.id)} aria-expanded={isOpen} data-keep-open="">
+            <article className={`v19-won-one${isOpen ? ' is-open' : ''}`} key={t.id}>
+              <button type="button" className="v19-won-face" onClick={() => flip(t.id)} aria-expanded={isOpen}>
                 <img src={t.image} alt="" loading="lazy" />
                 <span>
                   <b>{t.name}</b>
@@ -244,9 +366,7 @@ function Won({ look }) {
                     <img src={project.image} alt="" loading="lazy" />
                   </div>
                   <div>
-                    <p className="v19-view-eye"><span>{project.category}</span>
-                      <button type="button" className="v19-view-close" onClick={close} data-keep-open="">Close</button>
-                    </p>
+                    <p className="v19-view-eye"><span>{project.category}</span></p>
                     <h4 className="v19-won-name">{project.name}</h4>
                     <p className="v19-won-line">{project.line}</p>
                     <p className="v19-chiprow">
@@ -282,9 +402,19 @@ function Head({ title }) {
   );
 }
 
+function SheetHead({ p }) {
+  return (
+    <p className="v19-sheet-head">
+      <span>{p.venue}</span>
+      <Status p={p} />
+    </p>
+  );
+}
+
 export default function Papers({ sectionRef }) {
   const { lab } = useLab();
   const look = lab.papers;
+  const first = (p) => (FIGURES[p.id] || [])[0];
 
   /* ── abstract: real paper, the opening lines, the rest on request ── */
   if (look === 'abstract') {
@@ -295,10 +425,7 @@ export default function Papers({ sectionRef }) {
           <div className="v19-abs-row">
             {PAPERS.map((p) => (
               <article className="v19-sheet" key={p.id}>
-                <p className="v19-sheet-head">
-                  <span>{p.venue}</span>
-                  <Status p={p} />
-                </p>
+                <SheetHead p={p} />
                 <h3 className="v19-sheet-title">{p.title}</h3>
                 <Authors p={p} />
                 <div className="v19-sheet-rule" aria-hidden="true" />
@@ -325,19 +452,16 @@ export default function Papers({ sectionRef }) {
           <Head title="Two papers, briefly." />
           <div className="v19-brief-row">
             {PAPERS.map((p) => {
-              const r = RESULT[p.id];
+              const f = first(p);
               return (
                 <article className="v19-brief" key={p.id}>
                   <div className="v19-brief-fig">
-                    <p className="v19-fig-label">{r ? r.label : 'Result'}</p>
-                    <Drawing p={p} />
+                    <p className="v19-fig-label">{f ? f.label : 'Result'}</p>
+                    <Drawing f={f} />
                     <Cite n={p.citations} />
                   </div>
                   <div className="v19-brief-words">
-                    <p className="v19-sheet-head">
-                      <span>{p.venue}</span>
-                      <Status p={p} />
-                    </p>
+                    <SheetHead p={p} />
                     <h3 className="v19-sheet-title">{p.title}</h3>
                     <p className="v19-brief-line">{p.line}</p>
                     <Abstract p={p} />
@@ -362,10 +486,7 @@ export default function Papers({ sectionRef }) {
           <div className="v19-abs-row">
             {PAPERS.map((p) => (
               <article className="v19-sheet" key={p.id}>
-                <p className="v19-sheet-head">
-                  <span>{p.venue}</span>
-                  <Status p={p} />
-                </p>
+                <SheetHead p={p} />
                 <h3 className="v19-sheet-title">{p.title}</h3>
                 <Authors p={p} />
                 <div className="v19-sheet-rule" aria-hidden="true" />
@@ -373,7 +494,7 @@ export default function Papers({ sectionRef }) {
                 <Abstract p={p} marked />
                 <div className="v19-plates">
                   {(FIGURES[p.id] || []).map((f) => (
-                    <Plate key={f.n} p={p} f={f} />
+                    <Plate key={f.n} f={f} />
                   ))}
                 </div>
                 <div className="v19-sheet-foot">
@@ -389,7 +510,7 @@ export default function Papers({ sectionRef }) {
     );
   }
 
-  /* ── stacked: no paper, one wide band per paper, set on the page ── */
+  /* ── stacked: one sheet per paper, the figures beside the title, the abstract in one column ── */
   if (look === 'stacked') {
     return (
       <section className="v19-slab v19-papers is-stacked" ref={sectionRef} id="papers" aria-label="Papers">
@@ -398,24 +519,26 @@ export default function Papers({ sectionRef }) {
           <div className="v19-stack">
             {PAPERS.map((p) => (
               <article className="v19-band" key={p.id}>
-                <div className="v19-band-head">
-                  <p className="v19-sheet-head">
-                    <span>{p.venue}</span>
-                    <Status p={p} />
-                  </p>
-                  <Cite n={p.citations} />
+                <div className="v19-band-words">
+                  <div className="v19-band-head">
+                    <SheetHead p={p} />
+                    <Cite n={p.citations} />
+                  </div>
+                  <h3 className="v19-band-title">{p.title}</h3>
+                  <Authors p={p} />
+                  <p className="v19-brief-line">{p.line}</p>
+                  <div className="v19-sheet-rule" aria-hidden="true" />
+                  <p className="v19-abs-label">Abstract</p>
+                  <div className="v19-band-body">
+                    <Abstract p={p} marked opening={0} />
+                  </div>
+                  <Links p={p} />
                 </div>
-                <h3 className="v19-band-title">{p.title}</h3>
-                <p className="v19-brief-line">{p.line}</p>
-                <div className="v19-band-strip">
+                <div className="v19-band-figs">
                   {(FIGURES[p.id] || []).map((f) => (
-                    <Plate key={f.n} p={p} f={f} />
+                    <Plate key={f.n} f={f} small />
                   ))}
                 </div>
-                <div className="v19-band-body">
-                  <Abstract p={p} opening={520} />
-                </div>
-                <Links p={p} />
               </article>
             ))}
           </div>
@@ -432,11 +555,11 @@ export default function Papers({ sectionRef }) {
         <Head title="What each paper found." />
         <div className="v19-fig-row">
           {PAPERS.map((p) => {
-            const r = RESULT[p.id];
+            const f = first(p);
             return (
               <article className="v19-fig" key={p.id}>
-                <p className="v19-fig-label">{r ? r.label : 'Result'}</p>
-                <Drawing p={p} />
+                <p className="v19-fig-label">{f ? f.label : 'Result'}</p>
+                <Drawing f={f} />
                 <h3 className="v19-fig-title">{p.title}</h3>
                 <div className="v19-fig-meta">
                   <Status p={p} />
