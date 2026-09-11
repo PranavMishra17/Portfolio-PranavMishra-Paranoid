@@ -344,10 +344,8 @@ const PAPER_NOW = {
   },
 };
 
-// NEEDS CONFIRMATION — he said the citation counts are now "10 or 6 in each" and the numbers
-// in src/data/publications.js are stale. These two are my reading of that and should be
-// checked against Scholar before this goes anywhere near live.
-const CITATIONS = { teammedagents: 10, metarag: 6 };
+// From Google Scholar, 11 Sep 2026. src/data/publications.js is behind.
+const CITATIONS = { teammedagents: 8, metarag: 8 };
 
 export const PAPERS = publications.filter((p) => !PAPERS_OFF.has(p.id)).map((p) => ({
   id: p.id,
