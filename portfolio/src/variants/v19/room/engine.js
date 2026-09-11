@@ -13,11 +13,11 @@ export const H = 162;
 
 // name: [day, night]. Anything self-lit keeps its colour after dark.
 export const PALETTE = {
-  wall: ['#e9ded0', '#4a4356'],
-  wallLit: ['#f2e9dd', '#544c61'],
-  wallDim: ['#dccfbe', '#403a4c'],
+  wall: ['#efeeea', '#5a5468'],
+  wallLit: ['#f4f3f0', '#655f74'],
+  wallDim: ['#e4e2dc', '#4e4860'],
   skirt: ['#c9b69c', '#3b3546'],
-  cornice: ['#d8c9b4', '#443d52'],
+  cornice: ['#f4f3f0', '#655f74'],
   floor: ['#b78d5f', '#463640'],
   floor2: ['#a97f53', '#3e2f39'],
   floorDark: ['#8c6743', '#2f2430'],
@@ -234,7 +234,16 @@ function isEdge(ids, i, x, y, hover) {
  *   lights      [{x, y, r, on, warm}] pull a neighbourhood back toward daylight
  *   hover       an object id: lifted a little, and outlined by one pixel
  */
-export function rasterize(grid, out, { night = 0, lights = [], hover = 0 }) {
+// Five tones of the page's own paper and ink, for the monochrome look.
+const MONO = [
+  [244, 243, 240],
+  [214, 212, 206],
+  [163, 161, 155],
+  [104, 103, 99],
+  [38, 38, 36],
+];
+
+export function rasterize(grid, out, { night = 0, lights = [], hover = 0, mono = false }) {
   const { buf, ids } = grid;
   const d = out.data;
   const n = Math.max(0, Math.min(1, night));
@@ -286,6 +295,15 @@ export function rasterize(grid, out, { night = 0, lights = [], hover = 0 }) {
           gg += (day[1] * (1 - 0.02 * warm) - gg) * k;
           b += (day[2] * (1 - 0.22 * warm) - b) * k;
         }
+      }
+
+      if (mono) {
+        // luminance, quantised to the page's five tones; the hover lift still applies after
+        const lum = (r * 0.299 + gg * 0.587 + b * 0.114) / 255;
+        const step = MONO[Math.min(4, Math.max(0, Math.round((1 - lum) * 4.2)))];
+        r = step[0];
+        gg = step[1];
+        b = step[2];
       }
 
       if (hover) {

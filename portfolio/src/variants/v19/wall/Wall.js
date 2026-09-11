@@ -170,30 +170,74 @@ export default class Wall {
   }
 
   /**
-   * The field under the cursor. Blocks near the pointer draw themselves in, so the wall
-   * tightens where the dynamite is and you can see the seams it is going to fail along.
-   * Drawn live over the face — never baked in, so moving the pointer costs one pass over
-   * the handful of blocks actually inside the radius.
+   * The field under the cursor. Four different answers to "what does the wall do when you
+   * point at it", chosen in the Lab. All of them draw live over the face and touch only the
+   * blocks inside a radius, so moving the pointer costs a handful of strokes.
+   *
+   *   tighten — the blocks near the pointer draw themselves in; the wall visibly clenches
+   *   torch   — the seams exist only inside the light; the grid is revealed, not changed
+   *   lift    — the nearest blocks come loose: a shadow, a hairline of offset, nothing more
+   *   ripple  — moving sends a ring out through the seams, and it brightens what it crosses
    */
-  drawField(ctx, px, py, heat) {
-    if (px == null || this.state !== 'intact') return;
-    const reach = Math.min(this.W, this.H) * (0.26 + heat * 0.22);
+  drawField(ctx, px, py, heat, field = 'tighten', rings = []) {
+    if (this.state !== 'intact') return;
     ctx.save();
     ctx.lineWidth = 1;
+
+    if (field === 'ripple') {
+      for (const r of rings) {
+        const age = r.age; // 0..1
+        const radius = 40 + age * 620;
+        const band = 34;
+        const fade = (1 - age) ** 1.4;
+        for (const rc of this.rects) {
+          const cx = rc.x + rc.w / 2;
+          const cy = rc.y + rc.h / 2;
+          const d = Math.abs(Math.hypot(cx - r.x, cy - r.y) - radius);
+          if (d > band) continue;
+          const k = (1 - d / band) * fade;
+          ctx.strokeStyle = `rgba(30,30,28,${(k * 0.34).toFixed(3)})`;
+          ctx.strokeRect(Math.round(rc.x) + 0.5, Math.round(rc.y) + 0.5, Math.round(rc.w) - 1, Math.round(rc.h) - 1);
+        }
+      }
+      ctx.restore();
+      return;
+    }
+
+    if (px == null) {
+      ctx.restore();
+      return;
+    }
+    const reach = Math.min(this.W, this.H) * (0.26 + heat * 0.22);
+
     for (const rc of this.rects) {
       const cx = rc.x + rc.w / 2;
       const cy = rc.y + rc.h / 2;
       const d = Math.hypot(cx - px, cy - py);
       if (d > reach) continue;
       const k = (1 - d / reach) ** 1.7;
-      const inset = k * (3 + heat * 7);
-      ctx.strokeStyle = `rgba(30,30,28,${(0.05 + k * 0.26 + heat * 0.14 * k).toFixed(3)})`;
-      ctx.strokeRect(
-        Math.round(rc.x + inset) + 0.5,
-        Math.round(rc.y + inset) + 0.5,
-        Math.round(rc.w - inset * 2) - 1,
-        Math.round(rc.h - inset * 2) - 1
-      );
+
+      if (field === 'torch') {
+        ctx.strokeStyle = `rgba(30,30,28,${(k * 0.30 + heat * 0.12 * k).toFixed(3)})`;
+        ctx.strokeRect(Math.round(rc.x) + 0.5, Math.round(rc.y) + 0.5, Math.round(rc.w) - 1, Math.round(rc.h) - 1);
+      } else if (field === 'lift') {
+        // a shadow under the block's lower-right edge, and the block itself nudged a hair
+        const off = 1 + k * (2 + heat * 3);
+        ctx.fillStyle = `rgba(30,30,28,${(k * 0.16).toFixed(3)})`;
+        ctx.fillRect(rc.x + off, rc.y + rc.h - 1, rc.w, off + 1);
+        ctx.fillRect(rc.x + rc.w - 1, rc.y + off, off + 1, rc.h);
+        ctx.strokeStyle = `rgba(30,30,28,${(k * 0.22).toFixed(3)})`;
+        ctx.strokeRect(Math.round(rc.x - off * 0.4) + 0.5, Math.round(rc.y - off * 0.4) + 0.5, Math.round(rc.w) - 1, Math.round(rc.h) - 1);
+      } else {
+        const inset = k * (3 + heat * 7);
+        ctx.strokeStyle = `rgba(30,30,28,${(0.05 + k * 0.26 + heat * 0.14 * k).toFixed(3)})`;
+        ctx.strokeRect(
+          Math.round(rc.x + inset) + 0.5,
+          Math.round(rc.y + inset) + 0.5,
+          Math.round(rc.w - inset * 2) - 1,
+          Math.round(rc.h - inset * 2) - 1
+        );
+      }
     }
     ctx.restore();
   }

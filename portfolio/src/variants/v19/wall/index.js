@@ -19,7 +19,7 @@ const FUSE_MS = 880;
 const WICK = 'M26 15 C 30 7.5, 37 10, 38 2.5';
 
 const Detonator = forwardRef(function Detonator(
-  { mode, grid, armed, onBlast, reduced },
+  { mode, grid, field = 'tighten', armed, onBlast, reduced },
   ref
 ) {
   const canvasRef = useRef(null);
@@ -34,12 +34,16 @@ const Detonator = forwardRef(function Detonator(
   const holdRef = useRef(null);
   const pointRef = useRef({ x: null, y: null });
   const heatRef = useRef(0);
+  const fieldRef = useRef(field);
+  const ringsRef = useRef([]);
+  const lastRingRef = useRef(0);
   const armedRef = useRef(armed);
   const shakeRef = useRef(0);
   const [held, setHeld] = useState(false);
   const [dead, setDead] = useState(false); // frames never arrived; the wall is not survivable
 
   armedRef.current = armed;
+  fieldRef.current = field;
 
   const rest = useCallback((p = 0) => {
     const burnt = burntRef.current;
@@ -145,7 +149,13 @@ const Detonator = forwardRef(function Detonator(
       wall.step(now, dt);
       wall.draw(ctx);
       // the field is pure decoration: the first thing dropped when frames get expensive
-      if (slow < 12) wall.drawField(ctx, pointRef.current.x, pointRef.current.y, heatRef.current);
+      if (fieldRef.current === 'ripple') {
+        // age the rings, drop the ones that have travelled out
+        ringsRef.current = ringsRef.current
+          .map((r) => ({ ...r, age: (now - r.t0) / 1100 }))
+          .filter((r) => r.age < 1);
+      }
+      if (slow < 12) wall.drawField(ctx, pointRef.current.x, pointRef.current.y, heatRef.current, fieldRef.current, ringsRef.current);
 
       if (shakeRef.current > 0) {
         shakeRef.current -= dt;
@@ -211,6 +221,13 @@ const Detonator = forwardRef(function Detonator(
       const b = stickRef.current;
       if (b) b.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
       pointRef.current = { x: e.clientX, y: e.clientY };
+      if (fieldRef.current === 'ripple') {
+        const now = performance.now();
+        if (now - lastRingRef.current > 260 && ringsRef.current.length < 5) {
+          lastRingRef.current = now;
+          ringsRef.current.push({ x: e.clientX, y: e.clientY, t0: now, age: 0 });
+        }
+      }
       if (holdRef.current) {
         holdRef.current.x = e.clientX;
         holdRef.current.y = e.clientY;
@@ -259,6 +276,26 @@ const Detonator = forwardRef(function Detonator(
   }, [dead, reduced, rest, onBlast]);
 
   useImperativeHandle(ref, () => ({
+    fire(x, y) {
+      const wall = wallRef.current;
+      if (!wall || dead || wall.state !== 'intact') return false;
+      holdRef.current = null;
+      setHeld(false);
+      rest(0);
+      const now = performance.now();
+      if (!wall.explode(x, y, now)) return false;
+      shakeRef.current = 260;
+      const flash = flashRef.current;
+      if (flash) {
+        flash.style.setProperty('--bx', `${x}px`);
+        flash.style.setProperty('--by', `${y}px`);
+        flash.classList.remove('go');
+        void flash.offsetWidth;
+        flash.classList.add('go');
+      }
+      if (onBlast) onBlast({ x, y });
+      return true;
+    },
     rebuild() {
       const wall = wallRef.current;
       if (!wall || dead) return false;
@@ -269,7 +306,7 @@ const Detonator = forwardRef(function Detonator(
     state() {
       return wallRef.current ? wallRef.current.state : 'gone';
     },
-  }), [dead]);
+  }), [dead, onBlast, rest]);
 
   if (dead) return null;
 

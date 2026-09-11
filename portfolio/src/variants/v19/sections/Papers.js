@@ -11,7 +11,7 @@ import { useOpener } from '../hooks';
 
 const STATE = {
   ACCEPTED: { label: 'Accepted', cls: 'is-acc' },
-  'Under Review': { label: 'Under review', cls: 'is-rev' },
+  'Under Review': { label: 'Preprint', cls: 'is-rev' },
   'Under Preparation': { label: 'In preparation', cls: 'is-prep' },
 };
 

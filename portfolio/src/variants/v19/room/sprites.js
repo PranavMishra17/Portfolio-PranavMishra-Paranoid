@@ -1,102 +1,114 @@
-// v19 — the figure, drawn bigger.
+// v19 — him, at a size that reads.
 //
-// He was 13 pixels wide in v18 and read as a smudge behind a chair. This one is 17 wide and
-// 28 tall, with a face you can see, and he sits high enough to clear the chair back.
+// 21 wide and 42 tall from the top of his head to where the desk hides him, which at 288×162
+// makes him a person in a room rather than a figure on a shelf. Seen from behind and a little
+// above, the way you see someone at a desk from the door.
 //
-// legend: h hair · s skin · S shadowed skin · e eye · d shirt · D shirt shadow
-//         j denim · J denim shadow · k ink (shoes, line) · w collar
+// legend: h hair · s skin · S shadowed skin · d shirt · D shirt shadow · j denim · w collar · k ink
 
 export const LEGEND = {
   h: 'hair',
   s: 'skin',
   S: 'skin2',
-  e: 'ink',
   d: 'shirt',
   D: 'shirt2',
   j: 'denim',
-  J: 'ink2',
-  k: 'ink',
   w: 'white',
+  k: 'ink',
 };
 
 const HEAD = [
-  '.....hhhhh.....',
-  '...hhhhhhhhh...',
-  '..hhhhhhhhhhh..',
-  '..hhsssssssSh..',
-  '..hsssssssssS..',
-  '..hssessesssS..',
-  '..hssssssssSS..',
-  '...ssssssssS...',
-  '....SssssSS....',
-  '.....sssss.....',
+  '.......hhhhhhh.......',
+  '.....hhhhhhhhhhh.....',
+  '....hhhhhhhhhhhhh....',
+  '...hhhhhhhhhhhhhhh...',
+  '...hhhhhhhhhhhhhhh...',
+  '...hhhhhhhhhhhhhhh...',
+  '..shhhhhhhhhhhhhhhS..',
+  '..sshhhhhhhhhhhhhSS..',
+  '...sshhhhhhhhhhhSS...',
+  '....ssssssssssSSS....',
+  '.....sssssssssSS.....',
+  '.......sssssss.......',
+  '........sssss........',
 ];
 
-const TORSO = [
-  '....wwwwww.....',
-  '..dddddddddd...',
-  '.dddddddddddd..',
-  'sdddddddddddds.',
-  'sdddddDDddddds.',
-  'SdddddDDdddddS.',
-  '.ddddddDDdddd..',
-  '.ddddddDDdddd..',
-  '..dddddddddd...',
+const BODY = [
+  '......wwwwwwwww......',
+  '....ddddddddddddd....',
+  '...ddddddddddddddd...',
+  '..ddddddddddddddddd..',
+  '.ddddddddddddddddddd.',
+  '.ddddDDDDDDDDDDDdddd.',
+  'sddddDDDDDDDDDDDddddS',
+  'sddddDDDDDDDDDDDddddS',
+  'sdddddDDDDDDDDDdddddS',
+  '.ddddddddddddddddddd.',
+  '.ddddddddddddddddddd.',
+  '.ddddddddddddddddddd.',
+  '..ddddddddddddddddd..',
+  '..ddddddddddddddddd..',
+  '..ddddddddddddddddd..',
+  '...ddddddddddddddd...',
+  '...ddddddddddddddd...',
+  '...jjjjjjjjjjjjjjj...',
+  '...jjjjjjjjjjjjjjj...',
+  '...jjjjjjjjjjjjjjj...',
+  '...jjjjjjjjjjjjjjj...',
+  '...jjjjjjjjjjjjjjj...',
+  '...jjjjjjjjjjjjjjj...',
+  '...jjjjjjjjjjjjjjj...',
+  '...jjjjjjjjjjjjjjj...',
+  '...jjjjjjjjjjjjjjj...',
+  '...jjjjjjjjjjjjjjj...',
+  '...jjjjjjjjjjjjjjj...',
+  '...jjjjjjjjjjjjjjj...',
 ];
 
-const LEGS = {
-  stand: ['..jjjjjjjjjj...', '..jjjjjjjjjj...', '...jjjj.jjjj...', '...jjj...jjj...', '...jjj...jjj...', '...jjj...jjj...', '..kkkk..kkkk...', '..kkkk..kkkk...'],
-  stride1: ['..jjjjjjjjjj...', '..jjjjjjjjjj...', '..jjj.....jjj..', '.jjj.......jjj.', 'jjj.........jjj', 'jj...........jj', 'kkk.........kkk', 'kkk.........kkk'],
-  stride2: ['..jjjjjjjjjj...', '..jjjjjjjjjj...', '..jjj....jjjj..', '..jjj.....jjj..', '.jjj.......jjj.', '.jj.........jj.', 'kkk.........kkk', '.kk.........kk.'],
-};
+export const SIT = HEAD.concat(BODY);
 
-const figure = (legs) => HEAD.concat(TORSO, legs);
+// The near arm comes up and out. Two frames, so it moves.
+function wave(frame) {
+  const rows = SIT.map((r) => r.split(''));
+  const up = frame === 0 ? 0 : 2;
+  // sleeve rising from the right shoulder, hand at the top
+  for (let i = 0; i < 9; i += 1) {
+    const y = 19 - i - up;
+    if (y < 2) continue;
+    rows[y][19] = 'd';
+    rows[y][20] = 'd';
+  }
+  const hy = 10 - up;
+  if (hy >= 0) {
+    rows[hy][19] = 's';
+    rows[hy][20] = 's';
+    if (hy - 1 >= 0) {
+      rows[hy - 1][19] = 's';
+      rows[hy - 1][20] = 's';
+    }
+  }
+  // the arm no longer rests on the desk on that side
+  for (let y = 19; y <= 21; y += 1) rows[y][20] = '.';
+  return rows.map((r) => r.join(''));
+}
+export const WAVE = [wave(0), wave(1)];
 
-export const WALK = [figure(LEGS.stride1), figure(LEGS.stand), figure(LEGS.stride2), figure(LEGS.stand)];
-export const STAND = figure(LEGS.stand);
-
-// Seated, seen from behind and a little to the side: the back of his head, shoulders, and a
-// thigh going forward under the desk.
-export const SIT = [
-  '.....hhhhhh....',
-  '...hhhhhhhhhh..',
-  '..hhhhhhhhhhhh.',
-  '..hhhhhhhhhhhh.',
-  '..hhhssssshhh..',
-  '..hhsssssshhh..',
-  '...hsssssshh...',
-  '....ssssss.....',
-  '.....ssss......',
-  '...wwwwwwww....',
-  '..dddddddddd...',
-  '.dddddddddddd..',
-  '.dddddddddddd..',
-  'Sddddd DDddddS.',
-  'sdddddDDDddddS.',
-  'sddddDDDDDdddd.',
-  's.dddDDDDDddd.s',
-  '..dddddddddd..s',
-  '..jjjjjjjjjjj..',
-  '..jjjjjjjjjjjj.',
-  '..jjjjjjjjjjjj.',
-  '...JJJ.....jjj.',
-  '...JJJ.....jjj.',
-  '...JJJ.....jjj.',
-  '...kkk.....kkk.',
-];
-
-// The near arm comes up when you point at him.
-export const WAVE = SIT.map((row, i) => {
-  if (i === 11) return '.dddddddddddd.s';
-  if (i === 12) return '.ddddddddddddss';
-  if (i === 13) return 'Sddddd DDddddss';
-  return row;
-});
-
-// Leaning back, hands behind the head — what he does when you click him.
-export const LEAN = SIT.map((row, i) => {
-  if (i === 9) return '.swwwwwwwwwws..';
-  if (i === 10) return 'sddddddddddds..';
-  if (i === 11) return 'sdddddddddddds.';
-  return row;
-});
+// Asleep: the head has dropped forward and to one side, the shoulders have sagged.
+export const SLEEP = (() => {
+  const rows = SIT.map((r) => r.split(''));
+  const out = rows.map((r) => r.slice());
+  // head rows shift down four and right two
+  for (let y = 0; y < 13; y += 1) for (let x = 0; x < 21; x += 1) out[y][x] = '.';
+  for (let y = 0; y < 13; y += 1) {
+    for (let x = 0; x < 21; x += 1) {
+      const c = rows[y][x];
+      if (c === '.') continue;
+      const ny = y + 4;
+      const nx = x + 2;
+      if (ny < out.length && nx < 21) out[ny][nx] = c;
+    }
+  }
+  // shoulders sag: the collar row goes
+  for (let x = 0; x < 21; x += 1) if (out[13][x] === 'w') out[13][x] = 'd';
+  return out.map((r) => r.join(''));
+})();

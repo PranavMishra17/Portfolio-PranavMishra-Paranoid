@@ -17,8 +17,8 @@ export const ME = {
   first: 'Pranav',
   last: 'Mishra',
   // the whole of the landing page's prose, on purpose
-  role: 'AI engineer · Founding engineer at Alfred_',
-  short: 'AI engineer',
+  role: 'Founding Engineer at Alfred_',
+  short: 'Founding Engineer at Alfred_',
   photo: '/assets/images/default/profile_default.jpg',
   photoAlt: 'Pranav Mishra',
   city: 'New York',
@@ -29,13 +29,19 @@ export const ME = {
   ],
 };
 
+// Three places, and one red button that goes into the site. Nothing else on the landing.
 export const LINKS = [
-  { label: 'GitHub', href: 'https://github.com/PranavMishra17', short: 'GH' },
-  { label: 'LinkedIn', href: contactInfo.linkedin, short: 'LI' },
-  { label: 'Scholar', href: contactInfo.googleScholar, short: 'GS' },
-  { label: 'Hugging Face', href: contactInfo.huggingFace, short: 'HF' },
-  { label: 'Résumé', href: '/resume', short: 'CV' },
-  { label: 'Email', href: `mailto:${contactInfo.email.personal}`, short: '@' },
+  { label: 'GitHub', href: 'https://github.com/PranavMishra17' },
+  { label: 'LinkedIn', href: contactInfo.linkedin },
+  { label: 'Résumé', href: '/resume' },
+];
+export const GO = { label: 'See my work', target: 'work' };
+
+// The rest of the places, for the room's card
+export const MORE_LINKS = [
+  { label: 'Scholar', href: contactInfo.googleScholar },
+  { label: 'Hugging Face', href: contactInfo.huggingFace },
+  { label: 'Email', href: `mailto:${contactInfo.email.personal}` },
 ];
 
 /* ────────────────────────────── the work ────────────────────────────── */

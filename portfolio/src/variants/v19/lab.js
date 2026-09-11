@@ -1,24 +1,49 @@
 // v19 — the Lab.
 //
-// He asked for the alternatives to live in "a little pop-up that you can pick one of these,
-// keep it very small so I don't mess with what I'm viewing" — not a tab strip, not a side rail.
-// So: one small dot in the corner, and a compact popover of chips. It never reflows the page,
-// and every choice is a swap of one class or one strategy, not a different route.
+// One small dot in the corner and a compact popover of chips. It never reflows the page, and
+// every choice is a swap of one class or one strategy, not a different route.
+//
+// The rule for what goes in here, after his last round: a variant has to be a different
+// design, not the same design with one value changed. Anything that failed that test came out.
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 const KEY = 'v19.lab';
 
 export const DEFAULTS = {
-  blast: 'burst',     // how the wall comes apart — burst is quick, and he liked quick
-  chambers: 'grid',   // how the projects are laid out
-  type: 'technical',  // the type pairing he picked
-  grid: 'faint',      // whether the wall's blocks are hinted at rest
+  land: 'plate',      // how the first screen is arranged
+  field: 'tighten',   // what the wall does under the cursor
+  grid: 'hidden',     // the block rule at rest — hidden, so the field is the only way to see it
+  blast: 'burst',     // how the wall comes apart
+  projects: 'frame',  // how the projects are laid out
+  room: 'warm',       // the room's light
+  type: 'technical',  // the type pairing
   plant: 'stems',     // how the plant grows
-  snap: false,        // free scrolling; the pull-in is opt-in now
+  snap: false,        // free scrolling
 };
 
 const OPTIONS = [
+  {
+    key: 'land',
+    title: 'The first screen',
+    choices: [
+      { v: 'plate', label: 'Plate', hint: 'The face beside the name.' },
+      { v: 'masthead', label: 'Masthead', hint: 'The name runs the full width; the face sits under it.' },
+      { v: 'centred', label: 'Centred', hint: 'Everything on one axis. The quietest.' },
+      { v: 'split', label: 'Split', hint: 'The face is the whole left half of the screen.' },
+      { v: 'ledger', label: 'Ledger', hint: 'The role is the hero; the name is a letterhead.' },
+    ],
+  },
+  {
+    key: 'field',
+    title: 'The wall, under the cursor',
+    choices: [
+      { v: 'tighten', label: 'Tighten', hint: 'The blocks near the dynamite draw themselves in.' },
+      { v: 'torch', label: 'Torch', hint: 'The seams exist only inside the light.' },
+      { v: 'lift', label: 'Lift', hint: 'The nearest blocks come loose — a shadow, a hair of offset.' },
+      { v: 'ripple', label: 'Ripple', hint: 'Moving sends a ring out through the seams.' },
+    ],
+  },
   {
     key: 'blast',
     title: 'The wall comes apart',
@@ -29,21 +54,32 @@ const OPTIONS = [
     ],
   },
   {
-    key: 'chambers',
+    key: 'projects',
     title: 'The projects',
     choices: [
-      { v: 'grid', label: 'Grid', hint: 'One frame above, two rows of tiles below.' },
-      { v: 'index', label: 'Index', hint: 'No thumbnails at all — a typeset list beside one tall frame.' },
-      { v: 'sheet', label: 'Sheet', hint: 'No frame. The tiles are the page; the detail opens beneath them.' },
+      { v: 'frame', label: 'Frame', hint: 'One frame above, two rows of tiles below.' },
+      { v: 'beside', label: 'Beside', hint: 'The frame is a tall column on the left; the tiles stack beside it.' },
+      { v: 'fill', label: 'Fill', hint: 'No frame. Whatever you point at becomes the ground under all the tiles.' },
+      { v: 'spec', label: 'Spec', hint: 'No big picture. A spec sheet — name, stack, links — beside the tiles.' },
+    ],
+  },
+  {
+    key: 'room',
+    title: 'The room',
+    choices: [
+      { v: 'warm', label: 'Evening', hint: 'Lamp and string lights on, dusk outside.' },
+      { v: 'day', label: 'Morning', hint: 'Window open, daylight, nothing switched on.' },
+      { v: 'night', label: 'Late', hint: 'Only the screens and the string lights. Deep blue.' },
+      { v: 'mono', label: 'Paper', hint: 'The room in the page’s own ink and paper — it belongs to the site.' },
     ],
   },
   {
     key: 'type',
     title: 'Type',
     choices: [
+      { v: 'technical', label: 'Technical', hint: 'JetBrains Mono over Public Sans.' },
       { v: 'grotesk', label: 'Grotesk', hint: 'Bricolage Grotesque over Public Sans.' },
       { v: 'editorial', label: 'Editorial', hint: 'Instrument Serif over Public Sans.' },
-      { v: 'technical', label: 'Technical', hint: 'JetBrains Mono over Public Sans.' },
     ],
   },
   {
@@ -59,8 +95,8 @@ const OPTIONS = [
     key: 'grid',
     title: 'The blocks, before the blast',
     choices: [
+      { v: 'hidden', label: 'Hidden', hint: 'Plaster. The field is the only way to see the seams.' },
       { v: 'faint', label: 'Hinted', hint: 'A faint rule where the wall will break.' },
-      { v: 'hidden', label: 'Hidden', hint: 'Plaster. No warning at all.' },
     ],
   },
   {
@@ -84,20 +120,22 @@ function read() {
     const raw = window.localStorage.getItem(KEY);
     if (!raw) return DEFAULTS;
     const parsed = JSON.parse(raw);
-    return { ...DEFAULTS, ...(parsed && typeof parsed === 'object' ? parsed : {}) };
+    const merged = { ...DEFAULTS, ...(parsed && typeof parsed === 'object' ? parsed : {}) };
+    // a stored choice from a variant that no longer exists falls back to the default
+    OPTIONS.forEach((o) => {
+      if (!o.choices.some((c) => c.v === merged[o.key])) merged[o.key] = DEFAULTS[o.key];
+    });
+    return merged;
   } catch (err) {
-    // private mode, blocked storage, corrupt value — the defaults are always a valid answer
     return DEFAULTS;
   }
 }
 
 export function LabProvider({ children }) {
   const [lab, setLab] = useState(DEFAULTS);
-
   useEffect(() => {
     setLab(read());
   }, []);
-
   const set = useCallback((key, value) => {
     setLab((prev) => {
       const next = { ...prev, [key]: value };
@@ -109,7 +147,6 @@ export function LabProvider({ children }) {
       return next;
     });
   }, []);
-
   const value = useMemo(() => ({ lab, set }), [lab, set]);
   return <LabCtx.Provider value={value}>{children}</LabCtx.Provider>;
 }
@@ -137,32 +174,18 @@ export default function Lab() {
 
   return (
     <div className={`v19-lab${open ? ' is-open' : ''}`}>
-      <button
-        type="button"
-        className="v19-lab-dot"
-        onClick={() => setOpen((o) => !o)}
-        aria-expanded={open}
-        aria-label="Pick a variation"
-        title="Variations"
-      >
+      <button type="button" className="v19-lab-dot" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-label="Pick a variation" title="Variations">
         <span />
         <span />
         <span />
       </button>
-
       <div className="v19-lab-pop" role="dialog" aria-label="Variations" hidden={!open}>
         {OPTIONS.map((group) => (
           <div className="v19-lab-row" key={group.key}>
             <p className="v19-lab-title">{group.title}</p>
             <div className="v19-lab-chips">
               {group.choices.map((c) => (
-                <button
-                  type="button"
-                  key={String(c.v)}
-                  className={`v19-lab-chip${lab[group.key] === c.v ? ' on' : ''}`}
-                  onClick={() => set(group.key, c.v)}
-                  title={c.hint}
-                >
+                <button type="button" key={String(c.v)} className={`v19-lab-chip${lab[group.key] === c.v ? ' on' : ''}`} onClick={() => set(group.key, c.v)} title={c.hint}>
                   {c.label}
                 </button>
               ))}

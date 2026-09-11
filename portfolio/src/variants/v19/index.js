@@ -1,10 +1,10 @@
 // v19 — the whole page.
 //
-// One wall, once. Behind it the real site, which is ordinary scrolling with one manner: commit
-// a fifth of the way into the next slab and it takes the screen. The sky drifts as you go, in
+// One wall, once. Behind it the real site, scrolling freely. The sky drifts as you go, in
 // the register of design-lab/12-weather.html — slight gradients of colour, nothing more.
 //
-// The header is the home. Press it and the wall comes back.
+// The header is the home. His face in the corner is the way back to the wall — the way a
+// logo takes you home — and the middle of the bar says where on the page you are, in words.
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Detonator from './wall';
@@ -21,11 +21,12 @@ import './v19.css';
 const FONTS =
   'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500;700&family=Public+Sans:ital,wght@0,300..700;1,400&display=swap';
 
-const NAV = [
-  { id: 'work', label: 'Now' },
-  { id: 'projects', label: 'Made' },
-  { id: 'papers', label: 'Written' },
-  { id: 'room', label: 'Room' },
+// what the middle of the header says, per section
+const WHERE = [
+  { id: 'work', label: 'Now — at Alfred_' },
+  { id: 'projects', label: 'Things I made' },
+  { id: 'papers', label: 'Two papers' },
+  { id: 'room', label: 'My room' },
 ];
 
 function Page() {
@@ -35,6 +36,7 @@ function Page() {
   const detRef = useRef(null);
   const sections = useRef([]);
   const [blown, setBlown] = useState(false);
+  const [where, setWhere] = useState(WHERE[0].id);
 
   const reduced =
     typeof window !== 'undefined' &&
@@ -70,56 +72,58 @@ function Page() {
     if (!blown) window.scrollTo(0, 0);
   }, [blown]);
 
-  /* The landing is on the wall, so the blast has to take it with the wall. Each element is
-     given a direction away from the blast and a delay by distance, then CSS does the rest. */
-  const blowAway = useCallback((at) => {
-    const root = landRef.current;
-    if (!root) return;
-    const bits = root.querySelectorAll('[data-blow]');
-    const bx = at ? at.x : window.innerWidth / 2;
-    const by = at ? at.y : window.innerHeight / 2;
-    const far = Math.hypot(window.innerWidth, window.innerHeight);
-    bits.forEach((el) => {
-      const r = el.getBoundingClientRect();
-      const dx = r.left + r.width / 2 - bx;
-      const dy = r.top + r.height / 2 - by;
-      const d = Math.hypot(dx, dy) || 1;
-      const push = 90 + (1 - d / far) * 240;
-      el.style.setProperty('--bx', `${((dx / d) * push).toFixed(1)}px`);
-      el.style.setProperty('--by', `${((dy / d) * push - 40).toFixed(1)}px`);
-      el.style.setProperty('--br', `${((dx / d) * 7).toFixed(2)}deg`);
-      el.style.setProperty('--bd', `${Math.round(Math.min(260, d * 0.24))}ms`);
-    });
-  }, []);
+  /* the header's middle: which section owns the top of the viewport */
+  useEffect(() => {
+    if (!blown) return undefined;
+    let ticking = false;
+    const read = () => {
+      ticking = false;
+      const line = window.innerHeight * 0.4;
+      let cur = WHERE[0].id;
+      for (const el of sections.current) {
+        if (!el) continue;
+        if (el.getBoundingClientRect().top <= line) cur = el.id;
+      }
+      setWhere(cur);
+    };
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(read);
+    };
+    read();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [blown]);
 
-  const onBlast = useCallback(
-    (at) => {
-      blowAway(at);
-      setBlown(true);
-    },
-    [blowAway]
-  );
+  const onBlast = useCallback(() => setBlown(true), []);
 
   const home = useCallback(() => {
-    const root = landRef.current;
-    if (root) {
-      root.querySelectorAll('[data-blow]').forEach((el) => {
-        el.style.removeProperty('--bx');
-        el.style.removeProperty('--by');
-        el.style.removeProperty('--br');
-        el.style.removeProperty('--bd');
-      });
-    }
     window.scrollTo(0, 0);
     setBlown(false);
     if (detRef.current) detRef.current.rebuild();
   }, []);
 
-  const jump = (id) => {
+  const jump = useCallback((id) => {
     const el = document.getElementById(id);
     if (!el) return;
     window.scrollTo({ top: window.scrollY + el.getBoundingClientRect().top, behavior: 'smooth' });
-  };
+  }, []);
+
+  /* the red button on the landing: it fires the wall from where the button is */
+  const go = useCallback(
+    (e) => {
+      const r = e && e.currentTarget ? e.currentTarget.getBoundingClientRect() : null;
+      const x = r ? r.left + r.width / 2 : window.innerWidth / 2;
+      const y = r ? r.top + r.height / 2 : window.innerHeight / 2;
+      const fired = detRef.current ? detRef.current.fire(x, y) : false;
+      if (!fired) setBlown(true);
+      window.setTimeout(() => jump('work'), 60);
+    },
+    [jump]
+  );
+
+  const current = WHERE.find((w) => w.id === where) || WHERE[0];
 
   return (
     <div className={`v19 t-${lab.type}${blown ? ' is-open' : ''}`}>
@@ -128,29 +132,41 @@ function Page() {
 
       <header className={`v19-bar${blown ? ' on' : ''}`}>
         <button type="button" className="v19-bar-home" onClick={home} title="Put the wall back">
-          <span className="v19-bar-fuse" aria-hidden="true" />
-          <span className="v19-bar-name">
-            {ME.first} {ME.last}
+          <img className="v19-bar-face" src={ME.photo} alt="" />
+          <span className="v19-bar-who">
+            <b>
+              {ME.first} {ME.last}
+            </b>
+            <i>{ME.short}</i>
           </span>
-          <span className="v19-bar-role">{ME.short}</span>
         </button>
-        <nav className="v19-bar-nav" aria-label="Sections">
-          {NAV.map((n) => (
-            <button type="button" key={n.id} onClick={() => jump(n.id)}>
-              {n.label}
-            </button>
-          ))}
-        </nav>
+
+        <div className="v19-bar-where" aria-live="polite">
+          <span key={current.id}>{current.label}</span>
+          <ol className="v19-bar-dots" aria-label="Sections">
+            {WHERE.map((w) => (
+              <li key={w.id}>
+                <button
+                  type="button"
+                  className={w.id === where ? 'on' : ''}
+                  onClick={() => jump(w.id)}
+                  aria-label={w.label}
+                  title={w.label}
+                />
+              </li>
+            ))}
+          </ol>
+        </div>
+
         <nav className="v19-bar-links" aria-label="Elsewhere">
-          {LINKS.slice(0, 5).map((l) => (
+          {LINKS.map((l) => (
             <a
               key={l.label}
               href={l.href}
               target={l.href.startsWith('http') ? '_blank' : undefined}
               rel={l.href.startsWith('http') ? 'noreferrer' : undefined}
-              title={l.label}
             >
-              {l.short}
+              {l.label}
             </a>
           ))}
         </nav>
@@ -160,8 +176,7 @@ function Page() {
         <Work sectionRef={(el) => { sections.current[0] = el; }} />
         <Projects sectionRef={(el) => { sections.current[1] = el; }} />
         <Papers sectionRef={(el) => { sections.current[2] = el; }} />
-        <Room sectionRef={(el) => { sections.current[3] = el; }} />
-
+        <Room sectionRef={(el) => { sections.current[3] = el; }} onTop={home} />
       </main>
 
       <div className={`v19-face${blown ? ' is-blown' : ''}`} ref={landRef} aria-hidden={blown ? 'true' : undefined}>
@@ -169,12 +184,16 @@ function Page() {
           ref={detRef}
           mode={lab.blast}
           grid={lab.grid}
+          field={lab.field}
           armed={!blown}
           reduced={reduced}
           onBlast={onBlast}
-          onBack={() => {}}
         />
-        <Landing hint={reduced ? 'Tap anywhere' : touch ? 'Press and hold' : 'Hold the left mouse button'} />
+        <Landing
+          look={lab.land}
+          onGo={go}
+          hint={reduced ? 'Tap anywhere' : touch ? 'Press and hold' : 'Hold the left mouse button'}
+        />
       </div>
 
       <Lab />

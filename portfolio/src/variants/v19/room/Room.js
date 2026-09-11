@@ -1,31 +1,37 @@
-// v19 — the room. Full bleed, no frame, no heading: it is the bottom of the page, not a
-// picture of a room sitting in a box.
+// v19 — the room. The bottom of the page, not a picture of a room.
 //
-// New here:
-//   · the big monitor shows a real screenshot of a real project, pixelated down to the room's
-//     own resolution and cycled. The second shows a paper page. Both are painted over the grid
-//     after it rasterises, so they cost nothing in the pixel engine.
-//   · he is bigger, waves when you point at him, and leans back when you click him.
-//   · the plant has three growth habits, and the Lab picks which.
-//   · the cards are a different object: a paper slip pinned to the room rather than a panel.
+// It fills the screen — the canvas covers the viewport the way a background image would, and
+// its top edge is masked into the page so the wall of the room is the page's own paper
+// continuing down. Nothing is drawn around it and nothing sits under it except the way back
+// up, which stands on the rug.
+//
+// He does not walk in any more. He is at the desk when you arrive. Click him and he waves;
+// switch the tower off and he falls asleep in the chair; switch it on and he wakes up.
+//
+// Four looks, from the Lab: evening, morning, late, and paper — the last one renders the whole
+// room in the page's five tones of ink and paper, which is the point where it stops being a
+// picture in the site and becomes part of it.
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createGrid, rasterize, W, H } from './engine';
 import { drawScene, HOTSPOTS, LIGHTS, SCREENS } from './scene';
 import { BOOKS, GAMES, MAGNETS, POSTERS, TROPHIES, FAMILY, MEDALS } from '../personal';
-import { ALL_PROJECTS, PAPERS, ROLES, ALFRED, ME, LINKS } from '../copy';
+import { ALL_PROJECTS, PAPERS, ROLES, ALFRED, ME, LINKS, MORE_LINKS } from '../copy';
 import { useLab } from '../lab';
-import { useOnScreen } from '../hooks';
 
-const FRAME_MS = 42; // ~24fps; pixel art does not want 60
-const WALK_FROM = 2;
-const WALK_TO = 128;
-const WALK_MS = 2400;
+const FRAME_MS = 42;
 const SCREEN_MS = 4600;
+const WAVE_MS = 1700;
 
-const TOGGLES = new Set(['lamp', 'lights', 'pc', 'window', 'door', 'ball', 'plant', 'mug']);
+const TOGGLES = new Set(['lamp', 'lights', 'pc', 'window', 'ball', 'plant', 'mug', 'me']);
 
-// what the big monitor cycles through
+const LOOKS = {
+  warm: { night: 0.5, lamp: true, string: true, pc: true, window: false, mono: false },
+  day: { night: 0.0, lamp: false, string: false, pc: true, window: true, mono: false },
+  night: { night: 0.86, lamp: false, string: true, pc: true, window: false, mono: false },
+  mono: { night: 0.28, lamp: true, string: false, pc: true, window: false, mono: true },
+};
+
 const ON_SCREEN = ['stellarium', 'mockflow-ai', 'snaider-cut', 'big5-agents', 'equity-project']
   .map((id) => ALL_PROJECTS.find((p) => p.id === id))
   .filter(Boolean);
@@ -58,21 +64,12 @@ function List({ items }) {
 function Slip({ hotspot, onClose }) {
   if (!hotspot) return null;
   const { key } = hotspot;
-
   const body = () => {
     switch (key) {
       case 'monitorA':
-        return {
-          eye: `${ALL_PROJECTS.length} projects`,
-          title: 'Everything I have made',
-          node: <List items={ALL_PROJECTS.map((p) => ({ k: p.name, v: p.line }))} />,
-        };
+        return { eye: 'Made', title: 'Everything I have made', node: <List items={ALL_PROJECTS.map((p) => ({ k: p.name, v: p.line }))} /> };
       case 'monitorB':
-        return {
-          eye: 'Peer review',
-          title: 'Two papers',
-          node: <List items={PAPERS.map((p) => ({ k: p.title, v: p.line, extra: `${p.status} · ${p.venue} · ${p.citations} citations` }))} />,
-        };
+        return { eye: 'Peer review', title: 'Two papers', node: <List items={PAPERS.map((p) => ({ k: p.title, v: p.line, extra: `${p.venue} · ${p.citations} citations` }))} /> };
       case 'laptop':
         return {
           eye: 'Work',
@@ -83,26 +80,6 @@ function Slip({ hotspot, onClose }) {
                 ROLES.map((r) => ({ k: `${r.title}, ${r.company}`, v: r.line, extra: `${r.when} · ${r.where}` }))
               )}
             />
-          ),
-        };
-      case 'me':
-        return {
-          eye: 'Hello',
-          title: `${ME.first} ${ME.last}`,
-          node: (
-            <>
-              <p className="v19-slip-p">{ME.lede}</p>
-              {ME.lines.map((l) => (
-                <p className="v19-slip-p" key={l}>{l}</p>
-              ))}
-              <p className="v19-slip-links">
-                {LINKS.map((l) => (
-                  <a key={l.label} href={l.href} target={l.href.startsWith('http') ? '_blank' : undefined} rel="noreferrer">
-                    {l.label}
-                  </a>
-                ))}
-              </p>
-            </>
           ),
         };
       case 'photo':
@@ -133,7 +110,7 @@ function Slip({ hotspot, onClose }) {
         return { eye: 'One shelf', title: 'Books', node: <List items={BOOKS.map((b) => ({ k: b.title, v: b.note, extra: `${b.author} · ${b.status}` }))} /> };
       case 'games':
         return {
-          eye: 'On the floor by the tower',
+          eye: 'By the tower',
           title: 'Games',
           node: (
             <>
@@ -145,11 +122,16 @@ function Slip({ hotspot, onClose }) {
       case 'fridge':
         return {
           eye: 'On the fridge',
-          title: 'Magnets',
+          title: 'Magnets, and everywhere else',
           node: (
             <>
               <List items={MAGNETS.map((m) => ({ k: m.label, v: m.note }))} />
-              <p className="v19-sample">All samples — one memory each, his to write.</p>
+              <p className="v19-slip-links">
+                {LINKS.concat(MORE_LINKS).map((l) => (
+                  <a key={l.label} href={l.href} target={l.href.startsWith('http') ? '_blank' : undefined} rel="noreferrer">{l.label}</a>
+                ))}
+              </p>
+              <p className="v19-sample">The magnets are samples — one memory each, his to write.</p>
             </>
           ),
         };
@@ -173,10 +155,8 @@ function Slip({ hotspot, onClose }) {
         return null;
     }
   };
-
   const content = body();
   if (!content) return null;
-
   return (
     <aside className="v19-slip" data-keep-open="" role="dialog" aria-label={hotspot.label}>
       <span className="v19-slip-pin" aria-hidden="true" />
@@ -190,7 +170,7 @@ function Slip({ hotspot, onClose }) {
 
 /* ── the room ───────────────────────────────────────────────────────── */
 
-export default function Room({ sectionRef }) {
+export default function Room({ sectionRef, onTop }) {
   const { lab } = useLab();
   const canvasRef = useRef(null);
   const cursorRef = useRef(null);
@@ -198,67 +178,54 @@ export default function Room({ sectionRef }) {
   const imgRef = useRef(null);
   const shotsRef = useRef([]);
   const stateRef = useRef({
-    lamp: true,
-    string: true,
-    pc: true,
-    windowOpen: false,
-    doorOpen: false,
+    ...LOOKS.warm,
+    windowT: 0,
     fridgeOpen: false,
     grown: false,
     cold: false,
     sparkle: false,
     bounce: 0,
-    mode: 'idle', // idle | walk | stand | sit | wave | lean
+    mode: 'sit', // sit | wave | sleep
     frame: 0,
-    walkX: WALK_FROM,
     plantStyle: 'stems',
+    look: 'warm',
     t: 0,
   });
   const hoverRef = useRef(0);
-  const walkRef = useRef(null);
   const bounceRef = useRef(null);
-  const leanRef = useRef(null);
+  const waveRef = useRef(null);
 
-  const seen = useOnScreen(sectionRef, '-20%');
   const [hover, setHover] = useState(0);
   const [openKey, setOpenKey] = useState(null);
   const [kind, setKind] = useState('');
 
   stateRef.current.plantStyle = lab.plant;
 
+  /* the look, from the Lab: sets the lights and the light, and can be changed underneath */
+  useEffect(() => {
+    const st = stateRef.current;
+    const look = LOOKS[lab.room] || LOOKS.warm;
+    st.look = lab.room;
+    st.night = look.night;
+    st.lamp = look.lamp;
+    st.string = look.string;
+    st.pc = look.pc;
+    st.windowOpen = look.window;
+    st.mono = look.mono;
+    if (st.pc && st.mode === 'sleep') st.mode = 'sit';
+    if (!st.pc && st.mode !== 'sleep') st.mode = 'sleep';
+  }, [lab.room]);
+
   const hotspot = useMemo(() => HOTSPOTS.find((h) => h.id === hover) || null, [hover]);
   const openHotspot = useMemo(() => HOTSPOTS.find((h) => h.key === openKey) || null, [openKey]);
 
-  /* real screenshots, loaded once */
   useEffect(() => {
     let alive = true;
     Promise.all(ON_SCREEN.map((p) => load(p.image)))
-      .then((imgs) => {
-        if (alive) shotsRef.current = imgs.filter(Boolean);
-      })
-      .catch(() => {
-        // a screen with nothing in it still reads as a screen
-      });
-    return () => {
-      alive = false;
-    };
+      .then((imgs) => { if (alive) shotsRef.current = imgs.filter(Boolean); })
+      .catch(() => {});
+    return () => { alive = false; };
   }, []);
-
-  /* he walks in, once */
-  useEffect(() => {
-    if (!seen) return undefined;
-    const st = stateRef.current;
-    if (st.mode !== 'idle' || walkRef.current) return undefined;
-    st.mode = 'walk';
-    st.doorOpen = true;
-    walkRef.current = { t0: performance.now() };
-    const land = window.setTimeout(() => {
-      st.mode = 'sit';
-      st.doorOpen = false;
-      walkRef.current = null;
-    }, WALK_MS + 700);
-    return () => window.clearTimeout(land);
-  }, [seen]);
 
   /* the loop */
   useEffect(() => {
@@ -276,12 +243,11 @@ export default function Room({ sectionRef }) {
     let lastDraw = 0;
     let lastFrame = 0;
 
-    /* the picture inside the big monitor — a real screenshot, cropped and pixelated */
     const paintScreens = (now) => {
       const st = stateRef.current;
+      if (!st.pc) return;
       const a = SCREENS.monitorA;
       const b = SCREENS.monitorB;
-      if (!st.pc) return;
       const shots = shotsRef.current;
       if (shots.length) {
         const img = shots[Math.floor(now / SCREEN_MS) % shots.length];
@@ -295,69 +261,64 @@ export default function Room({ sectionRef }) {
           ctx.clip();
           ctx.imageSmoothingEnabled = false;
           ctx.drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, a.x, a.y, a.w, a.h);
-          // let the room's evening sit over the screenshot so it belongs in the room
           ctx.globalCompositeOperation = 'multiply';
-          ctx.fillStyle = st.windowOpen ? 'rgba(226,232,238,1)' : 'rgba(178,190,214,1)';
+          ctx.fillStyle = st.mono ? 'rgba(200,200,196,1)' : st.night > 0.6 ? 'rgba(150,164,200,1)' : st.night > 0.2 ? 'rgba(186,196,218,1)' : 'rgba(232,236,240,1)';
           ctx.fillRect(a.x, a.y, a.w, a.h);
           ctx.restore();
           ctx.globalCompositeOperation = 'source-over';
         }
       }
-      // the second monitor: a paper, in portrait, with a title block and two columns
-      ctx.fillStyle = '#e8e6df';
+      // the second monitor: a paper, two columns, in landscape now
+      ctx.fillStyle = st.mono ? '#d6d4ce' : '#e8e6df';
       ctx.fillRect(b.x + 1, b.y + 1, b.w - 2, b.h - 2);
       ctx.fillStyle = '#3b3a38';
-      ctx.fillRect(b.x + 3, b.y + 3, b.w - 6, 2);
-      ctx.fillRect(b.x + 3, b.y + 6, b.w - 11, 1);
+      ctx.fillRect(b.x + 4, b.y + 4, b.w - 8, 2);
+      ctx.fillRect(b.x + 4, b.y + 7, b.w - 16, 1);
       ctx.fillStyle = '#8a8782';
-      for (let i = 0; i < 9; i += 1) {
-        ctx.fillRect(b.x + 3, b.y + 11 + i * 2, 6, 1);
-        ctx.fillRect(b.x + 11, b.y + 11 + i * 2, 5 + ((i * 3) % 3), 1);
+      for (let i = 0; i < 8; i += 1) {
+        ctx.fillRect(b.x + 4, b.y + 11 + i * 2, 17, 1);
+        ctx.fillRect(b.x + 25, b.y + 11 + i * 2, 14 + ((i * 3) % 3), 1);
       }
-      ctx.fillStyle = '#2f6a8f';
-      ctx.fillRect(b.x + 3, b.y + b.h - 5, 7, 1);
+      ctx.fillStyle = st.mono ? '#68676a' : '#2f6a8f';
+      ctx.fillRect(b.x + 4, b.y + b.h - 4, 9, 1);
 
-      // He sits in front of the big monitor, so the screenshot lands on top of him. Put his
-      // own pixels back — the grid tags every pixel he owns with his hotspot id, so this is
-      // exact rather than a guess at a bounding box.
+      // he sits in front of both screens: put his own pixels back over whatever landed on them
       const grid = gridRef.current;
       const frame = imgRef.current;
       if (!grid || !frame) return;
-      for (let y = a.y; y < a.y + a.h; y += 1) {
-        for (let x = a.x; x < a.x + a.w; x += 1) {
-          const i = y * W + x;
-          if (grid.ids[i] !== 2) continue;
-          const o = i * 4;
-          ctx.fillStyle = `rgb(${frame.data[o]},${frame.data[o + 1]},${frame.data[o + 2]})`;
-          ctx.fillRect(x, y, 1, 1);
+      [a, b].forEach((r) => {
+        for (let y = r.y; y < r.y + r.h; y += 1) {
+          for (let x = r.x; x < r.x + r.w; x += 1) {
+            const i = y * W + x;
+            if (grid.ids[i] !== 2) continue;
+            const o = i * 4;
+            ctx.fillStyle = `rgb(${frame.data[o]},${frame.data[o + 1]},${frame.data[o + 2]})`;
+            ctx.fillRect(x, y, 1, 1);
+          }
         }
-      }
+      });
     };
 
-    const paint = (now) => {
+    const paint = (now, dt) => {
       const st = stateRef.current;
       st.t = now;
-
-      const walk = walkRef.current;
-      if (walk) {
-        const p = Math.min(1, (now - walk.t0) / WALK_MS);
-        st.walkX = Math.round(WALK_FROM + (WALK_TO - WALK_FROM) * p);
-        st.frame = Math.floor(now / 130) % 4;
-        st.mode = p >= 1 ? 'sit' : 'walk';
-        if (p >= 1) {
-          st.doorOpen = false;
-          walkRef.current = null;
-        }
+      // the window opens over half a second rather than flipping
+      const target = st.windowOpen ? 1 : 0;
+      if (st.windowT !== target) {
+        const step = dt / 520;
+        st.windowT = target > st.windowT ? Math.min(1, st.windowT + step) : Math.max(0, st.windowT - step);
       }
+      if (st.mode === 'wave') st.frame = Math.floor(now / 220) % 2;
 
-      const night = st.windowOpen ? 0.1 : 0.54;
+      // the window open lets the day in, whatever the look
+      const night = Math.max(0, st.night - st.windowT * st.night * 0.85);
       const lights = [];
       if (st.lamp) lights.push({ ...LIGHTS.lamp, on: true });
       if (st.pc) lights.push({ ...LIGHTS.screens, on: true });
       if (st.string) LIGHTS.string.forEach((l) => lights.push({ ...l, on: true }));
 
       drawScene(gridRef.current, st);
-      rasterize(gridRef.current, imgRef.current, { night, lights, hover: hoverRef.current });
+      rasterize(gridRef.current, imgRef.current, { night, lights, hover: hoverRef.current, mono: st.mono });
       ctx.putImageData(imgRef.current, 0, 0);
       paintScreens(now);
     };
@@ -366,17 +327,18 @@ export default function Room({ sectionRef }) {
       if (!alive) return;
       lastFrame = now;
       if (now - lastDraw >= FRAME_MS) {
+        const dt = lastDraw ? now - lastDraw : FRAME_MS;
         lastDraw = now;
         try {
-          paint(now);
+          paint(now, dt);
         } catch (err) {
-          // one bad frame must not take the room down; the next one will try again
+          // one bad frame must not take the room down
         }
       }
       raf = window.requestAnimationFrame(loop);
     };
 
-    paint(performance.now()); // first paint is never owed to rAF
+    paint(performance.now(), FRAME_MS);
     raf = window.requestAnimationFrame(loop);
     const watchdog = window.setInterval(() => {
       if (!alive) return;
@@ -392,18 +354,23 @@ export default function Room({ sectionRef }) {
       window.cancelAnimationFrame(raf);
       window.clearInterval(watchdog);
       if (bounceRef.current) window.clearInterval(bounceRef.current);
-      if (leanRef.current) window.clearTimeout(leanRef.current);
+      if (waveRef.current) window.clearTimeout(waveRef.current);
     };
   }, []);
 
-  /* pointer */
+  /* pointer → room coordinates, accounting for the canvas covering the viewport */
   const at = useCallback((e) => {
     const cv = canvasRef.current;
     if (!cv) return null;
     const r = cv.getBoundingClientRect();
     if (!r.width || !r.height) return null;
-    const x = ((e.clientX - r.left) / r.width) * W;
-    const y = ((e.clientY - r.top) / r.height) * H;
+    const scale = Math.max(r.width / W, r.height / H);
+    const drawnW = W * scale;
+    const drawnH = H * scale;
+    const offX = (r.width - drawnW) / 2;
+    const offY = r.height - drawnH; // anchored to the bottom, so the floor is always there
+    const x = (e.clientX - r.left - offX) / scale;
+    const y = (e.clientY - r.top - offY) / scale;
     if (x < 0 || y < 0 || x >= W || y >= H) return null;
     return HOTSPOTS.find((h) => x >= h.x && x < h.x + h.w && y >= h.y && y < h.y + h.h) || null;
   }, []);
@@ -416,10 +383,7 @@ export default function Room({ sectionRef }) {
         hoverRef.current = id;
         setHover(id);
         setKind(h ? h.kind : '');
-        const st = stateRef.current;
-        st.sparkle = h ? h.key === 'trophies' || h.key === 'medals' : false;
-        if (h && h.key === 'me' && st.mode === 'sit') st.mode = 'wave';
-        else if (st.mode === 'wave' && (!h || h.key !== 'me')) st.mode = 'sit';
+        stateRef.current.sparkle = h ? h.key === 'trophies' || h.key === 'medals' : false;
       }
       const c = cursorRef.current;
       if (c) c.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
@@ -431,9 +395,7 @@ export default function Room({ sectionRef }) {
     hoverRef.current = 0;
     setHover(0);
     setKind('');
-    const st = stateRef.current;
-    st.sparkle = false;
-    if (st.mode === 'wave') st.mode = 'sit';
+    stateRef.current.sparkle = false;
   }, []);
 
   const onClick = useCallback(
@@ -444,34 +406,25 @@ export default function Room({ sectionRef }) {
         return;
       }
       const st = stateRef.current;
-
-      if (h.key === 'me') {
-        // he leans back, and then goes back to work
-        st.mode = 'lean';
-        if (leanRef.current) window.clearTimeout(leanRef.current);
-        leanRef.current = window.setTimeout(() => {
-          if (stateRef.current.mode === 'lean') stateRef.current.mode = 'sit';
-        }, 2600);
-      }
-
       if (TOGGLES.has(h.key)) {
         setOpenKey(null);
         switch (h.key) {
+          case 'me':
+            if (st.mode === 'sleep') break; // let him sleep
+            st.mode = 'wave';
+            if (waveRef.current) window.clearTimeout(waveRef.current);
+            waveRef.current = window.setTimeout(() => {
+              if (stateRef.current.mode === 'wave') stateRef.current.mode = stateRef.current.pc ? 'sit' : 'sleep';
+            }, WAVE_MS);
+            break;
           case 'lamp': st.lamp = !st.lamp; break;
           case 'lights': st.string = !st.string; break;
-          case 'pc': st.pc = !st.pc; break;
-          case 'window': st.windowOpen = !st.windowOpen; break;
-          case 'door':
-            st.doorOpen = !st.doorOpen;
-            if (st.doorOpen && (st.mode === 'sit' || st.mode === 'lean')) {
-              st.mode = 'stand';
-              st.walkX = WALK_TO;
-              window.setTimeout(() => {
-                walkRef.current = { t0: performance.now() };
-                st.mode = 'walk';
-              }, 480);
-            }
+          case 'pc':
+            st.pc = !st.pc;
+            if (waveRef.current) window.clearTimeout(waveRef.current);
+            st.mode = st.pc ? 'sit' : 'sleep';
             break;
+          case 'window': st.windowOpen = !st.windowOpen; break;
           case 'ball': {
             if (bounceRef.current) window.clearInterval(bounceRef.current);
             let n = 0;
@@ -493,7 +446,6 @@ export default function Room({ sectionRef }) {
         }
         return;
       }
-
       if (h.key === 'fridge') st.fridgeOpen = !st.fridgeOpen;
       setOpenKey((cur) => (cur === h.key ? null : h.key));
     },
@@ -506,9 +458,7 @@ export default function Room({ sectionRef }) {
       if (e.target && e.target.closest && e.target.closest('[data-keep-open], .v19-room-canvas')) return;
       setOpenKey(null);
     };
-    const key = (e) => {
-      if (e.key === 'Escape') setOpenKey(null);
-    };
+    const key = (e) => { if (e.key === 'Escape') setOpenKey(null); };
     window.addEventListener('pointerdown', away);
     window.addEventListener('keydown', key);
     return () => {
@@ -517,7 +467,6 @@ export default function Room({ sectionRef }) {
     };
   }, [openKey]);
 
-  // posters and books say what they are without opening anything
   const caption = (() => {
     if (!hotspot) return '';
     if (hotspot.key.startsWith('poster')) {
@@ -525,11 +474,13 @@ export default function Room({ sectionRef }) {
       return `${p.title} — ${p.note}`;
     }
     if (hotspot.key === 'books') return BOOKS.map((b) => b.title).join(' · ');
+    if (hotspot.key === 'me') return stateRef.current.mode === 'sleep' ? 'Asleep. Switch the tower on.' : 'Me';
+    if (hotspot.key === 'pc') return stateRef.current.pc ? 'The tower — switch it off and see' : 'The tower';
     return hotspot.label;
   })();
 
   return (
-    <section className="v19-room" ref={sectionRef} id="room" aria-label="My room">
+    <section className={`v19-room look-${lab.room}`} ref={sectionRef} id="room" aria-label="My room">
       <div className={`v19-room-stage${kind ? ` k-${kind}` : ''}`}>
         <canvas
           ref={canvasRef}
@@ -542,6 +493,12 @@ export default function Room({ sectionRef }) {
         />
         <p className={`v19-room-cap${caption ? ' on' : ''}`}>{caption}</p>
         <Slip hotspot={openHotspot} onClose={() => setOpenKey(null)} />
+
+        {/* the way back up, standing on the rug */}
+        <button type="button" className="v19-top" onClick={onTop} data-keep-open="">
+          <span aria-hidden="true">↑</span>
+          Back to the top
+        </button>
       </div>
 
       <div className={`v19-room-cursor${kind ? ` k-${kind}` : ''}`} ref={cursorRef} aria-hidden="true">
