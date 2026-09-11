@@ -268,6 +268,30 @@ function Stopwatch() {
   );
 }
 
+/* D: two phones. The same email; when the text about it lands. */
+function Phones() {
+  const Phone = ({ x, when, hot }) => (
+    <g>
+      <rect x={x} y="4" width="46" height="66" rx="6" className="v19-sk-phone" />
+      <rect x={x + 5} y="12" width="36" height="12" rx="2" className="v19-sk-tag" />
+      <T x={x + 23} y={21} cls="is-tag is-centre">an email</T>
+      <rect x={x + 5} y="46" width="36" height="12" rx="2" className={`v19-sk-tag${hot ? ' is-hot' : ''}`} />
+      <T x={x + 23} y={55} cls="is-tag is-centre">a text</T>
+      <T x={x + 23} y={38} cls={hot ? 'is-hot is-centre' : 'is-was is-centre'}>{when}</T>
+    </g>
+  );
+  return (
+    <SVG alt="The same email; the text about it arriving ninety seconds later, then three">
+      <Phone x={20} when="+90 s" />
+      <T x={80} y={30} cls="is-was">polling, before</T>
+      <T x={80} y={46} cls="is-small">a timer decided when</T>
+      <Phone x={260} when="+3 s" hot />
+      <T x={320} y={30} cls="is-hot">on the event, after</T>
+      <T x={320} y={46} cls="is-small">one week to move everyone</T>
+    </SVG>
+  );
+}
+
 /* ── working memory, three ways ── */
 
 /* A: the pipeline. Code builds the menu, the model only picks and writes prose, code puts the facts back. */
@@ -461,16 +485,17 @@ function Regress() {
 function Ahead() {
   return (
     <SVG alt="Context assembled before the turn; the answer follows without a pause">
-      <line className="v19-sk-rule" x1="0" y1="40" x2="500" y2="40" />
-      <rect className="v19-sk-grow is-hot" style={{ '--i': 0 }} x="20" y="20" width="150" height="12" rx="2" />
-      <T x={20} y={16} cls="is-small">context, assembled ahead</T>
-      <line className="v19-sk-rule is-live" x1="190" y1="28" x2="190" y2="52" />
-      <T x={190} y={64} cls="is-mid is-centre">message arrives</T>
-      <rect className="v19-sk-grow" style={{ '--i': 1 }} x="196" y="34" width="40" height="12" rx="2" />
-      <T x={244} y={44} cls="is-small">the turn</T>
-      <rect className="v19-sk-grow is-hot" style={{ '--i': 2 }} x="300" y="34" width="24" height="12" rx="2" />
-      <T x={332} y={44} cls="is-hot">answer</T>
-      <T x={500} y={16} cls="is-was" anchor="end">retrieval inside the turn: a pause on the phone</T>
+      <T x={0} y={12} cls="is-small">before the message</T>
+      <rect className="v19-sk-grow is-hot" style={{ '--i': 0 }} x="0" y="18" width="170" height="12" rx="2" />
+      <T x={6} y={27} cls="is-tag">context, assembled ahead</T>
+      <line className="v19-sk-rule" x1="0" y1="46" x2="500" y2="46" />
+      <line className="v19-sk-rule is-live" x1="186" y1="16" x2="186" y2="58" />
+      <T x={192} y={12} cls="is-mid">message arrives</T>
+      <rect className="v19-sk-grow" style={{ '--i': 1 }} x="192" y="34" width="36" height="12" rx="2" />
+      <T x={192} y={70} cls="is-small">the turn</T>
+      <rect className="v19-sk-grow is-hot" style={{ '--i': 2 }} x="234" y="34" width="26" height="12" rx="2" />
+      <T x={266} y={44} cls="is-hot">the answer</T>
+      <T x={500} y={70} cls="is-was" anchor="end">retrieval inside the turn: a pause on the phone</T>
     </SVG>
   );
 }
@@ -479,13 +504,15 @@ function Ahead() {
 function Budget() {
   return (
     <SVG alt="The time a turn has, and how little of it retrieval takes now">
-      <T x={0} y={18}>what a turn can spend</T>
-      <rect className="v19-sk-tape" x="0" y="26" width="500" height="18" rx="3" />
-      <rect className="v19-sk-grow is-was-bar" style={{ '--i': 0 }} x="0" y="26" width="290" height="18" rx="3" />
-      <T x={8} y={39} cls="is-tag">retrieval, on request</T>
-      <rect className="v19-sk-grow is-hot" style={{ '--i': 1 }} x="0" y="52" width="26" height="14" rx="2" />
-      <T x={34} y={63} cls="is-hot">retrieval, ahead of the turn</T>
-      <T x={500} y={63} cls="is-small" anchor="end">the rest is the answer</T>
+      <T x={0} y={12} cls="is-small">the time a turn has</T>
+      <rect className="v19-sk-tape" x="0" y="18" width="500" height="16" rx="3" />
+      <rect className="v19-sk-grow is-was-bar" style={{ '--i': 0 }} x="0" y="18" width="290" height="16" rx="3" />
+      <T x={8} y={29} cls="is-tag">retrieval, on request</T>
+      <T x={300} y={29} cls="is-was">left for the answer</T>
+      <rect className="v19-sk-tape" x="0" y="48" width="500" height="16" rx="3" />
+      <rect className="v19-sk-grow is-hot" style={{ '--i': 1 }} x="0" y="48" width="26" height="16" rx="3" />
+      <T x={34} y={59} cls="is-hot">ahead of the turn</T>
+      <T x={496} y={59} cls="is-small" anchor="end">the rest is the answer</T>
     </SVG>
   );
 }
@@ -501,6 +528,7 @@ function Sketch({ s }) {
     case 'migrate': return <Migrate />;
     case 'cutover': return <Cutover />;
     case 'stopwatch': return <Stopwatch />;
+    case 'phones': return <Phones />;
     case 'strict': return <Strict />;
     case 'menu': return <Menu />;
     case 'verdict': return <Verdict />;
@@ -580,10 +608,12 @@ function Car({ go, kind }) {
         <i /><i /><i /><i />
       </span>
       <svg viewBox="0 0 120 44" className="v19-car-body">
-        <path d="M6 30 L14 18 Q20 10 34 9 L62 8 Q78 8 88 16 L98 24 L110 27 Q116 29 114 34 L110 36 H8 Q4 34 6 30 Z" className="v19-car-shell" />
-        <path d="M30 18 L36 11 H58 L62 18 Z M64 18 L66 11 H74 Q82 12 88 18 Z" className="v19-car-glass" />
-        <rect x="8" y="27" width="10" height="3" rx="1" className="v19-car-lamp is-rear" />
-        <rect x="104" y="26" width="9" height="4" rx="1" className="v19-car-lamp" />
+        {/* a low coupe, nose to the left, the way it drives */}
+        <path d="M4 32 Q2 26 8 24 L20 22 L32 13 Q38 8 50 8 L74 8 Q86 8 96 15 L106 24 L114 26 Q118 28 117 33 L114 36 H100 Q100 30 92 30 Q84 30 84 36 H38 Q38 30 30 30 Q22 30 22 36 H8 Q4 36 4 32 Z" className="v19-car-shell is-dark" />
+        <path d="M36 21 L42 12 H58 V21 Z M62 21 V12 H74 Q82 12 90 20 L91 21 Z" className="v19-car-glass" />
+        <path d="M20 22 H104 M60 12 V21" className="v19-car-line" />
+        <rect x="6" y="25" width="8" height="4" rx="1" className="v19-car-lamp" />
+        <rect x="108" y="27" width="8" height="3" rx="1" className="v19-car-lamp is-rear" />
       </svg>
       <svg viewBox="0 0 24 24" className="v19-car-wheel is-rear">
         <circle cx="12" cy="12" r="11" className="v19-car-tyre" />

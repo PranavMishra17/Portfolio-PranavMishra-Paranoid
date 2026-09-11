@@ -56,7 +56,7 @@ function List({ items }) {
   );
 }
 
-function Slip({ hotspot, onClose }) {
+function Slip({ hotspot, onClose, onJump }) {
   if (!hotspot) return null;
   const { key } = hotspot;
   const sc = hotspot.screen;
@@ -73,20 +73,35 @@ function Slip({ hotspot, onClose }) {
   const body = () => {
     switch (key) {
       case 'monitorA':
-        return { eye: 'Made', title: 'Everything I have built', node: <List items={ALL_PROJECTS.map((p) => ({ k: p.name, v: p.line }))} /> };
+        return {
+          eye: 'On this screen',
+          title: 'Everything I have built',
+          node: (
+            <>
+              <p className="v19-slip-p">{ALL_PROJECTS.length} projects, from a CAVE you stand inside to a voice that interrupts you.</p>
+              <button type="button" className="v19-slip-go" onClick={() => onJump && onJump('projects')}>Go and see them</button>
+            </>
+          ),
+        };
       case 'monitorB':
-        return { eye: 'Peer review', title: 'Two papers', node: <List items={PAPERS.map((p) => ({ k: p.title, v: p.line, extra: `${p.venue} · ${p.citations} citations` }))} /> };
+        return {
+          eye: 'On this screen',
+          title: 'Two papers',
+          node: (
+            <>
+              <p className="v19-slip-p">{PAPERS.map((p) => p.title.split(':')[0]).join(' and ')}. {PAPERS.reduce((n, p) => n + p.citations, 0)} citations between them.</p>
+              <button type="button" className="v19-slip-go" onClick={() => onJump && onJump('papers')}>Go and read them</button>
+            </>
+          ),
+        };
       case 'laptop':
         return {
-          eye: 'Work',
+          eye: 'On this screen',
           title: 'Where I have worked',
           node: (
             <>
-              <List
-                items={[{ k: `${ALFRED.title}, ${ALFRED.company}`, v: ALFRED.about, extra: ALFRED.when }].concat(
-                  ROLES.map((r) => ({ k: `${r.title}, ${r.company}`, v: r.line, extra: `${r.when} · ${r.where}` }))
-                )}
-              />
+              <p className="v19-slip-p">{ALFRED.company} now, and {ROLES.map((x) => x.company).join(', ')} before it.</p>
+              <button type="button" className="v19-slip-go" onClick={() => onJump && onJump('work')}>Go and see the work</button>
               <p className="v19-slip-links">
                 {LINKS.concat(MORE_LINKS).map((l) => (
                   <a key={l.label} href={l.href} target={l.href.startsWith('http') ? '_blank' : undefined} rel="noreferrer">{l.label}</a>
@@ -110,7 +125,7 @@ function Slip({ hotspot, onClose }) {
       case 'books':
         return { eye: 'One shelf', title: 'Books', node: <List items={BOOKS.map((b) => ({ k: b.title, v: b.note, extra: `${b.author} · ${b.status}` }))} /> };
       case 'games':
-        return { eye: 'By the tower', title: 'My favourites', node: <List items={GAMES.map((b) => ({ k: b.title, v: b.note }))} /> };
+        return { eye: 'Video games', title: 'My favourites', node: <List items={GAMES.map((b) => ({ k: b.title, v: b.note }))} /> };
       case 'poster1':
       case 'poster2':
       case 'poster3': {
@@ -152,7 +167,7 @@ function Slip({ hotspot, onClose }) {
 
 /* ── the room ───────────────────────────────────────────────────────── */
 
-export default function Room({ sectionRef, onTop, hour = 19, flipped = false, onClock }) {
+export default function Room({ sectionRef, onTop, hour = 19, flipped = false, onClock, onJump }) {
   const canvasRef = useRef(null);
   const artRef = useRef({ posters: [], books: [] });
   const hoverScreenRef = useRef(null);
@@ -574,7 +589,7 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
           role="img"
         />
         <p className={`v19-room-cap${caption ? ' on' : ''}`}>{caption}</p>
-        <Slip hotspot={openHotspot} onClose={() => setOpenKey(null)} />
+        <Slip hotspot={openHotspot} onClose={() => setOpenKey(null)} onJump={(id) => { setOpenKey(null); if (onJump) onJump(id); }} />
 
         {/* the real picture, over the pixelated one, while you point at it */}
         {hoverScreen && hoverScreen.key.startsWith('poster') && POSTERS[Number(hoverScreen.key.slice(-1)) - 1].image ? (

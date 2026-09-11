@@ -85,9 +85,10 @@ export const FIGURES = [
     label: 'Moved every user onto event-driven ingress, live, in one week',
     note: 'The email backend polled every provider on a timer, so a text about an email arrived about ninety seconds after the email did. Over one week we migrated all of ingress, Gmail, Microsoft Graph and IMAP, for thousands of live users onto per-provider event triggers, with the cron demoted to a backstop and nothing suppressed during the cutover. Delivery went from about 90 seconds to about 3, thirty times faster, and login codes from 189 seconds at p90 to instant. Nobody noticed the migration; everybody noticed the result.',
     sketches: {
-      a: { kind: 'migrate', name: 'Lanes' },
+      a: { kind: 'stopwatch', name: 'Stopwatches' },
       b: { kind: 'cutover', name: 'Timeline' },
-      c: { kind: 'stopwatch', name: 'Stopwatches' },
+      c: { kind: 'phones', name: 'Two phones' },
+      d: { kind: 'migrate', name: 'Lanes' },
     },
   },
   {

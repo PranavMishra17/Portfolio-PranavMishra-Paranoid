@@ -40,7 +40,7 @@ export const HOTSPOTS = [
   { id: 6, key: 'monitorA', label: 'Everything I have built', kind: 'zoom', x: 92, y: 54, w: 42, h: 30 },
   { id: 7, key: 'monitorB', label: 'Two papers', kind: 'zoom', x: 154, y: 54, w: 42, h: 30 },
   { id: 8, key: 'pc', label: 'The tower', kind: 'hand', x: 50, y: 86, w: 28, h: 34 },
-  { id: 9, key: 'games', label: 'Games', kind: 'zoom', x: 78, y: 96, w: 32, h: 24 },
+  { id: 9, key: 'games', label: 'Video games', kind: 'zoom', x: 78, y: 96, w: 32, h: 24 },
   // 28 by 42: the three pictures are all two by three, so the frame is too, and nothing is cropped
   { id: 10, key: 'poster1', label: POSTERS[0].title, kind: 'zoom', x: 85, y: 6, w: 28, h: 42 },
   { id: 11, key: 'poster2', label: POSTERS[1].title, kind: 'zoom', x: 125, y: 6, w: 28, h: 42 },
@@ -152,7 +152,7 @@ function shelf(g, sparkle, t) {
   g.setId(15);
   let cx = x + 3;
   const SPINE = ['sand', 'blue2', 'green2', 'red2', 'cream', 'purple2'];
-  BOOKS.concat(BOOKS.slice(0, 2)).slice(0, 6).forEach((b, i) => {
+  BOOKS.concat(BOOKS.slice(0, 1)).slice(0, 6).forEach((b, i) => {
     const bw = 4 + (i % 3 === 0 ? 1 : 0);
     const bh = 18 - (i % 4) * 2;
     const top = y - bh;
