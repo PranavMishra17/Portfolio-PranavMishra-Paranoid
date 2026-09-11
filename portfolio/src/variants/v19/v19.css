@@ -325,9 +325,13 @@ body.v19-locked { overflow: hidden; }
 .v19-sk-fill.is-hot { fill: var(--ember); }
 .v19-sk-tick-box { fill: rgba(23,23,26,.14); animation: v19-cell-in 420ms ease both; animation-delay: calc(var(--i) * 45ms); }
 @keyframes v19-cell-in { from { opacity: 0; transform: translateY(4px); } }
+@keyframes v19-once { from { opacity: 0; } to { opacity: 1; } }
 .v19-sk-tick-box.is-hot { fill: var(--ember); }
 .v19-sk-tick-box.is-gone { fill: none; stroke: var(--rule); stroke-dasharray: 2 2; }
 .v19-sk-box.is-end { stroke: var(--ember); }
+.v19-sk-week { animation: v19-once 320ms ease both; animation-delay: calc(var(--i) * 70ms); }
+.v19-sk-week-box { fill: rgba(255,255,253,.8); stroke: var(--rule); stroke-width: 1.2; }
+.v19-sk-week-x { fill: none; stroke: rgba(193,65,47,.7); stroke-width: 1.6; stroke-linecap: round; }
 .v19-sk-bead.is-run { fill: var(--ember); animation: v19-bead-run 2.6s linear infinite; animation-delay: calc(var(--i) * 800ms); }
 @keyframes v19-bead-run { 0% { transform: translateX(0); opacity: 0; } 8% { opacity: 1; } 92% { opacity: 1; } 100% { transform: translateX(calc(var(--to) - 120px)); opacity: 0; } }
 .v19-sk-grow { fill: rgba(23,23,26,.16); transform-origin: left; transform-box: fill-box; animation: v19-grow 900ms cubic-bezier(.2,.9,.3,1) both; animation-delay: calc(var(--i) * 120ms); }
@@ -383,14 +387,14 @@ body.v19-locked { overflow: hidden; }
 }
 
 /* rules — a sentence becoming a rule */
-.v19-sk-rule-row { opacity: 0; animation: v19-ruleset 3.6s ease-out infinite; }
+.v19-sk-rule-row { animation: v19-once 500ms ease both; animation-delay: 500ms; }
 @keyframes v19-ruleset {
   0%, 22% { opacity: 0; transform: translateX(-8px); }
   34%, 90% { opacity: 1; transform: none; }
   100% { opacity: 0; }
 }
-.v19-sk-tick { fill: none; stroke: #2b7a45; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 30; stroke-dashoffset: 30; animation: v19-draw 3.6s ease-out infinite; }
-.v19-sk-cross { fill: none; stroke: var(--ember); stroke-width: 2.4; stroke-linecap: round; stroke-dasharray: 44; stroke-dashoffset: 44; animation: v19-draw 3.6s ease-out infinite; animation-delay: .5s; }
+.v19-sk-tick { fill: none; stroke: #2b7a45; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 30; stroke-dashoffset: 30; animation: v19-draw 700ms ease-out both; }
+.v19-sk-cross { fill: none; stroke: var(--ember); stroke-width: 2.4; stroke-linecap: round; stroke-dasharray: 44; stroke-dashoffset: 44; animation: v19-draw 700ms ease-out both; animation-delay: .5s; }
 @keyframes v19-draw {
   0%, 34% { stroke-dashoffset: 44; }
   48%, 92% { stroke-dashoffset: 0; }
@@ -398,9 +402,9 @@ body.v19-locked { overflow: hidden; }
 }
 
 /* memory — the ledger, and what is allowed out of it */
-.v19-sk-row { opacity: 0; animation: v19-cell 3.6s ease-out infinite; animation-delay: calc(var(--i) * 120ms); }
-.v19-sk-pass, .v19-sk-fail { opacity: 0; animation: v19-cell 3.6s ease-out infinite; animation-delay: 400ms; }
-.v19-sk-fail { animation-delay: 700ms; }
+.v19-sk-row { animation: v19-once 500ms ease both; animation-delay: calc(var(--i) * 120ms); }
+.v19-sk-pass, .v19-sk-fail { animation: v19-once 500ms ease both; animation-delay: 500ms; }
+.v19-sk-fail { animation-delay: 850ms; }
 
 /* ── below the fold: the one before Alfred_ ───────────────────────────── */
 
@@ -668,6 +672,14 @@ body.v19-locked { overflow: hidden; }
 .v19-gap-dot { position: absolute; left: var(--x); top: 50%; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; }
 .v19-gap-v { font-family: var(--mono); font-size: 10.5px; font-weight: 500; color: var(--ink-2); text-align: right; font-variant-numeric: tabular-nums; }
 
+/* the matrix */
+.v19-mx { display: flex; flex-direction: column; gap: 4px; }
+.v19-mx-row { display: grid; grid-template-columns: 5.4rem minmax(0, 1fr) auto; gap: 8px; align-items: baseline; padding: 5px 0; border-bottom: 1px solid var(--rule-2); animation: v19-fade 400ms ease both; animation-delay: calc(var(--i) * 60ms); }
+.v19-mx-row:last-child { border-bottom: 0; }
+.v19-mx-k { font-family: var(--mono); font-size: 9.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); }
+.v19-mx-v { font-size: 12.5px; color: var(--ink-2); }
+.v19-mx-n { font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--ember); white-space: nowrap; }
+
 /* stacked — one sheet per paper, the figures beside the title, the abstract one column */
 .v19-stack { display: flex; flex-direction: column; gap: clamp(16px, 2.6vw, 30px); }
 .v19-band {
@@ -760,6 +772,8 @@ body.v19-locked { overflow: hidden; }
 .v19-room-shelf { position: absolute; z-index: 4; display: flex; gap: 8px; padding: 8px; background: rgba(253,251,246,.94); border: 1px solid var(--rule-2); border-radius: 3px; transform: translateY(-100%); pointer-events: none; animation: v19-clear 220ms ease both; }
 .v19-room-book { margin: 0; width: 84px; display: flex; flex-direction: column; gap: 5px; }
 .v19-room-book img { width: 84px; height: 118px; object-fit: cover; border-radius: 2px; background: var(--spine); }
+.v19-room-book.is-wide { width: 150px; }
+.v19-room-book.is-wide img { width: 150px; height: 100px; }
 .v19-room-book figcaption { line-height: 1.25; }
 .v19-room-book b { display: block; font-family: var(--display); font-size: 11px; font-weight: 600; letter-spacing: -.01em; color: var(--ink); }
 .v19-room-book i { display: block; font-style: normal; font-family: var(--mono); font-size: 9.5px; color: var(--ink-3); margin-top: 2px; }

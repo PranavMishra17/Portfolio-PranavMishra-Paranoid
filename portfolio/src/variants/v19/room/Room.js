@@ -15,7 +15,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createGrid, rasterize, W, H, ROOF } from './engine';
 import { nightAt } from '../hooks';
-import { useLab } from '../lab';
 import { drawScene, HOTSPOTS, LIGHTS, SCREENS } from './scene';
 import { BOOKS, GAMES, MAGNETS, POSTERS, TROPHIES, FAMILY, MEDALS } from '../personal';
 import { ALL_PROJECTS, PAPERS, ROLES, ALFRED, LINKS, MORE_LINKS } from '../copy';
@@ -24,10 +23,9 @@ const FRAME_MS = 42;
 const SCREEN_MS = 4600;
 const WAVE_MS = 1700;
 
-const TOGGLES = new Set(['lamp', 'lights', 'pc', 'window', 'ball', 'coffee', 'mug', 'me', 'radio']);
-const BREW_MS = 6000;
+const TOGGLES = new Set(['lamp', 'lights', 'pc', 'window', 'ball', 'mug', 'me']);
 
-const EVENING = { night: 0.5, lamp: true, string: true, pc: true, windowOpen: false, mono: false, brewing: false, radio: false, storm: false, hour: 19 };
+const EVENING = { night: 0.5, lamp: true, string: true, pc: true, windowOpen: false, mono: false, hour: 19 };
 
 const ON_SCREEN = ['stellarium', 'mockflow-ai', 'snaider-cut', 'big5-agents', 'equity-project']
   .map((id) => ALL_PROJECTS.find((p) => p.id === id))
@@ -195,7 +193,6 @@ function Slip({ hotspot, onClose, clockHour = 0 }) {
 /* ── the room ───────────────────────────────────────────────────────── */
 
 export default function Room({ sectionRef, onTop, hour = 19 }) {
-  const { lab } = useLab();
   const canvasRef = useRef(null);
   const artRef = useRef({ posters: [], books: [] });
   const hoverScreenRef = useRef(null);
@@ -232,13 +229,6 @@ export default function Room({ sectionRef, onTop, hour = 19 }) {
     st.lamp = st.night > 0.15;
     st.string = st.night > 0.15;
   }, [hour]);
-
-  /* the surprise: a storm outside, the radio on, the lights doing something */
-  useEffect(() => {
-    const st = stateRef.current;
-    st.storm = lab.room === 'surprise';
-    if (st.storm) st.radio = true;
-  }, [lab.room]);
 
   /* the real pictures, if they are there: pixelated onto the wall and the shelf */
   useEffect(() => {
@@ -408,9 +398,8 @@ export default function Room({ sectionRef, onTop, hour = 19 }) {
       }
       if (st.mode === 'wave') st.frame = Math.floor(now / 220) % 2;
 
-      // the window open lets the day in; in a storm, lightning does now and then
-      const flash = st.storm && (now % 7000) < 140;
-      const night = flash ? 0 : Math.max(0, st.night - st.windowT * st.night * 0.85);
+      // the window open lets the day in
+      const night = Math.max(0, st.night - st.windowT * st.night * 0.85);
       const lights = [];
       if (st.lamp) lights.push({ ...LIGHTS.lamp, y: LIGHTS.lamp.y + ROOF, on: true });
       if (st.pc) lights.push({ ...LIGHTS.screens, y: LIGHTS.screens.y + ROOF, on: true });
@@ -496,7 +485,7 @@ export default function Room({ sectionRef, onTop, hour = 19 }) {
         setHover(id);
         setKind(h ? h.kind : '');
         stateRef.current.sparkle = h ? h.key === 'trophies' || h.key === 'medals' : false;
-        const art = h && (h.key.startsWith('poster') || h.key === 'books') ? { key: h.key, ...h.screen } : null;
+        const art = h && (h.key.startsWith('poster') || h.key === 'books' || h.key === 'trophies') ? { key: h.key, ...h.screen } : null;
         hoverScreenRef.current = art;
         setHoverScreen(art);
       }
@@ -556,13 +545,6 @@ export default function Room({ sectionRef, onTop, hour = 19 }) {
             }, 42);
             break;
           }
-          case 'coffee': {
-            st.brewing = true;
-            st.cold = false; // the mug on the desk is hot again
-            window.setTimeout(() => { stateRef.current.brewing = false; }, BREW_MS);
-            break;
-          }
-          case 'radio': st.radio = !st.radio; break;
           case 'mug': st.cold = !st.cold; break;
           default: break;
         }
@@ -598,8 +580,6 @@ export default function Room({ sectionRef, onTop, hour = 19 }) {
     if (hotspot.key === 'books') return BOOKS.map((b) => b.title).join(' · ');
     if (hotspot.key === 'me') return stateRef.current.mode === 'sleep' ? 'Asleep. Switch the tower on.' : 'Me';
     if (hotspot.key === 'pc') return stateRef.current.pc ? 'The tower — switch it off and see' : 'The tower';
-    if (hotspot.key === 'coffee') return stateRef.current.brewing ? 'Brewing' : 'The coffee machine';
-    if (hotspot.key === 'radio') return stateRef.current.radio ? 'The radio — playing' : 'The radio';
     return hotspot.label;
   })();
 
@@ -627,6 +607,16 @@ export default function Room({ sectionRef, onTop, hour = 19 }) {
             style={{ left: hoverScreen.left, top: hoverScreen.top, width: hoverScreen.width, height: hoverScreen.height }}
             onError={(e) => { e.currentTarget.style.display = 'none'; }}
           />
+        ) : null}
+        {hoverScreen && hoverScreen.key === 'trophies' ? (
+          <div className="v19-room-shelf" style={{ left: Math.max(8, hoverScreen.left - 40), top: hoverScreen.top - 8 }}>
+            {TROPHIES.map((t) => (
+              <figure className="v19-room-book is-wide" key={t.id}>
+                <img src={t.image} alt="" />
+                <figcaption><b>{t.name}</b><i>{t.what}</i></figcaption>
+              </figure>
+            ))}
+          </div>
         ) : null}
         {hoverScreen && hoverScreen.key === 'books' ? (
           <div className="v19-room-shelf" style={{ left: hoverScreen.left, top: hoverScreen.top - 8 }}>

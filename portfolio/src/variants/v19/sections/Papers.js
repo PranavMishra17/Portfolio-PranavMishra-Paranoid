@@ -57,6 +57,19 @@ const FIGURES = {
       ],
       series: ['NDCG@10', 'Hit Rate@10'],
     },
+    {
+      kind: 'matrix',
+      n: 3,
+      label: 'Which pairing, for which objective',
+      caption:
+        'The practitioner\'s table. There is no single best configuration: the right pairing depends on what you are optimising for, which is why all nine were run.',
+      rows: [
+        { k: 'best ranking', v: 'naive · prefix-fusion', n: 'NDCG 0.813' },
+        { k: 'most found', v: 'naive · either', n: 'hit rate 0.900' },
+        { k: 'most stable', v: 'recursive · content only', n: 'precision 0.783' },
+        { k: 'fastest', v: 'content only', n: 'P50 about 12 ms' },
+      ],
+    },
   ],
   teammedagents: [
     {
@@ -293,8 +306,24 @@ function Gap({ f }) {
   );
 }
 
+/* Objective, pairing, number: the table a practitioner takes away. */
+function Matrix({ f }) {
+  return (
+    <div className="v19-mx" role="img" aria-label={f.rows.map((r) => `${r.k}: ${r.v}, ${r.n}`).join('; ')}>
+      {f.rows.map((r, i) => (
+        <div className="v19-mx-row" key={r.k} style={{ '--i': i }}>
+          <span className="v19-mx-k">{r.k}</span>
+          <span className="v19-mx-v">{r.v}</span>
+          <b className="v19-mx-n">{r.n}</b>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function Drawing({ f }) {
   if (!f) return null;
+  if (f.kind === 'matrix') return <Matrix f={f} />;
   if (f.kind === 'grid3') return <Grid3 f={f} />;
   if (f.kind === 'steps') return <Steps f={f} />;
   if (f.kind === 'tokens') return <Tokens f={f} />;

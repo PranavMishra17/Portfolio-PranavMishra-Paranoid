@@ -17,7 +17,6 @@ export const DEFAULTS = {
   projects: 'frame',  // how the frame and its tiles are dressed
   papers: 'plates',   // how a paper is shown
   hour: 'now',        // the clock: real time, or a fixed hour to preview
-  room: 'plain',      // the room as it is, or with a surprise in it
 };
 
 const OPTIONS = [
@@ -63,14 +62,6 @@ const OPTIONS = [
       { v: 'brief', label: 'Brief', hint: 'The figure and the abstract on one sheet.' },
       { v: 'plates', label: 'Plates', hint: 'The sheet, and the figures under it as numbered plates.' },
       { v: 'stacked', label: 'Stacked', hint: 'One sheet per paper, the figures beside the title, the abstract in one column.' },
-    ],
-  },
-  {
-    key: 'room',
-    title: 'The room',
-    choices: [
-      { v: 'plain', label: 'As it is', hint: 'The room, this hour.' },
-      { v: 'surprise', label: 'Surprise', hint: 'Something is happening outside.' },
     ],
   },
   {

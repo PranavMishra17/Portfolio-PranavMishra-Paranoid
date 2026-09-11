@@ -14,7 +14,7 @@ import Projects from './sections/Projects';
 import Papers from './sections/Papers';
 import Room from './room/Room';
 import Lab, { LabProvider, useLab } from './lab';
-import { useSky, useClock, DRIFT } from './hooks';
+import { useSky, useClock } from './hooks';
 import { ME, LINKS } from './copy';
 import './v19.css';
 
@@ -219,7 +219,7 @@ function Page() {
         <Work sectionRef={(el) => { sections.current[0] = el; }} />
         <Projects sectionRef={(el) => { sections.current[1] = el; }} />
         <Papers sectionRef={(el) => { sections.current[2] = el; }} />
-        <Room sectionRef={(el) => { sections.current[3] = el; }} onTop={home} hour={hour + DRIFT} />
+        <Room sectionRef={(el) => { sections.current[3] = el; }} onTop={home} hour={hour} />
       </main>
 
       {landing ? (

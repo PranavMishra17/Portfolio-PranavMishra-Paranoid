@@ -84,25 +84,30 @@ function Cells({ s }) {
 /* Boxes joined by arrows; a bead runs the path; the last box is the point. */
 function Flow({ s }) {
   const nodes = s.nodes;
-  const gap = 30;
-  const bw = Math.min(120, Math.floor((500 - gap * (nodes.length - 1)) / nodes.length));
-  const x = (i) => i * (bw + gap);
+  // each box is as wide as its words, and the row is spread to fill the drawing
+  const widths = nodes.map((nd) => Math.max(58, Math.round(nd.length * 6.6 + 20)));
+  const total = widths.reduce((acc, v) => acc + v, 0);
+  const gap = Math.max(14, Math.floor((520 - total) / Math.max(1, nodes.length - 1)));
+  const xs = [];
+  let cur = 0;
+  widths.forEach((bw) => { xs.push(cur); cur += bw + gap; });
+  const last = nodes.length - 1;
   return (
     <svg className="v19-sk" viewBox="0 0 520 74" role="img" aria-label={s.alt}>
       {nodes.map((nd, i) => (
         <g key={nd}>
-          <rect className={`v19-sk-box${i === nodes.length - 1 ? ' is-end' : ''}`} x={x(i)} y="18" width={bw} height="30" rx="3" />
-          <T x={x(i) + bw / 2} y={37} cls="is-mid is-centre">{nd}</T>
-          {i < nodes.length - 1 ? <path className="v19-sk-path" d={`M${x(i) + bw} 33 H${x(i + 1)}`} /> : null}
+          <rect className={`v19-sk-box${i === last ? ' is-end' : ''}`} x={xs[i]} y="18" width={widths[i]} height="30" rx="3" />
+          <T x={xs[i] + widths[i] / 2} y={37} cls="is-mid is-centre">{nd}</T>
+          {i < last ? <path className="v19-sk-path" d={`M${xs[i] + widths[i]} 33 H${xs[i + 1]}`} /> : null}
         </g>
       ))}
       {[0, 1, 2].map((i) => (
-        <circle key={i} className="v19-sk-bead is-run" style={{ '--i': i, '--to': `${x(nodes.length - 1)}px` }} cx={x(0) + bw} cy="33" r="3.4" />
+        <circle key={i} className="v19-sk-bead is-run" style={{ '--i': i, '--to': `${xs[last] - xs[0] - widths[0]}px` }} cx={xs[0] + widths[0]} cy="33" r="3.4" />
       ))}
       {s.drop ? (
         <g className="v19-sk-fail">
-          <path className="v19-sk-cross" d={`M${x(1) + bw + 6} 56 l10 10 M${x(1) + bw + 16} 56 l-10 10`} />
-          <T x={x(1) + bw + 30} y={66} cls="is-small is-was">{s.drop}</T>
+          <path className="v19-sk-cross" d={`M${xs[1] + widths[1] + 6} 56 l10 10 M${xs[1] + widths[1] + 16} 56 l-10 10`} />
+          <T x={xs[1] + widths[1] + 30} y={66} cls="is-small is-was">{s.drop}</T>
         </g>
       ) : (
         <T x={0} y={66} cls="is-small">{s.foot}</T>
@@ -147,6 +152,29 @@ function Rise({ s }) {
   );
 }
 
+/* Eleven weeks, each one wrong, and then the week it was found. */
+function Weeks({ s }) {
+  const n = s.n || 11;
+  const bw = 30;
+  return (
+    <svg className="v19-sk" viewBox="0 0 520 74" role="img" aria-label={s.alt}>
+      <T x={0} y={16}>week</T>
+      {Array.from({ length: n }).map((_, i) => (
+        <g key={i} style={{ '--i': i }} className="v19-sk-week">
+          <rect x={4 + i * (bw + 6)} y={24} width={bw} height={22} rx="2" className="v19-sk-week-box" />
+          <T x={4 + i * (bw + 6) + bw / 2} y={39} cls="is-small is-centre">{i + 1}</T>
+          <path className="v19-sk-week-x" d={`M${4 + i * (bw + 6) + 9} 30 l12 10 M${4 + i * (bw + 6) + 21} 30 l-12 10`} />
+        </g>
+      ))}
+      <g className="v19-sk-pass" style={{ '--i': n }}>
+        <path className="v19-sk-tick" d={`M${8 + n * (bw + 6)} 36 l7 7 l13 -16`} />
+        <T x={8 + n * (bw + 6) + 26} y={40} cls="is-hot">found</T>
+      </g>
+      <T x={0} y={66} cls="is-small">{s.foot}</T>
+    </svg>
+  );
+}
+
 /* A wheel coming off a car, and a different one going on. */
 function Swap({ s }) {
   return (
@@ -171,6 +199,7 @@ function Sketch({ f }) {
   if (s.kind === 'bars') return <Bars s={s} />;
   if (s.kind === 'rise') return <Rise s={s} />;
   if (s.kind === 'swap') return <Swap s={s} />;
+  if (s.kind === 'weeks') return <Weeks s={s} />;
 
   if (s.kind === 'cost') {
     return (
