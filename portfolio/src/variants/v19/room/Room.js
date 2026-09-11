@@ -372,6 +372,7 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
 
     const paintScreens = (now) => {
       const st = stateRef.current;
+      paintArt();
       if (!st.pc) return;
       const a = { ...SCREENS.monitorA, y: SCREENS.monitorA.y + ROOF };
       const b = { ...SCREENS.monitorB, y: SCREENS.monitorB.y + ROOF };
@@ -408,8 +409,6 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
       }
       ctx.fillStyle = st.mono ? '#68676a' : '#2f6a8f';
       ctx.fillRect(b.x + 3, b.y + b.h - 3, 7, 1);
-
-      paintArt();
 
       // he is nearer than the screens: put his own pixels back over whatever landed on them
       const grid = gridRef.current;

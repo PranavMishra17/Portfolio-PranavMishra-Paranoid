@@ -82,7 +82,7 @@ export const FIGURES = [
     was: 'polling',
     now: '3 s',
     label: 'Moved every user onto event-driven ingress, live, in one week',
-    note: 'The email backend polled every provider on a timer, so a text about an email arrived about ninety seconds after the email did. Over one week we migrated all of ingress, Gmail, Microsoft Graph and IMAP, for thousands of live users onto per-provider event triggers, with the cron demoted to a backstop and nothing suppressed during the cutover. Delivery went from about 90 seconds to about 3, thirty times faster, and login codes from 189 seconds at p90 to instant. Nobody noticed the migration; everybody noticed the result.',
+    note: '**Migrated all email ingress** — Gmail, Microsoft Graph, IMAP — from timer polling to **per-provider event triggers**, for thousands of live users, in one week, with zero suppressed notifications. Email-to-text latency **~90 s to ~3 s (30×)**; login codes from **189 s at p90 to instant**.',
     sketch: { kind: 'migrate' },
   },
   {
@@ -90,7 +90,7 @@ export const FIGURES = [
     was: 'LLM recall',
     now: 'working memory',
     label: 'Working memory that cannot invent your inbox',
-    note: 'A model summarising an inbox will confidently invent a thread, or flip who owes whom. I rebuilt working memory so the model never writes an identifier or an owner: code builds a menu of real candidates behind opaque handles, the model only chooses among them and writes prose, and code re-attaches every fact afterwards. That turns a whole class of hallucination from rare into impossible, and a test proves it on every build. Five thousand people read those briefs.',
+    note: 'Rebuilt working memory as a **strict-ID pipeline**: code assembles real candidates behind opaque handles, the model only **selects and writes prose**, and code re-attaches every identifier and owner. Fabricated threads and inverted ownership are **structurally impossible**, enforced by tests, for **5,000+ users\' briefs**.',
     sketch: { kind: 'strict' },
   },
   {
@@ -98,7 +98,7 @@ export const FIGURES = [
     was: '721 ms',
     now: '30×',
     label: 'Alfred_ inside Claude Code, Codex, and any agent that speaks MCP',
-    note: 'Alfred_ is an MCP server behind an OAuth 2.0 authorization server I built, so any coding agent, Claude Code, Codex, Antigravity, anything that speaks MCP, can add it as a tool. Measured, 98.3% of the connector\'s traffic was authentication, every call booting a 30 MB dependency tree just to learn who was asking. Auth became a single database lookup and the heavy code loads only when a call needs it. I designed the permission model too: sending mail is a standing grant once you confirm it; creating an event is a fresh, scoped grant every time.',
+    note: 'Alfred_ is a public **MCP server** behind an **OAuth 2.0 authorization server** I built, usable from Claude Code, Codex, Antigravity or any MCP client. Auth was **98.3% of connector traffic** at 721 ms p50; it is now **one database lookup**, ~30× faster. Also designed the **graduated permission model**: standing grants for send, per-use scoped grants for calendar writes.',
     sketch: { kind: 'calltime' },
   },
   {
@@ -106,7 +106,7 @@ export const FIGURES = [
     was: 'read it back',
     now: 'replayed',
     label: 'Every agent turn, replayable and scored before it ships',
-    note: 'A deterministic eval harness for the SMS agent surface: real traces replayed against fixtures, every scenario scored across the full range of outcomes the agent can produce, and regression detection on tool-calling reliability. A change to the agent is measured against production behaviour before it ships, rather than discovered by a user afterwards. Every cost cut on the site has to pass it.',
+    note: 'A **deterministic eval harness** for the SMS agent surface: **trace replay** against fixtures, every scenario scored across the full range of outcomes, and **regression detection** on tool-calling reliability. Every change to the agent, and every cost cut, is **measured against production behaviour before it ships**.',
     sketch: { kind: 'scenarios' },
   },
   {
@@ -114,7 +114,7 @@ export const FIGURES = [
     was: 'on request',
     now: 'ahead of the turn',
     label: 'Context that is there before the agent needs it',
-    note: 'Alfred_ answers over SMS and on the phone, where a pause is a failure. I own the low-latency context retrieval on those real-time pipelines, so what the agent needs about you is assembled before the turn asks for it, and the tool-calling stability that keeps a multi-agent turn deterministic under production load, retries and partial failures included. Cartesia handles the speech on the voice surface.',
+    note: 'Alfred_ answers over SMS and voice, where a pause is a failure. I own the **low-latency context retrieval** on those real-time pipelines, assembled **ahead of the turn** rather than inside it, and the **tool-calling stability** that keeps a multi-agent turn deterministic under load, retries and partial failures included. **Cartesia TTS** on the voice surface.',
     sketch: { kind: 'budget' },
   },
 ];
@@ -155,7 +155,7 @@ WHEELPRICE.figures = [
     was: 'no search traffic',
     now: '10–20k',
     label: 'Readers a day, from a CMS built from scratch',
-    note: 'A decoupled Node and React service with server-side rendering, a dynamic sitemap, Open Graph and Article schema, and Redis with tag-based invalidation after the first viral spike knocked it over. Long-tail fitment queries finally had a page to land on.',
+    note: 'Built a **CMS from scratch** as a decoupled Node/React service: **server-side rendering**, a dynamic sitemap, Open Graph and Article schema, **Redis with tag-based invalidation** after the first viral spike. Organic search finally had a page to land on: **10–20k readers a day**.',
     sketch: { kind: 'rise', alt: 'Readers a day, rising after the blog shipped', head: 'readers a day', cols: [0.04, 0.05, 0.05, 0.2, 0.42, 0.6, 0.78, 1], tail: '10–20k', foot: 'search traffic, once there was a page to land on' },
   },
   {
@@ -163,7 +163,7 @@ WHEELPRICE.figures = [
     was: 'guessing',
     now: '4 tools',
     label: 'A fitment assistant that cannot speculate',
-    note: 'Bolt pattern, offset, hub bore and diameter, in plain English. The agent can only call four tools, and the lookup reports its own coverage so the answer says "I have partial data" instead of smoothing over the gap. Fewer fitment tickets.',
+    note: 'A **constrained fitment agent**: it can only call **four tools** (fitment lookup, classification, lingo, search) and never answers from memory. The lookup reports its own **coverage score**, so partial data is said out loud instead of smoothed over. **Fewer fitment support tickets.**',
     sketch: { kind: 'flow', alt: 'A question about a car, classified, looked up, answered from data', nodes: ['your car, in words', 'classify', 'lookup', 'fits · 92% coverage'], foot: 'it can only answer from the four tools, never from memory' },
   },
   {
@@ -171,7 +171,7 @@ WHEELPRICE.figures = [
     was: '35% lost',
     now: 'mobile',
     label: 'Where checkout was actually failing',
-    note: 'An event schema, an ETL and a dashboard showed the cliff was between checkout and payment, and only on phones: 45% completion against 80% on desktop, a 60-second gateway timeout, and 30 seconds of idle before people left. A heartbeat, pre-filled fields and an earlier fitment confirmation, since the gateway was not mine to change.',
+    note: 'Designed the **event schema, ETL and dashboard** that found the real cliff: **35% lost between checkout and payment**, mobile at **45% against 80% on desktop**, a 60 s gateway timeout. Shipped a **session heartbeat**, pre-filled fields and earlier fitment confirmation, since the gateway was third-party.',
     sketch: { kind: 'bars', alt: 'Checkout completion by device', rows: [{ k: 'desktop, paid', w: 0.8, v: '80%' }, { k: 'mobile, paid', w: 0.45, v: '45%', hot: true }, { k: 'idle before leaving', w: 0.5, v: '30 s, on a 60 s timeout' }] },
   },
   {
@@ -179,7 +179,7 @@ WHEELPRICE.figures = [
     was: 'YOLO',
     now: 'shelved',
     label: 'The wheel-swap visualiser I chose not to ship',
-    note: 'A fine-tuned detector, a homography to match the angle, alpha blending at the edges. The first version was not good enough, and a half-good version would have cost more trust than none. Deprioritised on purpose.',
+    note: 'A **fine-tuned YOLO** detector, a **homography** to match the angle, alpha blending at the edges: swap a wheel onto a photo of your car. The first version was not good enough, and a half-good one costs more trust than none. **Deprioritised on purpose** for the work that moved conversions.',
     sketch: { kind: 'swap', alt: 'A wheel on a car photo, swapped for another', head: 'detect, warp, blend', foot: 'not good enough to ship, so it did not' },
   },
 ];

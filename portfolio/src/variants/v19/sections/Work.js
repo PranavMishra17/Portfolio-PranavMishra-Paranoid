@@ -58,6 +58,16 @@ function Tick({ value, run, again }) {
    Small, line-drawn, and about one figure only. A handful of shared shapes — cells, a flow,
    bars, a rise — and a bespoke drawing wherever the figure deserves one. */
 
+/* **these** are bold. Nothing else is markup. */
+function Rich({ text }) {
+  const parts = String(text).split(/\*\*(.+?)\*\*/g);
+  return (
+    <>
+      {parts.map((p, i) => (i % 2 ? <b key={i}>{p}</b> : <React.Fragment key={i}>{p}</React.Fragment>))}
+    </>
+  );
+}
+
 const T = ({ x, y, cls, children, anchor }) => (
   <text className={`v19-sk-t${cls ? ` ${cls}` : ''}`} x={x} y={y} textAnchor={anchor}>{children}</text>
 );
@@ -328,19 +338,22 @@ function Dial({ f, live, isOpen, run, onLive, onPick }) {
   );
 }
 
-/* The row under the dials: the drawing, and the note beside it when one is open. Which side
-   the note takes depends on which column the open box is in, so it never covers the drawing. */
+/* The row under the dials: the drawing, and the note beside it when one is open. Once a box
+   is open, pointing at another box shows that one's drawing and note, so you can read across
+   the row without clicking again. Which side the note takes depends on which column the shown
+   box is in, so it never covers the drawing. */
 function Row({ figures, live, open, cols = 5 }) {
-  const figure = figures.find((f) => f.id === open) || figures.find((f) => f.id === live) || figures[0];
   const opened = figures.find((f) => f.id === open);
-  const col = opened ? figures.indexOf(opened) % cols : -1;
+  const hovered = figures.find((f) => f.id === live);
+  const figure = (opened && hovered) || opened || hovered || figures[0];
+  const col = opened ? figures.indexOf(figure) % cols : -1;
   const noteLeft = opened && col < 2;
   const s = figure.sketch;
   return (
     <div className={`v19-sk-row${opened ? ' has-note' : ''}${noteLeft ? ' note-left' : ''}`}>
       {opened ? (
-        <div className="v19-sk-note" key={`n-${opened.id}`} data-keep-open="">
-          <p>{opened.note}</p>
+        <div className="v19-sk-note" key={`n-${figure.id}`} data-keep-open="">
+          <p><Rich text={figure.note} /></p>
         </div>
       ) : null}
       <div className="v19-sk-wrap" key={`${figure.id}-${s ? s.kind : ''}`}>
@@ -491,6 +504,7 @@ export default function Work({ sectionRef }) {
               <button type="button" className="v19-role-line" onClick={() => setAlsoOpen((o) => !o)} aria-expanded={alsoOpen} data-keep-open="">
                 <span className="v19-role-when">{AFTER.map((r) => r.when.split(/\s[–-]\s/)[0]).join(' · ')}</span>
                 <span className="v19-role-who">
+                  {AFTER.map((r) => (r.logo ? <img className="v19-role-logo" src={r.logo} alt="" key={r.id} /> : null))}
                   <b>{AFTER_LINE}</b>
                 </span>
                 <span className="v19-role-say">{AFTER.map((r) => r.line).join(' ')}</span>

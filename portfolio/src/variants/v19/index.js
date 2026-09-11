@@ -7,6 +7,8 @@
 // logo takes you home — and the middle of the bar says where on the page you are, in words.
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { prefetchResume, prefetchResumePage } from './resumeCache';
 import Detonator from './wall';
 import Landing from './sections/Landing';
 import Work from './sections/Work';
@@ -126,7 +128,14 @@ function Page() {
     return () => window.removeEventListener('scroll', onScroll);
   }, [blown]);
 
-  const onBlast = useCallback(() => setBlown(true), []);
+  const onBlast = useCallback(() => {
+    setBlown(true);
+    // the résumé, quietly, so the link is instant when it is wanted
+    window.setTimeout(() => {
+      prefetchResumePage();
+      prefetchResume();
+    }, 1500);
+  }, []);
 
   const home = useCallback(() => {
     window.scrollTo(0, 0);
@@ -203,16 +212,13 @@ function Page() {
         </div>
 
         <nav className="v19-bar-links" aria-label="Elsewhere">
-          {LINKS.map((l) => (
-            <a
-              key={l.label}
-              href={l.href}
-              target={l.href.startsWith('http') ? '_blank' : undefined}
-              rel={l.href.startsWith('http') ? 'noreferrer' : undefined}
-            >
-              {l.label}
-            </a>
-          ))}
+          {LINKS.map((l) =>
+            l.href.startsWith('http') ? (
+              <a key={l.label} href={l.href} target="_blank" rel="noreferrer">{l.label}</a>
+            ) : (
+              <Link key={l.label} to={l.href}>{l.label}</Link>
+            )
+          )}
         </nav>
       </header>
 

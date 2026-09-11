@@ -11,18 +11,17 @@ import { Link } from 'react-router-dom';
 import { ME, LINKS } from './copy';
 import { useSky, useClock } from './hooks';
 import { FONTS } from './fonts';
+import { cachedResume, prefetchResume, GITHUB_VIEW } from './resumeCache';
 import './v19.css';
 
-const GITHUB_PDF = 'https://raw.githubusercontent.com/PranavMishra17/PranavMishra17/main/RESUME%20Pranav_Mishra.pdf';
-const GITHUB_VIEW = 'https://github.com/PranavMishra17/PranavMishra17/blob/main/RESUME%20Pranav_Mishra.pdf';
 
 export default function Resume() {
   const skyRef = React.useRef(null);
   const hour = useClock();
   useSky(skyRef, hour);
-  const [src, setSrc] = useState(null);
+  const [src, setSrc] = useState(() => cachedResume());
   const [href, setHref] = useState(GITHUB_VIEW);
-  const [state, setState] = useState('loading'); // loading | live | local | none
+  const [state, setState] = useState(() => (cachedResume() ? 'live' : 'loading')); // loading | live | local | none
 
   useEffect(() => {
     document.body.classList.add('v19-body');
@@ -39,8 +38,8 @@ export default function Resume() {
   }, []);
 
   useEffect(() => {
+    if (cachedResume()) return undefined;
     let alive = true;
-    let blobUrl = null;
     const local = async () => {
       try {
         const res = await fetch('/resumes/manifest.json', { cache: 'no-store' });
@@ -56,21 +55,17 @@ export default function Resume() {
         if (alive) setState('none');
       }
     };
-    fetch(GITHUB_PDF, { mode: 'cors' })
-      .then((res) => {
-        if (!res.ok) throw new Error(String(res.status));
-        return res.blob();
-      })
-      .then((blob) => {
-        if (!alive) return;
-        blobUrl = URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
-        setSrc(blobUrl);
+    prefetchResume().then((u) => {
+      if (!alive) return;
+      if (u) {
+        setSrc(u);
         setState('live');
-      })
-      .catch(local);
+      } else {
+        local();
+      }
+    });
     return () => {
       alive = false;
-      if (blobUrl) URL.revokeObjectURL(blobUrl);
     };
   }, []);
 

@@ -4,21 +4,19 @@
 // the name, set in mono.
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { ME, LINKS, GO } from '../copy';
 
 function Links({ onGo }) {
   return (
     <nav className="v19-land-links" aria-label="Elsewhere">
-      {LINKS.map((l) => (
-        <a
-          key={l.label}
-          href={l.href}
-          target={l.href.startsWith('http') ? '_blank' : undefined}
-          rel={l.href.startsWith('http') ? 'noreferrer' : undefined}
-        >
-          {l.label}
-        </a>
-      ))}
+      {LINKS.map((l) =>
+        l.href.startsWith('http') ? (
+          <a key={l.label} href={l.href} target="_blank" rel="noreferrer">{l.label}</a>
+        ) : (
+          <Link key={l.label} to={l.href}>{l.label}</Link>
+        )
+      )}
       <button type="button" className="v19-land-go" onClick={onGo}>
         {GO.label}
       </button>
