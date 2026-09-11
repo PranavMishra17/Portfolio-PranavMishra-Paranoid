@@ -100,6 +100,7 @@ body.v19-locked { overflow: hidden; }
 .v19-bar-who i { font-style: normal; font-size: 12px; color: var(--ink-3); white-space: nowrap; }
 
 .v19-bar-where { flex: 1; display: flex; align-items: center; justify-content: center; gap: 14px; min-width: 0; }
+@media (max-width: 720px) { .v19-bar-where { display: none; } .v19-bar-links { margin-left: auto; gap: 10px; } .v19-bar-who i { display: none; } .v19-bar { gap: 10px; } }
 .v19-bar-step { width: 22px; height: 22px; position: relative; opacity: .55; transition: opacity 150ms ease; flex: none; }
 .v19-bar-step:hover { opacity: 1; }
 .v19-bar-step::before { content: ''; position: absolute; left: 8px; top: 7px; width: 7px; height: 7px; border-left: 2px solid var(--ink); border-bottom: 2px solid var(--ink); transform: rotate(45deg); }
@@ -195,9 +196,9 @@ body.v19-locked { overflow: hidden; }
 .v19-land-go:hover { background: #a8351f; border-color: #a8351f; }
 
 /* plate — the face beside the name */
-.v19-land.is-plate .v19-land-in { display: flex; align-items: center; gap: clamp(26px, 5vw, 70px); max-width: 1120px; margin: 0 auto; width: 100%; flex-wrap: wrap; }
+.v19-land.is-plate .v19-land-in { display: flex; align-items: center; justify-content: center; gap: clamp(26px, 5vw, 70px); max-width: 1120px; margin: 0 auto; width: 100%; flex-wrap: wrap; }
 .v19-land.is-plate .v19-land-face { width: clamp(176px, 22vw, 300px); }
-.v19-land.is-plate .v19-land-words { min-width: 0; flex: 1 1 340px; }
+.v19-land.is-plate .v19-land-words { min-width: 0; flex: 0 1 auto; }
 
 .v19-land-hint { position: absolute; left: 50%; bottom: clamp(24px, 5vh, 52px); transform: translateX(-50%); display: inline-flex; align-items: center; gap: 13px; font-family: var(--display); font-size: 15px; font-weight: 500; letter-spacing: .04em; color: var(--ink-2); white-space: nowrap; padding: 11px 20px 11px 14px; border: 1px solid var(--rule); border-radius: 2px; background: rgba(255, 255, 253, .5); z-index: 3; }
 .v19-land-hint-key { position: relative; width: 21px; height: 28px; border: 2px solid var(--ink-2); border-radius: 6px; flex: none; }
@@ -448,7 +449,7 @@ body.v19-locked { overflow: hidden; }
   transition: background 150ms ease, padding-left 180ms ease;
 }
 /* the car: a low coupe at the end of the bar. Point at it and it does a lap. */
-.v19-wp-drive { position: absolute; right: 54px; top: 50%; width: 120px; height: 44px; margin-top: -24px; z-index: 2; cursor: pointer; }
+.v19-wp-drive { position: absolute; right: 50px; top: 50%; width: 140px; height: 48px; margin-top: -26px; z-index: 2; cursor: pointer; }
 .v19-wp.is-open .v19-wp-drive { opacity: .4; }
 .v19-wp-bar:hover { background: rgba(23,23,26,.035); padding-left: 18px; }
 .v19-wp-logo { width: 34px; height: 34px; object-fit: cover; border-radius: 3px; }
@@ -460,19 +461,21 @@ body.v19-locked { overflow: hidden; }
 @keyframes v19-spin { to { transform: rotate(360deg); } }
 @media (max-width: 720px) { .v19-wp-bar { grid-template-columns: 30px minmax(0, 1fr) 18px; padding-right: 12px; } .v19-wp-say, .v19-wp-when, .v19-wp-drive { display: none; } }
 .v19-car { position: absolute; inset: 0; will-change: transform; }
-.v19-car-body { position: absolute; left: 0; top: 0; width: 120px; height: 44px; }
-.v19-car-shell { fill: var(--ink); }
-.v19-car-glass { fill: rgba(255,255,253,.55); }
+.v19-car-body { position: absolute; left: 0; top: 0; width: 140px; height: 48px; }
+.v19-car-shell { fill: var(--ember); }
+.v19-car-sill { fill: rgba(0,0,0,.22); }
+.v19-car-spoiler { fill: #1c1c22; }
+.v19-car-hub { fill: var(--ink-2); }
+.v19-car-glass { fill: rgba(20,24,34,.85); }
 .v19-car-lamp { fill: #ffe4a3; }
 .v19-car-lamp.is-rear { fill: var(--ember); }
-.v19-car-line { fill: none; stroke: rgba(255,255,253,.35); stroke-width: 1.2; }
-.v19-car-shell.is-dark { fill: #1c1c22; }
-.v19-car-wheel { position: absolute; bottom: 0; width: 22px; height: 22px; }
-.v19-car-wheel.is-rear { left: 84px; }
-.v19-car-wheel.is-front { left: 18px; }
-.v19-car-tyre { fill: #111; }
-.v19-car-rim { fill: var(--paper-2); }
-.v19-car-spoke { stroke: var(--ink-2); stroke-width: 1.6; fill: none; }
+.v19-car-line { fill: none; stroke: rgba(255,255,253,.45); stroke-width: 1.2; stroke-linecap: round; }
+.v19-car-wheel { position: absolute; bottom: 0; width: 24px; height: 24px; }
+.v19-car-wheel.is-rear { left: 98px; }
+.v19-car-wheel.is-front { left: 26px; }
+.v19-car-tyre { fill: #14141a; }
+.v19-car-rim { fill: #d9d7d0; }
+.v19-car-spoke { stroke: #6a6a72; stroke-width: 1.6; fill: none; stroke-linecap: round; }
 .v19-wp-drive:hover .v19-car-wheel { animation: v19-spin 1.4s linear infinite; }
 /* the lap: wheels spin up (0-0.9s), off to the left, in from the right, stop where it was */
 .v19-car.go { animation: v19-lap 3.4s cubic-bezier(.4,0,.2,1) both; }

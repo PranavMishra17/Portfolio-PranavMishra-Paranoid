@@ -75,7 +75,7 @@ export default function Resume() {
       <div className="v19-grain" aria-hidden="true" />
 
       <header className="v19-bar on">
-        <Link to="/v19" className="v19-bar-home" title="Back to the site">
+        <Link to="/" className="v19-bar-home" title="Back to the site">
           <img className="v19-bar-face" src={ME.photo} alt="" />
           <span className="v19-bar-who">
             <b>

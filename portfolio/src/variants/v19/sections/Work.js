@@ -373,24 +373,27 @@ function Car({ go }) {
       <span className="v19-car-smoke">
         <i /><i /><i /><i />
       </span>
-      <svg viewBox="0 0 120 44" className="v19-car-body">
-        {/* a low coupe, nose to the left, the way it drives */}
-        <path d="M4 32 Q2 26 8 24 L20 22 L32 13 Q38 8 50 8 L74 8 Q86 8 96 15 L106 24 L114 26 Q118 28 117 33 L114 36 H100 Q100 30 92 30 Q84 30 84 36 H38 Q38 30 30 30 Q22 30 22 36 H8 Q4 36 4 32 Z" className="v19-car-shell is-dark" />
-        <path d="M36 21 L42 12 H58 V21 Z M62 21 V12 H74 Q82 12 90 20 L91 21 Z" className="v19-car-glass" />
-        <path d="M20 22 H104 M60 12 V21" className="v19-car-line" />
-        <rect x="6" y="25" width="8" height="4" rx="1" className="v19-car-lamp" />
-        <rect x="108" y="27" width="8" height="3" rx="1" className="v19-car-lamp is-rear" />
+      <svg viewBox="0 0 140 48" className="v19-car-body">
+        {/* a two-seater roadster, nose to the left, the way it drives: a long bonnet, a low
+            cockpit, a rear haunch and a lip of a spoiler */}
+        <path d="M6 33 Q2 27 9 25 L26 23 L38 22 L52 12 Q57 8 66 8 L82 8 Q92 8 100 13 L112 22 L126 25 Q135 27 134 33 L132 36 L120 37 Q120 29 110 29 Q100 29 100 37 H48 Q48 29 38 29 Q28 29 28 37 L12 37 Q6 37 6 33 Z" className="v19-car-shell" />
+        <path d="M10 26 L26 24 L38 23 L130 26 L131 30 L10 30 Z" className="v19-car-sill" />
+        <path d="M56 21 L60 12 H80 L82 21 Z M85 21 L84 12 Q92 12 98 16 L104 21 Z" className="v19-car-glass" />
+        <path d="M54 13 Q56 10 60 10" className="v19-car-line" />
+        <path d="M118 23 L131 23" className="v19-car-line" />
+        <rect x="128" y="20" width="8" height="3" rx="1" className="v19-car-spoiler" />
+        <rect x="7" y="27" width="9" height="4" rx="1.5" className="v19-car-lamp" />
+        <rect x="126" y="29" width="8" height="3" rx="1" className="v19-car-lamp is-rear" />
+        <path d="M6 33 H12 M132 33 H136" className="v19-car-line" />
       </svg>
-      <svg viewBox="0 0 24 24" className="v19-car-wheel is-rear">
-        <circle cx="12" cy="12" r="11" className="v19-car-tyre" />
-        <circle cx="12" cy="12" r="6.5" className="v19-car-rim" />
-        <path d="M12 5.5 V18.5 M5.5 12 H18.5 M7.4 7.4 L16.6 16.6 M16.6 7.4 L7.4 16.6" className="v19-car-spoke" />
-      </svg>
-      <svg viewBox="0 0 24 24" className="v19-car-wheel is-front">
-        <circle cx="12" cy="12" r="11" className="v19-car-tyre" />
-        <circle cx="12" cy="12" r="6.5" className="v19-car-rim" />
-        <path d="M12 5.5 V18.5 M5.5 12 H18.5 M7.4 7.4 L16.6 16.6 M16.6 7.4 L7.4 16.6" className="v19-car-spoke" />
-      </svg>
+      {['is-front', 'is-rear'].map((k) => (
+        <svg key={k} viewBox="0 0 24 24" className={`v19-car-wheel ${k}`}>
+          <circle cx="12" cy="12" r="11" className="v19-car-tyre" />
+          <circle cx="12" cy="12" r="7.5" className="v19-car-rim" />
+          <path d="M12 12 L12 5 M12 12 L18.7 9.8 M12 12 L16.1 17.7 M12 12 L7.9 17.7 M12 12 L5.3 9.8" className="v19-car-spoke" />
+          <circle cx="12" cy="12" r="2" className="v19-car-hub" />
+        </svg>
+      ))}
     </span>
   );
 }

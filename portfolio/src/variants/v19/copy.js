@@ -34,7 +34,7 @@ export const ME = {
 export const LINKS = [
   { label: 'GitHub', href: 'https://github.com/PranavMishra17' },
   { label: 'LinkedIn', href: contactInfo.linkedin },
-  { label: 'Résumé', href: '/v19/resume' },
+  { label: 'Résumé', href: '/resume' },
 ];
 export const GO = { label: 'See my work', target: 'work' };
 

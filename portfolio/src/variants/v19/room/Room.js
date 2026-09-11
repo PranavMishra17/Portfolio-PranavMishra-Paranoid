@@ -295,7 +295,7 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
     /* the real posters and covers, downsampled onto the drawn ones */
     const paintArt = () => {
       const st = stateRef.current;
-      const tint = st.night > 0.6 ? 'rgba(150,164,200,1)' : st.night > 0.2 ? 'rgba(196,200,214,1)' : 'rgba(240,240,238,1)';
+      const tint = st.night > 0.6 ? 'rgba(196,202,222,1)' : st.night > 0.2 ? 'rgba(220,222,230,1)' : 'rgba(244,244,242,1)';
       const blit = (img, x, y, w, h) => {
         if (!img || !img.width) return;
         // a 2,500-pixel poster brought straight down to thirty is noise; come down in steps
