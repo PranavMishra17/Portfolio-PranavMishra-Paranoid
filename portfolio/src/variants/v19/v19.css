@@ -169,6 +169,18 @@ body.v19-locked { overflow: hidden; }
   transform: scale(calc(1 + 1.6 * var(--p)));
 }
 
+/* ── the résumé page ──────────────────────────────────────────────────── */
+.v19-resume .v19-bar { transition: none; }
+.v19-resume-main { max-width: 980px; margin: 0 auto; padding: calc(var(--bar) + 26px) clamp(18px, 4vw, 40px) 60px; }
+.v19-resume-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 14px; }
+.v19-resume-acts { display: flex; gap: 8px; align-items: center; }
+.v19-resume-acts .v19-land-go { font-family: var(--display); font-size: 13.5px; font-weight: 600; padding: 9px 16px; border-radius: 2px; border: 1px solid var(--ember); }
+.v19-resume-dl { font-family: var(--display); font-size: 13.5px; font-weight: 500; padding: 9px 16px; border: 1px solid var(--rule); border-radius: 2px; color: var(--ink); }
+.v19-resume-dl:hover { background: var(--ink); color: var(--paper-2); border-color: var(--ink); }
+.v19-resume-sheet { background: #fdfcf7; border: 1px solid rgba(23,23,26,.12); border-radius: 1px; box-shadow: 0 1px 0 rgba(255,255,255,.9) inset, 0 24px 48px -36px rgba(40,36,28,.95); padding: 8px; min-height: 60vh; }
+.v19-resume-frame { display: block; width: 100%; height: calc(100vh - var(--bar) - 130px); min-height: 640px; border: 0; background: #fff; }
+.v19-resume-empty { padding: 40px; font-size: 15px; line-height: 1.6; color: var(--ink-2); text-align: center; }
+
 /* ── the landing ─────────────────────────────────────────────────────── */
 
 .v19-land { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; justify-content: center; padding: clamp(28px, 6vh, 72px) clamp(22px, 7vw, 110px); }
@@ -266,6 +278,9 @@ body.v19-locked { overflow: hidden; }
 
 .v19-dials { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: clamp(14px, 2.4vh, 28px); }
 .v19-dials.is-small { grid-template-columns: repeat(4, 1fr); margin-top: 14px; }
+.v19-dials.is-three { grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.v19-dials.is-three .v19-dial-now { font-size: clamp(28px, 3.2vw, 40px); }
+.v19-dials.is-three .v19-dial-label { font-size: 14.5px; }
 @media (max-width: 1000px) { .v19-dials, .v19-dials.is-small { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 520px) { .v19-dials, .v19-dials.is-small { grid-template-columns: 1fr; } }
 .v19-dial { position: relative; }
@@ -329,6 +344,17 @@ body.v19-locked { overflow: hidden; }
 .v19-sk-tick-box.is-hot { fill: var(--ember); }
 .v19-sk-tick-box.is-gone { fill: none; stroke: var(--rule); stroke-dasharray: 2 2; }
 .v19-sk-box.is-end { stroke: var(--ember); }
+/* the migration */
+.v19-sk-rule.is-dash { stroke-dasharray: 3 4; }
+.v19-sk-rule.is-live { stroke: var(--ember); stroke-width: 1.2; }
+.v19-sk-poll { fill: var(--ink-3); animation: v19-once 400ms ease both; animation-delay: calc(var(--i) * 60ms); }
+.v19-sk-pulse { fill: var(--ember); transform-box: fill-box; transform-origin: center; animation: v19-pulse-in 500ms cubic-bezier(.2,.9,.3,1) both; animation-delay: calc(300ms + var(--i) * 40ms); }
+@keyframes v19-pulse-in { from { transform: scaleY(0); } }
+.v19-sk-cut { fill: rgba(255,255,253,.85); stroke: var(--ink); stroke-width: 1.4; }
+/* strict ids */
+.v19-sk-tag { fill: rgba(23,23,26,.08); stroke: var(--rule); stroke-width: 1; }
+.v19-sk-tag.is-hot { fill: rgba(193,65,47,.14); stroke: var(--ember); }
+.v19-sk-t.is-tag { font-size: 9px; fill: var(--ink-2); }
 .v19-sk-week { animation: v19-once 320ms ease both; animation-delay: calc(var(--i) * 70ms); }
 .v19-sk-week-box { fill: rgba(255,255,253,.8); stroke: var(--rule); stroke-width: 1.2; }
 .v19-sk-week-x { fill: none; stroke: rgba(193,65,47,.7); stroke-width: 1.6; stroke-linecap: round; }
@@ -425,6 +451,19 @@ body.v19-locked { overflow: hidden; }
 .v19-wp-spoke { stroke: var(--ink-2); stroke-width: 2; fill: none; }
 .v19-wp-hub { fill: var(--ember); }
 @keyframes v19-roll { from { left: 0; transform: rotate(0deg); } to { left: calc(100% - 22px); transform: rotate(2160deg); } }
+/* spins: a larger wheel at the end of the bar, turning in place */
+.v19-wp-spin { position: absolute; right: 44px; top: 50%; width: 34px; height: 34px; margin-top: -17px; pointer-events: none; opacity: .9; }
+.v19-wp-spin .v19-wp-wheel { position: static; width: 34px; height: 34px; opacity: 1; animation: v19-spin 6s linear infinite; }
+.v19-wp-bar:hover .v19-wp-spin .v19-wp-wheel { animation-duration: 1.4s; }
+.v19-wp.is-open .v19-wp-spin { opacity: .35; }
+@keyframes v19-spin { to { transform: rotate(360deg); } }
+/* tread: a tyre pattern running along the bottom edge */
+.v19-wp-tread { position: absolute; left: 12px; right: 12px; bottom: 5px; height: 6px; pointer-events: none; opacity: 0; background: repeating-linear-gradient(90deg, var(--ink) 0 6px, transparent 6px 10px, var(--ink-3) 10px 13px, transparent 13px 18px); background-size: 18px 6px; border-radius: 1px; }
+.v19-wp.is-seen:not(.is-open) .v19-wp-tread { opacity: .55; animation: v19-tread 1.6s linear infinite; }
+.v19-wp-bar:hover .v19-wp-tread { animation-duration: .5s; }
+@keyframes v19-tread { to { background-position: -18px 0; } }
+.v19-wp.w-spin .v19-wp-bar, .v19-wp.w-tread .v19-wp-bar { padding-bottom: 22px; }
+.v19-wp.w-spin .v19-wp-when { margin-right: 44px; }
 .v19-wp-bar:hover { background: rgba(23,23,26,.035); padding-left: 18px; }
 .v19-wp-logo { width: 34px; height: 34px; object-fit: cover; border-radius: 3px; }
 .v19-wp-who { display: flex; flex-direction: column; line-height: 1.25; min-width: 0; }
@@ -464,6 +503,11 @@ body.v19-locked { overflow: hidden; }
 .v19-role-more ul li { position: relative; padding-left: 17px; font-size: 14.5px; line-height: 1.6; color: var(--ink-2); max-width: 68ch; }
 .v19-role-more ul li + li { margin-top: 7px; }
 .v19-role-more ul li::before { content: ''; position: absolute; left: 0; top: .74em; width: 8px; height: 2px; background: var(--rule); }
+.v19-role-one + .v19-role-one { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--rule-2); }
+.v19-role-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin-bottom: 8px; }
+.v19-role-head b { font-family: var(--display); font-size: 15px; font-weight: var(--display-w); letter-spacing: -.015em; }
+.v19-role-head i { font-style: normal; font-size: 13px; color: var(--ink-3); }
+.v19-role-head span { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
 @media (max-width: 720px) {
   .v19-role-line { grid-template-columns: 1fr 20px; grid-template-rows: auto auto auto; }
   .v19-role-when { grid-column: 1; grid-row: 1; }
@@ -767,7 +811,7 @@ body.v19-locked { overflow: hidden; }
 .v19-room-stage:not(.k-hand):not(.k-zoom) .v19-room-canvas { cursor: default; }
 
 /* the real picture, sat exactly over its pixelated self while you point at it */
-.v19-room-art { position: absolute; z-index: 4; object-fit: cover; pointer-events: none; image-rendering: auto; box-shadow: 0 10px 30px -12px rgba(0,0,0,.6); animation: v19-clear 260ms ease both; }
+.v19-room-art { position: absolute; z-index: 4; object-fit: contain; background: #17171a; pointer-events: none; image-rendering: auto; box-shadow: 0 10px 30px -12px rgba(0,0,0,.6); animation: v19-clear 260ms ease both; }
 @keyframes v19-clear { from { opacity: 0; filter: blur(6px); } to { opacity: 1; filter: blur(0); } }
 .v19-room-shelf { position: absolute; z-index: 4; display: flex; gap: 8px; padding: 8px; background: rgba(253,251,246,.94); border: 1px solid var(--rule-2); border-radius: 3px; transform: translateY(-100%); pointer-events: none; animation: v19-clear 220ms ease both; }
 .v19-room-book { margin: 0; width: 84px; display: flex; flex-direction: column; gap: 5px; }

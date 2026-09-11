@@ -8,6 +8,7 @@ import './App.css';
 // The revamp lives at /v19 — see HANDOFF.md at the repo root. Lazy so its chunk never
 // touches the shipping site at /.
 const V19 = lazy(() => import('./variants/v19'));
+const V19Resume = lazy(() => import('./variants/v19/Resume'));
 
 const wait = <div style={{ minHeight: '100vh' }} />;
 
@@ -18,6 +19,7 @@ function App() {
         <Route path="/" element={<MainPortfolio />} />
         <Route path="/resume" element={<ResumeViewer />} />
         <Route path="/v19" element={<Suspense fallback={wait}><V19 /></Suspense>} />
+        <Route path="/v19/resume" element={<Suspense fallback={wait}><V19Resume /></Suspense>} />
       </Routes>
     </Router>
   );

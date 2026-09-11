@@ -6,6 +6,7 @@
 // filtered out at render time by BANNED below.
 
 import { projects, contactInfo, getImageWithFallback } from '../../data/projects';
+import { githubProjects } from '../../data/projectsGithub';
 import experiences from '../../data/experience';
 import { publications } from '../../data/publications';
 
@@ -33,7 +34,7 @@ export const ME = {
 export const LINKS = [
   { label: 'GitHub', href: 'https://github.com/PranavMishra17' },
   { label: 'LinkedIn', href: contactInfo.linkedin },
-  { label: 'Résumé', href: '/resume' },
+  { label: 'Résumé', href: '/v19/resume' },
 ];
 export const GO = { label: 'See my work', target: 'work' };
 
@@ -66,31 +67,24 @@ export const ALFRED = {
   glance: [
     { k: 'People relying on it', v: '5,000+' },
     { k: 'Reaches you by', v: 'text · chat · voice' },
-    { k: 'Also runs inside', v: 'Claude · ChatGPT' },
+    { k: 'Also runs inside', v: 'Claude Code · Codex' },
     { k: 'My half', v: 'memory · rules · evals' },
   ],
   bullets: (alfredRole.description || []).filter((b) => !BANNED.test(b)),
 };
-
-// What it is built on. Chips, not sentences, and only the words you would say out loud.
-export const STACK = [
-  'TypeScript', 'Deno', 'Postgres', 'Supabase', 'Vercel', 'React', 'Vite',
-  'Multi-agent', 'MCP', 'OAuth 2.0', 'Claude', 'Gemini', 'DeepSeek',
-  'Gmail', 'Microsoft Graph', 'Eval harness', 'Security',
-];
 
 // The numbers, and what actually changed. Fifteen of them; the first ten are the Lab's "Ten"
 // and `top` marks the five that show by default. Every one shipped and was measured on real
 // users. `sketch` is the drawing under the box: a few shapes, described rather than drawn.
 export const FIGURES = [
   {
-    id: 'latency',
+    id: 'migrate',
     top: true,
-    was: '90 s',
+    was: 'polling',
     now: '3 s',
-    label: 'From an email to your phone, thirty times sooner',
-    note: 'Every notification sat on a polling timer, so a text about an email arrived a minute and a half after the email did. The delay was the scheduler, not the work. I moved delivery onto the event itself, with the cron kept only as a backstop: three seconds, fleet-wide, nothing suppressed. Then I carried the same fix to login codes, which had been arriving 189 seconds late at p90 and now land as you reach for your phone.',
-    sketch: { kind: 'race' },
+    label: 'Moved every user onto event-driven ingress, live, in one week',
+    note: 'The email backend polled every provider on a timer, so a text about an email arrived about ninety seconds after the email did. Over one week we migrated all of ingress, Gmail, Microsoft Graph and IMAP, for thousands of live users onto per-provider event triggers, with the cron demoted to a backstop and nothing suppressed during the cutover. Delivery went from about 90 seconds to about 3, thirty times faster, and login codes from 189 seconds at p90 to instant. Nobody noticed the migration; everybody noticed the result.',
+    sketch: { kind: 'migrate' },
   },
   {
     id: 'memory',
@@ -98,35 +92,57 @@ export const FIGURES = [
     was: 'hope',
     now: 'tests',
     label: 'An assistant that cannot invent your inbox',
-    note: 'A model summarising an inbox will confidently invent a thread, or flip who owes whom. I rebuilt working memory so the model never writes an identifier or an owner: it chooses from a menu of real candidates that code assembled, and code re-attaches every fact. That turns a whole class of hallucination from rare into impossible, and a test proves it on every build. Five thousand people read those briefs.',
-    sketch: { kind: 'memory' },
-  },
-  {
-    id: 'cost',
-    top: true,
-    was: '150 tools',
-    now: '−30%',
-    label: 'A leaner agent, with every capability kept',
-    note: 'The agent weighed more than 150 tools on every turn, and that catalogue was the single biggest line in per-turn cost. I built the clever thing first, a router that shows each turn only the relevant tools, measured it on a real eval set, and threw it away when it did not beat plain consolidation. About 110 tools now, every documented parameter restored rather than dropped, and $195 to $245 a month saved at current volume. I re-measured that figure after catching my own first estimate using the wrong unit.',
-    sketch: { kind: 'cost' },
+    note: 'A model summarising an inbox will confidently invent a thread, or flip who owes whom. I rebuilt working memory so the model never writes an identifier or an owner: code builds a menu of real candidates behind opaque handles, the model only chooses among them and writes prose, and code re-attaches every fact afterwards. That turns a whole class of hallucination from rare into impossible, and a test proves it on every build. Five thousand people read those briefs.',
+    sketch: { kind: 'strict' },
   },
   {
     id: 'auth',
     top: true,
     was: '721 ms',
     now: '30×',
-    label: 'Alfred_ inside Claude and ChatGPT, thirty times faster',
-    note: 'Alfred_ is a public MCP connector behind an OAuth 2.0 server I built, so anyone can add it to Claude or ChatGPT. Measured, 98.3% of its traffic was authentication, and every call paid 721 ms to boot a 30 MB dependency tree just to learn who was asking. Auth became one database lookup and the heavy code loads only when a call needs it. I designed the permission model too: sending mail is a standing grant once you confirm it; creating an event is a fresh, scoped grant every time.',
+    label: 'Alfred_ inside Claude Code, Codex, and any agent that speaks MCP',
+    note: 'Alfred_ is an MCP server behind an OAuth 2.0 authorization server I built, so any coding agent, Claude Code, Codex, Antigravity, anything that speaks MCP, can add it as a tool. Measured, 98.3% of the connector\'s traffic was authentication, every call booting a 30 MB dependency tree just to learn who was asking. Auth became a single database lookup and the heavy code loads only when a call needs it. I designed the permission model too: sending mail is a standing grant once you confirm it; creating an event is a fresh, scoped grant every time.',
     sketch: { kind: 'bars', alt: 'Authentication cost, before and after', rows: [{ k: 'each call, before', w: 1, v: '721 ms, booting' }, { k: 'each call, now', w: 0.04, v: 'one lookup', hot: true }, { k: 'share of all traffic', w: 0.983, v: '98.3% was auth' }] },
   },
   {
+    id: 'onboard',
+    was: 'a blank slate',
+    now: 'day one',
+    label: 'It knows who you are before you say a word',
+    note: 'When a new inbox is connected, a map-reduce pass reads it and infers who you are, who matters to you, what you are working on and what is open, then turns that into one-tap suggested rules and pre-written replies to the emails you already owe. Tuned twice against the first real cohort, with caps on drafts and to-dos and an out-of-memory fix on dense mailboxes: the kind of correction that only shows up once real people hit it.',
+    sketch: { kind: 'flow', alt: 'A new inbox read into who you are and what is open', nodes: ['a new inbox', 'map-reduce', 'who you are · what is open'], foot: 'one-tap rules and replies, on the first day' },
+  },
+  {
+    id: 'voice',
+    was: 'generic',
+    now: 'yours',
+    label: 'Drafts that sound like you',
+    note: 'A durable per-user model of how you write, tone, length, the verbs you reach for, exemplars per axis, mined from your sent replies and injected into the drafting path behind an A/B dial. Backfilled fleet-wide, with an onboarding check-in that shows you what it learned about your voice.',
+    sketch: { kind: 'flow', alt: 'Sent mail read into a voice profile, then into a draft', nodes: ['your sent mail', 'a voice profile', 'a draft in your words'], foot: 'behind an A/B dial, backfilled for everyone' },
+  },
+  {
+    id: 'modelab',
+    was: 'assumed',
+    now: 'gold set',
+    label: 'A cheaper model, proven before it shipped',
+    note: 'On the highest-spend pipeline I instrumented per-model, per-stage spend, separated the real driver, classification volume times reasoning-token budget, from the red herrings, and ran a model A/B on a gold set. The cheaper, faster model won and was ramped behind an inert shadow with a capacity dial. Draft generation collapsed from several LLM turns to one, validated by an LLM-ranking judge over importance-weighted samples rather than shipped on faith, and the audit turned up three kinds of AI calls that were costing money and never booked to any model.',
+    sketch: { kind: 'bars', alt: 'Turns per draft, before and after', rows: [{ k: 'turns per draft, before', w: 1, v: 'several' }, { k: 'now', w: 0.2, v: 'one', hot: true }, { k: 'AI calls never booked', w: 0.3, v: '3 kinds, now attributed' }] },
+  },
+  {
     id: 'scan',
-    top: true,
     was: 'reading logs',
     now: '9 waves',
     label: 'Production tells me when the agent got it wrong',
     note: 'Thousands of live conversations a day, and no one can read them all. I built a scanner that classifies real agent failures against expected behaviour, files the genuine ones, and fans out an investigation per bug. Nine precision waves so far, because a queue the team does not trust is worse than no queue. Under it sits an eval harness with trace replay, fixtures and regression detection that every cost cut has to pass before it ships.',
     sketch: { kind: 'flow', alt: 'Conversations sorted into real failures and expected behaviour', nodes: ['thousands of conversations', 'scanner', 'the real bugs'], foot: 'the rest never reach the queue' },
+  },
+  {
+    id: 'cost',
+    was: '150 tools',
+    now: '−30%',
+    label: 'A leaner agent, with every capability kept',
+    note: 'The agent weighed more than 150 tools on every turn, and that catalogue was the single biggest line in per-turn cost. I built the clever thing first, a router that shows each turn only the relevant tools, measured it on a real eval set, and threw it away when it did not beat plain consolidation. About 110 tools now, every documented parameter restored rather than dropped, and $195 to $245 a month saved at current volume. I re-measured that figure after catching my own first estimate using the wrong unit.',
+    sketch: { kind: 'cost' },
   },
   {
     id: 'txn',
@@ -145,6 +161,14 @@ export const FIGURES = [
     sketch: { kind: 'rules' },
   },
   {
+    id: 'prep',
+    was: '21% conflicting',
+    now: 'freshest',
+    label: 'Meeting prep that knows who is actually coming',
+    note: 'A short prep note before a meeting, grounded in your calendar, the related threads and any linked notes, reusing the same working memory. After real usage: recover the other side when the provider omits an external organiser; pick the freshest of several duplicate calendar snapshots, having measured that 21% of a week\'s meetings had conflicting rows; and log the reason for every silent no-prep case, after one reached a user as a blank line.',
+    sketch: { kind: 'cells', alt: 'Meetings with conflicting calendar snapshots', head: 'meetings this week', n: 14, hot: [1, 4, 9], tail: 'conflicting', foot: 'the freshest snapshot decides who is coming' },
+  },
+  {
     id: 'sms',
     was: '16.4%',
     now: '0',
@@ -161,14 +185,6 @@ export const FIGURES = [
     sketch: { kind: 'flow', alt: 'An identifier reaching only its own mailbox', nodes: ['a model-supplied id', 'ownership check', 'your mailbox'], drop: 'anyone else\'s' },
   },
   {
-    id: 'dupes',
-    was: '9.7%',
-    now: '0',
-    label: 'Every tenth reminder went out twice',
-    note: 'Calendar texts were duplicating on nearly ten percent of sends. The cause was deduplicating on a signal weaker than the message itself. The message content is the key now, and the in-flight window was tightened so an email cannot be sent twice either.',
-    sketch: { kind: 'cells', alt: 'One reminder in ten sent twice', head: 'reminders', n: 10, hot: [6], tail: 'sent twice', foot: 'now keyed on what the message says' },
-  },
-  {
     id: 'weeks',
     was: '11 weeks',
     now: 'found',
@@ -183,6 +199,22 @@ export const FIGURES = [
     label: 'Every scheduled job was failing behind a green dashboard',
     note: 'Cron marked a job successful when it was queued, not when it ran. Every scheduled job in the fleet had been failing while every panel read green, including after an auth change that returned 401 to all of them. I fixed the jobs, then changed what success means, so the dashboard can only go green when the work was actually delivered.',
     sketch: { kind: 'bars', alt: 'Jobs queued against jobs delivered', rows: [{ k: 'reported', w: 1, v: 'green' }, { k: 'delivered', w: 0.02, v: 'none', hot: true }] },
+  },
+  {
+    id: 'recap',
+    was: 'an attachment',
+    now: 'the email',
+    label: 'A monthly recap people actually read',
+    note: 'A durable rollup pipeline with its own read RPC, instead of per-user SQL at send time, which does not scale. Three real redesigns before the first fleet-wide send: the report became the email body instead of a stub with the content buried in an attachment nobody opened, a headline statistic that read as alarming was dropped, and the dashboard card is gated on your own send having gone out, since the send rolls across time zones. The day before it ran, I caught a bug that would have made all three engagement reports fail silently.',
+    sketch: { kind: 'flow', alt: 'From per-user SQL at send time to a nightly rollup', nodes: ['per-user SQL at send time', 'a nightly rollup', 'the report, as the email itself'], foot: 'three redesigns before the first fleet-wide send' },
+  },
+  {
+    id: 'dupes',
+    was: '9.7%',
+    now: '0',
+    label: 'Every tenth reminder went out twice',
+    note: 'Calendar texts were duplicating on nearly ten percent of sends. The cause was deduplicating on a signal weaker than the message itself. The message content is the key now, and the in-flight window was tightened so an email cannot be sent twice either.',
+    sketch: { kind: 'cells', alt: 'One reminder in ten sent twice', head: 'reminders', n: 10, hot: [6], tail: 'sent twice', foot: 'now keyed on what the message says' },
   },
   {
     id: 'push',
@@ -276,8 +308,9 @@ WHEELPRICE.figures = [
 ];
 WHEELPRICE.stack = ['Node.js', 'React', 'TypeScript', 'MongoDB', 'Redis', 'FastAPI', 'XGBoost', 'YOLO', 'OpenCV'];
 
-// Everything before that is an after-note. One line each, opened only if you want it.
+// Everything before that is one after-note, shut: the two roles on one line, opened together.
 export const AFTER = ROLES.filter((r) => r.id !== WHEELPRICE.id);
+export const AFTER_LINE = AFTER.map((r) => `${r.id === 'research-software-engineer-uic' ? 'Research SWE' : r.title} at ${r.company}`).join(' · ');
 
 /* ────────────────────────────── projects ────────────────────────────── */
 
@@ -335,7 +368,7 @@ export const ALL_PROJECTS = (() => {
   const seen = new Set();
   const out = [];
   ['aiMl', 'gameDesign', 'misc'].forEach((bucket) => {
-    (projects[bucket] || []).forEach((p) => {
+    (projects[bucket] || []).concat(githubProjects[bucket] || []).forEach((p) => {
       if (!p || !p.id || seen.has(p.id) || BANNED.test(p.title || '')) return;
       seen.add(p.id);
       out.push({
@@ -347,7 +380,7 @@ export const ALL_PROJECTS = (() => {
         tag: TAG[bucket],
         line: LINE[p.id] || (p.description || '').split('. ')[0],
         description: p.description || '',
-        image: getImageWithFallback(p.mainImage, KIND[bucket]),
+        image: /^https?:/.test(p.mainImage || '') ? p.mainImage : getImageWithFallback(p.mainImage, KIND[bucket]),
         gallery: (p.gallery || []).map((g) => getImageWithFallback(g, KIND[bucket])),
         tech: p.techStack || [],
         github: p.githubLink || '',

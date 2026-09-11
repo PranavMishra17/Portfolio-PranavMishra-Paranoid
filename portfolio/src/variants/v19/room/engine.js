@@ -77,6 +77,7 @@ export const PALETTE = {
   hair: ['#1d1a1e', '#141116'],
   hair2: ['#38323d', '#241f29'],
   shirt: ['#3a4b6d', '#28344e'],
+  hood: ['#4b5f86', '#33436a'],
   shirt2: ['#2b3a56', '#1d283d'],
   denim: ['#41506b', '#2a3448'],
   lampOn: ['#fff2c0', '#fff2c0'],

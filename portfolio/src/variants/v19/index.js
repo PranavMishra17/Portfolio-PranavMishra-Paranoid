@@ -18,8 +18,7 @@ import { useSky, useClock } from './hooks';
 import { ME, LINKS } from './copy';
 import './v19.css';
 
-const FONTS =
-  'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Public+Sans:ital,wght@0,300..700;1,400&display=swap';
+import { FONTS } from './fonts';
 
 // what the middle of the header says, per section
 const WHERE = [

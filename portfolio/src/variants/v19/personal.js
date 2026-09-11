@@ -23,7 +23,7 @@ export const BOOKS = [
     cover: bookCover('dune'),
     title: 'Dune',
     author: 'Frank Herbert',
-    note: 'Working through the trilogy right now.',
+    note: 'Reading it now. I want to finish all three before Dune: Part Three comes out this December.',
     status: 'Reading',
     spine: '#9c6b3a',
     sample: false,
@@ -33,7 +33,7 @@ export const BOOKS = [
     cover: bookCover('antimemetics'),
     title: 'There Is No Antimemetics Division',
     author: 'qntm',
-    note: 'Read it recently. A horror novel about things you cannot remember having read.',
+    note: 'One of the best science fiction books I have read. I really enjoy cosmic horror, and this whole genre.',
     status: 'Recent',
     spine: '#2f4858',
     sample: false,
@@ -43,7 +43,7 @@ export const BOOKS = [
     cover: bookCover('hitchhikers'),
     title: 'The Hitchhiker’s Guide to the Galaxy',
     author: 'Douglas Adams',
-    note: 'The one I actually love.',
+    note: '“Once you know what the question actually is, you’ll know what the answer means.” That line has stuck with me since I read it years ago. I still stop and ask whether I am asking the right question, whatever I am working on, whether I am talking to myself or to the agents I write code with.',
     status: 'Favourite',
     spine: '#3f7d4f',
     sample: false,
@@ -53,7 +53,7 @@ export const BOOKS = [
     cover: bookCover('stranger'),
     title: 'The Stranger',
     author: 'Albert Camus',
-    note: 'Short, and it stays with you longer than its page count deserves.',
+    note: 'I like philosophy, and this was one of the best books to get into it. I loved the narrator: indifferent to everything around him, even his own life. Reading through his thought process, and wondering what that would be like, was really something.',
     status: 'Favourite',
     spine: '#b8452f',
     sample: false,
@@ -67,10 +67,9 @@ export const POSTERS = [
     title: 'Once Upon a Time in Hollywood',
     by: 'Quentin Tarantino',
     year: '2019',
-    note: 'A film that is mostly two men driving around, and it works.',
+    note: 'One of my comfort films. So well made, and it looks so beautiful; every scene is perfect. I can watch it any time.',
     palette: ['#e0a53c', '#8a2f22', '#f3e2c0'],
     sample: false,
-    placeholder: true,
   },
   {
     id: 'wasseypur',
@@ -78,10 +77,9 @@ export const POSTERS = [
     title: 'Gangs of Wasseypur',
     by: 'Anurag Kashyap',
     year: '2012',
-    note: 'Five hours of grudge, and not one wasted minute of it.',
+    note: 'One of my all-time favourites, ever since I was a kid. It really hits home. It pays homage to the gangster films before it, but it has a place of its own.',
     palette: ['#b8352a', '#22201d', '#d9c9a8'],
     sample: false,
-    placeholder: true,
   },
   {
     id: 'dune2',
@@ -89,10 +87,9 @@ export const POSTERS = [
     title: 'Dune: Part Two',
     by: 'Denis Villeneuve',
     year: '2024',
-    note: 'Scale done properly — you can feel how big the sandworm is.',
+    note: 'The best thing there is right now. I am waiting for Part Three, and I trust Villeneuve and his vision. Really excited to see where he takes it.',
     palette: ['#c98a4b', '#3a2b21', '#e8d3ae'],
     sample: false,
-    placeholder: true,
   },
 ];
 
@@ -134,10 +131,10 @@ export const TROPHIES = [
   },
 ];
 
-// Two medals hanging off the end of the shelf. Both samples — he has not said what they are for.
+// Two medals hanging off the end of the shelf: school.
 export const MEDALS = [
-  { id: 'md1', name: 'A five-a-side season', note: 'Sample — his to replace.', sample: true },
-  { id: 'md2', name: 'A hackathon, somewhere', note: 'Sample — his to replace.', sample: true },
+  { id: 'md1', name: 'Swimming', note: 'High school swimming team.', sample: false },
+  { id: 'md2', name: 'Football', note: 'High school football team.', sample: false },
 ];
 
 export const FOOTBALL = {

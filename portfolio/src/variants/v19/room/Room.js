@@ -108,7 +108,6 @@ function Slip({ hotspot, onClose, clockHour = 0 }) {
           node: (
             <>
               <List items={MEDALS.map((m) => ({ k: m.name, v: m.note }))} />
-              <p className="v19-sample">Samples — his own go here.</p>
             </>
           ),
         };
@@ -278,14 +277,13 @@ export default function Room({ sectionRef, onTop, hour = 19 }) {
         // a 2,500-pixel poster brought straight down to thirty is noise; come down in steps
         // once, then keep the small one
         if (!img.__small) {
-          const scale = Math.max(w / img.width, h / img.height);
-          const sw = w / scale;
-          const sh = h / scale;
+          // contain, never cover: the whole picture, on a dark mount if the shape is off
+          const scale = Math.min(w / img.width, h / img.height);
           let cur = img;
-          let cw = sw;
-          let ch = sh;
-          let sx = (img.width - sw) / 2;
-          let sy = (img.height - sh) / 2;
+          let cw = img.width;
+          let ch = img.height;
+          let sx = 0;
+          let sy = 0;
           while (cw > w * 2.5) {
             const nw = Math.max(w, Math.round(cw / 2));
             const nh = Math.max(h, Math.round(ch / 2));
@@ -306,9 +304,13 @@ export default function Room({ sectionRef, onTop, hour = 19 }) {
           small.width = w;
           small.height = h;
           const scx = small.getContext('2d');
+          scx.fillStyle = '#2b2430';
+          scx.fillRect(0, 0, w, h);
           scx.imageSmoothingEnabled = true;
           scx.imageSmoothingQuality = 'high';
-          scx.drawImage(cur, sx, sy, cw, ch, 0, 0, w, h);
+          const dw = Math.round(img.width * scale);
+          const dh = Math.round(img.height * scale);
+          scx.drawImage(cur, sx, sy, cw, ch, Math.floor((w - dw) / 2), Math.floor((h - dh) / 2), dw, dh);
           img.__small = small; // eslint-disable-line no-param-reassign
         }
         ctx.save();

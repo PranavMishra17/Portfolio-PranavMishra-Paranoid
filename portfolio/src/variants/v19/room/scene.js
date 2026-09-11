@@ -33,7 +33,7 @@ export const HIM = { x: 130, y: 44, w: 28, h: 28 };
 
 /* Hit-test order: first match wins, so what is nearest to you comes first. */
 export const HOTSPOTS = [
-  { id: 2, key: 'me', label: 'Me', kind: 'hand', x: 128, y: 36, w: 36, h: 36 },
+  { id: 2, key: 'me', label: 'Me', kind: 'hand', x: 128, y: 40, w: 36, h: 32 },
   { id: 3, key: 'photo', label: 'Family', kind: 'zoom', x: 76, y: 64, w: 20, h: 22 },
   { id: 4, key: 'mug', label: 'Tea', kind: 'hand', x: 195, y: 72, w: 14, h: 14 },
   { id: 5, key: 'laptop', label: 'Where I have worked', kind: 'zoom', x: 208, y: 56, w: 38, h: 30 },
@@ -42,9 +42,10 @@ export const HOTSPOTS = [
   { id: 7, key: 'monitorB', label: 'Two papers', kind: 'zoom', x: 154, y: 54, w: 42, h: 30 },
   { id: 8, key: 'pc', label: 'The tower', kind: 'hand', x: 50, y: 86, w: 28, h: 34 },
   { id: 9, key: 'games', label: 'Games', kind: 'zoom', x: 78, y: 102, w: 28, h: 18 },
-  { id: 10, key: 'poster1', label: POSTERS[0].title, kind: 'zoom', x: 84, y: 12, w: 30, h: 32 },
-  { id: 11, key: 'poster2', label: POSTERS[1].title, kind: 'zoom', x: 124, y: 12, w: 30, h: 32 },
-  { id: 12, key: 'poster3', label: POSTERS[2].title, kind: 'zoom', x: 164, y: 12, w: 30, h: 32 },
+  // 28 by 42: the three pictures are all two by three, so the frame is too, and nothing is cropped
+  { id: 10, key: 'poster1', label: POSTERS[0].title, kind: 'zoom', x: 85, y: 6, w: 28, h: 42 },
+  { id: 11, key: 'poster2', label: POSTERS[1].title, kind: 'zoom', x: 125, y: 6, w: 28, h: 42 },
+  { id: 12, key: 'poster3', label: POSTERS[2].title, kind: 'zoom', x: 165, y: 6, w: 28, h: 42 },
   { id: 13, key: 'trophies', label: 'MIT XR 2024 and HINT 5.0', kind: 'zoom', x: 38, y: 36, w: 24, h: 20 },
   { id: 14, key: 'medals', label: 'Medals', kind: 'zoom', x: 40, y: 56, w: 20, h: 18 },
   { id: 15, key: 'books', label: 'Books', kind: 'zoom', x: 6, y: 32, w: 32, h: 24 },
@@ -204,8 +205,8 @@ function shelf(g, sparkle, t) {
 /* ── posters, centred on the wall ──────────────────────────────────── */
 
 function poster(g, id, x, y, which) {
-  const w = 30;
-  const h = 32;
+  const w = 28;
+  const h = 42;
   g.setId(id);
   g.rect(x - 1, y - 1, w + 2, h + 2, 'ink2');
   if (which === 0) {
@@ -394,12 +395,8 @@ function tower(g, on, t) {
   for (let y = 110; y < 116; y += 2) for (let x = 56; x < 72; x += 2) g.px(x, y, 'grey3');
   if (on && Math.sin(t / 700) > 0.4) g.px(71, 104, 'white');
   g.setId(0);
-  // the cable, into a socket on the skirting behind it
-  g.line(56, 116, 48, 118, 'cable');
-  g.vline(48, 104, 14, 'cable');
-  g.rect(46, 100, 5, 5, 'grey3');
-  g.px(47, 102, 'ink');
-  g.px(49, 102, 'ink');
+  // the cable, away behind it to the wall
+  g.line(56, 116, 49, 118, 'cable');
 }
 
 function games(g) {
@@ -447,14 +444,14 @@ function person(g, mode, frame, t) {
 function waving(g, frame) {
   g.setId(2);
   const lift = frame ? 3 : 0;
-  // the upper arm, from his right shoulder up and out
-  for (let i = 0; i < 8; i += 1) g.rect(150 + i, 63 - i, 3, 3, 'shirt');
-  // the forearm, straight up, and the hand
-  g.rect(157, 45 - lift, 4, 13 + lift, 'skin');
-  g.rect(156, 40 - lift, 6, 5, 'skin');
-  g.px(156, 39 - lift, 'skin');
-  g.px(158, 38 - lift, 'skin');
-  g.px(160, 39 - lift, 'skin');
+  // the upper arm, from his right shoulder up and out, in the hoodie
+  for (let i = 0; i < 7; i += 1) g.rect(151 + i, 63 - i, 3, 3, 'shirt');
+  // the forearm, and the hand
+  g.rect(157, 50 - lift, 4, 8 + lift, 'skin');
+  g.rect(156, 45 - lift, 6, 5, 'skin');
+  g.px(156, 44 - lift, 'skin');
+  g.px(158, 43 - lift, 'skin');
+  g.px(160, 44 - lift, 'skin');
   g.setId(0);
 }
 
@@ -628,7 +625,7 @@ export function drawScene(grid, state) {
   const t = state.t || 0;
   shell(g);
   stringLights(g, state.string, t);
-  POSTERS.forEach((p, i) => poster(g, 10 + i, 84 + i * 40, 12, i));
+  POSTERS.forEach((p, i) => poster(g, 10 + i, 85 + i * 40, 6, i));
   clock(g, state.hour || 0);
   windowUnit(g, state.windowT || 0, t);
   shelf(g, state.sparkle, t);

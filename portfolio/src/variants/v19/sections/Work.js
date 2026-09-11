@@ -12,7 +12,7 @@
 // after-note, one line each.
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ALFRED, AFTER, FIGURES, STACK, WHEELPRICE } from '../copy';
+import { ALFRED, AFTER, AFTER_LINE, FIGURES, WHEELPRICE } from '../copy';
 import { useLab } from '../lab';
 import { useOnScreen, useOpener } from '../hooks';
 
@@ -175,6 +175,65 @@ function Weeks({ s }) {
   );
 }
 
+/* The migration: three providers, polled on a timer, switched to events over one week. */
+function Migrate() {
+  const lanes = ['Gmail', 'Graph', 'IMAP'];
+  return (
+    <svg className="v19-sk" viewBox="0 0 520 74" role="img" aria-label="Three mail providers moved from polling to event-driven ingress in one week">
+      {lanes.map((l, i) => {
+        const y = 12 + i * 18;
+        return (
+          <g key={l}>
+            <T x={0} y={y + 4}>{l}</T>
+            <line className="v19-sk-rule is-dash" x1="48" y1={y} x2="212" y2={y} />
+            {[0, 1, 2].map((k) => (
+              <circle key={k} className="v19-sk-poll" style={{ '--i': i * 3 + k }} cx={70 + k * 60} cy={y} r="2.6" />
+            ))}
+            <line className="v19-sk-rule is-live" x1="300" y1={y} x2="470" y2={y} />
+            {[0, 1, 2, 3, 4, 5].map((k) => (
+              <rect key={k} className="v19-sk-pulse" style={{ '--i': i * 6 + k }} x={306 + k * 28} y={y - 4} width="3" height="8" rx="1" />
+            ))}
+          </g>
+        );
+      })}
+      <rect className="v19-sk-cut" x="228" y="4" width="58" height="52" rx="3" />
+      <T x={257} y={26} cls="is-mid is-centre">one</T>
+      <T x={257} y={40} cls="is-mid is-centre">week</T>
+      <T x={48} y={66} cls="is-was">polled, about 90 s late</T>
+      <T x={470} y={66} cls="is-hot" anchor="end">on the event, about 3 s</T>
+    </svg>
+  );
+}
+
+/* Strict IDs: code builds the menu, the model only picks and writes prose, code puts the facts back. */
+function Strict() {
+  const rows = ['the lease renewal', 'invoice 4471', 'Tuesday with Ana'];
+  return (
+    <svg className="v19-sk" viewBox="0 0 520 74" role="img" aria-label="The model chooses from real candidates behind opaque handles and never writes an identifier">
+      <T x={0} y={12} cls="is-small">real threads, from code</T>
+      {rows.map((r, i) => (
+        <g key={r} className="v19-sk-row" style={{ '--i': i }}>
+          <rect className={`v19-sk-tag${i === 1 ? ' is-hot' : ''}`} x="0" y={18 + i * 16} width="22" height="11" rx="2" />
+          <T x={11} y={26 + i * 16} cls="is-tag is-centre">{['#a', '#b', '#c'][i]}</T>
+          <T x={28} y={27 + i * 16} cls={i === 1 ? 'is-mid' : undefined}>{r}</T>
+        </g>
+      ))}
+      <path className="v19-sk-path" d="M170 34 H220" />
+      <rect className="v19-sk-box" x="220" y="19" width="70" height="30" rx="3" />
+      <T x={255} y={38} cls="is-mid is-centre">model</T>
+      <path className="v19-sk-path" d="M290 34 H340" />
+      <rect className="v19-sk-bubble" x="340" y="12" width="176" height="44" rx="5" />
+      <T x={352} y={30} cls="is-say">“you still owe them a reply”</T>
+      <g className="v19-sk-pass">
+        <rect className="v19-sk-tag is-hot" x="352" y="36" width="22" height="11" rx="2" />
+        <T x={363} y={44} cls="is-tag is-centre">#b</T>
+        <T x={380} y={45} cls="is-small">re-attached by code</T>
+      </g>
+      <T x={220} y={66} cls="is-small">picks a handle, writes words, never an id</T>
+    </svg>
+  );
+}
+
 /* A wheel coming off a car, and a different one going on. */
 function Swap({ s }) {
   return (
@@ -200,6 +259,8 @@ function Sketch({ f }) {
   if (s.kind === 'rise') return <Rise s={s} />;
   if (s.kind === 'swap') return <Swap s={s} />;
   if (s.kind === 'weeks') return <Weeks s={s} />;
+  if (s.kind === 'migrate') return <Migrate />;
+  if (s.kind === 'strict') return <Strict />;
 
   if (s.kind === 'cost') {
     return (
@@ -329,6 +390,7 @@ export default function Work({ sectionRef }) {
   const seen = useOnScreen(ref);
   const { open, toggle } = useOpener();
   const shown = lab.now === 'all' ? FIGURES : lab.now === 'ten' ? FIGURES.slice(0, 10) : FIGURES.filter((f) => f.top);
+  const [alsoOpen, setAlsoOpen] = useState(false);
   const [live, setLive] = useState(shown[0].id);
   const [past, setPast] = useState(false);
   const [wpLive, setWpLive] = useState(WHEELPRICE.figures[0].id);
@@ -369,7 +431,7 @@ export default function Work({ sectionRef }) {
             </aside>
           </header>
 
-          <div className={`v19-dials${shown.length > 5 ? ' is-many' : ''}`} onMouseLeave={() => setLive(shown[0].id)}>
+          <div className={`v19-dials${shown.length > 5 ? ' is-many' : ''}${shown.length <= 3 ? ' is-three' : ''}`} onMouseLeave={() => setLive(shown[0].id)}>
             {shown.map((f) => (
               <Dial key={f.id} f={f} live={live === f.id} isOpen={open === f.id} run={seen} onLive={setLive} onPick={toggle} />
             ))}
@@ -377,21 +439,13 @@ export default function Work({ sectionRef }) {
 
           <Row figures={shown} live={live} open={open} />
 
-          <div className="v19-work-under">
-            <p className="v19-mini">Built on</p>
-            <p className="v19-chiprow is-stack">
-              {STACK.map((t) => (
-                <span className="v19-chip" key={t}>{t}</span>
-              ))}
-            </p>
-          </div>
         </div>
       </div>
 
       {/* below the fold: the one before Alfred_, shut, with a wheel rolling along it */}
       <div className="v19-past" ref={pastRef}>
         <div className="v19-slab-in">
-          <div className={`v19-wp${past ? ' is-open' : ''}${pastSeen ? ' is-seen' : ''}`} data-keep-open="">
+          <div className={`v19-wp w-${lab.wheel}${past ? ' is-open' : ''}${pastSeen ? ' is-seen' : ''}`} data-keep-open="">
             <button
               type="button"
               className="v19-wp-bar"
@@ -407,7 +461,13 @@ export default function Work({ sectionRef }) {
               <span className="v19-wp-say">{WHEELPRICE.short}</span>
               <span className="v19-wp-when">{WHEELPRICE.when}</span>
               <span className="v19-wp-chev" aria-hidden="true" />
-              <span className="v19-wp-road" aria-hidden="true"><Wheel /></span>
+              {lab.wheel === 'spin' ? (
+                <span className="v19-wp-spin" aria-hidden="true"><Wheel /></span>
+              ) : lab.wheel === 'tread' ? (
+                <span className="v19-wp-tread" aria-hidden="true" />
+              ) : (
+                <span className="v19-wp-road" aria-hidden="true"><Wheel /></span>
+              )}
             </button>
 
             <div className="v19-wp-open" hidden={!past}>
@@ -418,33 +478,31 @@ export default function Work({ sectionRef }) {
                 ))}
               </div>
               <Row figures={WHEELPRICE.figures} live={wpLive} open={open} cols={4} />
-              <p className="v19-chiprow is-stack">
-                {WHEELPRICE.stack.map((t) => (
-                  <span className="v19-chip" key={t}>{t}</span>
-                ))}
-              </p>
             </div>
           </div>
 
           <div className="v19-after">
             <p className="v19-mini">Also</p>
-            {AFTER.map((r) => {
-              const isOpen = open === r.id;
-              return (
-                <div className={`v19-role${isOpen ? ' is-open' : ''}`} key={r.id} data-keep-open={isOpen ? '' : undefined}>
-                  <button type="button" className="v19-role-line" onClick={() => toggle(r.id)} aria-expanded={isOpen} data-keep-open="">
-                    <span className="v19-role-when">{r.when}</span>
-                    <span className="v19-role-who">
+            <div className={`v19-role${alsoOpen ? ' is-open' : ''}`} data-keep-open="">
+              <button type="button" className="v19-role-line" onClick={() => setAlsoOpen((o) => !o)} aria-expanded={alsoOpen} data-keep-open="">
+                <span className="v19-role-when">{AFTER.map((r) => r.when.split(/\s[–-]\s/)[0]).join(' · ')}</span>
+                <span className="v19-role-who">
+                  <b>{AFTER_LINE}</b>
+                </span>
+                <span className="v19-role-say">{AFTER.map((r) => r.line).join(' ')}</span>
+                <span className="v19-role-chev" aria-hidden="true" />
+              </button>
+              <div className="v19-role-more" hidden={!alsoOpen}>
+                {AFTER.map((r) => (
+                  <div className="v19-role-one" key={r.id}>
+                    <p className="v19-role-head">
                       <b>{r.company}</b>
                       <i>{r.title}</i>
-                    </span>
-                    <span className="v19-role-say">{r.line}</span>
-                    <span className="v19-role-chev" aria-hidden="true" />
-                  </button>
-                  <div className="v19-role-more" hidden={!isOpen}>
+                      <span>{r.when}</span>
+                    </p>
                     <ul>
-                      {r.bullets.map((b) => (
-                        <li key={b}>{b}</li>
+                      {r.bullets.map((bl) => (
+                        <li key={bl}>{bl}</li>
                       ))}
                     </ul>
                     <p className="v19-chiprow">
@@ -453,9 +511,9 @@ export default function Work({ sectionRef }) {
                       ))}
                     </p>
                   </div>
-                </div>
-              );
-            })}
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>

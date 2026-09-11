@@ -15,40 +15,43 @@ export const LEGEND = {
   H: 'hair2',
   s: 'skin',
   S: 'skin2',
+  o: 'hood',
+  O: 'shirt2',
   d: 'shirt',
   D: 'shirt2',
-  w: 'white',
 };
 
+// A head with some shape to it, ears, the nape, a neck; then the hood lying over the shoulders
+// with its fold down the middle, and the hoodie below it.
 const BUST = [
-  '.........hhHhhhhhHh.........',
-  '.......hhHhhhhHhhhhhh.......',
+  '..........hhHhhhhh..........',
+  '........hhhhHhhhhhhh........',
+  '.......hhHhhhhhhhHhhh.......',
+  '......hhhhhhhHhhhhhhhh......',
   '......hHhhhhhhhhhhHhhh......',
-  '.....hhhhhHhhhhhhhhhhhh.....',
-  '.....hHhhhhhhhhHhhhhhHh.....',
-  '....hhhhhhhHhhhhhhhhhhhh....',
-  '....hhHhhhhhhhhhhhhHhhhh....',
-  '....hhhhhhhhhhHhhhhhhhhh....',
-  '...sshhhhHhhhhhhhhhhhhHSS...',
-  '...sshhhhhhhhhhhhhhhhhhSS...',
-  '....sshhhhhhhhhhhhhhhhSS....',
-  '......ssssssssssssssSS......',
-  '.......ssssssssssssSS.......',
-  '........ssssssssssSS........',
-  '..........ssssssSS..........',
-  '..........ssssssSS..........',
-  '.........wwwwwwwwww.........',
-  '.......dddddddddddddd.......',
-  '.....dddddddddddddddddd.....',
-  '...dddddddddddddddddddddd...',
-  '..ddddddddddddddddddddddddd.',
-  '.ddddddddddDDDDDDdddddddddd.',
-  'dddddddddddDDDDDDdddddddddd.',
-  'dddddddddddDDDDDDdddddddddd.',
-  'dddddddddddDDDDDDdddddddddd.',
-  'dddddddddddDDDDDDdddddddddd.',
-  'dddddddddddDDDDDDdddddddddd.',
-  'dddddddddddDDDDDDdddddddddd.',
+  '.....hhhhhhHhhhhhhhhhhh.....',
+  '.....hhHhhhhhhhhhhhHhhh.....',
+  '.....hhhhhhhhhHhhhhhhhh.....',
+  '....sshhhhHhhhhhhhhhhhhSS...',
+  '....sshhhhhhhhhhhhhhhhhSS...',
+  '.....shhhhhhhhhhhhhhhhhS....',
+  '......ssshhhhhhhhhhSSS......',
+  '.......sssssssssssSSS.......',
+  '.........sssssssSSS.........',
+  '.........sssssssSSS.........',
+  '.......oooooooooooooo.......',
+  '.....oooooooooooooooooo.....',
+  '....ooooooooooooooooooooo...',
+  '...ddooooooooooooooooooodd..',
+  '..dddddoooooooooooooooddddd.',
+  '.dddddddddOOOOOOOOdddddddddd',
+  'dddddddddddOOOOOOddddddddddd',
+  'ddddddddddddOOOOddddddddddd.',
+  'dddddddddddddDDddddddddddddd',
+  'dddddddddddddDDddddddddddddd',
+  'dddddddddddddDDddddddddddddd',
+  'dddddddddddddDDddddddddddddd',
+  'dddddddddddddDDddddddddddddd',
 ];
 
 export const SIT = BUST;
@@ -58,8 +61,8 @@ export const SLEEP = (() => {
   const rows = BUST.map((r) => r.split(''));
   const out = rows.map((r) => r.slice());
   const W = BUST[0].length;
-  for (let y = 0; y < 17; y += 1) for (let x = 0; x < W; x += 1) out[y][x] = '.';
-  for (let y = 0; y < 17; y += 1) {
+  for (let y = 0; y < 15; y += 1) for (let x = 0; x < W; x += 1) out[y][x] = '.';
+  for (let y = 0; y < 15; y += 1) {
     for (let x = 0; x < W; x += 1) {
       const c = rows[y][x];
       if (c === '.') continue;
@@ -72,4 +75,4 @@ export const SLEEP = (() => {
 })();
 
 export const BUST_W = BUST[0].length;
-export const COLLAR_ROW = 16; // where the shoulders start, for anything that needs to know
+export const COLLAR_ROW = 15; // where the shoulders start, for anything that needs to know

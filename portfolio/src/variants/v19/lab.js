@@ -13,10 +13,11 @@ const KEY = 'v19.lab';
 export const DEFAULTS = {
   land: 'plate',      // the first screen — each one brings its own type with it
   surface: 'plaster', // what the wall is made of: its look, its cursor
-  now: 'five',        // how many of the Alfred_ figures show
+  now: 'three',       // how many of the Alfred_ figures show
   projects: 'frame',  // how the frame and its tiles are dressed
   papers: 'plates',   // how a paper is shown
   hour: 'now',        // the clock: real time, or a fixed hour to preview
+  wheel: 'roll',      // what the wheel on the WheelPrice bar does
 };
 
 const OPTIONS = [
@@ -41,9 +42,9 @@ const OPTIONS = [
     key: 'now',
     title: 'Alfred_, in numbers',
     choices: [
-      { v: 'five', label: 'Five', hint: 'The five that matter most.' },
+      { v: 'three', label: 'Three', hint: 'The three that carry it.' },
       { v: 'ten', label: 'Ten', hint: 'Ten.' },
-      { v: 'all', label: 'Fifteen', hint: 'All of them, to pick from.' },
+      { v: 'all', label: 'All', hint: 'Every story, to pick from.' },
     ],
   },
   {
@@ -63,6 +64,15 @@ const OPTIONS = [
       { v: 'brief', label: 'Brief', hint: 'The figure and the abstract on one sheet.' },
       { v: 'plates', label: 'Plates', hint: 'The sheet, and the figures under it as numbered plates.' },
       { v: 'stacked', label: 'Stacked', hint: 'One sheet per paper, the figures beside the title, the abstract in one column.' },
+    ],
+  },
+  {
+    key: 'wheel',
+    title: 'The wheel on WheelPrice',
+    choices: [
+      { v: 'roll', label: 'Rolls', hint: 'One wheel rolling the length of the bar.' },
+      { v: 'spin', label: 'Spins', hint: 'A wheel at the end of the bar, turning in place, faster when you point.' },
+      { v: 'tread', label: 'Tread', hint: 'A tyre tread running along the bottom edge.' },
     ],
   },
   {
