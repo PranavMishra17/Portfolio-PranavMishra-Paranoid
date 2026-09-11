@@ -13,10 +13,10 @@
 // picture in the site and becomes part of it.
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { createGrid, rasterize, W, H, OY } from './engine';
+import { createGrid, rasterize, W, H } from './engine';
 import { drawScene, HOTSPOTS, LIGHTS, SCREENS } from './scene';
 import { BOOKS, GAMES, MAGNETS, POSTERS, TROPHIES, FAMILY, MEDALS } from '../personal';
-import { ALL_PROJECTS, PAPERS, ROLES, ALFRED, ME, LINKS, MORE_LINKS } from '../copy';
+import { ALL_PROJECTS, PAPERS, ROLES, ALFRED, LINKS, MORE_LINKS } from '../copy';
 import { useLab } from '../lab';
 
 const FRAME_MS = 42;
@@ -78,7 +78,7 @@ function Slip({ hotspot, onClose }) {
   const body = () => {
     switch (key) {
       case 'monitorA':
-        return { eye: 'Made', title: 'Everything I have made', node: <List items={ALL_PROJECTS.map((p) => ({ k: p.name, v: p.line }))} /> };
+        return { eye: 'Made', title: 'Everything I have built', node: <List items={ALL_PROJECTS.map((p) => ({ k: p.name, v: p.line }))} /> };
       case 'monitorB':
         return { eye: 'Peer review', title: 'Two papers', node: <List items={PAPERS.map((p) => ({ k: p.title, v: p.line, extra: `${p.venue} · ${p.citations} citations` }))} /> };
       case 'laptop':
@@ -87,7 +87,7 @@ function Slip({ hotspot, onClose }) {
           title: 'Where I have worked',
           node: (
             <List
-              items={[{ k: `${ALFRED.title}, ${ALFRED.company}`, v: ALFRED.lede, extra: ALFRED.when }].concat(
+              items={[{ k: `${ALFRED.title}, ${ALFRED.company}`, v: ALFRED.about, extra: ALFRED.when }].concat(
                 ROLES.map((r) => ({ k: `${r.title}, ${r.company}`, v: r.line, extra: `${r.when} · ${r.where}` }))
               )}
             />
@@ -204,7 +204,6 @@ export default function Room({ sectionRef, onTop }) {
     bounce: 0,
     mode: 'sit', // sit | wave | sleep
     frame: 0,
-    plantStyle: 'stems',
     look: 'warm',
     t: 0,
   });
@@ -215,8 +214,6 @@ export default function Room({ sectionRef, onTop }) {
   const [hover, setHover] = useState(0);
   const [openKey, setOpenKey] = useState(null);
   const [kind, setKind] = useState('');
-
-  stateRef.current.plantStyle = lab.plant;
 
   /* the look, from the Lab: sets the lights and the light, and can be changed underneath */
   useEffect(() => {
@@ -263,8 +260,8 @@ export default function Room({ sectionRef, onTop }) {
     const paintScreens = (now) => {
       const st = stateRef.current;
       if (!st.pc) return;
-      const a = { ...SCREENS.monitorA, y: SCREENS.monitorA.y + OY };
-      const b = { ...SCREENS.monitorB, y: SCREENS.monitorB.y + OY };
+      const a = SCREENS.monitorA;
+      const b = SCREENS.monitorB;
       const shots = shotsRef.current;
       if (shots.length) {
         const img = shots[Math.floor(now / SCREEN_MS) % shots.length];
@@ -285,21 +282,21 @@ export default function Room({ sectionRef, onTop }) {
           ctx.globalCompositeOperation = 'source-over';
         }
       }
-      // the second monitor: a paper, two columns, in landscape now
+      // the second screen: a paper, two columns
       ctx.fillStyle = st.mono ? '#d6d4ce' : '#e8e6df';
       ctx.fillRect(b.x + 1, b.y + 1, b.w - 2, b.h - 2);
       ctx.fillStyle = '#3b3a38';
-      ctx.fillRect(b.x + 4, b.y + 4, b.w - 8, 2);
-      ctx.fillRect(b.x + 4, b.y + 7, b.w - 16, 1);
+      ctx.fillRect(b.x + 3, b.y + 3, b.w - 6, 2);
+      ctx.fillRect(b.x + 3, b.y + 6, b.w - 14, 1);
       ctx.fillStyle = '#8a8782';
-      for (let i = 0; i < 8; i += 1) {
-        ctx.fillRect(b.x + 4, b.y + 11 + i * 2, 17, 1);
-        ctx.fillRect(b.x + 25, b.y + 11 + i * 2, 14 + ((i * 3) % 3), 1);
+      for (let i = 0; i < 6; i += 1) {
+        ctx.fillRect(b.x + 3, b.y + 9 + i * 2, 12, 1);
+        ctx.fillRect(b.x + 18, b.y + 9 + i * 2, 10 + ((i * 3) % 3), 1);
       }
       ctx.fillStyle = st.mono ? '#68676a' : '#2f6a8f';
-      ctx.fillRect(b.x + 4, b.y + b.h - 4, 9, 1);
+      ctx.fillRect(b.x + 3, b.y + b.h - 3, 7, 1);
 
-      // he sits in front of both screens: put his own pixels back over whatever landed on them
+      // he is nearer than the screens: put his own pixels back over whatever landed on them
       const grid = gridRef.current;
       const frame = imgRef.current;
       if (!grid || !frame) return;
@@ -387,14 +384,14 @@ export default function Room({ sectionRef, onTop }) {
     const offX = (r.width - drawnW) / 2;
     const offY = r.height - drawnH; // anchored to the bottom, so the floor is always there
     const x = (e.clientX - r.left - offX) / scale;
-    const y = (e.clientY - r.top - offY) / scale - OY;
-    if (x < 0 || y < -OY || x >= W || y >= H - OY) return null;
+    const y = (e.clientY - r.top - offY) / scale;
+    if (x < 0 || y < 0 || x >= W || y >= H) return null;
     const hit = HOTSPOTS.find((h) => x >= h.x && x < h.x + h.w && y >= h.y && y < h.y + h.h) || null;
     if (hit) {
       // where the object sits on screen, relative to the stage — the slip is placed beside it
       hit.screen = {
         left: offX + hit.x * scale,
-        top: offY + (hit.y + OY) * scale,
+        top: offY + hit.y * scale,
         width: hit.w * scale,
         height: hit.h * scale,
         stageW: r.width,

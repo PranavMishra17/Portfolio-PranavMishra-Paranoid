@@ -1,14 +1,14 @@
-// v19 — the first screen, in five arrangements.
+// v19 — the first screen.
 //
 // The same four things every time — the face, the name, one line, four buttons — and never a
-// fifth. What changes between them is the hierarchy: which of the four is the thing you see
-// first, and where your eye goes after that. All of them are quiet.
+// fifth. What changes is the whole dress: the hierarchy AND the type, because a different
+// arrangement in the same typeface was never a different design. Each of these sets the
+// typeface for the entire site, so the page you land on and the page you read agree.
 //
-//   plate     — the face beside the name. The one he said was the best so far.
-//   masthead  — the name runs the full width like a newspaper title; the face sits under it.
-//   centred   — everything on one axis, the face above the name. The quietest.
-//   split     — the face is the whole left half of the screen; the wall is the right half.
-//   ledger    — the role is the hero, set huge; the name becomes a small letterhead.
+//   plate    — the face beside the name, set in mono. The one he kept.
+//   masthead — a newspaper title: the name full width in grotesque, the face under it.
+//   ledger   — serif. The role is the hero and the name becomes a letterhead.
+//   quiet    — one column on one axis, one typeface, nothing else.
 
 import React from 'react';
 import { ME, LINKS, GO } from '../copy';
@@ -80,25 +80,11 @@ export default function Landing({ hint, look = 'plate', onGo }) {
     );
   }
 
-  if (look === 'centred') {
+  if (look === 'quiet') {
     return (
-      <div className="v19-land is-centred">
+      <div className="v19-land is-quiet">
         <div className="v19-land-axis">
           <Face className="is-medium" />
-          <Name />
-          <p className="v19-land-role">{ME.role}</p>
-          <Links onGo={onGo} />
-        </div>
-        {Hint}
-      </div>
-    );
-  }
-
-  if (look === 'split') {
-    return (
-      <div className="v19-land is-split">
-        <Face className="is-half" />
-        <div className="v19-land-half">
           <Name />
           <p className="v19-land-role">{ME.role}</p>
           <Links onGo={onGo} />

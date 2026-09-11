@@ -8,6 +8,7 @@
 
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Detonator from './wall';
+import { SURFACES } from './wall/surfaces';
 import Landing from './sections/Landing';
 import Work from './sections/Work';
 import Projects from './sections/Projects';
@@ -24,7 +25,7 @@ const FONTS =
 // what the middle of the header says, per section
 const WHERE = [
   { id: 'work', label: 'Now — at Alfred_' },
-  { id: 'projects', label: 'Things I made' },
+  { id: 'projects', label: 'Everything I built' },
   { id: 'papers', label: 'Two papers' },
   { id: 'room', label: 'My room' },
 ];
@@ -32,10 +33,10 @@ const WHERE = [
 function Page() {
   const { lab } = useLab();
   const skyRef = useRef(null);
-  const landRef = useRef(null);
   const detRef = useRef(null);
   const sections = useRef([]);
   const [blown, setBlown] = useState(false);
+  const [landing, setLanding] = useState(true); // the landing is unmounted once it has gone
   const [where, setWhere] = useState(WHERE[0].id);
 
   const reduced =
@@ -50,7 +51,7 @@ function Page() {
   useSky(skyRef, true);
   useSnap(lab.snap && blown, useCallback(() => sections.current, []));
 
-  /* body, fonts, and the scroll lock that only exists while the wall is up */
+  /* body, fonts, and the scroll the browser must not restore under a wall */
   useEffect(() => {
     document.body.classList.add('v19-body');
     document.title = `${ME.first} ${ME.last} — ${ME.role}`;
@@ -62,7 +63,26 @@ function Page() {
       link.href = FONTS;
       document.head.appendChild(link);
     }
+    // a refresh part way down the page used to restore that scroll behind the wall, so the
+    // landing ended up sitting over the middle of the site. The page always starts at the top.
+    let previous = 'auto';
+    try {
+      if ('scrollRestoration' in window.history) {
+        previous = window.history.scrollRestoration;
+        window.history.scrollRestoration = 'manual';
+      }
+    } catch (err) {
+      // a locked-down history object is not a reason to fail the page
+    }
+    window.scrollTo(0, 0);
+    const settle = window.setTimeout(() => window.scrollTo(0, 0), 60);
     return () => {
+      window.clearTimeout(settle);
+      try {
+        if ('scrollRestoration' in window.history) window.history.scrollRestoration = previous;
+      } catch (err) {
+        // as above
+      }
       document.body.classList.remove('v19-body', 'v19-locked');
     };
   }, []);
@@ -70,6 +90,16 @@ function Page() {
   useEffect(() => {
     document.body.classList.toggle('v19-locked', !blown);
     if (!blown) window.scrollTo(0, 0);
+  }, [blown]);
+
+  /* once the landing has been blown away it is taken out of the page entirely */
+  useEffect(() => {
+    if (!blown) {
+      setLanding(true);
+      return undefined;
+    }
+    const t = window.setTimeout(() => setLanding(false), 620);
+    return () => window.clearTimeout(t);
   }, [blown]);
 
   /* the header's middle: which section owns the top of the viewport */
@@ -124,9 +154,10 @@ function Page() {
   );
 
   const current = WHERE.find((w) => w.id === where) || WHERE[0];
+  const dark = Boolean((SURFACES[lab.surface] || {}).dark);
 
   return (
-    <div className={`v19 t-${lab.type}${blown ? ' is-open' : ''}`}>
+    <div className={`v19 land-${lab.land} tex-${lab.texture}${blown ? ' is-open' : ''}`}>
       <div className="v19-sky" ref={skyRef} aria-hidden="true" />
       <div className="v19-grain" aria-hidden="true" />
 
@@ -179,21 +210,27 @@ function Page() {
         <Room sectionRef={(el) => { sections.current[3] = el; }} onTop={home} />
       </main>
 
-      <div className={`v19-face${blown ? ' is-blown' : ''}`} ref={landRef} aria-hidden={blown ? 'true' : undefined}>
-        <Detonator
-          ref={detRef}
-          surface={lab.surface}
-          grid={lab.grid}
-          armed={!blown}
-          reduced={reduced}
-          onBlast={onBlast}
-        />
-        <Landing
-          look={lab.land}
-          onGo={go}
-          hint={reduced ? 'Tap anywhere' : touch ? 'Press and hold' : 'Hold the left mouse button'}
-        />
-      </div>
+      {landing ? (
+        <div
+          className={`v19-face${blown ? ' is-blown' : ''}${dark ? ' is-dark' : ''}`}
+          aria-hidden={blown ? 'true' : undefined}
+        >
+          <Detonator
+            ref={detRef}
+            surface={lab.surface}
+            blast={lab.blast}
+            trigger={lab.trigger}
+            armed={!blown}
+            reduced={reduced}
+            onBlast={onBlast}
+          />
+          <Landing
+            look={lab.land}
+            onGo={go}
+            hint={reduced ? 'Tap anywhere' : touch ? 'Press and hold' : 'Hold the left mouse button'}
+          />
+        </div>
+      ) : null}
 
       <Lab />
     </div>

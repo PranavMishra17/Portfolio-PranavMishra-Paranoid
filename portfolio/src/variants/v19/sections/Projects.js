@@ -1,19 +1,15 @@
-// v19 — the projects, four ways, all of them the grid.
+// v19 — the work I have built.
 //
-// He picked the grid. So the four layouts here are four things the grid can be, not four
-// different objects:
+// He picked the frame and kept it: one fixed picture above, two rows of tiles below, everything
+// in a box that cannot change size. So the variants here are not layouts, they are how the
+// thing is dressed:
 //
-//   frame   — one fixed frame above, two rows of tiles below. The one he liked.
-//   beside  — the frame is a tall column on the left; the tiles stack four-wide beside it.
-//   fill    — no frame at all. Whatever you point at becomes the ground under every tile,
-//             and the tiles float on it as glass. Pointing changes the whole block.
-//   spec    — no big picture. A spec sheet — name, stack, links, in a monospace ledger —
-//             sits beside the tiles, and the tile is the only picture you get.
+//   frame   — the plain one. Off-white card, picture left, words right.
+//   gallery — hung on a wall: a wide mat around the picture and an engraved label under it.
+//   poster  — the name set large on ink beside the picture, the way a one-sheet is set.
 //
-// In every one of them: nothing moves on hover, nothing changes size, nothing scrolls
-// inside anything else. No counts and no numbers anywhere.
-//
-// Once you have opened something, three filters appear top right, outside the frame.
+// In all of them: nothing lifts, recolours or moves on hover; the frame is a fixed box so
+// nothing can reflow; nothing scrolls inside anything else; no counts and no numbers.
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ALL_PROJECTS, NOW_BUILDING } from '../copy';
@@ -36,26 +32,26 @@ const FILTERS = [
   { id: 'applied', label: 'Applied', test: (p) => p.bucket === 'misc' },
 ];
 
-function useCols(base = 1) {
+function useCols() {
   const [cols, setCols] = useState(9);
   useEffect(() => {
     const read = () => {
       const w = window.innerWidth;
       const hit = COLS.find(([min]) => w >= min) || COLS[COLS.length - 1];
-      setCols(Math.max(2, Math.round(hit[1] * base)));
+      setCols(Math.max(2, hit[1]));
     };
     read();
     window.addEventListener('resize', read);
     return () => window.removeEventListener('resize', read);
-  }, [base]);
+  }, []);
   return cols;
 }
 
-function Tile({ p, live, picked, onPeek, onRest, onPick, glass }) {
+function Tile({ p, live, picked, onPeek, onRest, onPick }) {
   return (
     <button
       type="button"
-      className={`v19-tile${live ? ' is-live' : ''}${picked ? ' is-picked' : ''}${glass ? ' is-glass' : ''}`}
+      className={`v19-tile${live ? ' is-live' : ''}${picked ? ' is-picked' : ''}`}
       onMouseEnter={() => onPeek(p.id)}
       onFocus={() => onPeek(p.id)}
       onMouseLeave={onRest}
@@ -65,17 +61,6 @@ function Tile({ p, live, picked, onPeek, onRest, onPick, glass }) {
       data-keep-open=""
     >
       <span className="v19-tile-shot" aria-hidden="true" style={{ backgroundImage: `url("${p.image}")` }} />
-      {glass ? <span className="v19-tile-name">{p.name}</span> : null}
-      <span className="v19-tile-rule" aria-hidden="true" />
-    </button>
-  );
-}
-
-function More({ hidden, all, setAll }) {
-  if (hidden <= 0 || all) return null;
-  return (
-    <button type="button" className="v19-tile v19-tile-more" onClick={() => setAll(true)} data-keep-open="">
-      <span className="v19-tile-more-l">Show all</span>
       <span className="v19-tile-rule" aria-hidden="true" />
     </button>
   );
@@ -92,9 +77,9 @@ function Links({ p }) {
 }
 
 /* The frame. Every part of it is a fixed box, so nothing on this page can move. */
-function Frame({ shown, mode, onClose, tall }) {
+function Frame({ shown, mode, onClose, look }) {
   return (
-    <div className={`v19-view${tall ? ' is-tall' : ''} v19-view-${mode}`} data-keep-open="">
+    <div className={`v19-view is-${look} v19-view-${mode}`} data-keep-open="">
       <div className="v19-view-frame">
         <img key={shown.id} src={shown.image} alt="" loading="lazy" className={shown.square ? 'is-square' : ''} />
         <span className="v19-view-tag">{shown.tag}</span>
@@ -116,28 +101,12 @@ function Frame({ shown, mode, onClose, tall }) {
         </p>
         <Links p={shown} />
       </div>
-    </div>
-  );
-}
-
-/* The spec sheet: no picture, a ledger of what it is. */
-function Spec({ shown, mode, onClose }) {
-  return (
-    <div className={`v19-spec v19-view-${mode}`} data-keep-open="">
-      <p className="v19-view-eye">
-        <span>{mode === 'auto' ? 'Building right now' : shown.tag}</span>
-        {mode === 'detail' ? (
-          <button type="button" className="v19-view-close" onClick={onClose} data-keep-open="">Close</button>
-        ) : null}
-      </p>
-      <h3 className="v19-view-name">{shown.name}</h3>
-      <p className="v19-view-line">{shown.line}</p>
-      <dl className="v19-spec-rows">
-        <div><dt>Kind</dt><dd>{shown.category}</dd></div>
-        <div><dt>Built with</dt><dd>{shown.tech.slice(0, 6).join(' · ') || '—'}</dd></div>
-        <div><dt>Also</dt><dd>{mode === 'detail' ? shown.description : '—'}</dd></div>
-      </dl>
-      <Links p={shown} />
+      {look === 'gallery' ? (
+        <p className="v19-view-plate" aria-hidden="true">
+          <b>{shown.name}</b>
+          <i>{shown.tech.slice(0, 3).join(' · ') || shown.tag}</i>
+        </p>
+      ) : null}
     </div>
   );
 }
@@ -152,12 +121,11 @@ export default function Projects({ sectionRef }) {
   const [auto, setAuto] = useState(0);
   const [all, setAll] = useState(false);
   const [filter, setFilter] = useState('all');
-  const cols = useCols(look === 'beside' ? 0.5 : look === 'spec' ? 0.66 : 1);
+  const cols = useCols();
 
   const test = (FILTERS.find((f) => f.id === filter) || FILTERS[0]).test;
   const list = useMemo(() => ALL_PROJECTS.filter(test), [test]);
-  const rows = look === 'beside' || look === 'spec' ? 4 : 2;
-  const perPage = Math.max(3, cols * rows - 1);
+  const perPage = Math.max(3, cols * 2 - 1);
   const visible = all ? list : list.slice(0, perPage);
   const hidden = list.length - perPage;
 
@@ -179,215 +147,49 @@ export default function Projects({ sectionRef }) {
   const mode = open ? 'detail' : peek ? 'peek' : 'auto';
   const browsing = Boolean(open) || all;
 
-  const head = (
-    <header className="v19-rack-head">
-      <div>
-        <p className="v19-eye">
-          <span className="v19-dot" aria-hidden="true" />
-          Made
-        </p>
-        <h2 className="v19-h2 v19-h2-tight">Things I made.</h2>
-      </div>
-      <div className={`v19-filters${browsing ? ' on' : ''}`} role="group" aria-label="Show only" data-keep-open="">
-        {FILTERS.map((f) => (
-          <button
-            type="button"
-            key={f.id}
-            className={filter === f.id ? 'on' : ''}
-            onClick={() => { setFilter(f.id); }}
-            data-keep-open=""
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
-    </header>
-  );
-
-  const tiles = (glass) => (
-    <>
-      {visible.map((p) => (
-        <Tile key={p.id} p={p} live={peek === p.id} picked={open === p.id} onPeek={onPeek} onRest={onRest} onPick={onPick} glass={glass} />
-      ))}
-      <More hidden={hidden} all={all} setAll={setAll} />
-    </>
-  );
-
-  const fewer = all ? (
-    <button type="button" className="v19-fewer" onClick={() => setAll(false)} data-keep-open="">Show fewer</button>
-  ) : null;
-
-  if (look === 'beside') {
-    return (
-      <section className="v19-slab v19-projects is-beside" ref={sectionRef} id="projects" aria-label="Projects">
-        <div className="v19-slab-in v19-projects-in" ref={wrapRef}>
-          {head}
-          <div className="v19-beside">
-            <Frame shown={shown} mode={mode} onClose={close} tall />
-            <div>
-              <div className="v19-grid" style={{ '--cols': cols }}>{tiles(false)}</div>
-              {fewer}
-            </div>
+  return (
+    <section className={`v19-slab v19-projects is-${look}`} ref={sectionRef} id="projects" aria-label="Projects">
+      <div className="v19-slab-in v19-projects-in" ref={wrapRef}>
+        <header className="v19-rack-head">
+          <div>
+            <p className="v19-eye">
+              <span className="v19-dot" aria-hidden="true" />
+              Built
+            </p>
+            <h2 className="v19-h2 v19-h2-tight">Everything I have built.</h2>
           </div>
-        </div>
-      </section>
-    );
-  }
-
-  if (look === 'fill') {
-    return (
-      <section className="v19-slab v19-projects is-fill" ref={sectionRef} id="projects" aria-label="Projects">
-        <div className="v19-slab-in v19-projects-in" ref={wrapRef}>
-          {head}
-          <div className={`v19-fill v19-view-${mode}`} data-keep-open="">
-            <div className="v19-fill-ground" aria-hidden="true">
-              <img key={shown.id} src={shown.image} alt="" className={shown.square ? 'is-square' : ''} />
-            </div>
-            <div className="v19-fill-words">
-              <p className="v19-view-eye">
-                <span>{mode === 'auto' ? 'Building right now' : shown.category}</span>
-                {mode === 'detail' ? (
-                  <button type="button" className="v19-view-close" onClick={close} data-keep-open="">Close</button>
-                ) : null}
-              </p>
-              <h3 className="v19-view-name">{shown.name}</h3>
-              <p className="v19-view-line">{shown.line}</p>
-              <Links p={shown} />
-            </div>
-            <div className="v19-grid is-glass" style={{ '--cols': cols }}>{tiles(true)}</div>
-          </div>
-          {fewer}
-        </div>
-      </section>
-    );
-  }
-
-  /* ── wall: a mosaic. Featured tiles are 2×2; click any tile and it grows where it stands. ── */
-  if (look === 'wall') {
-    const big = new Set(NOW_BUILDING.map((p) => p.id));
-    const shownList = all ? list : list.slice(0, Math.max(3, cols * 3 - 4));
-    return (
-      <section className="v19-slab v19-projects is-wall" ref={sectionRef} id="projects" aria-label="Projects">
-        <div className="v19-slab-in v19-projects-in" ref={wrapRef}>
-          {head}
-          <div className="v19-mosaic" style={{ '--cols': cols }} data-keep-open="">
-            {shownList.map((p) => {
-              const isOpen = open === p.id;
-              return (
-                <button
-                  type="button"
-                  key={p.id}
-                  className={`v19-mtile${big.has(p.id) ? ' is-big' : ''}${isOpen ? ' is-open' : ''}${peek === p.id ? ' is-live' : ''}`}
-                  onMouseEnter={() => onPeek(p.id)}
-                  onMouseLeave={onRest}
-                  onClick={() => onPick(p.id)}
-                  aria-label={p.name}
-                  data-keep-open=""
-                >
-                  <span className="v19-tile-shot" aria-hidden="true" style={{ backgroundImage: `url("${p.image}")` }} />
-                  <span className="v19-mtile-name">{p.name}</span>
-                  {isOpen ? (
-                    <span className="v19-mtile-open">
-                      <span className="v19-view-eye"><span>{p.category}</span></span>
-                      <b>{p.name}</b>
-                      <i>{p.line}</i>
-                      <Links p={p} />
-                    </span>
-                  ) : null}
-                  <span className="v19-tile-rule" aria-hidden="true" />
-                </button>
-              );
-            })}
-            {hidden > 0 && !all ? (
-              <button type="button" className="v19-mtile v19-mtile-more" onClick={() => setAll(true)} data-keep-open="">
-                <span className="v19-tile-more-l">Show all</span>
+          <div className={`v19-filters${browsing ? ' on' : ''}`} role="group" aria-label="Show only" data-keep-open="">
+            {FILTERS.map((f) => (
+              <button
+                type="button"
+                key={f.id}
+                className={filter === f.id ? 'on' : ''}
+                onClick={() => setFilter(f.id)}
+                data-keep-open=""
+              >
+                {f.label}
               </button>
-            ) : null}
-          </div>
-          {fewer}
-        </div>
-      </section>
-    );
-  }
-
-  /* ── reel: two strips moving past each other. The cursor stops the one it is on. ── */
-  if (look === 'reel') {
-    const half = Math.ceil(list.length / 2);
-    const rows = [list.slice(0, half), list.slice(half)];
-    return (
-      <section className="v19-slab v19-projects is-reel" ref={sectionRef} id="projects" aria-label="Projects">
-        <div className="v19-slab-in v19-projects-in" ref={wrapRef}>
-          {head}
-          <div className={`v19-reel${open ? ' is-held' : ''}`} data-keep-open="">
-            {rows.map((row, ri) => (
-              <div className={`v19-strip${ri ? ' is-back' : ''}`} key={ri}>
-                <div className="v19-strip-in">
-                  {row.concat(row).map((p, i) => (
-                    <button
-                      type="button"
-                      key={`${p.id}-${i}`}
-                      className={`v19-frame-tile${open === p.id ? ' is-picked' : ''}`}
-                      onMouseEnter={() => onPeek(p.id)}
-                      onMouseLeave={onRest}
-                      onClick={() => onPick(p.id)}
-                      aria-label={p.name}
-                      tabIndex={i >= row.length ? -1 : 0}
-                      data-keep-open=""
-                    >
-                      <span className="v19-tile-shot" aria-hidden="true" style={{ backgroundImage: `url("${p.image}")` }} />
-                      <span className="v19-frame-no" aria-hidden="true" />
-                      <span className="v19-mtile-name">{p.name}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
             ))}
           </div>
-          <div className={`v19-band${open ? ' is-open' : ''}`} data-keep-open="">
-            {open ? (
-              <>
-                <div className="v19-band-frame"><img src={shown.image} alt="" className={shown.square ? 'is-square' : ''} /></div>
-                <div className="v19-band-words">
-                  <p className="v19-view-eye">
-                    <span>{shown.category}</span>
-                    <button type="button" className="v19-view-close" onClick={close} data-keep-open="">Close</button>
-                  </p>
-                  <h3 className="v19-view-name">{shown.name}</h3>
-                  <p className="v19-view-line">{shown.line}</p>
-                  <Links p={shown} />
-                </div>
-              </>
-            ) : null}
-          </div>
-        </div>
-      </section>
-    );
-  }
+        </header>
 
-  if (look === 'spec') {
-    return (
-      <section className="v19-slab v19-projects is-spec" ref={sectionRef} id="projects" aria-label="Projects">
-        <div className="v19-slab-in v19-projects-in" ref={wrapRef}>
-          {head}
-          <div className="v19-specwrap">
-            <div>
-              <div className="v19-grid" style={{ '--cols': cols }}>{tiles(false)}</div>
-              {fewer}
-            </div>
-            <Spec shown={shown} mode={mode} onClose={close} />
-          </div>
-        </div>
-      </section>
-    );
-  }
+        <Frame shown={shown} mode={mode} onClose={close} look={look} />
 
-  return (
-    <section className="v19-slab v19-projects is-frame" ref={sectionRef} id="projects" aria-label="Projects">
-      <div className="v19-slab-in v19-projects-in" ref={wrapRef}>
-        {head}
-        <Frame shown={shown} mode={mode} onClose={close} />
-        <div className="v19-grid" style={{ '--cols': cols }}>{tiles(false)}</div>
-        {fewer}
+        <div className="v19-grid" style={{ '--cols': cols }}>
+          {visible.map((p) => (
+            <Tile key={p.id} p={p} live={peek === p.id} picked={open === p.id} onPeek={onPeek} onRest={onRest} onPick={onPick} />
+          ))}
+          {hidden > 0 && !all ? (
+            <button type="button" className="v19-tile v19-tile-more" onClick={() => setAll(true)} data-keep-open="">
+              <span className="v19-tile-more-l">Show all</span>
+              <span className="v19-tile-rule" aria-hidden="true" />
+            </button>
+          ) : null}
+        </div>
+
+        {all ? (
+          <button type="button" className="v19-fewer" onClick={() => setAll(false)} data-keep-open="">Show fewer</button>
+        ) : null}
       </div>
     </section>
   );

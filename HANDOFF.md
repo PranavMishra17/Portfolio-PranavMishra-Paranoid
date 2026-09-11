@@ -13,8 +13,8 @@ break.
 
 - **Repo:** `PranavMishra17/Portfolio-PranavMishra-Paranoid`.
 - **Branch:** `claude/portfolio-revamp-alignment-a7dad8`. Develop and push there, nowhere else.
-- **PR:** https://github.com/PranavMishra17/Portfolio-PranavMishra-Paranoid/pull/1 — draft, open,
-  head `d2ffab6`. The only check is the Vercel preview deploy; there is no test CI.
+- **PR:** https://github.com/PranavMishra17/Portfolio-PranavMishra-Paranoid/pull/1 —
+  draft and open. The only check is the Vercel preview deploy; there is no test CI.
 - **App:** `portfolio/` (Create React App, React 19, react-router-dom 7, plain CSS, no TypeScript,
   no Tailwind). All commands run from inside `portfolio/`.
 - **Run it:** `npm install` then `BROWSER=none HOST=0.0.0.0 PORT=3000 npm start`. Then
@@ -54,20 +54,22 @@ v19/
   hooks.js          useSky, useOpener, useSnap, useOnScreen
   v19.css           All styling. Every class is prefixed .v19-
   wall/
-    surfaces.js     One entry per material: grid, paint, field, kick, gravity, drawTile, wipe
-    Wall.js         One class driven by the surface: explode, rebuild, step, draw
-    index.js        Detonator — cursor art, fuse, halo, ember; exposes fire()/rebuild()/state()
+    surfaces.js     What the wall is made of: grid, paint, field, and for iso drawTile
+    blasts.js       How it comes apart: burst, drop, sweep, dissolve. Independent of material
+    Wall.js         One class driven by a surface and a blast: explode, rebuild, step, draw
+    index.js        Detonator — three cursors driven by one custom property, --p
   sections/
-    Landing.js      Five arrangements of the first screen
-    Work.js         Alfred_ first: heading, dials, signal, glance card, roles
-    Projects.js     Six layouts, filters, the viewbox
-    Papers.js       Four designs of the research section
+    Landing.js      Four first screens, each carrying its own typeface for the whole site
+    Work.js         Alfred_ on the first screen; WheelPrice shut below it; a drawing per figure
+    Projects.js     One frame layout, three dresses; filters; the viewbox
+    Papers.js       Three designs, and the awards, which open
   room/
-    engine.js       288x198 palette-index buffer, id map, painter, mono tones
-    scene.js        Every object in the room, HOTSPOTS, drawScene
-    sprites.js      His sprite, upscaled 1.5x — sit, wave, sleep
+    engine.js       288x144 palette-index buffer, id map, painter, mono tones
+    scene.js        Every object in the room, HOTSPOTS, drawScene, back to front
+    sprites.js      His bust — head, neck, collar, shoulders — and the asleep version
     Room.js         Looks, hit-testing, slips, toggles, back-to-top
 ```
+
 
 Section order on the page: **Landing → Work → Projects → Papers → Room.**
 
@@ -80,15 +82,24 @@ implied instead of explained.
 
 Mechanics worth knowing before you change anything:
 
-- The wall face is painted **once** into an offscreen canvas; each block blits its own region of it.
-  That is why five materials cost almost nothing at runtime.
-- `surfaces.js` is the extension point. A material supplies `grid()`, `paint()`, `field()` (what the
-  cursor does at rest), `kick()` (how it comes apart), `gravity`, and optionally `drawTile` (the
-  isometric rhombus) or `wipe` (the ink iris).
-- The detonator loop has a watchdog and a 900 ms guard failsafe, so a dropped frame can never leave
-  the page stuck behind a wall. Keep both.
+- The wall face is painted **once** into an offscreen canvas; each block blits its own region of
+  it. That is why six materials cost almost nothing at runtime.
+- `surfaces.js` owns the look: `grid()`, `paint()`, `field()` (what the cursor does at rest), and
+  optionally `drawTile` (the isometric rhombus) or `trail: true` (frost remembers where you went).
+  Every surface is **plain at rest** — no pattern, no grid, nothing until your hand is on it.
+- `blasts.js` owns the failure: gravity plus a per-block kick. Material and failure are separate,
+  so any wall can come apart any way.
+- `slate` sets `dark: true`, and the page puts `is-dark` on the landing so the type turns over
+  with it. Any new dark material must do the same or the contrast gate fails.
+- The detonator loop has a watchdog and a 900 ms guard failsafe, so a dropped frame can never
+  leave the page stuck behind a wall. Keep both.
+- The three cursors are one element driven by a single custom property, `--p`, written once a
+  frame. A fourth is a stylesheet block, not a component.
 - **Never gate first paint on `requestAnimationFrame` or IntersectionObserver alone.** Content must
   render even if the observer never fires; `useOnScreen` has a timeout guard for exactly this.
+- The page forces `history.scrollRestoration = 'manual'` while it is mounted. Without it a refresh
+  part way down the page restored that scroll behind the wall, and the landing ended up sitting
+  over the middle of the site.
 - If you reintroduce matter-js anywhere: create bodies dynamic, then `Body.setStatic(b, true)`.
   Passing `isStatic: true` in the options gives infinite mass and NaN positions on release. That
   bug cost an hour in an earlier round.
@@ -101,14 +112,14 @@ back to `DEFAULTS`.
 
 | Key | Default | Choices |
 | --- | --- | --- |
-| `land` | `plate` | plate, masthead, centred, split, ledger |
-| `surface` | `plaster` | plaster, graph, dots, iso, ink |
-| `grid` | `hidden` | the plaster's block rule at rest |
-| `projects` | `frame` | frame, beside, fill, spec, wall, reel |
-| `papers` | `pages` | pages, abstract, cv, figure |
+| `land` | `plate` | plate, masthead, ledger, quiet — each sets the site's typeface too |
+| `surface` | `plaster` | plaster, clay, slate, iso, film, frost |
+| `trigger` | `charge` | charge, dynamite, pin — what is in your hand |
+| `blast` | `burst` | burst, drop, sweep, fade |
+| `texture` | `grain` | grain, film, plain — the tooth over the whole page |
+| `projects` | `frame` | frame, gallery, poster — three dresses on one layout |
+| `papers` | `figure` | figure, abstract, brief |
 | `room` | `warm` | warm, day, night, mono |
-| `type` | `technical` | technical, grotesk, editorial |
-| `plant` | `stems` | how the plant grows |
 | `snap` | `false` | free scrolling by default |
 
 The bar he set for a new option, in his own words: **"I WANNA SEE THE EFFORT."** A variant has to be
@@ -118,20 +129,27 @@ your new option in one sentence that does not mention spacing or columns, it is 
 
 ### The room
 
-A pixel room, 288x198, palette-index grid plus an id map for hit-testing. It is full-bleed at the
+A pixel room, 288x144, palette-index grid plus an id map for hit-testing. It is full-bleed at the
 bottom of the page, not in a box, and has no heading.
 
-- The canvas is `object-fit: cover; object-position: center bottom`, with a 13% `mask-image` fade at
-  the top. There is a 36-row safe band (`OY`) above the room so the cover crop and the fade never
-  eat the posters again — they did once, and he noticed.
-- Hit-testing inverts the cover geometry and subtracts `OY`. Get this wrong and every click lands
-  a few pixels off.
-- Slips (the little popups) are positioned **beside** the object you clicked, left or right
-  depending on which side has room, with a pointer. He called centred popups unintuitive.
-- Real project screenshots are blitted onto the monitor. His pixels (id 2) are repainted over the
-  screen rect afterwards so he is never hidden behind his own screenshot.
-- Interactions: click him to wave, the PC to sleep and wake, the window to open, the ball to bounce,
-  the lamp, the string lights, the plant, the mug. No walking, no door — both cut on his instruction.
+- **Depth is the draw order and the draw order is the truth.** You are standing behind him.
+  Nearest to you is the chair, then him, then the desk and everything on it, then the wall. That
+  is why the chair back covers his back and only his head and the tops of his shoulders clear it,
+  and why the mug and the photograph sit beside the screens instead of through them. Changing the
+  order in `drawScene` is how you break the room.
+- The middle of the room is the middle of the picture: three posters centred on the wall, two
+  screens centred under them, and the gap between the screens is where his head is.
+- The canvas is `object-fit: cover; object-position: center bottom` at roughly 2:1, so a wide
+  window crops a little off the top and a narrow one a little off each side. Keep anything that
+  matters inside x 16–272 and below y 14. The top mask is 5%.
+- Hit-testing inverts the cover geometry; there is no safe-band offset any more.
+- Slips are positioned **beside** the object you clicked, left or right depending on which side
+  has room, with a pointer. Centred popups were rejected as unintuitive.
+- Real project screenshots are blitted onto the left monitor. His pixels (id 2) are repainted over
+  the screen rect afterwards so he is never hidden behind his own screenshot.
+- Interactions: click him to wave (the arm comes up over the chair), the tower to sleep and wake,
+  the window to open, the ball to bounce, the lamp, the string lights, the plant, the mug. No
+  walking, no door — both cut on his instruction.
 - Back to top is the button on the carpet.
 
 ## 4. His rules — follow these literally
@@ -155,12 +173,16 @@ Taste, in his words or close to it:
 - "Portfolio is a personal thing. It has to be unique. Different than any internet website
   standards."
 - **No meta copy.** Nothing that explains the mechanism to the reader.
-- The heading is his: "Hi there, I am a founding engineer at Alfred_". The tagline is
-  "Founding Engineer at Alfred_". No location, no New York.
+- The heading introduces him and then the company: "Right now I am a founding engineer at
+  Alfred_", with Alfred's own mark beside it, then one line on what Alfred_ is and one on which
+  half is his. He rejected "Hi there". The tagline is "Founding Engineer at Alfred_".
 - Links reduced to three — GitHub, LinkedIn, Résumé — plus the red "See my work" button.
 - Projects: **no circles, no hover elevation, no motion on hover, no numbering, no counts.**
   Rectangular tiles, two rows, then Show all. The viewbox must not resize when you point at things.
-- Papers: status reads "Preprint". Two papers. SLM/TeamMedAgents entry stays hidden.
+- Papers: status reads "Preprint". Two papers. SLM/TeamMedAgents entry stays hidden. The citation
+  count is a figure in every design, never a footnote.
+- Type is not a switch of its own. He did not want to pick a font; each first screen brings its
+  own, and the site follows it.
 - Click-open everywhere; clicking outside, pressing Escape, or scrolling past closes it.
 - Sketches and reference files are inspiration, never a spec. Compose from his description.
 - He asked for one author on this work. Do not fan it out to subagents.
@@ -168,7 +190,9 @@ Taste, in his words or close to it:
 Things he has already rejected, so do not bring them back: circular project tiles, scroll pull-in
 snapping by default, index and sheet layouts, dark side panels and slabs, a dynamite icon in the
 header, small buttons in the top-right corner, a "Now Made" nav, the walking sprite, the door, a
-boxed room, a "My Room" heading, footer content under the room.
+boxed room, a "My Room" heading, footer content under the room, and — from the last round — the
+graph-paper and halftone walls, the ink wall, the beside/fill/spec/mosaic/reel project layouts, the
+CV and front-page paper designs, and the plant as a variant.
 
 ## 5. How to verify
 
@@ -177,10 +201,12 @@ boxed room, a "My Room" heading, footer content under the room.
    (`npm i -D playwright-core@1.49.1`) and Chromium is already on the box at
    `/opt/pw-browsers/chromium-1194/chrome-linux/chrome`. The script must run **from `portfolio/`**
    or the module will not resolve. **Revert `package.json` and the lockfile before committing.**
-3. Sweep at 1440x900 and 1920x984: every surface at rest, mid-fuse and broken; every landing; every
-   project grid; every paper design; every room look. Look at the images yourself. The wall and the
-   room fail silently — nothing throws, it just looks wrong.
-4. Phones are not tuned for v19. If you touch layout, check ~400px width too.
+3. Sweep at 1600x900: every surface at rest and mid-fuse, every blast, every landing, all three
+   project dresses, all three paper designs, every room look. Look at the images yourself. The wall
+   and the room fail silently — nothing throws, it just looks wrong.
+4. Check the refresh case: blast, scroll to the bottom, reload. You must land at the top with the
+   wall intact and nothing of the landing over the page.
+5. Phones are roughed in, not tuned. If you touch layout, check ~420px width too.
 
 ## 6. Open questions for him
 
@@ -208,9 +234,11 @@ Nothing here is blocking; this is where the next hours are best spent.
   palette, blit. The plumbing for screenshots on the monitor already does most of this.
 - The room's window shows a drawn sky, not the live scroll-driven one from `useSky`. Wiring them
   together is an obvious win.
-- Re-shoot the chair and seating after the last fix landed; he complained twice that he looked like
-  a toy and was not properly in the big chair.
-- Decide whether any of the six project layouts should become the default over `frame`.
+- The floor reads as a wooden wall rather than a floor in some lights; a little perspective in the
+  boards would sell the depth.
+- The five drawings under the dials are on infinite loops. They could run once when the figure is
+  picked and then rest, which would be quieter.
+- A fourth cursor, and a wall material that uses the trail mechanic for something other than fog.
 
 ## 8. The PR routine
 

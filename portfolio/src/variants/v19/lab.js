@@ -3,22 +3,23 @@
 // One small dot in the corner and a compact popover of chips. It never reflows the page, and
 // every choice is a swap of one class or one strategy, not a different route.
 //
-// The rule for what goes in here, after his last round: a variant has to be a different
-// design, not the same design with one value changed. Anything that failed that test came out.
+// The rule for what goes in here: a variant has to be a different design — a different
+// material, a different metaphor, a different motion. Anything that was the same design with
+// one value changed has been taken out, and the ones he ruled out are gone for good.
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 const KEY = 'v19.lab';
 
 export const DEFAULTS = {
-  land: 'plate',      // how the first screen is arranged
-  surface: 'plaster', // what the wall is made of — its look, its cursor, its failure
-  grid: 'hidden',     // the plaster's block rule at rest
-  projects: 'frame',  // how the projects are laid out
-  papers: 'pages',    // how the papers are shown
+  land: 'plate',      // the first screen — each one brings its own type with it
+  surface: 'plaster', // what the wall is made of: its look, its cursor
+  trigger: 'charge',  // what is in your hand, and how it goes off
+  blast: 'burst',     // how the wall comes apart
+  texture: 'grain',   // the tooth over the whole page
+  projects: 'frame',  // how the frame and its tiles are dressed
+  papers: 'figure',   // how a paper is shown
   room: 'warm',       // the room's light
-  type: 'technical',  // the type pairing
-  plant: 'stems',     // how the plant grows
   snap: false,        // free scrolling
 };
 
@@ -27,44 +28,68 @@ const OPTIONS = [
     key: 'land',
     title: 'The first screen',
     choices: [
-      { v: 'plate', label: 'Plate', hint: 'The face beside the name.' },
-      { v: 'masthead', label: 'Masthead', hint: 'The name runs the full width; the face sits under it.' },
-      { v: 'centred', label: 'Centred', hint: 'Everything on one axis. The quietest.' },
-      { v: 'split', label: 'Split', hint: 'The face is the whole left half of the screen.' },
-      { v: 'ledger', label: 'Ledger', hint: 'The role is the hero; the name is a letterhead.' },
+      { v: 'plate', label: 'Plate', hint: 'The face beside the name, set in mono. The one he kept.' },
+      { v: 'masthead', label: 'Masthead', hint: 'A newspaper title: the name runs the full width in grotesque.' },
+      { v: 'ledger', label: 'Ledger', hint: 'Serif. The role is the hero; the name is a letterhead.' },
+      { v: 'quiet', label: 'Quiet', hint: 'One column, one axis, nothing but the four things.' },
     ],
   },
   {
     key: 'surface',
     title: 'The wall is made of',
     choices: [
-      { v: 'plaster', label: 'Plaster', hint: 'Off-white. The blocks under the dynamite draw themselves in. It bursts.' },
-      { v: 'graph', label: 'Graph paper', hint: 'Blue-grey lines. The cursor is a lens that bends them. It tears into leaves that flip.' },
-      { v: 'dots', label: 'Halftone', hint: 'A field of dots that swell and back away from you. It dissolves.' },
-      { v: 'iso', label: 'Isometric', hint: 'A tile floor. Tiles rise under the cursor, and are pulled off one by one.' },
-      { v: 'ink', label: 'Ink', hint: 'No grid. You leave wet ink on the paper. The blast opens a ragged hole.' },
+      { v: 'plaster', label: 'Plaster', hint: 'Off-white. Blocks draw themselves in under your hand.' },
+      { v: 'clay', label: 'Clay', hint: 'The same wall in warm putty; the seams are shadow, not line.' },
+      { v: 'slate', label: 'Slate', hint: 'Graphite. Light seams, and the landing turns over with it.' },
+      { v: 'iso', label: 'Isometric', hint: 'Blank until you move — then tiles lift out of it.' },
+      { v: 'film', label: 'Film', hint: 'Photographic paper and grain. The cursor is a light leak.' },
+      { v: 'frost', label: 'Frost', hint: 'Fogged glass. You wipe it clear and it closes behind you.' },
+    ],
+  },
+  {
+    key: 'trigger',
+    title: 'In your hand',
+    choices: [
+      { v: 'charge', label: 'Charge', hint: 'No object. A ring that fills, reddens and gets angry.' },
+      { v: 'dynamite', label: 'Dynamite', hint: 'The stick, for when the cartoon is the point.' },
+      { v: 'pin', label: 'Crosshair', hint: 'Four marks closing on a point.' },
+    ],
+  },
+  {
+    key: 'blast',
+    title: 'How it fails',
+    choices: [
+      { v: 'burst', label: 'Burst', hint: 'Past you, then up and left toward the way back.' },
+      { v: 'drop', label: 'Drop', hint: 'It stops holding itself up. Straight down.' },
+      { v: 'sweep', label: 'Sweep', hint: 'One flat wipe, nearest piece first.' },
+      { v: 'fade', label: 'Dissolve', hint: 'Nothing is thrown. Each piece shrinks where it stands.' },
+    ],
+  },
+  {
+    key: 'texture',
+    title: 'The page',
+    choices: [
+      { v: 'grain', label: 'Grain', hint: 'A fine tooth over everything.' },
+      { v: 'film', label: 'Film', hint: 'Grain and a lens vignette. Warmer.' },
+      { v: 'plain', label: 'Plain', hint: 'Nothing at all.' },
     ],
   },
   {
     key: 'projects',
-    title: 'The projects',
+    title: 'The work, framed',
     choices: [
-      { v: 'frame', label: 'Frame', hint: 'One frame above, two rows of tiles below.' },
-      { v: 'beside', label: 'Beside', hint: 'The frame is a tall column on the left; the tiles stack beside it.' },
-      { v: 'fill', label: 'Fill', hint: 'No frame. Whatever you point at becomes the ground under all the tiles.' },
-      { v: 'spec', label: 'Spec', hint: 'No big picture. A spec sheet — name, stack, links — beside the tiles.' },
-      { v: 'wall', label: 'Wall', hint: 'A mosaic of tiles at two sizes. Click one and it grows in place.' },
-      { v: 'reel', label: 'Reel', hint: 'Two strips moving past each other. Stop one with the cursor.' },
+      { v: 'frame', label: 'Frame', hint: 'One fixed frame above, two rows of tiles below.' },
+      { v: 'gallery', label: 'Gallery', hint: 'The frame gets a mat and an engraved label.' },
+      { v: 'poster', label: 'Poster', hint: 'The name set large on ink beside the picture.' },
     ],
   },
   {
     key: 'papers',
     title: 'The papers',
     choices: [
-      { v: 'pages', label: 'Pages', hint: 'The front page of each.' },
-      { v: 'abstract', label: 'Abstract', hint: 'The abstract is the layout — typeset, numbers picked out.' },
-      { v: 'cv', label: 'CV', hint: 'One bibliographic line each, the count in the margin.' },
       { v: 'figure', label: 'Figure', hint: 'The result, drawn. Data first, title second.' },
+      { v: 'abstract', label: 'Abstract', hint: 'Set on real paper, the first lines only.' },
+      { v: 'brief', label: 'Brief', hint: 'The figure and the abstract on one sheet.' },
     ],
   },
   {
@@ -74,33 +99,7 @@ const OPTIONS = [
       { v: 'warm', label: 'Evening', hint: 'Lamp and string lights on, dusk outside.' },
       { v: 'day', label: 'Morning', hint: 'Window open, daylight, nothing switched on.' },
       { v: 'night', label: 'Late', hint: 'Only the screens and the string lights. Deep blue.' },
-      { v: 'mono', label: 'Paper', hint: 'The room in the page’s own ink and paper — it belongs to the site.' },
-    ],
-  },
-  {
-    key: 'type',
-    title: 'Type',
-    choices: [
-      { v: 'technical', label: 'Technical', hint: 'JetBrains Mono over Public Sans.' },
-      { v: 'grotesk', label: 'Grotesk', hint: 'Bricolage Grotesque over Public Sans.' },
-      { v: 'editorial', label: 'Editorial', hint: 'Instrument Serif over Public Sans.' },
-    ],
-  },
-  {
-    key: 'plant',
-    title: 'The plant',
-    choices: [
-      { v: 'stems', label: 'Stems', hint: 'Three stems, leaves that drift.' },
-      { v: 'fern', label: 'Fern', hint: 'Arching fronds that breathe.' },
-      { v: 'succulent', label: 'Succulent', hint: 'A rosette that turns toward the window.' },
-    ],
-  },
-  {
-    key: 'grid',
-    title: 'Plaster, before the blast',
-    choices: [
-      { v: 'hidden', label: 'Hidden', hint: 'The field is the only way to see the seams.' },
-      { v: 'faint', label: 'Hinted', hint: 'A faint rule where the wall will break.' },
+      { v: 'mono', label: 'Paper', hint: 'The room in the page’s own ink and paper.' },
     ],
   },
   {
@@ -128,6 +127,9 @@ function read() {
     // a stored choice from a variant that no longer exists falls back to the default
     OPTIONS.forEach((o) => {
       if (!o.choices.some((c) => c.v === merged[o.key])) merged[o.key] = DEFAULTS[o.key];
+    });
+    Object.keys(merged).forEach((k) => {
+      if (!(k in DEFAULTS)) delete merged[k];
     });
     return merged;
   } catch (err) {

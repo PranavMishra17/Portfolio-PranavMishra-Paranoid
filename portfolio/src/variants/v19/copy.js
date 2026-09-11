@@ -54,10 +54,14 @@ export const ALFRED = {
   when: alfredRole.duration || '',
   where: alfredRole.location || '',
   url: (alfredRole.links && alfredRole.links.website) || 'https://get-alfred.ai/',
-  logo: '/assets/images/companies/alfred.svg',
-  hello: 'Hi there, I am a founding engineer at Alfred_.',
-  lede: 'It reads your email, keeps your calendar and does the small obligations — over text message, chat and voice. I own the side of it where being wrong is expensive.',
-  // the raw bullets, minus the one he is done with
+  logo: alfredRole.companyLogo
+    ? (alfredRole.companyLogo.startsWith('/') ? alfredRole.companyLogo : `/${alfredRole.companyLogo}`)
+    : '/assets/images/companies/alfred.svg',
+  // the introduction: who I am, then what the thing is, then which half is mine
+  hello: 'Right now I am a founding engineer at',
+  about:
+    'Alfred_ is an assistant that reads your email, keeps your calendar and handles the small obligations — over text message, chat and voice.',
+  mine: 'I own the half where being wrong is expensive: memory, rules, evals and the plumbing under them.',
   bullets: (alfredRole.description || []).filter((b) => !BANNED.test(b)),
 };
 
@@ -134,6 +138,19 @@ export const ROLES = experiences
     tech: e.techStack || [],
     url: (e.links && e.links.website) || '',
   }));
+
+// The one before Alfred_ that ran for months rather than weeks. It gets the same treatment,
+// at half the size, and it stays shut until you ask for it.
+export const WHEELPRICE = ROLES.find((r) => r.id === 'wheelprice-intern') || ROLES[0];
+WHEELPRICE.short = 'AI engineer, two-person engineering team.';
+WHEELPRICE.story = [
+  'Computer vision for automotive part fitment — the part in the photograph, matched to the part that actually fits.',
+  'A CMS the writers could use without me, which took the site to ten to twenty thousand readers a day.',
+  'The one-time-password flow, shipped to production and still the path nobody is allowed to break.',
+];
+
+// Everything before that is an after-note. One line each, opened only if you want it.
+export const AFTER = ROLES.filter((r) => r.id !== WHEELPRICE.id);
 
 /* ────────────────────────────── projects ────────────────────────────── */
 

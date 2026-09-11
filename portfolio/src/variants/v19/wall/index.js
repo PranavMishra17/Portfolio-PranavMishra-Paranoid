@@ -1,32 +1,30 @@
-// v19 — the detonator: the wall, the dynamite that is your cursor, and the loop driving both.
+// v19 — the detonator: the wall, whatever the cursor is today, and the one loop driving both.
 //
-// Changes from v18, all of them his:
-//   · a stick of dynamite rather than a cartoon bomb — it reads as "this is going to go off"
-//     from across the room, which a black sphere does not
-//   · the wall is off-white and nothing else; the only colour on the screen is the burning wick
-//   · the blocks under the cursor draw themselves in, so the wall visibly tightens where you
-//     are pointing and you can see the seams it will fail along
-//   · the fuse is shorter and the collapse is roughly twice as fast
-//   · everything leaves up and to the left, toward the corner the "put it back" control is in
+// The cursor is a choice now (the Lab):
+//   charge   — no object at all. A ring that fills, reddens and gets angry in your hand.
+//   dynamite — the stick, for when the cartoon is the point.
+//   pin      — a crosshair that tightens to a point and goes red.
+//
+// Every one of them is driven by a single custom property, --p, written once a frame. The art
+// is CSS and SVG reacting to it, so adding a fourth is a stylesheet, not a rewrite.
 //
 // Nothing here gates the page on requestAnimationFrame. A watchdog hand-cranks the loop if
 // frames stop arriving, and a guard removes the wall outright if they never start.
 
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import Wall from './Wall';
+import { SURFACES } from './surfaces';
 
 const FUSE_MS = 880;
 const WICK = 'M26 15 C 30 7.5, 37 10, 38 2.5';
 
 const Detonator = forwardRef(function Detonator(
-  { surface = 'plaster', grid, armed, onBlast, reduced },
+  { surface = 'plaster', blast = 'burst', trigger = 'charge', armed, onBlast, reduced },
   ref
 ) {
   const canvasRef = useRef(null);
-  const stickRef = useRef(null);
-  const bodyRef = useRef(null);
-  const haloRef = useRef(null);
-  const burntRef = useRef(null);
+  const cursorRef = useRef(null);
+  const shakeElRef = useRef(null);
   const wickRef = useRef(null);
   const emberRef = useRef(null);
   const flashRef = useRef(null);
@@ -45,37 +43,34 @@ const Detonator = forwardRef(function Detonator(
   armedRef.current = armed;
   surfaceRef.current = surface;
 
+  /* one write per frame: the fuse, everywhere it shows */
   const rest = useCallback((p = 0) => {
-    const burnt = burntRef.current;
-    const ember = emberRef.current;
-    const halo = haloRef.current;
-    const body = bodyRef.current;
-    const wick = wickRef.current;
     heatRef.current = p;
-    if (burnt) burnt.style.strokeDashoffset = String(-p);
+    const root = cursorRef.current;
+    if (root) root.style.setProperty('--p', p.toFixed(3));
+
+    const wick = wickRef.current;
+    const ember = emberRef.current;
     if (wick && ember) {
       try {
         const len = wick.getTotalLength();
         const pt = wick.getPointAtLength(len * (1 - p));
         ember.setAttribute('cx', pt.x.toFixed(2));
         ember.setAttribute('cy', pt.y.toFixed(2));
+        ember.setAttribute('r', (2.2 + p * 2.8).toFixed(2));
       } catch (err) {
-        // getPointAtLength throws on a detached node mid-unmount; the ember simply stays put
+        // getPointAtLength throws on a detached node mid-unmount; the ember stays put
       }
-      ember.setAttribute('r', (2.2 + p * 2.8).toFixed(2));
     }
-    if (halo) {
-      halo.style.setProperty('--heat', String(0.3 + p * 0.7));
-      halo.style.setProperty('--spread', String(1 + p * 1.4));
-    }
+    const body = shakeElRef.current;
     if (body) {
       if (p <= 0) {
-        body.style.transform = 'translate(0,0) rotate(0deg) scale(1)';
+        body.style.transform = 'translate(0,0) rotate(0deg)';
       } else {
-        const amp = 0.6 + p * p * 8.5;
+        const amp = 0.5 + p * p * 7;
         body.style.transform =
           `translate(${(Math.random() - 0.5) * amp * 2}px, ${(Math.random() - 0.5) * amp * 2}px)` +
-          ` rotate(${(Math.random() - 0.5) * p * 11}deg) scale(${1 + p * 0.14})`;
+          ` rotate(${(Math.random() - 0.5) * p * 9}deg)`;
       }
     }
   }, []);
@@ -89,8 +84,7 @@ const Detonator = forwardRef(function Detonator(
     let alive = true;
     let ticked = false;
     let lastFrame = 0;
-    // on a slow machine the field pass is the first thing to go
-    let slow = 0;
+    let slow = 0; // on a slow machine the field pass is the first thing to go
 
     const size = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -101,7 +95,7 @@ const Detonator = forwardRef(function Detonator(
       cv.style.width = `${W}px`;
       cv.style.height = `${H}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      if (!wallRef.current) wallRef.current = new Wall({ W, H, dpr, surface, grid });
+      if (!wallRef.current) wallRef.current = new Wall({ W, H, dpr, surface, blast });
       else wallRef.current.resize(W, H);
     };
 
@@ -148,8 +142,7 @@ const Detonator = forwardRef(function Detonator(
 
       wall.step(now, dt);
       wall.draw(ctx);
-      // the field is pure decoration: the first thing dropped when frames get expensive
-      trailRef.current = trailRef.current.filter((p) => now - p.t0 < 1500);
+      trailRef.current = trailRef.current.filter((p) => now - p.t0 < 2200);
       if (slow < 12) wall.drawField(ctx, pointRef.current.x, pointRef.current.y, heatRef.current, now, trailRef.current);
 
       if (shakeRef.current > 0) {
@@ -198,25 +191,26 @@ const Detonator = forwardRef(function Detonator(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /* ── the Lab can change the material, and whether the blocks are hinted ── */
+  /* ── the Lab can change the material and the failure underneath ── */
   useEffect(() => {
     const wall = wallRef.current;
     if (!wall) return;
-    wall.hint = grid === 'faint';
-    if (wall.surface.key !== surface) wall.setSurface(surface);
-    else wall.paintFace();
-  }, [surface, grid]);
+    wall.setSurface(surface);
+    wall.setBlast(blast);
+    trailRef.current = [];
+  }, [surface, blast]);
 
   /* ── pointer ── */
   useEffect(() => {
     if (dead) return undefined;
     const move = (e) => {
-      const b = stickRef.current;
-      if (b) b.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+      const c = cursorRef.current;
+      if (c) c.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
       pointRef.current = { x: e.clientX, y: e.clientY };
-      if (surfaceRef.current === 'ink') {
+      const s = SURFACES[surfaceRef.current];
+      if (s && s.trail) {
         const now = performance.now();
-        if (now - lastTrailRef.current > 40 && trailRef.current.length < 40) {
+        if (now - lastTrailRef.current > 34 && trailRef.current.length < 64) {
           lastTrailRef.current = now;
           trailRef.current.push({ x: e.clientX, y: e.clientY, t0: now });
         }
@@ -308,35 +302,47 @@ const Detonator = forwardRef(function Detonator(
       <canvas ref={canvasRef} className="v19-wall-canvas" aria-hidden="true" />
       <div className="v19-flash" ref={flashRef} aria-hidden="true" />
 
-      {/* A stick of dynamite: three sticks banded together, a wick burning down into them. */}
-      <div className={`v19-stick${held ? ' is-held' : ''}`} ref={stickRef} aria-hidden="true">
-        <div className="v19-stick-body" ref={bodyRef}>
-          <div className="v19-stick-halo" ref={haloRef} />
-          <svg width="68" height="68" viewBox="0 0 54 54">
-            <g transform="rotate(-14 27 33)">
-              <rect x="13" y="18" width="9" height="30" rx="2.2" fill="#a8372a" />
-              <rect x="22" y="15" width="9" height="33" rx="2.2" fill="#c1412f" />
-              <rect x="31" y="18" width="9" height="30" rx="2.2" fill="#8e2d22" />
-              <rect x="22" y="15" width="3" height="33" fill="rgba(255,255,255,.16)" />
-              <rect x="11" y="26" width="31" height="5" fill="#3a3430" />
-              <rect x="11" y="37" width="31" height="5" fill="#3a3430" />
-              <rect x="11" y="26" width="31" height="1.4" fill="rgba(255,255,255,.14)" />
-              <rect x="22" y="27" width="9" height="3" fill="#d8c9a6" />
-            </g>
-            <path ref={wickRef} d={WICK} fill="none" stroke="rgba(58,52,48,.34)" strokeWidth="2.6" strokeLinecap="round" pathLength="1" />
-            <path
-              ref={burntRef}
-              d={WICK}
-              fill="none"
-              stroke="#3a3430"
-              strokeWidth="2.6"
-              strokeLinecap="round"
-              pathLength="1"
-              strokeDasharray="1"
-              strokeDashoffset="0"
-            />
-            <circle ref={emberRef} className="v19-ember" cx="38" cy="2.5" r="2.2" />
-          </svg>
+      <div className={`v19-cur k-${trigger}${held ? ' is-held' : ''}`} ref={cursorRef} aria-hidden="true">
+        <div className="v19-cur-body" ref={shakeElRef}>
+          {trigger === 'dynamite' ? (
+            <>
+              <span className="v19-cur-halo" />
+              <svg width="68" height="68" viewBox="0 0 54 54">
+                <g transform="rotate(-14 27 33)">
+                  <rect x="13" y="18" width="9" height="30" rx="2.2" fill="#a8372a" />
+                  <rect x="22" y="15" width="9" height="33" rx="2.2" fill="#c1412f" />
+                  <rect x="31" y="18" width="9" height="30" rx="2.2" fill="#8e2d22" />
+                  <rect x="22" y="15" width="3" height="33" fill="rgba(255,255,255,.16)" />
+                  <rect x="11" y="26" width="31" height="5" fill="#3a3430" />
+                  <rect x="11" y="37" width="31" height="5" fill="#3a3430" />
+                  <rect x="11" y="26" width="31" height="1.4" fill="rgba(255,255,255,.14)" />
+                  <rect x="22" y="27" width="9" height="3" fill="#d8c9a6" />
+                </g>
+                <path ref={wickRef} d={WICK} fill="none" stroke="rgba(58,52,48,.34)" strokeWidth="2.6" strokeLinecap="round" pathLength="1" />
+                <path className="v19-cur-burnt" d={WICK} fill="none" stroke="#3a3430" strokeWidth="2.6" strokeLinecap="round" pathLength="1" strokeDasharray="1" />
+                <circle ref={emberRef} className="v19-cur-ember" cx="38" cy="2.5" r="2.2" />
+              </svg>
+            </>
+          ) : null}
+
+          {trigger === 'pin' ? (
+            <span className="v19-cur-pin">
+              <i className="v19-cur-pin-n" />
+              <i className="v19-cur-pin-e" />
+              <i className="v19-cur-pin-s" />
+              <i className="v19-cur-pin-w" />
+              <i className="v19-cur-pin-c" />
+            </span>
+          ) : null}
+
+          {trigger !== 'dynamite' && trigger !== 'pin' ? (
+            <span className="v19-cur-charge">
+              <i className="v19-cur-ring" />
+              <i className="v19-cur-core" />
+              <i className="v19-cur-brow is-l" />
+              <i className="v19-cur-brow is-r" />
+            </span>
+          ) : null}
         </div>
       </div>
     </>

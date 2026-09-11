@@ -1,4 +1,4 @@
-// v19 — the room's pixel engine, at 288×162.
+// v19 — the room's pixel engine, at 288×152.
 //
 // The old room ran at 192×108 and his complaint was fair: at that size a book is three pixels
 // and a poster is a coloured rectangle. Half again in each direction is 2.25× the pixels, which
@@ -9,10 +9,10 @@
 // back toward day locally, so turning the lamp on genuinely lights the corner it stands in.
 
 export const W = 288;
-export const H = 198;
-// the scene is authored 288×162; the extra 36 rows at the top are wall that the viewport crop
-// is allowed to lose, so no poster ever gets cut
-export const OY = 36;
+export const H = 152;
+// The canvas covers the viewport, so a wide window crops the top and a narrow one crops the
+// sides. Everything that matters is inside this box; outside it is wall, floor and curtain.
+export const SAFE = { top: 20, side: 16 };
 
 // name: [day, night]. Anything self-lit keeps its colour after dark.
 export const PALETTE = {
