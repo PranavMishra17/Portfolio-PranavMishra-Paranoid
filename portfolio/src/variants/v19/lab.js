@@ -1,101 +1,41 @@
-// v19 — the Lab.
+// v19 — what is still to be picked.
 //
-// One small dot in the corner and a compact popover of chips. It never reflows the page, and
-// every choice is a swap of one class or one strategy, not a different route.
-//
-// Trimmed on his word to the choices he kept. The cursor is the crosshair, the wall fails by
-// bursting, the page has grain, the room is evening: none of those are choices any more.
+// The design is settled: plate first screen, the second isometric wall, three-plus-two
+// figures, the frame, the brief, the real clock. Two things are still his to choose, and only
+// those two are in here: which drawing each Alfred_ box carries, and what the car does on the
+// WheelPrice bar. One dot in the corner, one small popover, state in localStorage. When he has
+// chosen, this file and the losing drawings go.
 
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { FIGURES } from './copy';
 
-const KEY = 'v19.lab';
+const KEY = 'v19.pick';
 
-export const DEFAULTS = {
-  land: 'plate',      // the first screen — each one brings its own type with it
-  surface: 'plaster', // what the wall is made of: its look, its cursor
-  now: 'three',       // how many of the Alfred_ figures show
-  projects: 'frame',  // how the frame and its tiles are dressed
-  papers: 'plates',   // how a paper is shown
-  hour: 'now',        // the clock: real time, or a fixed hour to preview
-  wheel: 'roll',      // what the wheel on the WheelPrice bar does
-};
+export const DEFAULTS = FIGURES.reduce(
+  (acc, f) => ({ ...acc, [`sk_${f.id}`]: 'a' }),
+  { car: 'race' }
+);
 
-const OPTIONS = [
+const OPTIONS = FIGURES.map((f) => ({
+  key: `sk_${f.id}`,
+  title: `${f.now} — ${f.label}`,
+  choices: Object.keys(f.sketches).map((k) => ({ v: k, label: f.sketches[k].name, hint: '' })),
+})).concat([
   {
-    key: 'land',
-    title: 'The first screen',
+    key: 'car',
+    title: 'The car on WheelPrice',
     choices: [
-      { v: 'plate', label: 'Plate', hint: 'The face beside the name, set in mono.' },
-      { v: 'quiet', label: 'Quiet', hint: 'One column, one axis, nothing but the four things.' },
+      { v: 'race', label: 'Race', hint: 'Wheels spin up, it tears off left, comes back in from the right and stops where it was.' },
+      { v: 'burnout', label: 'Burnout', hint: 'Smoke off the back wheel first, then the same lap.' },
+      { v: 'drift', label: 'Drift', hint: 'The lap, and it slides the last stretch to a stop.' },
     ],
   },
-  {
-    key: 'surface',
-    title: 'The wall is made of',
-    choices: [
-      { v: 'plaster', label: 'Plaster', hint: 'Off-white. Blocks draw themselves in under your hand.' },
-      { v: 'iso', label: 'Isometric', hint: 'Blank until you move — then tiles lift out of it.' },
-      { v: 'iso2', label: 'Isometric 2', hint: 'The same tiles, pre-cut once and blitted, so it holds 60 fps.' },
-    ],
-  },
-  {
-    key: 'now',
-    title: 'Alfred_, in numbers',
-    choices: [
-      { v: 'three', label: 'Three', hint: 'The three that carry it.' },
-      { v: 'ten', label: 'Ten', hint: 'Ten.' },
-      { v: 'all', label: 'All', hint: 'Every story, to pick from.' },
-    ],
-  },
-  {
-    key: 'projects',
-    title: 'The work, framed',
-    choices: [
-      { v: 'frame', label: 'Frame', hint: 'One fixed frame above, two rows of tiles below.' },
-      { v: 'poster', label: 'Poster', hint: 'The name set large on ink beside the picture.' },
-    ],
-  },
-  {
-    key: 'papers',
-    title: 'The papers',
-    choices: [
-      { v: 'figure', label: 'Figure', hint: 'The result, drawn. Data first, title second.' },
-      { v: 'abstract', label: 'Abstract', hint: 'Set on real paper, the first lines only.' },
-      { v: 'brief', label: 'Brief', hint: 'The figure and the abstract on one sheet.' },
-      { v: 'plates', label: 'Plates', hint: 'The sheet, and the figures under it as numbered plates.' },
-      { v: 'stacked', label: 'Stacked', hint: 'One sheet per paper, the figures beside the title, the abstract in one column.' },
-    ],
-  },
-  {
-    key: 'wheel',
-    title: 'The wheel on WheelPrice',
-    choices: [
-      { v: 'roll', label: 'Rolls', hint: 'One wheel rolling the length of the bar.' },
-      { v: 'spin', label: 'Spins', hint: 'A wheel at the end of the bar, turning in place, faster when you point.' },
-      { v: 'tread', label: 'Tread', hint: 'A tyre tread running along the bottom edge.' },
-    ],
-  },
-  {
-    key: 'hour',
-    title: 'The time of day',
-    choices: [
-      { v: 'now', label: 'Now', hint: 'The real clock. The sky and the room follow it.' },
-      { v: 5, label: '05', hint: 'Before dawn.' },
-      { v: 7, label: '07', hint: 'Sunrise.' },
-      { v: 10, label: '10', hint: 'Morning.' },
-      { v: 13, label: '13', hint: 'Midday.' },
-      { v: 16, label: '16', hint: 'Afternoon.' },
-      { v: 18, label: '18', hint: 'Golden hour.' },
-      { v: 20, label: '20', hint: 'Dusk.' },
-      { v: 23, label: '23', hint: 'Night. Still blue.' },
-    ],
-  },
-];
+]);
 
-const LabCtx = createContext({ lab: DEFAULTS, set: () => {} });
+const Ctx = createContext({ lab: DEFAULTS, set: () => {} });
 
 export function useLab() {
-  return useContext(LabCtx);
+  return useContext(Ctx);
 }
 
 function read() {
@@ -104,7 +44,6 @@ function read() {
     if (!raw) return DEFAULTS;
     const parsed = JSON.parse(raw);
     const merged = { ...DEFAULTS, ...(parsed && typeof parsed === 'object' ? parsed : {}) };
-    // a stored choice from a variant that no longer exists falls back to the default
     OPTIONS.forEach((o) => {
       if (!o.choices.some((c) => c.v === merged[o.key])) merged[o.key] = DEFAULTS[o.key];
     });
@@ -134,7 +73,7 @@ export function LabProvider({ children }) {
     });
   }, []);
   const value = useMemo(() => ({ lab, set }), [lab, set]);
-  return <LabCtx.Provider value={value}>{children}</LabCtx.Provider>;
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
 export default function Lab() {
@@ -160,12 +99,12 @@ export default function Lab() {
 
   return (
     <div className={`v19-lab${open ? ' is-open' : ''}`}>
-      <button type="button" className="v19-lab-dot" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-label="Pick a variation" title="Variations">
+      <button type="button" className="v19-lab-dot" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-label="Still to pick" title="Still to pick">
         <span />
         <span />
         <span />
       </button>
-      <div className="v19-lab-pop" role="dialog" aria-label="Variations" hidden={!open}>
+      <div className="v19-lab-pop" role="dialog" aria-label="Still to pick" hidden={!open}>
         {OPTIONS.map((group) => (
           <div className="v19-lab-row" key={group.key}>
             <p className="v19-lab-title">{group.title}</p>

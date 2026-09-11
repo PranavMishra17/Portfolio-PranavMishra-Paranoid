@@ -77,19 +77,18 @@ export function nightAt(hour) {
 export const DRIFT = 1.5;
 
 /** The hour to paint for: the real clock, kept current, or a fixed hour from the Lab. */
-export function useClock(fixed) {
+export function useClock() {
   const read = () => {
     const d = new Date();
     return d.getHours() + d.getMinutes() / 60;
   };
   const [now, setNow] = useState(read);
   useEffect(() => {
-    if (fixed !== 'now') return undefined;
     setNow(read());
     const t = window.setInterval(() => setNow(read()), 60000);
     return () => window.clearInterval(t);
-  }, [fixed]);
-  return fixed === 'now' ? now : Number(fixed);
+  }, []);
+  return now;
 }
 
 export function useSky(ref, hour) {

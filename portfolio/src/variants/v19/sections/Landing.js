@@ -1,11 +1,7 @@
 // v19 — the first screen.
 //
-// The same four things every time — the face, the name, one line, four buttons — and never a
-// fifth. What changes is the whole dress: the hierarchy AND the type. Each of these sets the
-// typeface for the entire site, so the page you land on and the page you read agree.
-//
-//   plate — the face beside the name, set in mono.
-//   quiet — one column on one axis, one sans, nothing else.
+// Four things — the face, the name, one line, four buttons — and never a fifth. The face beside
+// the name, set in mono.
 
 import React from 'react';
 import { ME, LINKS, GO } from '../copy';
@@ -47,7 +43,7 @@ function Face({ className }) {
   );
 }
 
-export default function Landing({ hint, look = 'plate', onGo }) {
+export default function Landing({ hint, onGo }) {
   const Hint = (
     <p className="v19-land-hint">
       <span className="v19-land-hint-key" aria-hidden="true">
@@ -56,20 +52,6 @@ export default function Landing({ hint, look = 'plate', onGo }) {
       {hint}
     </p>
   );
-
-  if (look === 'quiet') {
-    return (
-      <div className="v19-land is-quiet">
-        <div className="v19-land-axis">
-          <Face className="is-medium" />
-          <Name />
-          <p className="v19-land-role">{ME.role}</p>
-          <Links onGo={onGo} />
-        </div>
-        {Hint}
-      </div>
-    );
-  }
 
   return (
     <div className="v19-land is-plate">

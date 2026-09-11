@@ -34,14 +34,13 @@ export const HIM = { x: 130, y: 44, w: 28, h: 28 };
 /* Hit-test order: first match wins, so what is nearest to you comes first. */
 export const HOTSPOTS = [
   { id: 2, key: 'me', label: 'Me', kind: 'hand', x: 128, y: 40, w: 36, h: 32 },
-  { id: 3, key: 'photo', label: 'Family', kind: 'zoom', x: 76, y: 64, w: 20, h: 22 },
   { id: 4, key: 'mug', label: 'Tea', kind: 'hand', x: 195, y: 72, w: 14, h: 14 },
   { id: 5, key: 'laptop', label: 'Where I have worked', kind: 'zoom', x: 208, y: 56, w: 38, h: 30 },
   { id: 1, key: 'lamp', label: 'The lamp', kind: 'hand', x: 50, y: 32, w: 36, h: 16 },
   { id: 6, key: 'monitorA', label: 'Everything I have built', kind: 'zoom', x: 92, y: 54, w: 42, h: 30 },
   { id: 7, key: 'monitorB', label: 'Two papers', kind: 'zoom', x: 154, y: 54, w: 42, h: 30 },
   { id: 8, key: 'pc', label: 'The tower', kind: 'hand', x: 50, y: 86, w: 28, h: 34 },
-  { id: 9, key: 'games', label: 'Games', kind: 'zoom', x: 78, y: 102, w: 28, h: 18 },
+  { id: 9, key: 'games', label: 'Games', kind: 'zoom', x: 78, y: 96, w: 32, h: 24 },
   // 28 by 42: the three pictures are all two by three, so the frame is too, and nothing is cropped
   { id: 10, key: 'poster1', label: POSTERS[0].title, kind: 'zoom', x: 85, y: 6, w: 28, h: 42 },
   { id: 11, key: 'poster2', label: POSTERS[1].title, kind: 'zoom', x: 125, y: 6, w: 28, h: 42 },
@@ -50,7 +49,6 @@ export const HOTSPOTS = [
   { id: 14, key: 'medals', label: 'Medals', kind: 'zoom', x: 40, y: 56, w: 20, h: 18 },
   { id: 15, key: 'books', label: 'Books', kind: 'zoom', x: 6, y: 32, w: 32, h: 24 },
   { id: 21, key: 'clock', label: 'The clock', kind: 'zoom', x: 20, y: 12, w: 20, h: 20 },
-  { id: 16, key: 'fridge', label: 'The fridge', kind: 'zoom', x: 254, y: 64, w: 32, h: 60 },
   { id: 18, key: 'ball', label: 'Football and boots', kind: 'hand', x: 8, y: 118, w: 70, h: 26 },
   { id: 19, key: 'window', label: 'The window', kind: 'hand', x: 194, y: 8, w: 72, h: 50 },
   { id: 20, key: 'lights', label: 'String lights', kind: 'hand', x: 4, y: -ROOF, w: 280, h: 14 },
@@ -353,21 +351,6 @@ function lamp(g, on) {
   g.setId(0);
 }
 
-function photo(g) {
-  g.setId(3);
-  g.rect(76, 66, 18, 17, 'wood2');
-  g.rect(77, 67, 16, 15, 'paper');
-  g.rect(78, 74, 16, 8, 'blue2');
-  g.disc(81, 72, 2, 'skin');
-  g.disc(85, 71, 2, 'skin');
-  g.disc(89, 72, 2, 'skin');
-  g.rect(79, 74, 4, 7, 'red2');
-  g.rect(83, 73, 5, 8, 'cream');
-  g.rect(88, 74, 4, 7, 'green2');
-  g.rect(76, 83, 18, 2, 'wood3');
-  g.setId(0);
-}
-
 function mug(g, steaming, t) {
   g.setId(4);
   g.rect(196, 76, 8, 8, 'red');
@@ -401,7 +384,7 @@ function tower(g, on, t) {
 
 function games(g) {
   g.setId(9);
-  const CASE = ['purple2', 'blue2', 'orange2', 'red2'];
+  const CASE = ['purple2', 'blue2', 'orange2', 'red2', 'green2'];
   GAMES.forEach((it, i) => {
     const y = 118 - (i + 1) * 4;
     g.rect(80, y, 22, 4, 'ink2');
@@ -487,49 +470,6 @@ function clock(g, hour) {
   g.line(cx, cy, cx + Math.round(Math.cos(hm) * 3), cy + Math.round(Math.sin(hm) * 3), 'ink');
   g.line(cx, cy, cx + Math.round(Math.cos(mm) * 5), cy + Math.round(Math.sin(mm) * 5), 'ink');
   g.px(cx, cy, 'red');
-  g.setId(0);
-}
-
-function fridge(g, open, t) {
-  const x = 254;
-  const y = 64;
-  const w = 32;
-  const h = 58;
-  g.setId(16);
-  g.rect(x, y, w, h, 'fridge2');
-  g.rect(x + 1, y + 1, w - 2, h - 2, 'fridge');
-  g.hline(x + 1, y + 20, w - 2, 'fridge2');
-  g.rect(x + w - 6, y + 5, 3, 11, 'metal2');
-  g.rect(x + w - 6, y + 25, 3, 18, 'metal2');
-  if (open) {
-    g.rect(x + 3, y + 22, w - 9, h - 27, 'ink2');
-    g.rect(x + 5, y + 24, w - 13, h - 31, 'screen2');
-    g.hline(x + 5, y + 36, w - 13, 'metal2');
-    g.hline(x + 5, y + 48, w - 13, 'metal2');
-    g.rect(x + 7, y + 29, 4, 7, 'green');
-    g.rect(x + 13, y + 27, 4, 9, 'red');
-    g.rect(x + 8, y + 41, 5, 7, 'blue2');
-    g.rect(x + 15, y + 40, 4, 8, 'orange');
-    g.px(x + w - 11, y + 25, 'bulb');
-  }
-  const MTINT = ['orange', 'green', 'yellow', 'blue2', 'pink'];
-  MAGNETS.forEach((m, i) => {
-    const mx = x + 3 + (i % 2) * 13;
-    const my = y + 3 + Math.floor(i / 2) * 8;
-    if (my > y + 18) return;
-    const wob = i === Math.floor(t / 1100) % MAGNETS.length ? 1 : 0;
-    const c = MTINT[i % MTINT.length];
-    if (i % 2) {
-      g.rect(mx, my - wob, 7, 6, c);
-      g.rect(mx + 1, my + 1 - wob, 5, 4, 'cream');
-    } else {
-      g.disc(mx + 3, my + 3 - wob, 3, c);
-      g.disc(mx + 3, my + 3 - wob, 1, 'cream');
-    }
-  });
-  g.rect(x + 9, y + 26, 14, 11, 'paper');
-  g.rect(x + 10, y + 27, 12, 9, 'sky2');
-  g.rect(x + 11, y + 32, 10, 4, 'hill');
   g.setId(0);
 }
 
@@ -629,7 +569,6 @@ export function drawScene(grid, state) {
   clock(g, state.hour || 0);
   windowUnit(g, state.windowT || 0, t);
   shelf(g, state.sparkle, t);
-  fridge(g, state.fridgeOpen, t);
   rug(g);
   desk(g);
   tower(g, state.pc, t);
@@ -637,7 +576,6 @@ export function drawScene(grid, state) {
   monitors(g, state.pc);
   laptop(g, state.pc);
   lamp(g, state.lamp);
-  photo(g);
   mug(g, !state.cold, t);
   person(g, state.mode, state.frame, t);
   if (state.mode === 'wave') waving(g, state.frame);

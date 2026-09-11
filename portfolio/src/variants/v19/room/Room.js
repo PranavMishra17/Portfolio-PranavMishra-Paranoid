@@ -16,14 +16,14 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createGrid, rasterize, W, H, ROOF } from './engine';
 import { nightAt } from '../hooks';
 import { drawScene, HOTSPOTS, LIGHTS, SCREENS } from './scene';
-import { BOOKS, GAMES, MAGNETS, POSTERS, TROPHIES, FAMILY, MEDALS } from '../personal';
+import { BOOKS, GAMES, POSTERS, TROPHIES, MEDALS } from '../personal';
 import { ALL_PROJECTS, PAPERS, ROLES, ALFRED, LINKS, MORE_LINKS } from '../copy';
 
 const FRAME_MS = 42;
 const SCREEN_MS = 4600;
 const WAVE_MS = 1700;
 
-const TOGGLES = new Set(['lamp', 'lights', 'pc', 'window', 'ball', 'mug', 'me']);
+const TOGGLES = new Set(['lamp', 'lights', 'pc', 'window', 'ball', 'mug', 'me', 'clock']);
 
 const EVENING = { night: 0.5, lamp: true, string: true, pc: true, windowOpen: false, mono: false, hour: 19 };
 
@@ -56,7 +56,7 @@ function List({ items }) {
   );
 }
 
-function Slip({ hotspot, onClose, clockHour = 0 }) {
+function Slip({ hotspot, onClose }) {
   if (!hotspot) return null;
   const { key } = hotspot;
   const sc = hotspot.screen;
@@ -81,21 +81,17 @@ function Slip({ hotspot, onClose, clockHour = 0 }) {
           eye: 'Work',
           title: 'Where I have worked',
           node: (
-            <List
-              items={[{ k: `${ALFRED.title}, ${ALFRED.company}`, v: ALFRED.about, extra: ALFRED.when }].concat(
-                ROLES.map((r) => ({ k: `${r.title}, ${r.company}`, v: r.line, extra: `${r.when} · ${r.where}` }))
-              )}
-            />
-          ),
-        };
-      case 'photo':
-        return {
-          eye: 'On the desk',
-          title: 'Family',
-          node: (
             <>
-              <p className="v19-slip-p">{FAMILY.caption}</p>
-              {FAMILY.sample ? <p className="v19-sample">Sample — his caption goes here.</p> : null}
+              <List
+                items={[{ k: `${ALFRED.title}, ${ALFRED.company}`, v: ALFRED.about, extra: ALFRED.when }].concat(
+                  ROLES.map((r) => ({ k: `${r.title}, ${r.company}`, v: r.line, extra: `${r.when} · ${r.where}` }))
+                )}
+              />
+              <p className="v19-slip-links">
+                {LINKS.concat(MORE_LINKS).map((l) => (
+                  <a key={l.label} href={l.href} target={l.href.startsWith('http') ? '_blank' : undefined} rel="noreferrer">{l.label}</a>
+                ))}
+              </p>
             </>
           ),
         };
@@ -114,42 +110,7 @@ function Slip({ hotspot, onClose, clockHour = 0 }) {
       case 'books':
         return { eye: 'One shelf', title: 'Books', node: <List items={BOOKS.map((b) => ({ k: b.title, v: b.note, extra: `${b.author} · ${b.status}` }))} /> };
       case 'games':
-        return {
-          eye: 'By the tower',
-          title: 'Games',
-          node: (
-            <>
-              <List items={GAMES.map((b) => ({ k: b.title, v: b.note }))} />
-              <p className="v19-sample">All samples — his real list replaces these.</p>
-            </>
-          ),
-        };
-      case 'fridge':
-        return {
-          eye: 'On the fridge',
-          title: 'Magnets, and everywhere else',
-          node: (
-            <>
-              <List items={MAGNETS.map((m) => ({ k: m.label, v: m.note }))} />
-              <p className="v19-slip-links">
-                {LINKS.concat(MORE_LINKS).map((l) => (
-                  <a key={l.label} href={l.href} target={l.href.startsWith('http') ? '_blank' : undefined} rel="noreferrer">{l.label}</a>
-                ))}
-              </p>
-              <p className="v19-sample">The magnets are samples — one memory each, his to write.</p>
-            </>
-          ),
-        };
-      case 'clock': {
-        const hh = Math.floor(((clockHour % 24) + 24) % 24);
-        const mm = Math.floor((clockHour % 1) * 60);
-        const ampm = hh >= 12 ? 'pm' : 'am';
-        return {
-          eye: 'On the wall',
-          title: `${((hh + 11) % 12) + 1}:${String(mm).padStart(2, '0')} ${ampm}`,
-          node: <p className="v19-slip-p">The clock in the room, and the light in it, keep the time where you are.</p>,
-        };
-      }
+        return { eye: 'By the tower', title: 'My favourites', node: <List items={GAMES.map((b) => ({ k: b.title, v: b.note }))} /> };
       case 'poster1':
       case 'poster2':
       case 'poster3': {
@@ -191,7 +152,7 @@ function Slip({ hotspot, onClose, clockHour = 0 }) {
 
 /* ── the room ───────────────────────────────────────────────────────── */
 
-export default function Room({ sectionRef, onTop, hour = 19 }) {
+export default function Room({ sectionRef, onTop, hour = 19, flipped = false, onClock }) {
   const canvasRef = useRef(null);
   const artRef = useRef({ posters: [], books: [] });
   const hoverScreenRef = useRef(null);
@@ -203,7 +164,6 @@ export default function Room({ sectionRef, onTop, hour = 19 }) {
   const stateRef = useRef({
     ...EVENING,
     windowT: 0,
-    fridgeOpen: false,
     grown: false,
     cold: false,
     sparkle: false,
@@ -328,6 +288,21 @@ export default function Room({ sectionRef, onTop, hour = 19 }) {
       artRef.current.posters.forEach((img, i) => {
         const hs = HOTSPOTS.find((h) => h.key === `poster${i + 1}`);
         if (hs) blit(img, hs.x, hs.y + ROOF, hs.w, hs.h);
+      });
+      // he is in front of the wall: put his pixels back over any art that landed on him
+      const grid = gridRef.current;
+      const frame = imgRef.current;
+      if (!grid || !frame) return;
+      HOTSPOTS.filter((h) => h.key.startsWith('poster')).forEach((hs) => {
+        for (let y = hs.y + ROOF; y < hs.y + ROOF + hs.h; y += 1) {
+          for (let x = hs.x; x < hs.x + hs.w; x += 1) {
+            const k = y * W + x;
+            if (grid.ids[k] !== 2) continue;
+            const o = k * 4;
+            ctx.fillStyle = `rgb(${frame.data[o]},${frame.data[o + 1]},${frame.data[o + 2]})`;
+            ctx.fillRect(x, y, 1, 1);
+          }
+        }
       });
     };
 
@@ -548,14 +523,14 @@ export default function Room({ sectionRef, onTop, hour = 19 }) {
             break;
           }
           case 'mug': st.cold = !st.cold; break;
+          case 'clock': if (onClock) onClock(); break;
           default: break;
         }
         return;
       }
-      if (h.key === 'fridge') st.fridgeOpen = !st.fridgeOpen;
       setOpenKey((cur) => (cur === h.key ? null : h.key));
     },
-    [at]
+    [at, onClock]
   );
 
   useEffect(() => {
@@ -582,6 +557,7 @@ export default function Room({ sectionRef, onTop, hour = 19 }) {
     if (hotspot.key === 'books') return BOOKS.map((b) => b.title).join(' · ');
     if (hotspot.key === 'me') return stateRef.current.mode === 'sleep' ? 'Asleep. Switch the tower on.' : 'Me';
     if (hotspot.key === 'pc') return stateRef.current.pc ? 'The tower — switch it off and see' : 'The tower';
+    if (hotspot.key === 'clock') return flipped ? 'The clock — put the day back' : 'The clock — flip the day';
     return hotspot.label;
   })();
 
@@ -598,7 +574,7 @@ export default function Room({ sectionRef, onTop, hour = 19 }) {
           role="img"
         />
         <p className={`v19-room-cap${caption ? ' on' : ''}`}>{caption}</p>
-        <Slip hotspot={openHotspot} onClose={() => setOpenKey(null)} clockHour={hour} />
+        <Slip hotspot={openHotspot} onClose={() => setOpenKey(null)} />
 
         {/* the real picture, over the pixelated one, while you point at it */}
         {hoverScreen && hoverScreen.key.startsWith('poster') && POSTERS[Number(hoverScreen.key.slice(-1)) - 1].image ? (

@@ -12,7 +12,7 @@ import Wall from './Wall';
 const FUSE_MS = 880;
 
 const Detonator = forwardRef(function Detonator(
-  { surface = 'plaster', armed, onBlast, reduced },
+  { surface = 'iso2', armed, onBlast, reduced },
   ref
 ) {
   const canvasRef = useRef(null);

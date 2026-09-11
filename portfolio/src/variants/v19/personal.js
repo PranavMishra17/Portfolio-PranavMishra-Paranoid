@@ -93,26 +93,14 @@ export const POSTERS = [
   },
 ];
 
+// His favourites. No notes; the titles are the point.
 export const GAMES = [
-  { id: 'g1', title: 'Disco Elysium', note: 'Sample — waiting on his real list.', spine: '#7a4b86', sample: true },
-  { id: 'g2', title: 'Hollow Knight', note: 'Sample — waiting on his real list.', spine: '#2b4a6f', sample: true },
-  { id: 'g3', title: 'Outer Wilds', note: 'Sample — waiting on his real list.', spine: '#c07a2e', sample: true },
-  { id: 'g4', title: 'Hades', note: 'Sample — waiting on his real list.', spine: '#a33a3a', sample: true },
+  { id: 'witcher3', title: 'The Witcher 3', note: 'All-time favourite.', spine: '#7a4b86', sample: false },
+  { id: 'mgs5', title: 'Metal Gear Solid V', note: '', spine: '#2b4a6f', sample: false },
+  { id: 'death-stranding', title: 'Death Stranding', note: '', spine: '#c07a2e', sample: false },
+  { id: 'disco', title: 'Disco Elysium', note: '', spine: '#a33a3a', sample: false },
+  { id: 'blacklist', title: 'Splinter Cell: Blacklist', note: '', spine: '#3f7d4f', sample: false },
 ];
-
-// The fridge. Each magnet is a small memory. All samples until he writes his own.
-export const MAGNETS = [
-  { id: 'm1', glyph: '✈', label: 'A ticket stub', note: 'Sample memory — his to replace.', tint: '#e2603a', sample: true },
-  { id: 'm2', glyph: '⚽', label: 'A five-a-side league', note: 'Sample memory — his to replace.', tint: '#3f7d4f', sample: true },
-  { id: 'm3', glyph: '★', label: 'A first demo that worked', note: 'Sample memory — his to replace.', tint: '#c08a3e', sample: true },
-  { id: 'm4', glyph: '☕', label: 'A very long night', note: 'Sample memory — his to replace.', tint: '#2f4858', sample: true },
-  { id: 'm5', glyph: '❒', label: 'A postcard from home', note: 'Sample memory — his to replace.', tint: '#8a4b6f', sample: true },
-];
-
-export const FAMILY = {
-  caption: 'Sample caption — the family photo on the desk, and whatever he wants to say about it.',
-  sample: true,
-};
 
 export const TROPHIES = [
   {

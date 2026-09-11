@@ -59,17 +59,18 @@ export const ALFRED = {
     ? (alfredRole.companyLogo.startsWith('/') ? alfredRole.companyLogo : `/${alfredRole.companyLogo}`)
     : '/assets/images/companies/alfred.svg',
   // one line above the heading, one heading, one paragraph. Nothing else introduces it.
-  eyebrow: 'Founding LLM Engineer',
-  hello: 'At',
-  claim: 'I own the half that has to be right.',
+  eyebrow: 'April 2026 – present · New York',
+  hello: 'Founding LLM Engineer at',
+  claim: '',
   about:
-    'Alfred_ is an assistant that reads your email, keeps your calendar and handles the small obligations, over text, chat and voice, for five thousand people. My half is memory, rules, evals, cost and the plumbing under them.',
+    'Alfred_ is a multi-agent assistant over email, calendar, SMS and voice, for five thousand people. I own working memory, the rules engine, the eval harness, inference cost, and the Postgres and ingestion underneath.',
   glance: [
     { k: 'People relying on it', v: '5,000+' },
     { k: 'Reaches you by', v: 'text · chat · voice' },
     { k: 'Also runs inside', v: 'Claude Code · Codex' },
-    { k: 'My half', v: 'memory · rules · evals' },
+    { k: 'Mine', v: 'memory · rules · evals' },
   ],
+  tryLabel: 'Try it for free',
   bullets: (alfredRole.description || []).filter((b) => !BANNED.test(b)),
 };
 
@@ -79,166 +80,63 @@ export const ALFRED = {
 export const FIGURES = [
   {
     id: 'migrate',
-    top: true,
     was: 'polling',
     now: '3 s',
     label: 'Moved every user onto event-driven ingress, live, in one week',
     note: 'The email backend polled every provider on a timer, so a text about an email arrived about ninety seconds after the email did. Over one week we migrated all of ingress, Gmail, Microsoft Graph and IMAP, for thousands of live users onto per-provider event triggers, with the cron demoted to a backstop and nothing suppressed during the cutover. Delivery went from about 90 seconds to about 3, thirty times faster, and login codes from 189 seconds at p90 to instant. Nobody noticed the migration; everybody noticed the result.',
-    sketch: { kind: 'migrate' },
+    sketches: {
+      a: { kind: 'migrate', name: 'Lanes' },
+      b: { kind: 'cutover', name: 'Timeline' },
+      c: { kind: 'stopwatch', name: 'Stopwatches' },
+    },
   },
   {
     id: 'memory',
-    top: true,
-    was: 'hope',
-    now: 'tests',
-    label: 'An assistant that cannot invent your inbox',
+    was: 'LLM recall',
+    now: 'working memory',
+    label: 'Working memory that cannot invent your inbox',
     note: 'A model summarising an inbox will confidently invent a thread, or flip who owes whom. I rebuilt working memory so the model never writes an identifier or an owner: code builds a menu of real candidates behind opaque handles, the model only chooses among them and writes prose, and code re-attaches every fact afterwards. That turns a whole class of hallucination from rare into impossible, and a test proves it on every build. Five thousand people read those briefs.',
-    sketch: { kind: 'strict' },
+    sketches: {
+      a: { kind: 'strict', name: 'Pipeline' },
+      b: { kind: 'menu', name: 'Menu' },
+      c: { kind: 'verdict', name: 'Before, after' },
+    },
   },
   {
     id: 'auth',
-    top: true,
     was: '721 ms',
     now: '30×',
     label: 'Alfred_ inside Claude Code, Codex, and any agent that speaks MCP',
     note: 'Alfred_ is an MCP server behind an OAuth 2.0 authorization server I built, so any coding agent, Claude Code, Codex, Antigravity, anything that speaks MCP, can add it as a tool. Measured, 98.3% of the connector\'s traffic was authentication, every call booting a 30 MB dependency tree just to learn who was asking. Auth became a single database lookup and the heavy code loads only when a call needs it. I designed the permission model too: sending mail is a standing grant once you confirm it; creating an event is a fresh, scoped grant every time.',
-    sketch: { kind: 'bars', alt: 'Authentication cost, before and after', rows: [{ k: 'each call, before', w: 1, v: '721 ms, booting' }, { k: 'each call, now', w: 0.04, v: 'one lookup', hot: true }, { k: 'share of all traffic', w: 0.983, v: '98.3% was auth' }] },
+    sketches: {
+      a: { kind: 'bars', name: 'Bars', alt: 'Authentication cost, before and after', rows: [{ k: 'each call, before', w: 1, v: '721 ms, booting' }, { k: 'each call, now', w: 0.04, v: 'one lookup', hot: true }, { k: 'share of all traffic', w: 0.983, v: '98.3% was auth' }] },
+      b: { kind: 'socket', name: 'Socket' },
+      c: { kind: 'calltime', name: 'One call' },
+    },
   },
   {
-    id: 'onboard',
-    was: 'a blank slate',
-    now: 'day one',
-    label: 'It knows who you are before you say a word',
-    note: 'When a new inbox is connected, a map-reduce pass reads it and infers who you are, who matters to you, what you are working on and what is open, then turns that into one-tap suggested rules and pre-written replies to the emails you already owe. Tuned twice against the first real cohort, with caps on drafts and to-dos and an out-of-memory fix on dense mailboxes: the kind of correction that only shows up once real people hit it.',
-    sketch: { kind: 'flow', alt: 'A new inbox read into who you are and what is open', nodes: ['a new inbox', 'map-reduce', 'who you are · what is open'], foot: 'one-tap rules and replies, on the first day' },
+    id: 'harness',
+    was: 'read it back',
+    now: 'replayed',
+    label: 'Every agent turn, replayable and scored before it ships',
+    note: 'A deterministic eval harness for the SMS agent surface: real traces replayed against fixtures, every scenario scored across the full range of outcomes the agent can produce, and regression detection on tool-calling reliability. A change to the agent is measured against production behaviour before it ships, rather than discovered by a user afterwards. Every cost cut on the site has to pass it.',
+    sketches: {
+      a: { kind: 'replay', name: 'Tape' },
+      b: { kind: 'scenarios', name: 'Grid' },
+      c: { kind: 'regress', name: 'Regression' },
+    },
   },
   {
-    id: 'voice',
-    was: 'generic',
-    now: 'yours',
-    label: 'Drafts that sound like you',
-    note: 'A durable per-user model of how you write, tone, length, the verbs you reach for, exemplars per axis, mined from your sent replies and injected into the drafting path behind an A/B dial. Backfilled fleet-wide, with an onboarding check-in that shows you what it learned about your voice.',
-    sketch: { kind: 'flow', alt: 'Sent mail read into a voice profile, then into a draft', nodes: ['your sent mail', 'a voice profile', 'a draft in your words'], foot: 'behind an A/B dial, backfilled for everyone' },
-  },
-  {
-    id: 'modelab',
-    was: 'assumed',
-    now: 'gold set',
-    label: 'A cheaper model, proven before it shipped',
-    note: 'On the highest-spend pipeline I instrumented per-model, per-stage spend, separated the real driver, classification volume times reasoning-token budget, from the red herrings, and ran a model A/B on a gold set. The cheaper, faster model won and was ramped behind an inert shadow with a capacity dial. Draft generation collapsed from several LLM turns to one, validated by an LLM-ranking judge over importance-weighted samples rather than shipped on faith, and the audit turned up three kinds of AI calls that were costing money and never booked to any model.',
-    sketch: { kind: 'bars', alt: 'Turns per draft, before and after', rows: [{ k: 'turns per draft, before', w: 1, v: 'several' }, { k: 'now', w: 0.2, v: 'one', hot: true }, { k: 'AI calls never booked', w: 0.3, v: '3 kinds, now attributed' }] },
-  },
-  {
-    id: 'scan',
-    was: 'reading logs',
-    now: '9 waves',
-    label: 'Production tells me when the agent got it wrong',
-    note: 'Thousands of live conversations a day, and no one can read them all. I built a scanner that classifies real agent failures against expected behaviour, files the genuine ones, and fans out an investigation per bug. Nine precision waves so far, because a queue the team does not trust is worse than no queue. Under it sits an eval harness with trace replay, fixtures and regression detection that every cost cut has to pass before it ships.',
-    sketch: { kind: 'flow', alt: 'Conversations sorted into real failures and expected behaviour', nodes: ['thousands of conversations', 'scanner', 'the real bugs'], foot: 'the rest never reach the queue' },
-  },
-  {
-    id: 'cost',
-    was: '150 tools',
-    now: '−30%',
-    label: 'A leaner agent, with every capability kept',
-    note: 'The agent weighed more than 150 tools on every turn, and that catalogue was the single biggest line in per-turn cost. I built the clever thing first, a router that shows each turn only the relevant tools, measured it on a real eval set, and threw it away when it did not beat plain consolidation. About 110 tools now, every documented parameter restored rather than dropped, and $195 to $245 a month saved at current volume. I re-measured that figure after catching my own first estimate using the wrong unit.',
-    sketch: { kind: 'cost' },
-  },
-  {
-    id: 'txn',
-    was: 'dropped',
-    now: '92%',
-    label: 'A money report that counts the money',
-    note: 'The weekly financial report was quietly missing most of what it should have shown, because an LLM-only classifier was dropping receipts. A deterministic fallback recovered roughly 92% of them; direction was made right, so a payment from someone counts as incoming; declined and failed payments left the total; and a ceiling now stops one mis-read figure from becoming a million-dollar headline. Receipts and invoices can no longer be auto-archived by any rule, so the report\'s own inputs cannot vanish.',
-    sketch: { kind: 'cells', alt: 'Transactions recovered', head: 'receipts', n: 13, hot: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], tail: 'counted', foot: 'the model alone had been dropping most of them', strike: true },
-  },
-  {
-    id: 'rules',
-    was: 'a form',
-    now: '98%',
-    label: 'Rules people actually make',
-    note: 'Ninety-eight percent of email rules are made by saying them in chat. Behind that sentence: a deterministic matcher, a preview of exactly what a new rule would have caught before it is switched on, a warning when it would catch nothing, and a judgement pass on every fire so a rule that matched but fired wrong is labelled instead of counted. I also fixed the bug where a narrower rule always lost to a broader one.',
-    sketch: { kind: 'rules' },
-  },
-  {
-    id: 'prep',
-    was: '21% conflicting',
-    now: 'freshest',
-    label: 'Meeting prep that knows who is actually coming',
-    note: 'A short prep note before a meeting, grounded in your calendar, the related threads and any linked notes, reusing the same working memory. After real usage: recover the other side when the provider omits an external organiser; pick the freshest of several duplicate calendar snapshots, having measured that 21% of a week\'s meetings had conflicting rows; and log the reason for every silent no-prep case, after one reached a user as a blank line.',
-    sketch: { kind: 'cells', alt: 'Meetings with conflicting calendar snapshots', head: 'meetings this week', n: 14, hot: [1, 4, 9], tail: 'conflicting', foot: 'the freshest snapshot decides who is coming' },
-  },
-  {
-    id: 'sms',
-    was: '16.4%',
-    now: '0',
-    label: 'One text in six was empty. Now none are.',
-    note: 'Sixteen percent of thread-reply notifications arrived with no body, against two percent of first-contact ones. Nobody had reported it. I found it by checking production against itself, ruled out two hypotheses, and traced it to a quote-stripper returning an empty string on one common HTML shape. Fixed the same day.',
-    sketch: { kind: 'cells', alt: 'One text in six arriving empty', head: 'thread replies', n: 12, hot: [2, 8], tail: 'arrived empty', foot: 'a quote-stripper returning an empty string' },
-  },
-  {
-    id: 'secure',
-    was: 'same day',
-    now: '3',
-    label: 'Three ways into someone else\'s mailbox, closed',
-    note: 'A dedicated pass over the mail-provider tool layer found three independent path-traversal holes where a model-supplied identifier could reach another user\'s mail. Separately, new connections to the public connector were defaulting to full write access, including send-email, instead of read-only, and two real clients had already connected. Found, fixed and verified the same day.',
-    sketch: { kind: 'flow', alt: 'An identifier reaching only its own mailbox', nodes: ['a model-supplied id', 'ownership check', 'your mailbox'], drop: 'anyone else\'s' },
-  },
-  {
-    id: 'weeks',
-    was: '11 weeks',
-    now: 'found',
-    label: 'A silent bug that dropped every user\'s timezone',
-    note: 'A query asked for two columns an earlier migration had quietly removed. Nothing threw. On every calendar turn the assistant lost the user\'s whole profile, and every user outside Eastern time had their calendar maths done in the wrong zone for eleven weeks. Found while building the calendar memory pipeline, fixed, and a completeness monitor added so the next one cannot hide.',
-    sketch: { kind: 'weeks', alt: 'Eleven weeks of wrong timezones, then right', n: 11, foot: 'nothing threw; every dashboard was green' },
-  },
-  {
-    id: 'crons',
-    was: 'green',
-    now: '100%',
-    label: 'Every scheduled job was failing behind a green dashboard',
-    note: 'Cron marked a job successful when it was queued, not when it ran. Every scheduled job in the fleet had been failing while every panel read green, including after an auth change that returned 401 to all of them. I fixed the jobs, then changed what success means, so the dashboard can only go green when the work was actually delivered.',
-    sketch: { kind: 'bars', alt: 'Jobs queued against jobs delivered', rows: [{ k: 'reported', w: 1, v: 'green' }, { k: 'delivered', w: 0.02, v: 'none', hot: true }] },
-  },
-  {
-    id: 'recap',
-    was: 'an attachment',
-    now: 'the email',
-    label: 'A monthly recap people actually read',
-    note: 'A durable rollup pipeline with its own read RPC, instead of per-user SQL at send time, which does not scale. Three real redesigns before the first fleet-wide send: the report became the email body instead of a stub with the content buried in an attachment nobody opened, a headline statistic that read as alarming was dropped, and the dashboard card is gated on your own send having gone out, since the send rolls across time zones. The day before it ran, I caught a bug that would have made all three engagement reports fail silently.',
-    sketch: { kind: 'flow', alt: 'From per-user SQL at send time to a nightly rollup', nodes: ['per-user SQL at send time', 'a nightly rollup', 'the report, as the email itself'], foot: 'three redesigns before the first fleet-wide send' },
-  },
-  {
-    id: 'dupes',
-    was: '9.7%',
-    now: '0',
-    label: 'Every tenth reminder went out twice',
-    note: 'Calendar texts were duplicating on nearly ten percent of sends. The cause was deduplicating on a signal weaker than the message itself. The message content is the key now, and the in-flight window was tightened so an email cannot be sent twice either.',
-    sketch: { kind: 'cells', alt: 'One reminder in ten sent twice', head: 'reminders', n: 10, hot: [6], tail: 'sent twice', foot: 'now keyed on what the message says' },
-  },
-  {
-    id: 'push',
-    was: '15%',
-    now: '0',
-    label: 'Mail that was never being picked up',
-    note: 'Case-sensitive matching in a registry left four mailboxes with no real-time push at all, and fifteen percent of poller ticks doing nothing every cycle. I sharded the poller phase, bounded every provider fetch after a hung Outlook token refresh stalled an entire mailbox, and added a monitor that compares real ingestion against a verified baseline instead of trusting the pipeline\'s report of itself.',
-    sketch: { kind: 'cells', alt: 'Poller ticks staging nothing', head: 'poller ticks', n: 20, hot: [3, 9, 15], tail: 'idle', foot: 'and four mailboxes with no push at all' },
-  },
-  {
-    id: 'blame',
-    was: '44%',
-    now: 'theirs',
-    label: 'Errors that were the provider\'s, not ours',
-    note: 'Nearly half of one connector error category over thirty days was Gmail or Outlook being down, logged as Alfred_ defects. I rebuilt the error path to preserve the real cause, so the number on the dashboard means something and the team stops chasing outages it cannot fix.',
-    sketch: { kind: 'bars', alt: 'Errors that were ours against errors that were the provider\'s', rows: [{ k: 'logged as ours', w: 1, v: '100%' }, { k: 'actually the provider', w: 0.44, v: '44%', hot: true }] },
-  },
-  {
-    id: 'guard',
-    was: '104 checks',
-    now: '0 catches',
-    label: 'A safety guard that had never worked',
-    note: 'A guard against duplicate calendar actions had run 104 times in thirty days and caught nothing, which is not what a working guard looks like. I measured it before it mattered, fixed it, and ran the same audit on the memory pipeline, where it found a reminder feature that had never fired once since launch and a personalisation query silently capping out 150 eligible users.',
-    sketch: { kind: 'cells', alt: 'A hundred and four checks, no catches', head: '104 checks', n: 16, hot: [], tail: '0 catches', foot: 'a working guard does not look like this' },
+    id: 'context',
+    was: 'on request',
+    now: 'ahead of the turn',
+    label: 'Context that is there before the agent needs it',
+    note: 'Alfred_ answers over SMS and on the phone, where a pause is a failure. I own the low-latency context retrieval on those real-time pipelines, so what the agent needs about you is assembled before the turn asks for it, and the tool-calling stability that keeps a multi-agent turn deterministic under production load, retries and partial failures included. Cartesia handles the speech on the voice surface.',
+    sketches: {
+      a: { kind: 'ahead', name: 'Timeline' },
+      b: { kind: 'flow', name: 'Flow', alt: 'A message, the context already assembled, an answer', nodes: ['a message arrives', 'context, already assembled', 'the answer'], foot: 'the retrieval runs ahead of the turn, not inside it' },
+      c: { kind: 'budget', name: 'Budget' },
+    },
   },
 ];
 
@@ -337,7 +235,7 @@ const LINE = {
   'metadata-enrichment': 'Have the model write metadata about a chunk before you store it. Retrieval gets better. 82.5% against 73.3%.',
   'realestate-ai': 'An agent that does the tedious half of buying property.',
   'streaming-digit-classifier': 'Digits recognised from a live audio stream. 98.52%, in real time.',
-  'voicepersona-dataset': 'A dataset of voices with characters attached, because the open ones all sound the same.',
+  'voicepersona-dataset': 'A dataset of voices with characters attached, because the open ones all sound the same. 62 downloads last month.',
   inbedder: 'An implementation of instruction-following embeddings, to see whether the claim held up.',
   'voiceforge-architecture': 'Text in, a voice out, with the architecture written down properly.',
   'youtube-comments-analysis': 'Points a sentiment and multi-modal search at a comment section, which is a brave thing to do.',
@@ -356,6 +254,25 @@ const LINE = {
   'rusty-ant': 'A small game in Rust, mostly to argue with the borrow checker.',
 };
 
+// The thirty he kept, in the order he ranked them. Anything not in this list is not shown.
+const KEEP = [
+  'mockflow-ai', 'soulengine', 'voiceforge-architecture', 'stellarium', 'snakeai-mlops', 'auto-prompting',
+  'virtual-van-gogh', 'big5-agents', 'ai-avatar', 'quorum', 'streaming-digit-classifier', 'kill-motherboard',
+  'voicepersona-dataset', 'medbrief', 'autocallai', 'sign-smash', 'upsurge', 'cracking', 'clausecraft',
+  'equity-project', 'neon-bites', 'snaider-cut', 'resumecraft-optimizer', 'lunar-survival', 'transformer-nmt',
+  'microscopy', 'unetplus', 'mafia-agents', 'hoverhelp', 'pixel-punks',
+];
+
+// VoiceForge became Alaap: same pictures, new name, new repo.
+const RENAME = {
+  'voiceforge-architecture': {
+    name: 'Alaap',
+    full: 'Alaap: Text-to-Voice Design',
+    github: 'https://github.com/PranavMishra17/alaap',
+    line: 'Describe a character in words and get a persistent voice for it, in English, Hindi, Bengali and Tamil. Every experiment written up with what it did not establish.',
+  },
+};
+
 const KIND = { gameDesign: 'game-design', aiMl: 'ai-ml', misc: 'misc' };
 const TAG = { gameDesign: 'Games & XR', aiMl: 'AI / ML', misc: 'Odds & ends' };
 
@@ -369,21 +286,22 @@ export const ALL_PROJECTS = (() => {
   const out = [];
   ['aiMl', 'gameDesign', 'misc'].forEach((bucket) => {
     (projects[bucket] || []).concat(githubProjects[bucket] || []).forEach((p) => {
-      if (!p || !p.id || seen.has(p.id) || BANNED.test(p.title || '')) return;
+      if (!p || !p.id || seen.has(p.id) || BANNED.test(p.title || '') || !KEEP.includes(p.id)) return;
       seen.add(p.id);
+      const re = RENAME[p.id] || {};
       out.push({
         id: p.id,
-        name: shortName(p.title),
-        full: p.title,
+        name: re.name || shortName(p.title),
+        full: re.full || p.title,
         category: p.category,
         bucket,
         tag: TAG[bucket],
-        line: LINE[p.id] || (p.description || '').split('. ')[0],
+        line: re.line || LINE[p.id] || (p.description || '').split('. ')[0],
         description: p.description || '',
         image: /^https?:/.test(p.mainImage || '') ? p.mainImage : getImageWithFallback(p.mainImage, KIND[bucket]),
         gallery: (p.gallery || []).map((g) => getImageWithFallback(g, KIND[bucket])),
         tech: p.techStack || [],
-        github: p.githubLink || '',
+        github: re.github || p.githubLink || '',
         demo: p.demoLink || '',
         site: p.websiteLink || '',
         // one screenshot in the repo is 400×400; never let it stretch
@@ -391,6 +309,7 @@ export const ALL_PROJECTS = (() => {
       });
     });
   });
+  out.sort((x, y) => KEEP.indexOf(x.id) - KEEP.indexOf(y.id));
   return out;
 })();
 

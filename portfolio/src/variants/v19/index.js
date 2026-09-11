@@ -13,7 +13,7 @@ import Work from './sections/Work';
 import Projects from './sections/Projects';
 import Papers from './sections/Papers';
 import Room from './room/Room';
-import Lab, { LabProvider, useLab } from './lab';
+import Lab, { LabProvider } from './lab';
 import { useSky, useClock } from './hooks';
 import { ME, LINKS } from './copy';
 import './v19.css';
@@ -29,7 +29,6 @@ const WHERE = [
 ];
 
 function Page() {
-  const { lab } = useLab();
   const skyRef = useRef(null);
   const detRef = useRef(null);
   const sections = useRef([]);
@@ -46,7 +45,11 @@ function Page() {
     window.matchMedia &&
     window.matchMedia('(pointer: coarse)').matches;
 
-  const hour = useClock(lab.hour);
+  // the real clock, unless the clock in the room has been clicked: then it is flipped to the
+  // other half of the day, and clicked again, back
+  const real = useClock('now');
+  const [flip, setFlip] = useState(false);
+  const hour = flip ? (real >= 6 && real < 18 ? 22 : 10) : real;
   useSky(skyRef, hour);
 
   /* body, fonts, and the scroll the browser must not restore under a wall */
@@ -154,7 +157,7 @@ function Page() {
   const current = WHERE.find((w) => w.id === where) || WHERE[0];
 
   return (
-    <div className={`v19 land-${lab.land}${blown ? ' is-open' : ''}`}>
+    <div className={`v19 land-plate${blown ? ' is-open' : ''}`}>
       <div className="v19-sky" ref={skyRef} aria-hidden="true" />
       <div className="v19-grain" aria-hidden="true" />
 
@@ -218,7 +221,7 @@ function Page() {
         <Work sectionRef={(el) => { sections.current[0] = el; }} />
         <Projects sectionRef={(el) => { sections.current[1] = el; }} />
         <Papers sectionRef={(el) => { sections.current[2] = el; }} />
-        <Room sectionRef={(el) => { sections.current[3] = el; }} onTop={home} hour={hour} />
+        <Room sectionRef={(el) => { sections.current[3] = el; }} onTop={home} hour={hour} flipped={flip} onClock={() => setFlip((f) => !f)} />
       </main>
 
       {landing ? (
@@ -228,13 +231,12 @@ function Page() {
         >
           <Detonator
             ref={detRef}
-            surface={lab.surface}
+            surface="iso2"
             armed={!blown}
             reduced={reduced}
             onBlast={onBlast}
           />
           <Landing
-            look={lab.land}
             onGo={go}
             hint={reduced ? 'Tap anywhere' : touch ? 'Press and hold' : 'Hold the left mouse button'}
           />

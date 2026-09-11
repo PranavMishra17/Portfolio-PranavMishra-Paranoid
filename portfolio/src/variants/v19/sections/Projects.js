@@ -1,18 +1,11 @@
 // v19 — the work I have built.
 //
-// He picked the frame and kept it: one fixed picture above, two rows of tiles below, everything
-// in a box that cannot change size. So the variants here are not layouts, they are how the
-// thing is dressed:
-//
-//   frame  — the plain one. Off-white card, picture left, words right.
-//   poster — the name set large on ink beside the picture, the way a one-sheet is set.
-//
-// In all of them: nothing lifts, recolours or moves on hover; the frame is a fixed box so
-// nothing can reflow; nothing scrolls inside anything else; no counts and no numbers.
+// The frame: one fixed picture above, two rows of tiles below, everything in a box that cannot
+// change size. Nothing lifts, recolours or moves on hover; the frame is a fixed box so nothing
+// can reflow; nothing scrolls inside anything else; no counts and no numbers.
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ALL_PROJECTS, NOW_BUILDING } from '../copy';
-import { useLab } from '../lab';
 import { useOnScreen, useOpener } from '../hooks';
 
 const AUTOPLAY_MS = 5200;
@@ -65,20 +58,22 @@ function Tile({ p, live, picked, onPeek, onRest, onPick }) {
   );
 }
 
+const isYouTube = (u) => /youtu\.?be/i.test(u || '');
+
 function Links({ p }) {
   return (
     <p className="v19-view-links">
-      {p.demo ? <a href={p.demo} target="_blank" rel="noreferrer">Watch it</a> : null}
-      {p.site ? <a href={p.site} target="_blank" rel="noreferrer">Use it</a> : null}
-      {p.github ? <a href={p.github} target="_blank" rel="noreferrer">Source</a> : null}
+      {p.github ? <a href={p.github} target="_blank" rel="noreferrer">GitHub</a> : null}
+      {p.site ? <a href={p.site} target="_blank" rel="noreferrer">Website</a> : null}
+      {p.demo ? <a href={p.demo} target="_blank" rel="noreferrer">{isYouTube(p.demo) ? 'YouTube' : 'Demo'}</a> : null}
     </p>
   );
 }
 
 /* The frame. Every part of it is a fixed box, so nothing on this page can move. */
-function Frame({ shown, mode, onClose, look }) {
+function Frame({ shown, mode, onClose }) {
   return (
-    <div className={`v19-view is-${look} v19-view-${mode}`} data-keep-open="">
+    <div className={`v19-view v19-view-${mode}`} data-keep-open="">
       <div className="v19-view-frame">
         <img key={shown.id} src={shown.image} alt="" loading="lazy" className={shown.square ? 'is-square' : ''} />
         <span className="v19-view-tag">{shown.tag}</span>
@@ -105,8 +100,6 @@ function Frame({ shown, mode, onClose, look }) {
 }
 
 export default function Projects({ sectionRef }) {
-  const { lab } = useLab();
-  const look = lab.projects;
   const wrapRef = useRef(null);
   const seen = useOnScreen(wrapRef, '-10%');
   const { open, toggle, close } = useOpener();
@@ -141,7 +134,7 @@ export default function Projects({ sectionRef }) {
   const browsing = Boolean(open) || all;
 
   return (
-    <section className={`v19-slab v19-projects is-${look}`} ref={sectionRef} id="projects" aria-label="Projects">
+    <section className="v19-slab v19-projects" ref={sectionRef} id="projects" aria-label="Projects">
       <div className="v19-slab-in v19-projects-in" ref={wrapRef}>
         <header className="v19-rack-head">
           <div>
@@ -166,7 +159,7 @@ export default function Projects({ sectionRef }) {
           </div>
         </header>
 
-        <Frame shown={shown} mode={mode} onClose={close} look={look} />
+        <Frame shown={shown} mode={mode} onClose={close} />
 
         <div className="v19-grid" style={{ '--cols': cols }}>
           {visible.map((p) => (

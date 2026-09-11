@@ -18,7 +18,7 @@ const GITHUB_VIEW = 'https://github.com/PranavMishra17/PranavMishra17/blob/main/
 
 export default function Resume() {
   const skyRef = React.useRef(null);
-  const hour = useClock('now');
+  const hour = useClock();
   useSky(skyRef, hour);
   const [src, setSrc] = useState(null);
   const [href, setHref] = useState(GITHUB_VIEW);

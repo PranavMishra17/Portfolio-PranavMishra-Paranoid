@@ -37,11 +37,11 @@ const easeOutCubic = (t) => 1 - (1 - t) ** 3;
 const easeOutBack = (t) => 1 + 2.2 * (t - 1) ** 3 + 1.4 * (t - 1) ** 2;
 
 export default class Wall {
-  constructor({ W, H, dpr, surface = 'plaster' }) {
+  constructor({ W, H, dpr, surface = 'iso2' }) {
     this.dpr = dpr;
     this.state = 'intact'; // intact | failing | gone | returning
     this.face = document.createElement('canvas');
-    this.surface = SURFACES[surface] || SURFACES.plaster;
+    this.surface = SURFACES[surface] || SURFACES.iso2;
     this.layout(W, H);
   }
 

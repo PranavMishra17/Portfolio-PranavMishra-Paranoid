@@ -1,23 +1,12 @@
-// v19 — the papers, five ways. Different objects, not one card restyled.
-//
-//   figure   — the result, drawn. Data first, the title second.
-//   abstract — a real sheet of paper, opaque, with the opening of the abstract set on it and
-//              the rest a click away. Nothing shows through from the page behind.
-//   brief    — one sheet carrying both: every figure down the left, the title, the one line and
-//              two lines of the abstract on the right, the rest a click away — inline, on the
-//              last line, so the sheet has no gaps in it.
-//   plates   — the abstract sheet, and under it two figures as plates, side by side, the same
-//              size, captions beneath: symmetrical, the way a figures page is.
-//   stacked  — one sheet per paper, full width: the figures beside the title, the whole abstract
-//              in one justified column. Papers stack.
+// v19 — the papers, briefly. One sheet each: every figure down the left, the title, the one
+// line and two lines of the abstract on the right with the rest a click away, inline on the
+// last line, so the sheet has no gaps in it.
 //
 // Every figure is a table from the paper itself, redrawn. Nothing is invented and nothing is
 // there for decoration: each one shows the thing the paper is actually about.
 
 import React, { useState } from 'react';
-import { PAPERS, ALL_PROJECTS } from '../copy';
-import { TROPHIES } from '../personal';
-import { useLab } from '../lab';
+import { PAPERS } from '../copy';
 
 const STATE = {
   ACCEPTED: { label: 'Accepted', cls: 'is-acc' },
@@ -115,9 +104,6 @@ const FIGURES = {
     },
   ],
 };
-
-// which project each award came out of, so the award can show its own work
-const FROM = { mit: 'snaider-cut', hint: 'virtual-van-gogh' };
 
 const OPENING = 260;
 
@@ -368,64 +354,6 @@ function Abstract({ p, marked, opening = OPENING, inline = false }) {
   );
 }
 
-/* ── the awards, which open — each on its own ────────────────────────── */
-
-function Won({ look }) {
-  const [open, setOpen] = useState(() => new Set());
-  const flip = (id) =>
-    setOpen((cur) => {
-      const next = new Set(cur);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  return (
-    <div className={`v19-won is-${look}`}>
-      <p className="v19-mini">Won</p>
-      <div className="v19-won-row">
-        {TROPHIES.map((t) => {
-          const isOpen = open.has(t.id);
-          const project = ALL_PROJECTS.find((p) => p.id === FROM[t.id]);
-          return (
-            <article className={`v19-won-one${isOpen ? ' is-open' : ''}`} key={t.id}>
-              <button type="button" className="v19-won-face" onClick={() => flip(t.id)} aria-expanded={isOpen}>
-                <img src={t.image} alt="" loading="lazy" />
-                <span>
-                  <b>{t.name}</b>
-                  <i>{t.what}</i>
-                </span>
-                <span className="v19-won-mark" aria-hidden="true">{isOpen ? '−' : '+'}</span>
-              </button>
-              {isOpen && project ? (
-                <div className="v19-won-open">
-                  <div className="v19-won-shot">
-                    <img src={project.image} alt="" loading="lazy" />
-                  </div>
-                  <div>
-                    <p className="v19-view-eye"><span>{project.category}</span></p>
-                    <h4 className="v19-won-name">{project.name}</h4>
-                    <p className="v19-won-line">{project.line}</p>
-                    <p className="v19-chiprow">
-                      {project.tech.slice(0, 5).map((x) => (
-                        <span className="v19-chip" key={x}>{x}</span>
-                      ))}
-                    </p>
-                    <p className="v19-view-links">
-                      {project.demo ? <a href={project.demo} target="_blank" rel="noreferrer">Watch it</a> : null}
-                      {project.site ? <a href={project.site} target="_blank" rel="noreferrer">Use it</a> : null}
-                      {project.github ? <a href={project.github} target="_blank" rel="noreferrer">Source</a> : null}
-                    </p>
-                  </div>
-                </div>
-              ) : null}
-            </article>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
 function Head({ title }) {
   return (
     <header className="v19-head">
@@ -448,166 +376,31 @@ function SheetHead({ p }) {
 }
 
 export default function Papers({ sectionRef }) {
-  const { lab } = useLab();
-  const look = lab.papers;
-  const first = (p) => (FIGURES[p.id] || [])[0];
-
-  /* ── abstract: real paper, the opening lines, the rest on request ── */
-  if (look === 'abstract') {
-    return (
-      <section className="v19-slab v19-papers is-abstract" ref={sectionRef} id="papers" aria-label="Papers">
-        <div className="v19-slab-in">
-          <Head title="Read the abstracts." />
-          <div className="v19-abs-row">
-            {PAPERS.map((p) => (
-              <article className="v19-sheet" key={p.id}>
-                <SheetHead p={p} />
-                <h3 className="v19-sheet-title">{p.title}</h3>
-                <Authors p={p} />
-                <div className="v19-sheet-rule" aria-hidden="true" />
-                <p className="v19-abs-label">Abstract</p>
-                <Abstract p={p} marked />
-                <div className="v19-sheet-foot">
-                  <Cite n={p.citations} />
-                  <Links p={p} />
-                </div>
-              </article>
-            ))}
-          </div>
-          <Won look={look} />
-        </div>
-      </section>
-    );
-  }
-
-  /* ── brief: the drawing and the opening on one sheet ── */
-  if (look === 'brief') {
-    return (
-      <section className="v19-slab v19-papers is-brief" ref={sectionRef} id="papers" aria-label="Papers">
-        <div className="v19-slab-in">
-          <Head title="Two papers, briefly." />
-          <div className="v19-brief-row">
-            {PAPERS.map((p) => (
-              <article className="v19-brief" key={p.id}>
-                <div className="v19-brief-fig">
-                  {(FIGURES[p.id] || []).map((f) => (
-                    <Plate key={f.n} f={f} small />
-                  ))}
-                </div>
-                <div className="v19-brief-words">
-                  <SheetHead p={p} />
-                  <h3 className="v19-sheet-title">{p.title}</h3>
-                  <p className="v19-brief-line">{p.line}</p>
-                  <Abstract p={p} opening={190} inline />
-                  <div className="v19-sheet-foot">
-                    <Cite n={p.citations} />
-                    <Links p={p} />
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-          <Won look={look} />
-        </div>
-      </section>
-    );
-  }
-
-  /* ── plates: the sheet, and the figures under it ── */
-  if (look === 'plates') {
-    return (
-      <section className="v19-slab v19-papers is-plates" ref={sectionRef} id="papers" aria-label="Papers">
-        <div className="v19-slab-in">
-          <Head title="Abstracts, with figures." />
-          <div className="v19-abs-row">
-            {PAPERS.map((p) => (
-              <article className="v19-sheet" key={p.id}>
-                <SheetHead p={p} />
-                <h3 className="v19-sheet-title">{p.title}</h3>
-                <Authors p={p} />
-                <div className="v19-sheet-rule" aria-hidden="true" />
-                <p className="v19-abs-label">Abstract</p>
-                <Abstract p={p} marked />
-                <div className="v19-plates">
-                  {(FIGURES[p.id] || []).slice(0, 2).map((f) => (
-                    <Plate key={f.n} f={f} />
-                  ))}
-                </div>
-                <div className="v19-sheet-foot">
-                  <Cite n={p.citations} />
-                  <Links p={p} />
-                </div>
-              </article>
-            ))}
-          </div>
-          <Won look={look} />
-        </div>
-      </section>
-    );
-  }
-
-  /* ── stacked: one sheet per paper, the figures beside the title, the abstract in one column ── */
-  if (look === 'stacked') {
-    return (
-      <section className="v19-slab v19-papers is-stacked" ref={sectionRef} id="papers" aria-label="Papers">
-        <div className="v19-slab-in">
-          <Head title="Two papers." />
-          <div className="v19-stack">
-            {PAPERS.map((p) => (
-              <article className="v19-band" key={p.id}>
-                <div className="v19-band-words">
-                  <div className="v19-band-head">
-                    <SheetHead p={p} />
-                    <Cite n={p.citations} />
-                  </div>
-                  <h3 className="v19-band-title">{p.title}</h3>
-                  <Authors p={p} />
-                  <p className="v19-brief-line">{p.line}</p>
-                  <div className="v19-sheet-rule" aria-hidden="true" />
-                  <p className="v19-abs-label">Abstract</p>
-                  <div className="v19-band-body">
-                    <Abstract p={p} marked opening={0} />
-                  </div>
-                  <Links p={p} />
-                </div>
-                <div className="v19-band-figs">
-                  {(FIGURES[p.id] || []).map((f) => (
-                    <Plate key={f.n} f={f} small />
-                  ))}
-                </div>
-              </article>
-            ))}
-          </div>
-          <Won look={look} />
-        </div>
-      </section>
-    );
-  }
-
-  /* ── figure: the result, drawn ── */
   return (
-    <section className="v19-slab v19-papers is-figure" ref={sectionRef} id="papers" aria-label="Papers">
+    <section className="v19-slab v19-papers is-brief" ref={sectionRef} id="papers" aria-label="Papers">
       <div className="v19-slab-in">
-        <Head title="What each paper found." />
-        <div className="v19-fig-row">
-          {PAPERS.map((p) => {
-            const f = first(p);
-            return (
-              <article className="v19-fig" key={p.id}>
-                <p className="v19-fig-label">{f ? f.label : 'Result'}</p>
-                <Drawing f={f} />
-                <h3 className="v19-fig-title">{p.title}</h3>
-                <div className="v19-fig-meta">
-                  <Status p={p} />
-                  <span>{p.venue}</span>
+        <Head title="Two papers, briefly." />
+        <div className="v19-brief-row">
+          {PAPERS.map((p) => (
+            <article className="v19-brief" key={p.id}>
+              <div className="v19-brief-fig">
+                {(FIGURES[p.id] || []).map((f) => (
+                  <Plate key={f.n} f={f} small />
+                ))}
+              </div>
+              <div className="v19-brief-words">
+                <SheetHead p={p} />
+                <h3 className="v19-sheet-title">{p.title}</h3>
+                <p className="v19-brief-line">{p.line}</p>
+                <Abstract p={p} opening={190} inline />
+                <div className="v19-sheet-foot">
                   <Cite n={p.citations} />
+                  <Links p={p} />
                 </div>
-                <Links p={p} />
-              </article>
-            );
-          })}
+              </div>
+            </article>
+          ))}
         </div>
-        <Won look={look} />
       </div>
     </section>
   );
