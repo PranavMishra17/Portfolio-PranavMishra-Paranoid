@@ -60,7 +60,6 @@ function Page() {
     try { window.localStorage.setItem('v19-lab', JSON.stringify(next)); } catch (err) { /* fine */ }
     return next;
   });
-  const sun = lab.sun !== false;
   const hour = lab.forceNight ? 23.5 : flip ? (real >= 6 && real < 18 ? 22 : 10) : real;
   useSky(skyRef, hour, 0.32);
 
@@ -176,7 +175,7 @@ function Page() {
   const current = WHERE.find((w) => w.id === where) || WHERE[0];
 
   return (
-    <div className={`v19 land-plate${blown ? ' is-open' : ''}${disco ? ' is-disco' : ''}${sun ? ' has-sun' : ''}`}>
+    <div className={`v19 land-plate${blown ? ' is-open' : ''}${disco ? ' is-disco' : ''} has-sun`}>
       <div className="v19-sky" ref={skyRef} aria-hidden="true">
         <i className="v19-stars" style={{ backgroundImage: `url("${STARS[0]}")` }} />
         <i className="v19-stars is-b" style={{ backgroundImage: `url("${STARS[1]}")` }} />
@@ -248,7 +247,6 @@ function Page() {
 
       <aside className="v19-lab" data-keep-open="">
         <b>Lab</b>
-        <button type="button" className={sun ? 'on' : ''} onClick={() => pick('sun', !sun)}>Sun by day</button>
         <button type="button" className={lab.forceNight ? 'on' : ''} onClick={() => pick('forceNight', !lab.forceNight)}>Force night</button>
         <button type="button" className={disco ? 'on' : ''} onClick={() => setDisco((d) => !d)}>Disco on</button>
       </aside>

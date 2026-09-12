@@ -18,6 +18,9 @@ import { drawScene, HOTSPOTS, LIGHTS, SCREENS } from './scene';
 import { BOOKS, GAMES, POSTERS, TROPHIES, MEDALS } from '../personal';
 import { ALL_PROJECTS, PAPERS, ROLES, ALFRED, LINKS, MORE_LINKS } from '../copy';
 
+// the books whose notes run long
+const LONG_NOTE = new Set(['hitchhikers', 'stranger']);
+
 // which project each trophy came out of
 const FROM = { mit: 'snaider-cut', hint: 'virtual-van-gogh' };
 const isYouTube = (u) => /youtu\.?be/i.test(u || '');
@@ -26,7 +29,7 @@ const FRAME_MS = 42;
 const SCREEN_MS = 4600;
 const SPIN_MS = 1500;
 
-const TOGGLES = new Set(['lamp', 'lights', 'pc', 'window', 'ball', 'mug', 'chair', 'clock', 'disco']);
+const TOGGLES = new Set(['lamp', 'lights', 'pc', 'window', 'ball', 'mug', 'chair', 'clock', 'disco', 'bin']);
 
 // the four colours the disco throws round the room
 const DISCO = [[255, 84, 196], [84, 214, 255], [255, 222, 84], [128, 255, 140]];
@@ -164,14 +167,19 @@ function Slip({ hotspot, onClose, onJump }) {
           wide: true,
           node: (
             <div className="v19-slip-cards is-books">
-              {BOOKS.map((b) => (
-                <div className="v19-slip-card" key={b.id}>
-                  {b.cover ? <img src={b.cover} alt="" onError={(e) => { e.currentTarget.style.display = 'none'; }} /> : null}
-                  <div>
-                    <b>{b.title}</b>
-                    <i>{b.author} · {b.status}</i>
-                    <p>{b.note}</p>
-                  </div>
+              {/* the two with the long notes take a column of their own */}
+              {[BOOKS.filter((b) => !LONG_NOTE.has(b.id)), BOOKS.filter((b) => LONG_NOTE.has(b.id))].map((col, ci) => (
+                <div className="v19-slip-col" key={ci}>
+                  {col.map((b) => (
+                    <div className="v19-slip-card" key={b.id}>
+                      {b.cover ? <img src={b.cover} alt="" onError={(e) => { e.currentTarget.style.display = 'none'; }} /> : null}
+                      <div>
+                        <b>{b.title}</b>
+                        <i>{b.author} · {b.status}</i>
+                        <p>{b.note}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               ))}
             </div>
@@ -255,6 +263,7 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
     spin: 0,
     spinAt: null,
     disco: false,
+    binHop: false,
     t: 0,
   });
   const hoverRef = useRef(0);
@@ -652,6 +661,10 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
             st.disco = !st.disco;
             if (onDisco) onDisco(st.disco);
             break;
+          case 'bin':
+            st.binHop = true;
+            window.setTimeout(() => { stateRef.current.binHop = false; }, 260);
+            break;
           default: break;
         }
         return;
@@ -685,6 +698,7 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
     if (hotspot.key === 'books') return BOOKS.map((b) => b.title).join(' · ');
     if (hotspot.key === 'chair') return 'The chair';
     if (hotspot.key === 'disco') return stateRef.current.disco ? 'Enough' : 'Press it';
+    if (hotspot.key === 'bin') return 'The bin';
     if (hotspot.key === 'pc') return stateRef.current.pc ? 'The tower — switch it off and see' : 'The tower';
     if (hotspot.key === 'clock') return flipped ? 'The clock — put the day back' : 'The clock — flip the day';
     return hotspot.label;

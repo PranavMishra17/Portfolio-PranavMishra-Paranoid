@@ -47,13 +47,15 @@ export const HOTSPOTS = [
   { id: 15, key: 'books', label: 'Books', kind: 'zoom', x: 6, y: 32, w: 32, h: 24 },
   { id: 21, key: 'clock', label: 'The clock', kind: 'zoom', x: 20, y: 12, w: 20, h: 20 },
   { id: 18, key: 'ball', label: 'Football and boots', kind: 'hand', x: 8, y: 104, w: 70, h: 22 },
-  { id: 23, key: 'disco', label: 'A button', kind: 'hand', x: 252, y: 88, w: 16, h: 16 },
+  { id: 22, key: 'bin', label: 'The bin', kind: 'hand', x: 255, y: 87, w: 20, h: 20 },
+  { id: 23, key: 'disco', label: 'A button', kind: 'hand', x: 259, y: 73, w: 12, h: 12 },
   { id: 19, key: 'window', label: 'The window', kind: 'hand', x: 208, y: -2, w: 64, h: 46 },
   { id: 20, key: 'lights', label: 'String lights', kind: 'hand', x: 4, y: -7, w: 280, h: 12 },
 ];
 
-// the button on the wall, right of the desk
-export const BUTTON = { x: 260, y: 96, r: 5 };
+// the button on the wall, right of the desk, above the bin
+export const BUTTON = { x: 265, y: 79, r: 3 };
+export const BIN = { x: 258, y: 92, w: 14, h: 14 };
 
 export const LIGHTS = {
   lamp: { x: 68, y: 52, r: 78, warm: 1, strength: 0.95 },
@@ -251,7 +253,7 @@ function poster(g, id, x, y, which) {
 
 /* ── the window, which opens ───────────────────────────────────────── */
 
-function windowUnit(g, openT, t) {
+function windowUnit(g, openT, t, night) {
   const x = 212;
   const y = 2;
   const w = 54;
@@ -264,7 +266,16 @@ function windowUnit(g, openT, t) {
     g.hline(x, y + i, w, k < 0.34 ? 'sky1' : k < 0.62 ? 'sky2' : 'sky3');
   }
   const sunY = y + 22 - Math.round(Math.sin(t / 4200) * 2);
-  g.disc(x + 38, sunY, 5, 'sun');
+  if (night) {
+    // a crescent moon, and three stars
+    g.disc(x + 38, sunY, 5, 'sun');
+    g.disc(x + 41, sunY - 1, 4, 'sky1');
+    g.px(x + 12, y + 6, 'white');
+    g.px(x + 22, y + 11, 'white');
+    g.px(x + 47, y + 4, 'white');
+  } else {
+    g.disc(x + 38, sunY, 5, 'sun');
+  }
   for (let i = 0; i < w; i += 1) {
     const hh = 28 + Math.round(Math.sin(i / 9) * 3 + Math.sin(i / 21) * 4);
     g.rect(x + i, y + hh, 1, h - hh, 'hill');
@@ -551,23 +562,47 @@ function ball(g, bounce) {
 
 /* ── the right corner: a bin, and what it was standing in front of ──── */
 
-// a round button on the wall, glossy, with a glitter that goes round it. Lit when the disco is on.
+// a small switch plate on the wall with a glossy round button on it, and a glitter of three
+// sparks that take turns. Lit when the disco is on.
 function button(g, on, t) {
-  const { x, y, r } = BUTTON;
+  const { x, y } = BUTTON;
   g.setId(23);
-  g.ring(x, y, r + 1, 'ink2');
-  g.disc(x, y, r, on ? 'ledRed' : 'red');
-  g.disc(x - 1, y - 1, 2, on ? 'pink' : 'red2');
-  g.px(x - 2, y - 2, 'white');
-  // the glitter: eight sparks round the rim, three lit at a time, turning
-  const k = Math.floor(t / 140);
-  for (let i = 0; i < 8; i += 1) {
-    const ang = (i / 8) * Math.PI * 2;
-    const sx = x + Math.round(Math.cos(ang) * (r + 3));
-    const sy = y + Math.round(Math.sin(ang) * (r + 3));
-    const lit = (i + k) % 8 < 3;
-    if (lit) g.px(sx, sy, (i + k) % 8 === 0 ? 'white' : on ? 'yellow2' : 'gold2');
-  }
+  g.rect(x - 4, y - 4, 9, 9, 'grey2');
+  g.frame(x - 4, y - 4, 9, 9, 'grey3');
+  g.disc(x, y, 2, on ? 'ledRed' : 'red');
+  g.px(x - 1, y - 1, on ? 'pink' : 'red2');
+  g.px(x, y + 1, 'red3');
+  const k = Math.floor(t / 220) % 3;
+  const sparks = [[x - 7, y - 6], [x + 7, y - 4], [x + 5, y + 7]];
+  sparks.forEach(([sx, sy], i) => {
+    const lit = i === k;
+    const c = lit ? 'white' : (i + 1) % 3 === k ? 'gold2' : null;
+    if (!c) return;
+    g.px(sx, sy, c);
+    if (lit) { g.px(sx - 1, sy, 'gold2'); g.px(sx + 1, sy, 'gold2'); g.px(sx, sy - 1, 'gold2'); g.px(sx, sy + 1, 'gold2'); }
+  });
+  g.setId(0);
+}
+
+// the bin: a lidded metal one in the corner. Click it and the lid hops.
+function bin(g, hop) {
+  const { x, y, w, h } = BIN;
+  const lift = hop ? 2 : 0;
+  g.setId(22);
+  g.rect(x - 1, y + h, w + 3, 1, 'floorDark');
+  // the body, a shade darker down the right and a band round the middle
+  g.rect(x, y, w, h, 'metal');
+  g.rect(x + 1, y, 2, h, 'metal2');
+  g.rect(x + w - 3, y, 3, h, 'metal3');
+  g.hline(x, y + 5, w, 'metal3');
+  g.hline(x, y + 10, w, 'metal3');
+  g.hline(x, y + h - 1, w, 'metal3');
+  g.px(x, y + h - 1, 'ink2');
+  g.px(x + w - 1, y + h - 1, 'ink2');
+  // the lid, one wider than the body, and its handle
+  g.rect(x - 1, y - 2 - lift, w + 2, 2, 'metal2');
+  g.hline(x - 1, y - 1 - lift, w + 2, 'metal3');
+  g.rect(x + Math.floor(w / 2) - 2, y - 4 - lift, 4, 2, 'ink2');
   g.setId(0);
 }
 
@@ -598,8 +633,9 @@ export function drawScene(grid, state) {
   if (state.disco) mirrorBall(g, t);
   POSTERS.forEach((p, i) => poster(g, 10 + i, 85 + i * 40, 6, i));
   button(g, state.disco, t);
+  bin(g, state.binHop);
   clock(g, state.hour || 0);
-  windowUnit(g, state.windowT || 0, t);
+  windowUnit(g, state.windowT || 0, t, (state.night || 0) > 0.45);
   shelf(g, state.sparkle, t);
   rug(g);
   desk(g);

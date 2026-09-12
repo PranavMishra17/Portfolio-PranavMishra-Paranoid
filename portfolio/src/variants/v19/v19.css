@@ -827,12 +827,18 @@ body.v19-locked { overflow: hidden; }
 
 /* the cards inside a slip: a picture and its words, for the shelf and the trophies */
 .v19-slip-cards { display: grid; grid-template-columns: 1fr; gap: 12px; }
-.v19-slip-cards.is-books { grid-template-columns: 1fr 1fr; }
+.v19-slip-cards.is-books { grid-template-columns: 1fr 1fr; align-items: start; }
+.v19-slip-col { display: grid; gap: 12px; }
 @media (max-width: 700px) { .v19-slip-cards.is-books { grid-template-columns: 1fr; } }
 .v19-slip-card { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px; align-items: start; }
 .v19-slip-card img { width: 64px; height: 92px; object-fit: cover; border-radius: 2px; background: var(--paper-3); }
-.v19-slip-cards:not(.is-books) .v19-slip-card { grid-template-columns: 120px minmax(0, 1fr); }
-.v19-slip-cards:not(.is-books) .v19-slip-card img { width: 120px; height: 84px; }
+.v19-slip-cards:not(.is-books):not(.is-games) .v19-slip-card { grid-template-columns: 120px minmax(0, 1fr); }
+.v19-slip-cards:not(.is-books):not(.is-games) .v19-slip-card img { width: 120px; height: 84px; }
+/* the game covers keep their own shape: tall, square or wide */
+.v19-slip-cards.is-games { grid-template-columns: 1fr 1fr; align-items: start; }
+.v19-slip-cards.is-games .v19-slip-card { grid-template-columns: 76px minmax(0, 1fr); }
+.v19-slip-cards.is-games .v19-slip-card img { width: 76px; height: auto; object-fit: contain; }
+@media (max-width: 700px) { .v19-slip-cards.is-games { grid-template-columns: 1fr; } }
 .v19-slip-card b { display: block; font-family: var(--display); font-size: 13.5px; font-weight: 600; letter-spacing: -.01em; line-height: 1.25; }
 .v19-slip-card i { display: block; font-style: normal; font-family: var(--mono); font-size: 10px; color: var(--ink-3); margin-top: 3px; }
 .v19-slip-card p { font-size: 13px; line-height: 1.5; color: var(--ink-2); margin-top: 5px; }
