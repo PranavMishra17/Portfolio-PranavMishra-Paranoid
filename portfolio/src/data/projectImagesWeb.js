@@ -2,12 +2,12 @@
 // by scripts/optimize-images.py: at most 1280 wide, progressive JPEG. The originals are untouched;
 // projects.js still points at them. v19 prefers these when one exists.
 export const projectImagesWeb = {
-  'mockflow-ai': 'assets/images/web/mockflow-ai.jpg',
-  'soulengine': 'assets/images/web/soulengine.jpg',
-  'voiceforge-architecture': 'assets/images/web/voiceforge-architecture.jpg',
+  'mockflow-ai': 'assets/images/web/mockflow-ai-2.jpg',
+  'soulengine': 'assets/images/web/soulengine-2.jpg',
+  'voiceforge-architecture': 'assets/images/web/alaap.jpg',
   'stellarium': 'assets/images/web/stellarium.jpg',
   'quorum': 'assets/images/web/quorum.jpg',
-  'snakeai-mlops': 'assets/images/web/snakeai-mlops.jpg',
+  'snakeai-mlops': 'assets/images/web/snakeai-mlops-2.jpg',
   'auto-prompting': 'assets/images/web/auto-prompting.jpg',
   'virtual-van-gogh': 'assets/images/web/virtual-van-gogh.jpg',
   'big5-agents': 'assets/images/web/big5-agents.jpg',
@@ -28,7 +28,7 @@ export const projectImagesWeb = {
   'lunar-survival': 'assets/images/web/lunar-survival.jpg',
   'transformer-nmt': 'assets/images/default/ai_ml_default.jpg',
   'microscopy': 'assets/images/web/microscopy.jpg',
-  'unetplus': 'assets/images/web/unetplus.jpg',
+  'unetplus': 'assets/images/web/unetplus-2.jpg',
   'mafia-agents': 'assets/images/web/mafia-agents.jpg',
   'hoverhelp': 'assets/images/web/hoverhelp.jpg',
   'pixel-punks': 'assets/images/web/pixel-punks.jpg',
