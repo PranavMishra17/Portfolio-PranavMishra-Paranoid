@@ -29,7 +29,7 @@ const FRAME_MS = 42;
 const SCREEN_MS = 4600;
 const SPIN_MS = 1500;
 
-const TOGGLES = new Set(['lamp', 'lights', 'pc', 'window', 'ball', 'mug', 'chair', 'clock', 'disco', 'bin']);
+const TOGGLES = new Set(['lamp', 'lights', 'pc', 'window', 'ball', 'mug', 'chair', 'clock', 'disco', 'corner']);
 
 // the four colours the disco throws round the room
 const DISCO = [[255, 84, 196], [84, 214, 255], [255, 222, 84], [128, 255, 140]];
@@ -244,7 +244,7 @@ function Slip({ hotspot, onClose, onJump }) {
 
 /* ── the room ───────────────────────────────────────────────────────── */
 
-export default function Room({ sectionRef, onTop, hour = 19, flipped = false, onClock, onJump, onDisco }) {
+export default function Room({ sectionRef, onTop, hour = 19, flipped = false, onClock, onJump, onDisco, corner = 'sign' }) {
   const canvasRef = useRef(null);
   const artRef = useRef({ posters: [], books: [] });
   const hoverScreenRef = useRef(null);
@@ -272,6 +272,8 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
   const [hover, setHover] = useState(0);
   const [openKey, setOpenKey] = useState(null);
   const [kind, setKind] = useState('');
+
+  useEffect(() => { stateRef.current.corner = corner; }, [corner]);
 
   /* the hour, from the page: how dark, and whether the lights are on */
   useEffect(() => {
@@ -661,7 +663,7 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
             st.disco = !st.disco;
             if (onDisco) onDisco(st.disco);
             break;
-          case 'bin':
+          case 'corner':
             st.binHop = true;
             window.setTimeout(() => { stateRef.current.binHop = false; }, 260);
             break;
@@ -698,7 +700,7 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
     if (hotspot.key === 'books') return BOOKS.map((b) => b.title).join(' · ');
     if (hotspot.key === 'chair') return 'The chair';
     if (hotspot.key === 'disco') return stateRef.current.disco ? 'Enough' : 'Press it';
-    if (hotspot.key === 'bin') return 'The bin';
+    if (hotspot.key === 'corner') return { bin: 'The bin', sign: 'It says do not press', hanger: 'Do not disturb', glass: 'In case of emergency', hazard: 'Caution', cone: 'Mind the cone' }[stateRef.current.corner] || '';
     if (hotspot.key === 'pc') return stateRef.current.pc ? 'The tower — switch it off and see' : 'The tower';
     if (hotspot.key === 'clock') return flipped ? 'The clock — put the day back' : 'The clock — flip the day';
     return hotspot.label;
