@@ -26,7 +26,10 @@ const FRAME_MS = 42;
 const SCREEN_MS = 4600;
 const SPIN_MS = 1500;
 
-const TOGGLES = new Set(['lamp', 'lights', 'pc', 'window', 'ball', 'mug', 'chair', 'clock']);
+const TOGGLES = new Set(['lamp', 'lights', 'pc', 'window', 'ball', 'mug', 'chair', 'clock', 'bin', 'disco']);
+
+// the four colours the disco throws round the room
+const DISCO = [[255, 84, 196], [84, 214, 255], [255, 222, 84], [128, 255, 140]];
 
 const EVENING = { night: 0.5, lamp: true, string: true, pc: true, windowOpen: false, mono: false, hour: 19 };
 
@@ -175,7 +178,25 @@ function Slip({ hotspot, onClose, onJump }) {
           ),
         };
       case 'games':
-        return { eye: 'Video games', title: 'My favourites', node: <List items={GAMES.map((b) => ({ k: b.title, v: b.note }))} /> };
+        return {
+          eye: 'Video games',
+          title: 'My favourites',
+          wide: true,
+          node: (
+            <div className="v19-slip-cards is-games">
+              {GAMES.map((gm) => (
+                <div className="v19-slip-card" key={gm.id}>
+                  {gm.cover ? <img src={gm.cover} alt="" onError={(e) => { e.currentTarget.style.display = 'none'; }} /> : null}
+                  <div>
+                    <b>{gm.title}</b>
+                    <i>{gm.by}</i>
+                    {gm.note ? <p>{gm.note}</p> : null}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ),
+        };
       case 'poster1':
       case 'poster2':
       case 'poster3': {
@@ -215,7 +236,7 @@ function Slip({ hotspot, onClose, onJump }) {
 
 /* ── the room ───────────────────────────────────────────────────────── */
 
-export default function Room({ sectionRef, onTop, hour = 19, flipped = false, onClock, onJump }) {
+export default function Room({ sectionRef, onTop, hour = 19, flipped = false, onClock, onJump, onDisco }) {
   const canvasRef = useRef(null);
   const artRef = useRef({ posters: [], books: [] });
   const hoverScreenRef = useRef(null);
@@ -233,6 +254,9 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
     bounce: 0,
     spin: 0,
     spinAt: null,
+    binAt: null,
+    binGone: false,
+    disco: false,
     t: 0,
   });
   const hoverRef = useRef(0);
@@ -459,6 +483,16 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
       if (st.lamp) lights.push({ ...LIGHTS.lamp, y: LIGHTS.lamp.y + ROOF, on: true });
       if (st.pc) lights.push({ ...LIGHTS.screens, y: LIGHTS.screens.y + ROOF, on: true });
       if (st.string) LIGHTS.string.forEach((l) => lights.push({ ...l, y: l.y + ROOF, on: true }));
+      // the bin has rolled off once it is past the edge
+      if (st.binAt != null && !st.binGone && now - st.binAt > 1600) st.binGone = true;
+      // the disco: four colours sweeping round the room off the mirror ball
+      if (st.disco) {
+        const a = now / 1100;
+        DISCO.forEach((tint, i) => {
+          const ang = a + (i * Math.PI) / 2;
+          lights.push({ x: 144 + Math.cos(ang) * 96, y: ROOF + 74 + Math.sin(ang * 1.7 + i) * 38, r: 72, on: true, tint, strength: 0.85 });
+        });
+      }
 
       drawScene(gridRef.current, st);
       rasterize(gridRef.current, imgRef.current, { night, lights, hover: hoverRef.current, mono: st.mono });
@@ -541,7 +575,9 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
     const gy = (e.clientY - r.top - offY) / scale;
     if (x < 0 || gy < 0 || x >= W || gy >= H) return null;
     const y = gy - ROOF; // hotspots are in room coordinates; the roof sits above them
-    const hit = HOTSPOTS.find((h) => x >= h.x && x < h.x + h.w && y >= h.y && y < h.y + h.h) || null;
+    const st = stateRef.current;
+    const there = (h) => (h.key === 'bin' ? st.binAt == null : h.key === 'disco' ? st.binGone : true);
+    const hit = HOTSPOTS.find((h) => there(h) && x >= h.x && x < h.x + h.w && y >= h.y && y < h.y + h.h) || null;
     if (hit) {
       // where the object sits on screen, relative to the stage — the slip is placed beside it
       hit.screen = {
@@ -618,13 +654,18 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
           }
           case 'mug': st.cold = !st.cold; break;
           case 'clock': if (onClock) onClock(); break;
+          case 'bin': if (st.binAt == null) st.binAt = performance.now(); break;
+          case 'disco':
+            st.disco = !st.disco;
+            if (onDisco) onDisco(st.disco);
+            break;
           default: break;
         }
         return;
       }
       setOpenKey((cur) => (cur === h.key ? null : h.key));
     },
-    [at, onClock]
+    [at, onClock, onDisco]
   );
 
   useEffect(() => {
@@ -650,6 +691,8 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
     }
     if (hotspot.key === 'books') return BOOKS.map((b) => b.title).join(' · ');
     if (hotspot.key === 'chair') return 'The chair';
+    if (hotspot.key === 'bin') return 'The bin';
+    if (hotspot.key === 'disco') return stateRef.current.disco ? 'Disco — enough' : 'Disco';
     if (hotspot.key === 'pc') return stateRef.current.pc ? 'The tower — switch it off and see' : 'The tower';
     if (hotspot.key === 'clock') return flipped ? 'The clock — put the day back' : 'The clock — flip the day';
     return hotspot.label;

@@ -147,6 +147,8 @@ export const ROLES = experiences
 // The one before Alfred_ that ran for months rather than weeks. It gets the same treatment,
 // at half the size, and it stays shut until you ask for it.
 export const WHEELPRICE = ROLES.find((r) => r.id === 'wheelprice-intern') || ROLES[0];
+// the company file is a wide canvas with a small mark in the middle; this is the mark, cropped square
+WHEELPRICE.logo = '/assets/images/companies/wheelprice-mark.png';
 WHEELPRICE.short = 'AI engineer on a two-person team. I built the data and AI layer.';
 WHEELPRICE.about =
   'A marketplace for automotive wheels. Two engineers, no DevOps, so I picked the problems as well as solving them.';

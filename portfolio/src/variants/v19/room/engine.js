@@ -242,7 +242,8 @@ function isEdge(ids, i, x, y, hover) {
 /**
  * Grid → RGBA.
  *   night 0..1  blends every colour toward its night value
- *   lights      [{x, y, r, on, warm}] pull a neighbourhood back toward daylight
+ *   lights      [{x, y, r, on, warm}] pull a neighbourhood back toward daylight; one with a
+ *               `tint` [r, g, b] pulls it toward that colour instead, day or night
  *   hover       an object id: lifted a little, and outlined by one pixel
  */
 // Five tones of the page's own paper and ink, for the monochrome look.
@@ -259,6 +260,7 @@ export function rasterize(grid, out, { night = 0, lights = [], hover = 0, mono =
   const d = out.data;
   const n = Math.max(0, Math.min(1, night));
   const live = lights.filter((l) => l && l.on && l.r > 0);
+  const tinted = live.some((l) => l.tint);
 
   for (let y = 0; y < H; y += 1) {
     for (let x = 0; x < W; x += 1) {
@@ -285,7 +287,7 @@ export function rasterize(grid, out, { night = 0, lights = [], hover = 0, mono =
       let gg;
       let b;
 
-      if (SELF_LIT.has(idx) || n === 0) {
+      if (SELF_LIT.has(idx) || (n === 0 && !tinted)) {
         r = day[0];
         gg = day[1];
         b = day[2];
@@ -300,6 +302,13 @@ export function rasterize(grid, out, { night = 0, lights = [], hover = 0, mono =
           const dy = (y - l.y) * 1.12;
           let k = 1 - Math.sqrt(dx * dx + dy * dy) / l.r;
           if (k <= 0) continue;
+          if (l.tint) {
+            k = k * k * (l.strength === undefined ? 0.8 : l.strength);
+            r += (l.tint[0] - r) * k;
+            gg += (l.tint[1] - gg) * k;
+            b += (l.tint[2] - b) * k;
+            continue;
+          }
           k = k * k * n * (l.strength === undefined ? 0.95 : l.strength);
           const warm = l.warm === undefined ? 1 : l.warm;
           r += (day[0] * (1 + 0.08 * warm) - r) * k;

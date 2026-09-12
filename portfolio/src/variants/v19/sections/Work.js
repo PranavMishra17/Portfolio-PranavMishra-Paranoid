@@ -338,20 +338,21 @@ function Dial({ f, live, isOpen, run, onLive, onPick }) {
   );
 }
 
-/* The row under the dials: the drawing, and the note beside it when one is open. Once a box
-   is open, pointing at another box shows that one's drawing and note, so you can read across
-   the row without clicking again. Which side the note takes depends on which column the shown
-   box is in, so it never covers the drawing. */
+/* The row under the dials: the drawing, and the note beside it. Pointing at a box shows its
+   drawing and its note; clicking keeps them when the pointer leaves. With one open, pointing
+   at another shows that one, and leaving goes back to the one that was clicked. Which side the
+   note takes depends on which column the shown box is in, so it never covers the drawing. */
 function Row({ figures, live, open, cols = 5 }) {
   const opened = figures.find((f) => f.id === open);
   const hovered = figures.find((f) => f.id === live);
-  const figure = (opened && hovered) || opened || hovered || figures[0];
-  const col = opened ? figures.indexOf(figure) % cols : -1;
-  const noteLeft = opened && col < 2;
+  const figure = hovered || opened || figures[0];
+  const withNote = Boolean(hovered || opened);
+  const col = figures.indexOf(figure) % cols;
+  const noteLeft = withNote && col < 2;
   const s = figure.sketch;
   return (
-    <div className={`v19-sk-row${opened ? ' has-note' : ''}${noteLeft ? ' note-left' : ''}`}>
-      {opened ? (
+    <div className={`v19-sk-row${withNote ? ' has-note' : ''}${noteLeft ? ' note-left' : ''}`}>
+      {withNote ? (
         <div className="v19-sk-note" key={`n-${figure.id}`} data-keep-open="">
           <p><Rich text={figure.note} /></p>
         </div>
@@ -402,9 +403,9 @@ export default function Work({ sectionRef }) {
   const ref = useRef(null);
   const seen = useOnScreen(ref);
   const { open, toggle } = useOpener();
-  const [live, setLive] = useState(FIGURES[0].id);
+  const [live, setLive] = useState(null); // the box under the pointer, if any
   const [past, setPast] = useState(false);
-  const [wpLive, setWpLive] = useState(WHEELPRICE.figures[0].id);
+  const [wpLive, setWpLive] = useState(null);
   const [alsoOpen, setAlsoOpen] = useState(false);
   const pastRef = useRef(null);
   const pastSeen = useOnScreen(pastRef, '-30%');
@@ -456,7 +457,7 @@ export default function Work({ sectionRef }) {
             </aside>
           </header>
 
-          <div className="v19-dials" onMouseLeave={() => setLive(FIGURES[0].id)}>
+          <div className="v19-dials" onMouseLeave={() => setLive(null)}>
             {FIGURES.map((f) => (
               <Dial key={f.id} f={f} live={live === f.id} isOpen={open === f.id} run={seen} onLive={setLive} onPick={toggle} />
             ))}
@@ -486,13 +487,22 @@ export default function Work({ sectionRef }) {
               <span className="v19-wp-when">{WHEELPRICE.when}</span>
               <span className="v19-wp-chev" aria-hidden="true" />
             </button>
-            <span className="v19-wp-drive" onMouseEnter={lap} onClick={lap} aria-hidden="true">
-              <Car go={go} />
-            </span>
+            {!past ? (
+              <span className="v19-wp-drive" onMouseEnter={lap} onClick={lap} aria-hidden="true">
+                <Car go={go} />
+              </span>
+            ) : null}
 
             <div className="v19-wp-open" hidden={!past}>
               <p className="v19-lede">{WHEELPRICE.about}</p>
-              <div className="v19-dials is-small" onMouseLeave={() => setWpLive(WHEELPRICE.figures[0].id)}>
+              {/* the car comes down off the bar and parks on its own shelf */}
+              <div className="v19-wp-shelf" aria-hidden="true">
+                <span className="v19-wp-shelf-line" />
+                <span className="v19-wp-drive is-shelved" onMouseEnter={lap} onClick={lap}>
+                  <Car go={go} />
+                </span>
+              </div>
+              <div className="v19-dials is-small" onMouseLeave={() => setWpLive(null)}>
                 {WHEELPRICE.figures.map((f) => (
                   <Dial key={f.id} f={f} live={wpLive === f.id} isOpen={open === f.id} run={past} onLive={setWpLive} onPick={toggle} />
                 ))}
@@ -507,15 +517,16 @@ export default function Work({ sectionRef }) {
               <button type="button" className="v19-role-line" onClick={() => setAlsoOpen((o) => !o)} aria-expanded={alsoOpen} data-keep-open="">
                 <span className="v19-role-when">{AFTER.map((r) => r.when.split(/\s[–-]\s/)[0]).join(' · ')}</span>
                 <span className="v19-role-who">
-                  {AFTER.map((r) => (r.logo ? <img className="v19-role-logo" src={r.logo} alt="" key={r.id} /> : null))}
-                  <b>{AFTER_LINE}</b>
+                  {!alsoOpen ? AFTER.map((r) => (r.logo ? <img className="v19-role-logo" src={r.logo} alt="" key={r.id} /> : null)) : null}
+                  <b>{alsoOpen ? AFTER.map((r) => r.company).join(' · ') : AFTER_LINE}</b>
                 </span>
-                <span className="v19-role-say">{AFTER.map((r) => r.line).join(' ')}</span>
+                {!alsoOpen ? <span className="v19-role-say">{AFTER.map((r) => r.line).join(' ')}</span> : null}
                 <span className="v19-role-chev" aria-hidden="true" />
               </button>
               <div className="v19-role-more" hidden={!alsoOpen}>
                 {AFTER.map((r) => (
                   <div className="v19-role-one" key={r.id}>
+                    {r.logo ? <img className="v19-role-logo is-big" src={r.logo} alt="" /> : <span className="v19-role-logo is-big is-blank" />}
                     <p className="v19-role-head">
                       <b>{r.company}</b>
                       <i>{r.title}</i>

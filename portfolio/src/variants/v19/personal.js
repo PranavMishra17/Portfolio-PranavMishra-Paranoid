@@ -103,13 +103,13 @@ export const POSTERS = [
   },
 ];
 
-// His favourites. No notes; the titles are the point.
+// His favourites, with their covers from public/assets/images/room/<id>.jpg.
 export const GAMES = [
-  { id: 'witcher3', title: 'The Witcher 3', note: 'All-time favourite.', spine: '#7a4b86', sample: false },
-  { id: 'mgs5', title: 'Metal Gear Solid V', note: '', spine: '#2b4a6f', sample: false },
-  { id: 'death-stranding', title: 'Death Stranding', note: '', spine: '#c07a2e', sample: false },
-  { id: 'disco', title: 'Disco Elysium', note: '', spine: '#a33a3a', sample: false },
-  { id: 'blacklist', title: 'Splinter Cell: Blacklist', note: '', spine: '#3f7d4f', sample: false },
+  { id: 'witcher3', cover: bookCover('witcher3'), title: 'The Witcher 3: Wild Hunt', by: 'CD Projekt Red, 2015', note: 'All-time favourite.', spine: '#7a4b86', sample: false },
+  { id: 'mgs5', cover: bookCover('mgs5'), title: 'Metal Gear Solid V: The Phantom Pain', by: 'Kojima Productions, 2015', note: '', spine: '#2b4a6f', sample: false },
+  { id: 'disco', cover: bookCover('disco'), title: 'Disco Elysium', by: 'ZA/UM, 2019', note: '', spine: '#a33a3a', sample: false },
+  { id: 'blacklist', cover: bookCover('blacklist'), title: 'Splinter Cell: Blacklist', by: 'Ubisoft Toronto, 2013', note: '', spine: '#3f7d4f', sample: false },
+  { id: 're4', cover: bookCover('re4'), title: 'Resident Evil 4', by: 'Capcom, 2005', note: '', spine: '#c07a2e', sample: false },
 ];
 
 export const TROPHIES = [

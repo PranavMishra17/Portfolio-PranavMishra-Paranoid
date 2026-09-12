@@ -47,18 +47,24 @@ export const HOTSPOTS = [
   { id: 15, key: 'books', label: 'Books', kind: 'zoom', x: 6, y: 32, w: 32, h: 24 },
   { id: 21, key: 'clock', label: 'The clock', kind: 'zoom', x: 20, y: 12, w: 20, h: 20 },
   { id: 18, key: 'ball', label: 'Football and boots', kind: 'hand', x: 8, y: 118, w: 70, h: 26 },
+  { id: 22, key: 'bin', label: 'The bin', kind: 'hand', x: 262, y: 87, w: 24, h: 20 },
+  { id: 23, key: 'disco', label: 'A button', kind: 'hand', x: 264, y: 91, w: 20, h: 13 },
   { id: 19, key: 'window', label: 'The window', kind: 'hand', x: 208, y: -2, w: 64, h: 46 },
-  { id: 20, key: 'lights', label: 'String lights', kind: 'hand', x: 4, y: -ROOF, w: 280, h: 14 },
+  { id: 20, key: 'lights', label: 'String lights', kind: 'hand', x: 4, y: -7, w: 280, h: 12 },
 ];
+
+// the bin stands against the wall in the right corner; the plate is what it hides
+export const BIN = { x: 264, y: 89, w: 20, h: 17 };
+export const PLATE = { x: 264, y: 91, w: 20, h: 13 };
 
 export const LIGHTS = {
   lamp: { x: 68, y: 52, r: 78, warm: 1, strength: 0.95 },
   screens: { x: 144, y: 66, r: 70, warm: 0.15, strength: 0.7 },
   string: [
-    { x: 36, y: 8 - ROOF, r: 46, warm: 1, strength: 0.5 },
-    { x: 108, y: 11 - ROOF, r: 46, warm: 1, strength: 0.5 },
-    { x: 180, y: 11 - ROOF, r: 46, warm: 1, strength: 0.5 },
-    { x: 252, y: 8 - ROOF, r: 46, warm: 1, strength: 0.5 },
+    { x: 36, y: 0, r: 46, warm: 1, strength: 0.5 },
+    { x: 108, y: 3, r: 46, warm: 1, strength: 0.5 },
+    { x: 180, y: 3, r: 46, warm: 1, strength: 0.5 },
+    { x: 252, y: 0, r: 46, warm: 1, strength: 0.5 },
   ],
 };
 
@@ -105,8 +111,9 @@ function shell(g) {
   g.hline(0, FLOOR_Y, W, 'floorDark');
 }
 
-// the string lights hang just under the ceiling
-const LIGHT_Y = 4 - ROOF;
+// the string lights hang a little above the posters, level with the top of the window frame,
+// so a wide screen that crops the roof band still shows them
+const LIGHT_Y = -4;
 
 function stringLights(g, on, t) {
   g.setId(20);
@@ -114,7 +121,7 @@ function stringLights(g, on, t) {
   const SPANS = 4;
   for (let x = 4; x < W - 2; x += 1) {
     const p = (x - 4) / (W - 6);
-    const sag = Math.sin(((p * SPANS) % 1) * Math.PI) * 6;
+    const sag = Math.sin(((p * SPANS) % 1) * Math.PI) * 4;
     const y = LIGHT_Y + Math.round(sag);
     g.px(x, y, 'cable');
     if ((x - 4) % 12 === 6) bulbs.push([x, y + 1]);
@@ -544,6 +551,94 @@ function ball(g, bounce) {
   g.setId(0);
 }
 
+/* ── the right corner: a bin, and what it was standing in front of ──── */
+
+// three-by-five letters for the plate
+const GLYPH = {
+  D: ['##.', '#.#', '#.#', '#.#', '##.'],
+  I: ['###', '.#.', '.#.', '.#.', '###'],
+  S: ['.##', '#..', '.#.', '..#', '##.'],
+  C: ['.##', '#..', '#..', '#..', '.##'],
+  O: ['.#.', '#.#', '#.#', '#.#', '.#.'],
+};
+
+// the plate on the wall: a word and a round red button. Lit when the disco is on.
+function plate(g, on, t) {
+  const { x, y, w, h } = PLATE;
+  g.setId(23);
+  g.rect(x, y, w, h, 'grey2');
+  g.frame(x, y, w, h, 'ink2');
+  'DISCO'.split('').forEach((ch, i) => {
+    g.sprite(x + 1 + i * 4, y + 2, GLYPH[ch], { '#': on ? 'ledRed' : 'ink' });
+  });
+  const cx = x + Math.floor(w / 2);
+  const cy = y + h - 3;
+  g.disc(cx, cy, 2, on && Math.floor(t / 180) % 2 ? 'ledRed' : 'red');
+  g.px(cx - 1, cy - 1, 'red2');
+  g.setId(0);
+}
+
+// the bin. `fall` is the time since it was clicked, or null: it leans, goes over, and rolls
+// away to the right until it is off the edge of the room.
+function bin(g, fall) {
+  const { x, y, w, h } = BIN;
+  const stripes = (bx, by, bw, bh, vertical, phase) => {
+    g.rect(bx, by, bw, bh, 'metal');
+    if (vertical) for (let i = 2 + (phase % 3); i < bw - 1; i += 3) g.vline(bx + i, by + 1, bh - 1, 'metal3');
+    else for (let i = 2 + (phase % 3); i < bh - 1; i += 3) g.hline(bx + 1, by + i, bw - 1, 'metal3');
+  };
+  g.setId(22);
+  if (fall == null || fall < 140) {
+    // standing: a shadow, the body, the rim, the lid handle
+    g.rect(x - 1, y + h, w + 3, 1, 'floorDark');
+    stripes(x, y, w, h, true, 0);
+    g.frame(x, y, w, h, 'metal3');
+    g.rect(x - 1, y - 1, w + 2, 2, 'metal3');
+    g.rect(x + Math.floor(w / 2) - 3, y - 3, 6, 2, 'ink');
+  } else if (fall < 420) {
+    // leaning to the right, more with every step
+    const lean = Math.min(6, Math.floor((fall - 140) / 40));
+    for (let r = 0; r < h; r += 1) {
+      const dx = Math.round(((h - r) / h) * lean * 2);
+      g.hline(x + dx, y + r, w, r === 0 ? 'metal3' : 'metal');
+      if (r > 0) for (let i = 2; i < w - 1; i += 3) g.px(x + dx + i, y + r, 'metal3');
+    }
+    g.rect(x - 1 + lean * 2, y - 1, w + 2, 2, 'metal3');
+  } else {
+    // on its side and rolling right, out of the room
+    const p = Math.min(1, (fall - 420) / 1100);
+    const eased = p * p;
+    const bx = x + Math.round(eased * 60);
+    const by = FLOOR_Y - w;
+    const phase = Math.floor(fall / 70);
+    if (bx < W) {
+      g.rect(bx, FLOOR_Y, h + 2, 1, 'floorDark');
+      stripes(bx, by, h, w, false, phase);
+      g.frame(bx, by, h, w, 'metal3');
+      g.rect(bx + h - 2, by - 1, 2, w + 2, 'metal3'); // the rim, now on the right
+      g.rect(bx + h, by + Math.floor(w / 2) - 3, 2, 6, 'ink'); // and the handle
+    }
+  }
+  g.setId(0);
+}
+
+// a mirror ball, down from the ceiling between the posters and the window, for the disco
+function mirrorBall(g, t) {
+  g.setId(0);
+  const cx = 201;
+  const cy = 3;
+  g.vline(cx, -ROOF, cy + ROOF - 4, 'cable');
+  g.disc(cx, cy, 4, 'metal2');
+  const k = Math.floor(t / 90);
+  for (let yy = -3; yy <= 3; yy += 1) {
+    for (let xx = -3; xx <= 3; xx += 1) {
+      if (xx * xx + yy * yy > 12) continue;
+      const on = (xx + yy + k) % 3 === 0;
+      g.px(cx + xx, cy + yy, on ? 'white' : (xx + yy + k) % 3 === 1 ? 'metal' : 'metal2');
+    }
+  }
+}
+
 /* ── the whole thing, back to front ────────────────────────────────── */
 
 export function drawScene(grid, state) {
@@ -551,7 +646,9 @@ export function drawScene(grid, state) {
   const t = state.t || 0;
   shell(g);
   stringLights(g, state.string, t);
+  if (state.disco) mirrorBall(g, t);
   POSTERS.forEach((p, i) => poster(g, 10 + i, 85 + i * 40, 6, i));
+  plate(g, state.disco, t);
   clock(g, state.hour || 0);
   windowUnit(g, state.windowT || 0, t);
   shelf(g, state.sparkle, t);
@@ -565,6 +662,7 @@ export function drawScene(grid, state) {
   mug(g, !state.cold, t);
   chair(g, state.spin || 0);
   ball(g, state.bounce || 0);
+  if (!state.binGone) bin(g, state.binAt == null ? null : t - state.binAt);
   return grid;
 }
 

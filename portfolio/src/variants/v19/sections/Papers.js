@@ -333,8 +333,10 @@ function Plate({ f, small }) {
 
 /* The opening of an abstract, with the rest a click away. With `inline` the link sits on the
    last line of the text itself rather than on a line of its own. */
-function Abstract({ p, marked, opening = OPENING, inline = false }) {
-  const [full, setFull] = useState(false);
+function Abstract({ p, marked, opening = OPENING, inline = false, full: fullProp, onFull }) {
+  const [fullState, setFullState] = useState(false);
+  const full = fullProp === undefined ? fullState : fullProp;
+  const setFull = onFull || setFullState;
   const text = p.abstract || '';
   const long = opening > 0 && text.length > opening + 40;
   const cut = full || !long ? text : `${text.slice(0, text.lastIndexOf(' ', opening))}…`;
@@ -375,6 +377,31 @@ function SheetHead({ p }) {
   );
 }
 
+/* One paper: two figures beside the brief; the third comes with the whole abstract. */
+function Brief({ p }) {
+  const [full, setFull] = useState(false);
+  const figs = (FIGURES[p.id] || []).slice(0, full ? 3 : 2);
+  return (
+    <article className={`v19-brief${full ? ' is-full' : ''}`}>
+      <div className="v19-brief-fig">
+        {figs.map((f) => (
+          <Plate key={f.n} f={f} small />
+        ))}
+      </div>
+      <div className="v19-brief-words">
+        <SheetHead p={p} />
+        <h3 className="v19-sheet-title">{p.title}</h3>
+        <p className="v19-brief-line">{p.line}</p>
+        <Abstract p={p} opening={190} inline full={full} onFull={setFull} />
+        <div className="v19-sheet-foot">
+          <Cite n={p.citations} />
+          <Links p={p} />
+        </div>
+      </div>
+    </article>
+  );
+}
+
 export default function Papers({ sectionRef }) {
   return (
     <section className="v19-slab v19-papers is-brief" ref={sectionRef} id="papers" aria-label="Papers">
@@ -382,23 +409,7 @@ export default function Papers({ sectionRef }) {
         <Head title="Two papers, briefly." />
         <div className="v19-brief-row">
           {PAPERS.map((p) => (
-            <article className="v19-brief" key={p.id}>
-              <div className="v19-brief-fig">
-                {(FIGURES[p.id] || []).map((f) => (
-                  <Plate key={f.n} f={f} small />
-                ))}
-              </div>
-              <div className="v19-brief-words">
-                <SheetHead p={p} />
-                <h3 className="v19-sheet-title">{p.title}</h3>
-                <p className="v19-brief-line">{p.line}</p>
-                <Abstract p={p} opening={190} inline />
-                <div className="v19-sheet-foot">
-                  <Cite n={p.citations} />
-                  <Links p={p} />
-                </div>
-              </div>
-            </article>
+            <Brief p={p} key={p.id} />
           ))}
         </div>
       </div>

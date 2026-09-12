@@ -15,7 +15,7 @@ import Work from './sections/Work';
 import Projects from './sections/Projects';
 import Papers from './sections/Papers';
 import Room from './room/Room';
-import { useSky, useClock } from './hooks';
+import { useSky, useClock, STARS } from './hooks';
 import { ME, LINKS } from './copy';
 import './v19.css';
 
@@ -50,8 +50,20 @@ function Page() {
   // other half of the day, and clicked again, back
   const real = useClock('now');
   const [flip, setFlip] = useState(false);
-  const hour = flip ? (real >= 6 && real < 18 ? 22 : 10) : real;
-  useSky(skyRef, hour);
+  const [disco, setDisco] = useState(false);
+  // the picker, while the variants are being chosen (local only; it goes before this ships)
+  const [lab, setLab] = useState(() => {
+    try { return JSON.parse(window.localStorage.getItem('v19-lab')) || {}; } catch (err) { return {}; }
+  });
+  const pick = (k, v) => setLab((cur) => {
+    const next = { ...cur, [k]: v };
+    try { window.localStorage.setItem('v19-lab', JSON.stringify(next)); } catch (err) { /* fine */ }
+    return next;
+  });
+  const nightV = lab.night || 'a';
+  const discoV = lab.disco || 'spots';
+  const hour = lab.forceNight ? 23.5 : flip ? (real >= 6 && real < 18 ? 22 : 10) : real;
+  useSky(skyRef, hour, nightV === 'b' ? 0.32 : 0.2);
 
   /* body, fonts, and the scroll the browser must not restore under a wall */
   useEffect(() => {
@@ -165,8 +177,14 @@ function Page() {
   const current = WHERE.find((w) => w.id === where) || WHERE[0];
 
   return (
-    <div className={`v19 land-plate${blown ? ' is-open' : ''}`}>
-      <div className="v19-sky" ref={skyRef} aria-hidden="true" />
+    <div className={`v19 land-plate${blown ? ' is-open' : ''}${disco ? ' is-disco' : ''} night-${nightV} disco-${discoV}`}>
+      <div className="v19-sky" ref={skyRef} aria-hidden="true">
+        <i className="v19-stars" style={{ backgroundImage: `url("${STARS[0]}")` }} />
+        <i className="v19-stars is-b" style={{ backgroundImage: `url("${STARS[1]}")` }} />
+        <i className="v19-moon" />
+        {nightV === 'c' ? <i className="v19-aurora" /> : null}
+      </div>
+      <div className="v19-disco" aria-hidden="true"><i /><i /><i /><i /></div>
       <div className="v19-grain" aria-hidden="true" />
 
       <header className={`v19-bar${blown ? ' on' : ''}`}>
@@ -226,8 +244,22 @@ function Page() {
         <Work sectionRef={(el) => { sections.current[0] = el; }} />
         <Projects sectionRef={(el) => { sections.current[1] = el; }} />
         <Papers sectionRef={(el) => { sections.current[2] = el; }} />
-        <Room sectionRef={(el) => { sections.current[3] = el; }} onTop={home} hour={hour} flipped={flip} onClock={() => setFlip((f) => !f)} onJump={jump} />
+        <Room sectionRef={(el) => { sections.current[3] = el; }} onTop={home} hour={hour} flipped={flip} onClock={() => setFlip((f) => !f)} onJump={jump} onDisco={setDisco} />
       </main>
+
+      <aside className="v19-lab" data-keep-open="">
+        <b>Lab</b>
+        <span>Night</span>
+        {['a', 'b', 'c'].map((v) => (
+          <button type="button" key={v} className={nightV === v ? 'on' : ''} onClick={() => pick('night', v)}>{{ a: 'Stars', b: 'Indigo', c: 'Aurora' }[v]}</button>
+        ))}
+        <button type="button" className={lab.forceNight ? 'on' : ''} onClick={() => pick('forceNight', !lab.forceNight)}>Force night</button>
+        <span>Disco</span>
+        {['spots', 'ball', 'beams'].map((v) => (
+          <button type="button" key={v} className={discoV === v ? 'on' : ''} onClick={() => pick('disco', v)}>{{ spots: 'Spots', ball: 'Mirror ball', beams: 'Beams' }[v]}</button>
+        ))}
+        <button type="button" className={disco ? 'on' : ''} onClick={() => setDisco((d) => !d)}>Disco on</button>
+      </aside>
 
       {landing ? (
         <div
