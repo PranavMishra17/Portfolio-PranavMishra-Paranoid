@@ -1,0 +1,23 @@
+# Pranav Mishra
+
+> Founding LLM Engineer at Alfred_, a multi-agent assistant over email, calendar, SMS and voice for five thousand people. I own working memory, the rules engine, the eval harness, inference cost, and the Postgres and ingestion underneath. Before that: AI engineer at WheelPrice, research software engineer at UIC, and a long tail of games and XR.
+
+This site is one page: the work at Alfred_ in five measured figures, thirty projects, two papers, and a pixel room at the bottom. Everything here is written in the first person and every number on it shipped.
+
+## Pages
+
+- [The site](https://pranavmishra17.vercel.app/): work, projects, papers, the room
+- [Résumé](https://pranavmishra17.vercel.app/resume): the current PDF
+
+## Elsewhere
+
+- [GitHub](https://github.com/PranavMishra17): the code behind most of the projects
+- [LinkedIn](https://www.linkedin.com/in/pranavgamedev/)
+- [Google Scholar](https://scholar.google.com/citations?user=_Twn_owAAAAJ&hl=en)
+- [Hugging Face](https://huggingface.co/Paranoiid): VoicePersona and other datasets
+- [Alfred_](https://get-alfred.ai/): where I work
+
+## Papers
+
+- [A Systematic Framework for Enterprise Knowledge Retrieval: Leveraging LLM-Generated Metadata to Enhance RAG Systems](https://arxiv.org/abs/2512.05411): IEEE CAI 2026, accepted
+- [TeamMedAgents: Pareto-Efficient Multi-Agent Medical Reasoning Through Teamwork Theory](https://arxiv.org/abs/2508.08115): arXiv, under submission

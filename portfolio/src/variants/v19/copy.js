@@ -7,6 +7,7 @@
 
 import { projects, contactInfo, getImageWithFallback } from '../../data/projects';
 import { githubProjects } from '../../data/projectsGithub';
+import { projectImagesWeb } from '../../data/projectImagesWeb';
 import experiences from '../../data/experience';
 import { publications } from '../../data/publications';
 
@@ -20,7 +21,7 @@ export const ME = {
   // the whole of the landing page's prose, on purpose
   role: 'Founding Engineer at Alfred_',
   short: 'Founding Engineer at Alfred_',
-  photo: '/assets/images/default/profile_default.jpg',
+  photo: '/assets/images/web/profile.jpg',
   photoAlt: 'Pranav Mishra',
   city: 'New York',
   lede:
@@ -277,7 +278,9 @@ export const ALL_PROJECTS = (() => {
         tag: TAG[bucket],
         line: re.line || LINE[p.id] || (p.description || '').split('. ')[0],
         description: p.description || '',
-        image: /^https?:/.test(p.mainImage || '') ? p.mainImage : getImageWithFallback(p.mainImage, KIND[bucket]),
+        image: projectImagesWeb[p.id]
+          ? `/${projectImagesWeb[p.id]}`
+          : /^https?:/.test(p.mainImage || '') ? p.mainImage : getImageWithFallback(p.mainImage, KIND[bucket]),
         gallery: (p.gallery || []).map((g) => getImageWithFallback(g, KIND[bucket])),
         tech: p.techStack || [],
         github: re.github || p.githubLink || '',

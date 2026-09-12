@@ -39,7 +39,7 @@ function useCols() {
   return cols;
 }
 
-function Tile({ p, live, picked, onPeek, onRest, onPick }) {
+function Tile({ p, live, picked, onPeek, onRest, onPick, lazy }) {
   return (
     <button
       type="button"
@@ -52,7 +52,7 @@ function Tile({ p, live, picked, onPeek, onRest, onPick }) {
       aria-label={`${p.name} — ${p.tag}`}
       data-keep-open=""
     >
-      <span className="v19-tile-shot" aria-hidden="true" style={{ backgroundImage: `url("${p.image}")` }} />
+      <img className="v19-tile-shot" src={p.image} alt="" loading={lazy ? 'lazy' : 'eager'} decoding="async" />
       <span className="v19-tile-rule" aria-hidden="true" />
     </button>
   );
@@ -162,8 +162,8 @@ export default function Projects({ sectionRef }) {
         <Frame shown={shown} mode={mode} onClose={close} />
 
         <div className="v19-grid" style={{ '--cols': cols }}>
-          {visible.map((p) => (
-            <Tile key={p.id} p={p} live={peek === p.id} picked={open === p.id} onPeek={onPeek} onRest={onRest} onPick={onPick} />
+          {visible.map((p, i) => (
+            <Tile key={p.id} p={p} live={peek === p.id} picked={open === p.id} onPeek={onPeek} onRest={onRest} onPick={onPick} lazy={i >= perPage} />
           ))}
           {hidden > 0 ? (
             <button type="button" className="v19-tile v19-tile-more" onClick={() => setAll((a) => !a)} data-keep-open="">
