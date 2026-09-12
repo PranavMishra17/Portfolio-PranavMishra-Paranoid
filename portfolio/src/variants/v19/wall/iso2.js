@@ -86,6 +86,8 @@ function skirt(ctx, x, y, w, h, lift) {
 // one blit of the pre-cut tile: sprite slot `slot`, footprint (x, y), raised `lift`
 function blitTile(ctx, L, slot, x, y, lift) {
   const { atlas, dpr, tw, th, slotW, slotH } = L;
+  // a face painted while the canvas was 0x0 leaves an empty atlas; drawing from it throws
+  if (!atlas || !atlas.width || !atlas.height) return;
   ctx.drawImage(
     atlas,
     0, slot * slotH * dpr, slotW * dpr, slotH * dpr,
@@ -101,7 +103,7 @@ function buildAtlas(faceCtx, W, H, L) {
   const slotH = th + 2 * PAD;
 
   const atlas = document.createElement('canvas');
-  atlas.width = Math.ceil(slotW * dpr);
+  atlas.width = Math.max(1, Math.ceil(slotW * dpr));
   atlas.height = Math.max(1, Math.ceil(slotH * dpr * rows.length));
   const a = atlas.getContext('2d');
   a.clearRect(0, 0, atlas.width, atlas.height);

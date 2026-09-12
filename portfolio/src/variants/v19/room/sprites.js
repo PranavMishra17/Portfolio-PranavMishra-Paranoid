@@ -19,22 +19,22 @@ export const LEGEND = {
   D: 'shirt2',
 };
 
-// The hood is up. From behind that is what you see: the hood over the head, its seam down the
-// middle, the collar where it meets the shoulders, and the hoodie below. Lighter than the chair
-// it sits in, so it reads as a hoodie and not a helmet.
+// The hood is up. From behind that is what you see: the hood over the head, coming to a point at
+// the top, its seam down the middle, the jaw showing either side of it, the collar where it meets
+// the shoulders, and the hoodie below.
 const BUST = [
-  '..........oooooooo..........',
-  '........ooooOOoooooo........',
-  '.......oooooOOooooooo.......',
-  '......ooooooOOoooooooo......',
-  '......ooooooOOoooooooo......',
-  '.....oooooooOOooooooooo.....',
-  '.....oooooooOOooooooooo.....',
-  '.....oooooooOOooooooooo.....',
-  '.....oooooooOOooooooooo.....',
-  '.....oooooooOOooooooooo.....',
-  '......ooooooOOoooooooo......',
-  '......ooooooooooooooooo.....',
+  '.............oo.............',
+  '...........oooooo...........',
+  '..........ooooOOoo..........',
+  '.........ooooooOOooo........',
+  '........oooooooOOoooo.......',
+  '.......ooooooooOOooooo......',
+  '.......ooooooooOOooooo......',
+  '......oooooooooOOoooooo.....',
+  '......oooooooooOOoooooo.....',
+  '.....ssooooooooOOooooooSS...',
+  '.....ssooooooooOOooooooSS...',
+  '......soooooooooooooooS.....',
   '.......OOOOOOOOOOOOOOO......',
   '........oooooooooooOO.......',
   '........oooooooooooOO.......',

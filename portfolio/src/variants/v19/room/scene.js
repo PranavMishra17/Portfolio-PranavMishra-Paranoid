@@ -50,7 +50,7 @@ export const HOTSPOTS = [
   { id: 15, key: 'books', label: 'Books', kind: 'zoom', x: 6, y: 32, w: 32, h: 24 },
   { id: 21, key: 'clock', label: 'The clock', kind: 'zoom', x: 20, y: 12, w: 20, h: 20 },
   { id: 18, key: 'ball', label: 'Football and boots', kind: 'hand', x: 8, y: 118, w: 70, h: 26 },
-  { id: 19, key: 'window', label: 'The window', kind: 'hand', x: 194, y: 8, w: 72, h: 50 },
+  { id: 19, key: 'window', label: 'The window', kind: 'hand', x: 208, y: -2, w: 64, h: 46 },
   { id: 20, key: 'lights', label: 'String lights', kind: 'hand', x: 4, y: -ROOF, w: 280, h: 14 },
 ];
 
@@ -250,10 +250,10 @@ function poster(g, id, x, y, which) {
 /* ── the window, which opens ───────────────────────────────────────── */
 
 function windowUnit(g, openT, t) {
-  const x = 198;
-  const y = 10;
-  const w = 64;
-  const h = 46;
+  const x = 212;
+  const y = 2;
+  const w = 54;
+  const h = 40;
   const e = openT < 0.5 ? 2 * openT * openT : 1 - (-2 * openT + 2) ** 2 / 2;
   g.setId(19);
   g.rect(x - 2, y - 2, w + 4, h + 4, 'wood3');
@@ -261,12 +261,12 @@ function windowUnit(g, openT, t) {
     const k = i / h;
     g.hline(x, y + i, w, k < 0.34 ? 'sky1' : k < 0.62 ? 'sky2' : 'sky3');
   }
-  const sunY = y + 27 - Math.round(Math.sin(t / 4200) * 2);
-  g.disc(x + 44, sunY, 6, 'sun');
+  const sunY = y + 22 - Math.round(Math.sin(t / 4200) * 2);
+  g.disc(x + 38, sunY, 5, 'sun');
   for (let i = 0; i < w; i += 1) {
-    const hh = 33 + Math.round(Math.sin(i / 9) * 3 + Math.sin(i / 21) * 4);
+    const hh = 28 + Math.round(Math.sin(i / 9) * 3 + Math.sin(i / 21) * 4);
     g.rect(x + i, y + hh, 1, h - hh, 'hill');
-    const hh2 = 38 + Math.round(Math.sin(i / 13 + 2) * 3);
+    const hh2 = 33 + Math.round(Math.sin(i / 13 + 2) * 3);
     g.rect(x + i, y + hh2, 1, h - hh2, 'hill2');
   }
   g.rect(x + Math.round(w / 2) - 1, y, 2, h, 'wood2');
