@@ -1,120 +1,111 @@
 # Portfolio — Pranav Pushkar Mishra
 
-Founding LLM Engineer @ Alfred\_. Single-page React portfolio with a built-in arcade mini-game and a few opinions baked in. No backend; everything that looks live runs on free third-party endpoints.
+Founding LLM Engineer at Alfred\_. One page, no backend: a wall you have to break, the work at Alfred\_ in five measured figures, thirty projects, two papers, and a pixel room at the bottom that keeps real time.
 
-![Portfolio preview](./preview.png)
-![Prompt Patrol gameplay](./preview-prompt-patrol.png)
+Live at [pranavmishra17.vercel.app](https://pranavmishra17.vercel.app/).
 
-## What's in it
+![The wall](./preview.png)
 
-- **Sections** — About · Work Experience modal · Research / Publications · AI · ML, Game Design, Misc project galleries
-- **Live view counter** in the header — abacus.jasoncameron.dev, no backend
-- **Live resume** fetched from a sibling GitHub repo, with a local-PDF fallback
-- **Prompt Patrol** — a mouse-only LLM-themed shooter with a real global leaderboard
+## What's on the page
 
-## Stack
+**The wall.** The site opens behind a plaster wall. Hold the mouse button and the tiles under the cursor lift, then the whole thing comes apart and the page is underneath. The face in the header puts it back.
 
-React 19 · react-router 7 · framer-motion 12 · react-scripts 5 · plain CSS · Canvas 2D + Web Audio API for the game · getpantry.cloud for the leaderboard · abacus.jasoncameron.dev for the view counter. No server.
+![Alfred_](./docs/screens/work.jpg)
 
-## File structure
+**Now.** Alfred\_ takes the first screen: five figures, each a before struck through and an after that counts up. Point at one and its drawing appears; click and the note stays. Below the fold, WheelPrice as a bar with a car on it (point at the car), and the roles before that, folded.
+
+![Projects](./docs/screens/projects.jpg)
+
+**Everything I built.** Thirty projects from GitHub, ranked. A viewbox cycles through the ones being built right now; the grid opens each into the frame. SoulEngine's tile is a short silent loop.
+
+![Papers](./docs/screens/papers.jpg)
+
+**Two papers.** Each with two figures drawn from its results, and a third once the abstract is opened.
+
+![The room by day](./docs/screens/room-day.jpg)
+
+**The room.** A 288-pixel-wide room drawn into a palette-index buffer every frame and lit for the hour it actually is: the lamp and string lights come on as it gets dark, the window shows the sun or a crescent moon. Everything in it does something. The books, the games and the posters are real (the covers pixelate onto the shelf and clear when you point at them); the chair spins; the clock flips the day; the red button on the wall starts the disco.
+
+![The room at night, disco on](./docs/screens/room-night-disco.jpg)
+
+**The sky.** The page's background is a gradient for the hour of the day, drifting about an hour and a half from the top of the page to the bottom. By day a soft sun; by night indigo, stars and a moon on the same arc.
+
+![Night](./docs/screens/night.jpg)
+
+## How it is built
+
+React 19, react-router 7, react-scripts 5, plain CSS. No TypeScript, no Tailwind, no server. Fonts from Google Fonts; everything else is in the repo.
+
+- `src/variants/v19/` is the site. `index.js` is the page shell; `copy.js` rewrites the content in `src/data/` at render time (one-liners, renames, the Alfred\_ figures, the paper overrides); `personal.js` is the shelf — books, games, posters, trophies.
+- `wall/` is the wall: `iso2.js` cuts the isometric tiles into a sprite atlas once and blits them; `Wall.js` owns the physics of the collapse; `index.js` runs the one loop and the crosshair. A frame identical to the last one is not drawn, so a wall nobody is touching costs nothing.
+- `room/` is the room: `engine.js` is the pixel engine (palette indices with day and night values, lights that pull colour back toward day, a hover outline for free), `scene.js` draws it, `Room.js` runs it and handles what you click. The still parts are drawn once and copied in each frame; the room does not draw at all when it is off screen.
+- The classic site that came before is kept at [`/classic`](https://pranavmishra17.vercel.app/classic), loaded only if asked for. Prompt Patrol, the LLM-themed shooter, lives there; its design doc is [docs/prompt-patrol-gdd.html](./docs/prompt-patrol-gdd.html).
 
 ```
 portfolio/
 ├── public/
 │   ├── assets/images/
-│   │   ├── {ai_ml,game_design,misc}/        # project art
-│   │   ├── companies/heros/                 # workspace photos for exp modal
-│   │   └── default/                         # category fallbacks
-│   └── resumes/{ai,game}/                   # drop any .pdf here
+│   │   ├── web/                     # web-sized project pictures (the ones the site uses)
+│   │   ├── room/                    # covers and posters, pixelated onto the room
+│   │   ├── companies/               # logos
+│   │   └── {ai_ml,game_design,misc}/  # the originals
+│   ├── llms.txt
+│   └── resumes/{ai,game}/           # local backup of the résumé PDF
 ├── scripts/
-│   └── generate-resume-manifest.js          # runs via prestart / prebuild
+│   ├── stress.js                    # performance and stress harness (see below)
+│   └── generate-resume-manifest.js
 └── src/
-    ├── data/
-    │   ├── projects.js                      # all project entries + bio + contactInfo
-    │   ├── experience.js                    # work history
-    │   └── publications.js                  # research papers
-    ├── components/
-    │   ├── ExperienceModal.{js,css}         # workspace-bay launcher modal
-    │   ├── ProjectCard.{js,css}
-    │   ├── PublicationsSection.js
-    │   ├── ResumeViewer.{js,css}            # GitHub-live PDF + local fallback
-    │   ├── ConnectSlate.{js,css}            # floating socials slate
-    │   ├── TrophyButton.{js,css}            # achievements pop-up
-    │   ├── ParticleBackground.js            # About-section canvas
-    │   ├── ViewCounter.{js,css}             # header view-count pill
-    │   ├── MiniGame.{js,css}                # Play CTA + game host modal
-    │   └── game/                            # Prompt Patrol
-    │       ├── PromptPatrol.{js,css}        # React wrapper, title, game-over
-    │       ├── engine.js                    # physics, spawn, scoring, state
-    │       ├── sprites.js                   # canvas draw helpers
-    │       ├── config.js                    # tunable numbers
-    │       ├── phrasebook.js                # token text per class
-    │       ├── audio.js                     # Web Audio SFX synth
-    │       ├── leaderboard.js               # Pantry submit / fetch
-    │       └── profanity.js                 # tag-name banlist (base64)
-    ├── MainPortfolio.js                     # top-level page
-    └── App.js                               # routes: "/" and "/resume"
+    ├── App.js                       # "/" and "/resume" are v19; "/classic" is the old site
+    ├── data/                        # projects.js, experience.js, publications.js,
+    │                                # projectsGithub.js, projectImagesWeb.js
+    ├── variants/v19/                # the site
+    │   ├── index.js  copy.js  personal.js  hooks.js  v19.css  Resume.js
+    │   ├── sections/                # Landing, Work, Projects, Papers
+    │   ├── wall/                    # Wall.js, iso2.js, index.js
+    │   └── room/                    # engine.js, scene.js, Room.js
+    ├── MainPortfolio.js             # the classic page
+    └── components/                  # the classic page's parts, and Prompt Patrol
 ```
 
-Architecture details and the "where do I edit X" map live in [CLAUDE.md](./CLAUDE.md).
+The "where do I edit X" map for the classic page is in [CLAUDE.md](./CLAUDE.md).
 
 ## Quick start
 
 ```bash
 cd portfolio
 npm install
-cp .env.example .env.local        # fill the values — see below
 npm start                         # http://localhost:3000
 ```
-
-Other scripts (run from `portfolio/`):
 
 | script | what it does |
 |---|---|
 | `npm run build` | Production build. Bash sets `CI=false`; on Windows CMD use `set CI=false && npx react-scripts build`. |
-| `npm run resume-manifest` | Scans `public/resumes/{ai,game}/` and writes `manifest.json`. Auto-runs on `prestart` / `prebuild`. |
+| `node scripts/stress.js <url> [dpr] [--quick]` | Loads the page in a real Chromium and reports fps, animation loops per frame, JS time per frame, long frames, heap, nodes and listeners across a set of scenes: idle on the wall, a stalled main thread, twenty seconds in a background tab, a resize storm, the blast, the room, three rebuild-and-blast cycles and a soak. Needs `playwright-core` and a Chromium. |
+| `npm run resume-manifest` | Scans `public/resumes/{ai,game}/` and writes `manifest.json`. Runs on `prestart` and `prebuild`. |
 | `npm test` | Jest via react-scripts. |
-| `npm run check` | `npm install && npm run build` — CI sanity check. |
 
-## Environment variables
-
-The app reads a few `REACT_APP_*` vars at build time. Names are listed in [`portfolio/.env.example`](./portfolio/.env.example) with empty placeholders — copy to `.env.local` (gitignored) and fill the values, or set them in Vercel → Project Settings → Environment Variables. Missing values fall back to safe defaults; nothing breaks.
-
-## Content updates
+## Changing the content
 
 | To change... | Edit |
 |---|---|
-| Projects | `src/data/projects.js` + drop images in `public/assets/images/<bucket>/` |
-| Experience | `src/data/experience.js` + hero photos in `public/assets/images/companies/heros/<id>.jpg` |
-| Publications | `src/data/publications.js` |
-| Resume | live PDF from `PranavMishra17/PranavMishra17`; local backup = any `.pdf` in `public/resumes/ai/` |
-| Game numbers | `src/components/game/config.js` |
-| Game phrases | `src/components/game/phrasebook.js` |
+| A project's one-liner, name or repo link | `src/variants/v19/copy.js` — `LINE`, `RENAME`, `REPO` |
+| Which projects show, and in what order | `KEEP` in `copy.js` |
+| A project's picture | drop a web-sized copy in `public/assets/images/web/` under a new name and point `src/data/projectImagesWeb.js` at it (the old name stays cached for a week) |
+| A project not in `projects.js` | `src/data/projectsGithub.js` |
+| The Alfred\_ figures and notes, WheelPrice, the roles | `ALFRED`, `FIGURES`, `WHEELPRICE`, `AFTER_LINE` in `copy.js` |
+| Books, games, posters, trophies | `src/variants/v19/personal.js` + the pictures in `public/assets/images/room/` |
+| The papers' figures | `FIGURES` in `src/variants/v19/sections/Papers.js` |
+| The résumé | the live PDF is in `PranavMishra17/PranavMishra17`; any `.pdf` in `public/resumes/ai/` is the fallback |
 
-## Prompt Patrol
+Project pictures are cached for a week (`vercel.json`), so a replaced picture needs a new filename.
 
-Mouse-only endless runner themed around LLM prompts. Phosphor-CRT aesthetic.
+## Performance
 
-**How it works**
-
-User prompts rise as token capsules from a keyboard at the bottom-right toward a model device at the top. Identify them on the fly. Pop the dangerous ones; let the safe ones reach the model.
-
-| Token | Color / shape | Action | Miss penalty |
-|---|---|---|---|
-| Safe prompts | Blue pill | let it pass | none — model "thinks" (gibberish vector output) |
-| Unsafe prompts | Red pill | pop it | −1 life |
-| Grey prompts | Grey pill | read the text + decide | varies (text always self-identifies as safe / unsafe / bomb) |
-| Bombs | Black orb with fuse | pop = +5 score | **instant game over** |
-
-A cannon at the bottom-left fires projectiles that arc under gravity + a wind field that shifts every 20–30 s. Hold the mouse for a charged shot (longer aim trail, more wind-resistant). Hold 3 s for an auto-fired **HOT RED** megashot. Reds have a forgiving hitbox; greys and bombs are tighter.
-
-Top 50 scores live in a free Pantry basket — top 5 shown on the title screen and game-over panel. 5-char tag, pre-filtered through a base64-encoded banlist with leetspeak normalization. Mobile play gets a built-in difficulty bump to match desktop intensity.
-
-Full design doc: [docs/prompt-patrol-gdd.html](./docs/prompt-patrol-gdd.html).
+The wall and the room each run one animation loop with exactly one frame pending at a time; nothing runs while the tab is hidden or the section is off screen, and CSS animations are paused under the wall and outside the viewport. `scripts/stress.js` is how that is checked: on the wall, loops per frame must read 1 and JS per frame under 0.1 ms; after the blast, with the room off screen, 0.
 
 ## Deployment
 
-Configured for Vercel via [portfolio/vercel.json](./portfolio/vercel.json). Build output is `portfolio/build/`. Push to `main` and Vercel rebuilds — make sure both `REACT_APP_*` env vars are set in the project dashboard or the view counter and leaderboard will silently disable in prod.
+Vercel, from `portfolio/` ([vercel.json](./portfolio/vercel.json)). Pushing `main` deploys. Pictures under `/assets/` are cached for a week; the built JS for a year.
 
 ## License
 
