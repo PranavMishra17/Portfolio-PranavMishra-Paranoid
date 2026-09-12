@@ -227,6 +227,12 @@ const LINE = {
   'pixel-punks': 'A community paints one pixel grid, it is auctioned as an NFT, and the money is split among everyone who painted. On Solana.',
 };
 
+// SoulEngine's picture is an animation. The 9 MB gif in projects.js is served as a 240 KB
+// video instead; the jpg is its first frame, shown until the video plays.
+const VIDEO = {
+  soulengine: { mp4: '/assets/images/web/soulengine.mp4', webm: '/assets/images/web/soulengine.webm' },
+};
+
 // Five entries in projects.js point their GitHub button at the profile page. These are the repos.
 const REPO = {
   stellarium: 'https://github.com/PranavMishra17/Stellarium-A-Space-Odyssey-VR-star-system',
@@ -290,6 +296,7 @@ export const ALL_PROJECTS = (() => {
         site: p.websiteLink || '',
         // one screenshot in the repo is 400×400; never let it stretch
         square: (p.mainImage || '').includes('van gogh'),
+        video: VIDEO[p.id] || null,
       });
     });
   });

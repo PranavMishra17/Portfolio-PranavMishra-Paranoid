@@ -52,13 +52,35 @@ function Tile({ p, live, picked, onPeek, onRest, onPick, lazy }) {
       aria-label={`${p.name} — ${p.tag}`}
       data-keep-open=""
     >
-      <img className="v19-tile-shot" src={p.image} alt="" loading={lazy ? 'lazy' : 'eager'} decoding="async" />
+      <Shot p={p} className="v19-tile-shot" lazy={lazy} />
       <span className="v19-tile-rule" aria-hidden="true" />
     </button>
   );
 }
 
 const isYouTube = (u) => /youtu\.?be/i.test(u || '');
+
+/* the picture of a project: a still, or a short silent loop with the still as its poster */
+function Shot({ p, className, lazy }) {
+  if (p.video) {
+    return (
+      <video
+        className={className}
+        poster={p.image}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload={lazy ? 'none' : 'auto'}
+        aria-hidden="true"
+      >
+        <source src={p.video.webm} type="video/webm" />
+        <source src={p.video.mp4} type="video/mp4" />
+      </video>
+    );
+  }
+  return <img className={className} src={p.image} alt="" loading={lazy ? 'lazy' : 'eager'} decoding="async" />;
+}
 
 function Links({ p }) {
   return (
@@ -75,7 +97,7 @@ function Frame({ shown, mode, onClose }) {
   return (
     <div className={`v19-view v19-view-${mode}`} data-keep-open="">
       <div className="v19-view-frame">
-        <img key={shown.id} src={shown.image} alt="" loading="lazy" className={shown.square ? 'is-square' : ''} />
+        <Shot key={shown.id} p={shown} className={shown.square ? 'is-square' : ''} lazy />
         <span className="v19-view-tag">{shown.tag}</span>
       </div>
       <div className="v19-view-words">
