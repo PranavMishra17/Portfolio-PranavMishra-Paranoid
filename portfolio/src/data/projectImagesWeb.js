@@ -6,6 +6,7 @@ export const projectImagesWeb = {
   'soulengine': 'assets/images/web/soulengine.jpg',
   'voiceforge-architecture': 'assets/images/web/voiceforge-architecture.jpg',
   'stellarium': 'assets/images/web/stellarium.jpg',
+  'quorum': 'assets/images/web/quorum.jpg',
   'snakeai-mlops': 'assets/images/web/snakeai-mlops.jpg',
   'auto-prompting': 'assets/images/web/auto-prompting.jpg',
   'virtual-van-gogh': 'assets/images/web/virtual-van-gogh.jpg',
