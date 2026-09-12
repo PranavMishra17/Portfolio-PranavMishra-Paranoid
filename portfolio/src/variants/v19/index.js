@@ -60,7 +60,6 @@ function Page() {
     try { window.localStorage.setItem('v19-lab', JSON.stringify(next)); } catch (err) { /* fine */ }
     return next;
   });
-  const cornerV = lab.corner || 'sign';
   const hour = lab.forceNight ? 23.5 : flip ? (real >= 6 && real < 18 ? 22 : 10) : real;
   useSky(skyRef, hour, 0.32);
 
@@ -243,17 +242,13 @@ function Page() {
         <Work sectionRef={(el) => { sections.current[0] = el; }} />
         <Projects sectionRef={(el) => { sections.current[1] = el; }} />
         <Papers sectionRef={(el) => { sections.current[2] = el; }} />
-        <Room sectionRef={(el) => { sections.current[3] = el; }} onTop={home} hour={hour} flipped={flip} onClock={() => setFlip((f) => !f)} onJump={jump} onDisco={setDisco} corner={cornerV} />
+        <Room sectionRef={(el) => { sections.current[3] = el; }} onTop={home} hour={hour} flipped={flip} onClock={() => setFlip((f) => !f)} onJump={jump} onDisco={setDisco} />
       </main>
 
       <aside className="v19-lab" data-keep-open="">
         <b>Lab</b>
         <button type="button" className={lab.forceNight ? 'on' : ''} onClick={() => pick('forceNight', !lab.forceNight)}>Force night</button>
         <button type="button" className={disco ? 'on' : ''} onClick={() => setDisco((d) => !d)}>Disco on</button>
-        <span>By the button</span>
-        {[['bin', 'Bin'], ['sign', 'Do not press'], ['hanger', 'Do not disturb'], ['glass', 'Glass case'], ['hazard', 'Hazard'], ['cone', 'Cone']].map(([v, l]) => (
-          <button type="button" key={v} className={cornerV === v ? 'on' : ''} onClick={() => pick('corner', v)}>{l}</button>
-        ))}
       </aside>
 
       {landing ? (

@@ -47,15 +47,14 @@ export const HOTSPOTS = [
   { id: 15, key: 'books', label: 'Books', kind: 'zoom', x: 6, y: 32, w: 32, h: 24 },
   { id: 21, key: 'clock', label: 'The clock', kind: 'zoom', x: 20, y: 12, w: 20, h: 20 },
   { id: 18, key: 'ball', label: 'Football and boots', kind: 'hand', x: 8, y: 104, w: 70, h: 22 },
-  { id: 22, key: 'corner', label: 'The corner', kind: 'hand', x: 248, y: 70, w: 28, h: 37 },
   { id: 23, key: 'disco', label: 'A button', kind: 'hand', x: 259, y: 73, w: 12, h: 12 },
+  { id: 22, key: 'hazard', label: 'Caution', kind: 'zoom', x: 256, y: 70, w: 18, h: 30 },
   { id: 19, key: 'window', label: 'The window', kind: 'hand', x: 208, y: -2, w: 64, h: 46 },
   { id: 20, key: 'lights', label: 'String lights', kind: 'hand', x: 4, y: -7, w: 280, h: 12 },
 ];
 
 // the button on the wall, right of the desk, above the bin
 export const BUTTON = { x: 265, y: 79, r: 3 };
-export const BIN = { x: 258, y: 92, w: 14, h: 14 };
 
 export const LIGHTS = {
   lamp: { x: 68, y: 52, r: 78, warm: 1, strength: 0.95 },
@@ -562,8 +561,8 @@ function ball(g, bounce) {
 
 /* ── the right corner: a bin, and what it was standing in front of ──── */
 
-// a small switch plate on the wall with a glossy round button on it, and a glitter of three
-// sparks that take turns. Lit when the disco is on.
+// a small switch plate on the wall with a glossy round button on it. Lit, and glittering,
+// while the disco is on.
 function button(g, on, t) {
   const { x, y } = BUTTON;
   g.setId(23);
@@ -572,107 +571,24 @@ function button(g, on, t) {
   g.disc(x, y, 2, on ? 'ledRed' : 'red');
   g.px(x - 1, y - 1, on ? 'pink' : 'red2');
   g.px(x, y + 1, 'red3');
-  const k = Math.floor(t / 220) % 3;
-  const sparks = [[x - 7, y - 6], [x + 7, y - 4], [x + 5, y + 7]];
-  sparks.forEach(([sx, sy], i) => {
-    const lit = i === k;
-    const c = lit ? 'white' : (i + 1) % 3 === k ? 'gold2' : null;
-    if (!c) return;
-    g.px(sx, sy, c);
-    if (lit) { g.px(sx - 1, sy, 'gold2'); g.px(sx + 1, sy, 'gold2'); g.px(sx, sy - 1, 'gold2'); g.px(sx, sy + 1, 'gold2'); }
-  });
-  g.setId(0);
-}
-
-// the bin: a lidded metal one in the corner. Click it and the lid hops.
-function bin(g, hop) {
-  const { x, y, w, h } = BIN;
-  const lift = hop ? 2 : 0;
-  g.rect(x - 1, y + h, w + 3, 1, 'floorDark');
-  g.rect(x, y, w, h, 'metal');
-  g.rect(x + 1, y, 2, h, 'metal2');
-  g.rect(x + w - 3, y, 3, h, 'metal3');
-  g.hline(x, y + 5, w, 'metal3');
-  g.hline(x, y + 10, w, 'metal3');
-  g.hline(x, y + h - 1, w, 'metal3');
-  g.px(x, y + h - 1, 'ink2');
-  g.px(x + w - 1, y + h - 1, 'ink2');
-  g.rect(x - 1, y - 2 - lift, w + 2, 2, 'metal2');
-  g.hline(x - 1, y - 1 - lift, w + 2, 'metal3');
-  g.rect(x + Math.floor(w / 2) - 2, y - 4 - lift, 4, 2, 'ink2');
-}
-
-// letters for the signs, three wide, N four
-const GLYPH = {
-  D: ['##.', '#.#', '#.#', '#.#', '##.'],
-  O: ['.#.', '#.#', '#.#', '#.#', '.#.'],
-  N: ['#..#', '##.#', '#.##', '#..#', '#..#'],
-  T: ['###', '.#.', '.#.', '.#.', '.#.'],
-  P: ['##.', '#.#', '##.', '#..', '#..'],
-  R: ['##.', '#.#', '##.', '#.#', '#.#'],
-  E: ['###', '#..', '##.', '#..', '###'],
-  S: ['.##', '#..', '.#.', '..#', '##.'],
-};
-function word(g, x, y, text, c) {
-  let cx = x;
-  text.split('').forEach((ch) => {
-    if (ch === ' ') { cx += 2; return; }
-    const rows = GLYPH[ch];
-    g.sprite(cx, y, rows, { '#': c });
-    cx += rows[0].length + 1;
-  });
-  return cx - 1 - x;
-}
-
-// a placard on a nail under the button: DO NOT PRESS
-function signDoNotPress(g) {
-  const x = 250;
-  const y = 90;
-  g.px(x + 12, y - 2, 'metal3'); // the nail
-  g.rect(x, y, 24, 14, 'cream');
-  g.frame(x, y, 24, 14, 'ink2');
-  g.hline(x + 1, y + 1, 22, 'white');
-  word(g, x + 2, y + 2, 'DO NOT', 'red3');
-  word(g, x + 3, y + 8, 'PRESS', 'red3');
-}
-
-// a door hanger on the wall: a moon and z z z
-function hangerDoNotDisturb(g) {
-  const x = 259;
-  const y = 88;
-  g.ring(x + 5, y + 1, 2, 'ink2');
-  g.rect(x, y + 3, 11, 15, 'blue3');
-  g.frame(x, y + 3, 11, 15, 'ink2');
-  g.px(x, y + 3, 'wallLit'); g.px(x + 10, y + 3, 'wallLit'); g.px(x, y + 17, 'wallLit'); g.px(x + 10, y + 17, 'wallLit');
-  g.disc(x + 5, y + 8, 2, 'yellow2');
-  g.disc(x + 6, y + 7, 2, 'blue3');
-  g.px(x + 5, y + 8, 'yellow2'); g.px(x + 4, y + 9, 'yellow2'); g.px(x + 5, y + 9, 'yellow2');
-  // z z z, climbing
-  g.px(x + 3, y + 13, 'white'); g.px(x + 4, y + 13, 'white'); g.px(x + 3, y + 14, 'white'); g.px(x + 4, y + 14, 'white');
-  g.px(x + 6, y + 12, 'white'); g.px(x + 7, y + 12, 'white');
-  g.px(x + 8, y + 11, 'white');
-}
-
-// the button behind glass, with the little hammer on its chain. Drawn in two passes: the
-// case under the button, the reflections over it.
-function glassCase(g, pass) {
-  const { x, y } = BUTTON;
-  if (pass === 'under') {
-    g.rect(x - 7, y - 7, 15, 15, 'metal3');
-    g.rect(x - 6, y - 6, 13, 13, 'glass');
-    // the hammer, to the left, on a chain of two links
-    g.px(x - 9, y - 2, 'metal2'); g.px(x - 9, y, 'metal2');
-    g.rect(x - 11, y + 1, 5, 2, 'metal3');
-    g.rect(x - 9, y + 3, 1, 6, 'wood3');
-  } else {
-    g.px(x - 5, y - 5, 'white'); g.px(x - 4, y - 6, 'white'); g.px(x - 6, y - 4, 'white');
-    g.px(x - 3, y - 3, 'white');
-    g.px(x + 4, y + 4, 'white'); g.px(x + 5, y + 3, 'white');
+  if (on) {
+    // the glitter, only while the disco is on: three sparks that take turns, out past the stripes
+    const k = Math.floor(t / 220) % 3;
+    const sparks = [[x - 10, y - 9], [x + 10, y - 6], [x + 9, y + 10]];
+    sparks.forEach(([sx, sy], i) => {
+      const lit = i === k;
+      const c = lit ? 'white' : (i + 1) % 3 === k ? 'gold2' : null;
+      if (!c) return;
+      g.px(sx, sy, c);
+      if (lit) { g.px(sx - 1, sy, 'gold2'); g.px(sx + 1, sy, 'gold2'); g.px(sx, sy - 1, 'gold2'); g.px(sx, sy + 1, 'gold2'); }
+    });
   }
+  g.setId(0);
 }
 
 // stripes round the button, and a caution triangle under it
 function hazard(g) {
+  g.setId(22);
   const { x, y } = BUTTON;
   for (let yy = -7; yy <= 7; yy += 1) {
     for (let xx = -7; xx <= 7; xx += 1) {
@@ -687,37 +603,6 @@ function hazard(g) {
   }
   g.rect(x, ty + 2, 1, 3, 'ink');
   g.px(x, ty + 6 - 1, 'yellow'); g.px(x, ty + 5, 'ink');
-}
-
-// a traffic cone on the floor under it, and a chalk arrow up to the button
-function cone(g) {
-  const { x, y } = BUTTON;
-  const base = 106;
-  for (let r = 0; r < 12; r += 1) {
-    const half = Math.floor(r / 2);
-    g.hline(x - half, base - 13 + r, half * 2 + 1, r >= 5 && r <= 7 ? 'white' : 'orange');
-  }
-  g.rect(x - 7, base - 2, 15, 2, 'orange');
-  g.hline(x - 7, base - 1, 15, 'orange2');
-  g.hline(x - 8, base, 17, 'floorDark');
-  // the arrow, chalk on the wall
-  g.rect(x, y + 6, 1, 8, 'white');
-  g.px(x - 1, y + 7, 'white'); g.px(x + 1, y + 7, 'white');
-  g.px(x - 2, y + 8, 'white'); g.px(x + 2, y + 8, 'white');
-}
-
-// what stands in the corner with the button: one of these, his pick
-export const CORNERS = ['bin', 'sign', 'hanger', 'glass', 'hazard', 'cone'];
-function corner(g, which, hop, pass) {
-  g.setId(22);
-  switch (which) {
-    case 'sign': if (pass === 'under') signDoNotPress(g); break;
-    case 'hanger': if (pass === 'under') hangerDoNotDisturb(g); break;
-    case 'glass': glassCase(g, pass); break;
-    case 'hazard': if (pass === 'under') hazard(g); break;
-    case 'cone': if (pass === 'under') cone(g); break;
-    default: if (pass === 'under') bin(g, hop);
-  }
   g.setId(0);
 }
 
@@ -747,10 +632,8 @@ export function drawScene(grid, state) {
   stringLights(g, state.string, t);
   if (state.disco) mirrorBall(g, t);
   POSTERS.forEach((p, i) => poster(g, 10 + i, 85 + i * 40, 6, i));
-  const which = state.corner || 'sign';
-  corner(g, which, state.binHop, 'under');
+  hazard(g);
   button(g, state.disco, t);
-  corner(g, which, state.binHop, 'over');
   clock(g, state.hour || 0);
   windowUnit(g, state.windowT || 0, t, (state.night || 0) > 0.45);
   shelf(g, state.sparkle, t);
