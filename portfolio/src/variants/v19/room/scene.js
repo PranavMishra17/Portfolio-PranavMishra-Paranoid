@@ -17,7 +17,6 @@
 
 import { painter, W, ROOM_H as H, ROOF } from './engine';
 import { BOOKS, GAMES, MAGNETS, POSTERS } from '../personal';
-import { SIT, SLEEP, LEGEND } from './sprites';
 
 const FLOOR_Y = 106;
 const DESK_Y = 84;
@@ -28,12 +27,10 @@ export const SCREENS = {
   monitorB: { x: 158, y: 58, w: 34, h: 20 },
 };
 
-// him: the bust is 28 wide, the head 18 of it, and it lands in the gap between the screens
-export const HIM = { x: 130, y: 44, w: 28, h: 28 };
 
 /* Hit-test order: first match wins, so what is nearest to you comes first. */
 export const HOTSPOTS = [
-  { id: 2, key: 'me', label: 'Me', kind: 'hand', x: 128, y: 40, w: 36, h: 32 },
+  { id: 2, key: 'chair', label: 'The chair', kind: 'hand', x: 118, y: 68, w: 52, h: 48 },
   { id: 4, key: 'mug', label: 'Tea', kind: 'hand', x: 195, y: 72, w: 14, h: 14 },
   { id: 5, key: 'laptop', label: 'Where I have worked', kind: 'zoom', x: 208, y: 56, w: 38, h: 30 },
   { id: 1, key: 'lamp', label: 'The lamp', kind: 'hand', x: 50, y: 32, w: 36, h: 16 },
@@ -399,60 +396,49 @@ function games(g) {
 
 /* ── him, and the chair he is inside ───────────────────────────────── */
 
-function person(g, mode, frame, t) {
+/* The chair, empty, and it spins when you click it. `angle` is where it has turned to: at zero
+   its back is to you; a quarter turn on and it is side-on; half way round and you see the seat. */
+function chair(g, angle) {
   g.setId(2);
-  if (mode === 'sleep') {
-    g.sprite(HIM.x, HIM.y + 2, SLEEP, LEGEND);
-    const k = Math.floor(t / 600) % 3;
-    for (let i = 0; i < 3; i += 1) {
-      if (i > k) break;
-      const zx = HIM.x + 30 + i * 4;
-      const zy = HIM.y + 6 - i * 5;
-      g.px(zx, zy, 'ink2');
-      g.px(zx + 1, zy, 'ink2');
-      g.px(zx + 1, zy + 1, 'ink2');
-      g.px(zx, zy + 2, 'ink2');
-      g.px(zx + 1, zy + 2, 'ink2');
-    }
-  } else {
-    // a slow breath: the shoulders rise one pixel every couple of seconds
-    const breathe = Math.sin(t / 1400) > 0.6 ? -1 : 0;
-    g.sprite(HIM.x, HIM.y + breathe, SIT, LEGEND);
-  }
-  g.setId(0);
-}
-
-/* The wave happens over the arm of the chair, because that is the only part of him that can be
-   seen from here. Two frames, one up, one further up. */
-function waving(g, frame) {
-  g.setId(2);
-  const lift = frame ? 3 : 0;
-  // the upper arm, from his right shoulder up and out, in the hoodie
-  for (let i = 0; i < 7; i += 1) g.rect(151 + i, 63 - i, 3, 3, 'shirt');
-  // the forearm, and the hand
-  g.rect(157, 50 - lift, 4, 8 + lift, 'skin');
-  g.rect(156, 45 - lift, 6, 5, 'skin');
-  g.px(156, 44 - lift, 'skin');
-  g.px(158, 43 - lift, 'skin');
-  g.px(160, 44 - lift, 'skin');
-  g.setId(0);
-}
-
-function chair(g) {
-  g.setId(0);
-  // the back: high enough to swallow him to the shoulders, narrow enough to leave the screens
-  g.rect(126, 72, 36, 34, 'ink2');
-  g.rect(128, 74, 32, 30, 'grey3');
-  for (let y = 78; y < 102; y += 4) g.hline(129, y, 30, 'ink2');
-  g.rect(131, 68, 26, 6, 'ink2');   // the headrest, behind his head only
-  g.rect(133, 69, 22, 4, 'grey3');
-  g.rect(118, 86, 8, 12, 'ink2');   // arms, over the front edge of the desk
-  g.rect(162, 86, 8, 12, 'ink2');
-  g.rect(120, 98, 48, 4, 'ink2');   // the seat, what you can see of it
+  const c = Math.cos(angle || 0);
+  const k = Math.abs(c);
+  const cx = 144;
+  const bw = Math.max(6, Math.round(36 * k));   // the back, foreshortened
+  const aw = Math.round(24 * k);                 // where the arms sit
+  // the base, which does not turn
   g.rect(140, 102, 7, 10, 'metal3');
   g.rect(126, 112, 36, 3, 'metal3');
   g.px(124, 115, 'ink');
   g.px(163, 115, 'ink');
+  if (c >= 0) {
+    // the back is toward you
+    g.rect(118 + (24 - aw), 86, 8, 12, 'ink2');
+    g.rect(162 - (24 - aw), 86, 8, 12, 'ink2');
+    g.rect(120 + (24 - aw), 98, 48 - 2 * (24 - aw), 4, 'ink2');
+    g.rect(cx - Math.round(bw / 2), 72, bw, 34, 'ink2');
+    if (bw > 8) {
+      g.rect(cx - Math.round(bw / 2) + 2, 74, bw - 4, 30, 'grey3');
+      for (let y = 78; y < 102; y += 4) g.hline(cx - Math.round(bw / 2) + 3, y, bw - 6, 'ink2');
+    }
+    const hw = Math.max(4, Math.round(26 * k));
+    g.rect(cx - Math.round(hw / 2), 68, hw, 6, 'ink2');
+    if (hw > 6) g.rect(cx - Math.round(hw / 2) + 2, 69, hw - 4, 4, 'grey3');
+  } else {
+    // it has turned to face you: the seat, the front of the back, the cushion
+    const sw = Math.max(8, Math.round(48 * k));
+    g.rect(cx - Math.round(sw / 2), 96, sw, 8, 'ink2');
+    g.rect(cx - Math.round(sw / 2) + 2, 97, sw - 4, 5, 'grey3');
+    g.rect(cx - Math.round(bw / 2), 72, bw, 26, 'ink2');
+    if (bw > 8) {
+      g.rect(cx - Math.round(bw / 2) + 2, 74, bw - 4, 22, 'grey2');
+      g.rect(cx - Math.round(bw / 2) + 4, 77, bw - 8, 3, 'grey3');
+    }
+    const hw = Math.max(4, Math.round(26 * k));
+    g.rect(cx - Math.round(hw / 2), 68, hw, 6, 'ink2');
+    g.rect(118 + (24 - aw), 88, 8, 10, 'ink2');
+    g.rect(162 - (24 - aw), 88, 8, 10, 'ink2');
+  }
+  g.setId(0);
 }
 
 /* ── the right corner and the floor ────────────────────────────────── */
@@ -577,9 +563,7 @@ export function drawScene(grid, state) {
   laptop(g, state.pc);
   lamp(g, state.lamp);
   mug(g, !state.cold, t);
-  person(g, state.mode, state.frame, t);
-  if (state.mode === 'wave') waving(g, state.frame);
-  chair(g);
+  chair(g, state.spin || 0);
   ball(g, state.bounce || 0);
   return grid;
 }

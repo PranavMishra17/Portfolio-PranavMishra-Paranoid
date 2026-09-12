@@ -5,8 +5,7 @@
 // continuing down. Nothing is drawn around it and nothing sits under it except the way back
 // up, which stands on the rug.
 //
-// He does not walk in any more. He is at the desk when you arrive. Click him and he waves;
-// switch the tower off and he falls asleep in the chair; switch it on and he wakes up.
+// Nobody is in it. The chair is empty; click it and it spins.
 //
 // The room keeps the page's clock. It is as dark in here as it is outside at this hour — never
 // darker than a blue evening — and the lamp and the string lights come on when it is. Open the
@@ -25,9 +24,9 @@ const isYouTube = (u) => /youtu\.?be/i.test(u || '');
 
 const FRAME_MS = 42;
 const SCREEN_MS = 4600;
-const WAVE_MS = 1700;
+const SPIN_MS = 1500;
 
-const TOGGLES = new Set(['lamp', 'lights', 'pc', 'window', 'ball', 'mug', 'me', 'clock']);
+const TOGGLES = new Set(['lamp', 'lights', 'pc', 'window', 'ball', 'mug', 'chair', 'clock']);
 
 const EVENING = { night: 0.5, lamp: true, string: true, pc: true, windowOpen: false, mono: false, hour: 19 };
 
@@ -232,13 +231,12 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
     cold: false,
     sparkle: false,
     bounce: 0,
-    mode: 'sit', // sit | wave | sleep
-    frame: 0,
+    spin: 0,
+    spinAt: null,
     t: 0,
   });
   const hoverRef = useRef(0);
   const bounceRef = useRef(null);
-  const waveRef = useRef(null);
 
   const [hover, setHover] = useState(0);
   const [openKey, setOpenKey] = useState(null);
@@ -353,7 +351,7 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
         const hs = HOTSPOTS.find((h) => h.key === `poster${i + 1}`);
         if (hs) blit(img, hs.x, hs.y + ROOF, hs.w, hs.h);
       });
-      // he is in front of the wall: put his pixels back over any art that landed on him
+      // the chair is in front of the wall: put its pixels back over any art that landed on it
       const grid = gridRef.current;
       const frame = imgRef.current;
       if (!grid || !frame) return;
@@ -410,7 +408,7 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
       ctx.fillStyle = st.mono ? '#68676a' : '#2f6a8f';
       ctx.fillRect(b.x + 3, b.y + b.h - 3, 7, 1);
 
-      // he is nearer than the screens: put his own pixels back over whatever landed on them
+      // the chair is nearer than the screens: put its pixels back over whatever landed on them
       const grid = gridRef.current;
       const frame = imgRef.current;
       if (!grid || !frame) return;
@@ -436,7 +434,16 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
         const step = dt / 520;
         st.windowT = target > st.windowT ? Math.min(1, st.windowT + step) : Math.max(0, st.windowT - step);
       }
-      if (st.mode === 'wave') st.frame = Math.floor(now / 220) % 2;
+      // the spin: two turns, easing out, ending where it started
+      if (st.spinAt != null) {
+        const p = Math.min(1, (now - st.spinAt) / SPIN_MS);
+        const e = 1 - (1 - p) ** 3;
+        st.spin = e * Math.PI * 4;
+        if (p >= 1) {
+          st.spin = 0;
+          st.spinAt = null;
+        }
+      }
 
       // the window open lets the day in
       const night = Math.max(0, st.night - st.windowT * st.night * 0.85);
@@ -482,7 +489,6 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
       window.cancelAnimationFrame(raf);
       window.clearInterval(watchdog);
       if (bounceRef.current) window.clearInterval(bounceRef.current);
-      if (waveRef.current) window.clearTimeout(waveRef.current);
     };
   }, []);
 
@@ -554,21 +560,12 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
       if (TOGGLES.has(h.key)) {
         setOpenKey(null);
         switch (h.key) {
-          case 'me':
-            if (st.mode === 'sleep') break; // let him sleep
-            st.mode = 'wave';
-            if (waveRef.current) window.clearTimeout(waveRef.current);
-            waveRef.current = window.setTimeout(() => {
-              if (stateRef.current.mode === 'wave') stateRef.current.mode = stateRef.current.pc ? 'sit' : 'sleep';
-            }, WAVE_MS);
+          case 'chair':
+            if (st.spinAt == null) st.spinAt = performance.now();
             break;
           case 'lamp': st.lamp = !st.lamp; break;
           case 'lights': st.string = !st.string; break;
-          case 'pc':
-            st.pc = !st.pc;
-            if (waveRef.current) window.clearTimeout(waveRef.current);
-            st.mode = st.pc ? 'sit' : 'sleep';
-            break;
+          case 'pc': st.pc = !st.pc; break;
           case 'window': st.windowOpen = !st.windowOpen; break;
           case 'ball': {
             if (bounceRef.current) window.clearInterval(bounceRef.current);
@@ -618,7 +615,7 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
       return `${p.title} — ${p.note}`;
     }
     if (hotspot.key === 'books') return BOOKS.map((b) => b.title).join(' · ');
-    if (hotspot.key === 'me') return stateRef.current.mode === 'sleep' ? 'Asleep. Switch the tower on.' : 'Me';
+    if (hotspot.key === 'chair') return 'The chair';
     if (hotspot.key === 'pc') return stateRef.current.pc ? 'The tower — switch it off and see' : 'The tower';
     if (hotspot.key === 'clock') return flipped ? 'The clock — put the day back' : 'The clock — flip the day';
     return hotspot.label;
