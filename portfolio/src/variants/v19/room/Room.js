@@ -14,7 +14,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createGrid, rasterize, W, H, ROOF } from './engine';
 import { nightAt } from '../hooks';
-import { drawScene, HOTSPOTS, LIGHTS, SCREENS } from './scene';
+import { drawScene, HOTSPOTS, LIGHTS, SCREENS, BUTTON } from './scene';
 import { BOOKS, GAMES, POSTERS, TROPHIES, MEDALS } from '../personal';
 import { ALL_PROJECTS, PAPERS, ROLES, ALFRED, LINKS, MORE_LINKS } from '../copy';
 
@@ -249,6 +249,8 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
   const artRef = useRef({ posters: [], books: [] });
   const hoverScreenRef = useRef(null);
   const [hoverScreen, setHoverScreen] = useState(null);
+  const [discoOn, setDiscoOn] = useState(false);
+  const [btnAt, setBtnAt] = useState(null); // where the round button sits over the canvas
   const cursorRef = useRef(null);
   const gridRef = useRef(null);
   const imgRef = useRef(null);
@@ -271,6 +273,34 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
   const [hover, setHover] = useState(0);
   const [openKey, setOpenKey] = useState(null);
   const [kind, setKind] = useState('');
+
+  /* the round button: a DOM circle laid over the canvas at the plate's spot, so it is not a
+     blocky pixel disc. Re-measured whenever the canvas changes size. */
+  useEffect(() => {
+    const cv = canvasRef.current;
+    if (!cv) return undefined;
+    const place = () => {
+      const r = cv.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      const scale = Math.max(r.width / W, r.height / H);
+      const offX = (r.width - W * scale) / 2;
+      const offY = r.height - H * scale;
+      const d = (BUTTON.r * 2 + 1) * scale;
+      setBtnAt({ left: offX + (BUTTON.x + 0.5) * scale - d / 2, top: offY + (BUTTON.y + ROOF + 0.5) * scale - d / 2, size: d });
+    };
+    place();
+    let ro = null;
+    if ('ResizeObserver' in window) {
+      ro = new ResizeObserver(place);
+      ro.observe(cv);
+    } else {
+      window.addEventListener('resize', place);
+    }
+    return () => {
+      if (ro) ro.disconnect();
+      else window.removeEventListener('resize', place);
+    };
+  }, []);
 
   /* the hour, from the page: how dark, and whether the lights are on */
   useEffect(() => {
@@ -658,6 +688,7 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
           case 'clock': if (onClock) onClock(); break;
           case 'disco':
             st.disco = !st.disco;
+            setDiscoOn(st.disco);
             if (onDisco) onDisco(st.disco);
             break;
           default: break;
@@ -693,7 +724,6 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
     if (hotspot.key === 'books') return BOOKS.map((b) => b.title).join(' · ');
     if (hotspot.key === 'chair') return 'The chair';
     if (hotspot.key === 'disco') return stateRef.current.disco ? 'Enough' : 'Press it';
-    if (hotspot.key === 'hazard') return 'Caution';
     if (hotspot.key === 'pc') return stateRef.current.pc ? 'The tower — switch it off and see' : 'The tower';
     if (hotspot.key === 'clock') return flipped ? 'The clock — put the day back' : 'The clock — flip the day';
     return hotspot.label;
@@ -722,6 +752,14 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
             alt=""
             style={{ left: hoverScreen.left, top: hoverScreen.top, width: hoverScreen.width, height: hoverScreen.height }}
             onError={(e) => { e.currentTarget.style.display = 'none'; }}
+          />
+        ) : null}
+
+        {btnAt ? (
+          <span
+            className={`v19-room-btn${discoOn ? ' on' : ''}`}
+            style={{ left: btnAt.left, top: btnAt.top, width: btnAt.size, height: btnAt.size }}
+            aria-hidden="true"
           />
         ) : null}
 

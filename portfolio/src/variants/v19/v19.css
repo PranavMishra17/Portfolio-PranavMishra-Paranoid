@@ -819,6 +819,18 @@ body.v19-locked { overflow: hidden; }
 .v19-room-stage:not(.k-hand):not(.k-zoom) .v19-room-canvas { cursor: default; }
 
 /* the real picture, sat exactly over its pixelated self while you point at it */
+/* the disco button: a real circle over the pixel plate, glossy, lit when it is on */
+.v19-room-btn {
+  position: absolute; z-index: 3; border-radius: 50%; pointer-events: none; box-sizing: border-box;
+  background: radial-gradient(circle at 36% 32%, #f3a49a 0 12%, #d64a3c 34%, #a52e25 78%, #7c221b 100%);
+  border: 2px solid #2a2530;
+  box-shadow: inset 0 -3px 5px rgba(0,0,0,.35), inset 0 2px 3px rgba(255,255,255,.35), 0 2px 3px rgba(0,0,0,.35);
+  transition: box-shadow 200ms ease, background 200ms ease;
+}
+.v19-room-btn.on {
+  background: radial-gradient(circle at 36% 32%, #ffc2b8 0 7%, #ff6a5a 26%, #e0402f 74%, #a82c22 100%);
+  box-shadow: inset 0 -3px 5px rgba(0,0,0,.25), inset 0 2px 3px rgba(255,255,255,.4), 0 0 14px 4px rgba(255,110,90,.85), 0 0 40px 14px rgba(255,120,100,.45);
+}
 .v19-room-art { position: absolute; z-index: 4; object-fit: contain; background: #17171a; pointer-events: none; image-rendering: auto; box-shadow: 0 10px 30px -12px rgba(0,0,0,.6); animation: v19-clear 260ms ease both; }
 @keyframes v19-clear { from { opacity: 0; filter: blur(6px); } to { opacity: 1; filter: blur(0); } }
 @media (prefers-reduced-motion: reduce) { .v19-room-art { animation: none; } }

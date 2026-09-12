@@ -48,7 +48,6 @@ export const HOTSPOTS = [
   { id: 21, key: 'clock', label: 'The clock', kind: 'zoom', x: 20, y: 12, w: 20, h: 20 },
   { id: 18, key: 'ball', label: 'Football and boots', kind: 'hand', x: 8, y: 104, w: 70, h: 22 },
   { id: 23, key: 'disco', label: 'A button', kind: 'hand', x: 259, y: 73, w: 12, h: 12 },
-  { id: 22, key: 'hazard', label: 'Caution', kind: 'zoom', x: 256, y: 70, w: 18, h: 30 },
   { id: 19, key: 'window', label: 'The window', kind: 'hand', x: 208, y: -2, w: 64, h: 46 },
   { id: 20, key: 'lights', label: 'String lights', kind: 'hand', x: 4, y: -7, w: 280, h: 12 },
 ];
@@ -561,7 +560,8 @@ function ball(g, bounce) {
 
 /* ── the right corner: a bin, and what it was standing in front of ──── */
 
-// a small switch plate on the wall with a glossy round button on it. Lit, and glittering,
+// a small switch plate on the wall. The round glossy button itself is a DOM element Room lays
+// over this spot, so it can be a true circle; the pixels under it are a fallback. Glitter
 // while the disco is on.
 function button(g, on, t) {
   const { x, y } = BUTTON;
@@ -588,7 +588,7 @@ function button(g, on, t) {
 
 // stripes round the button, and a caution triangle under it
 function hazard(g) {
-  g.setId(22);
+  g.setId(0);
   const { x, y } = BUTTON;
   for (let yy = -7; yy <= 7; yy += 1) {
     for (let xx = -7; xx <= 7; xx += 1) {
