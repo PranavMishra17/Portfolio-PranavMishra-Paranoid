@@ -63,7 +63,7 @@ const isYouTube = (u) => /youtu\.?be/i.test(u || '');
 function Links({ p }) {
   return (
     <p className="v19-view-links">
-      {p.github ? <a href={p.github} target="_blank" rel="noreferrer">GitHub</a> : null}
+      {p.github ? <a href={p.github} target="_blank" rel="noreferrer">{/github\.com/.test(p.github) ? 'GitHub' : 'Code'}</a> : null}
       {p.site ? <a href={p.site} target="_blank" rel="noreferrer">Website</a> : null}
       {p.demo ? <a href={p.demo} target="_blank" rel="noreferrer">{isYouTube(p.demo) ? 'YouTube' : 'Demo'}</a> : null}
     </p>
