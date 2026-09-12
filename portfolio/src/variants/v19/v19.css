@@ -84,14 +84,17 @@ body.v19-locked { overflow: hidden; }
   box-shadow: 0 0 34px 10px rgba(236, 240, 255, .45), 0 0 120px 44px rgba(196, 210, 255, .22);
   transition: opacity 600ms linear, left 420ms linear, top 420ms linear;
 }
-.v19.night-b .v19-moon { box-shadow: 0 0 34px 10px rgba(236, 240, 255, .55), 0 0 160px 60px rgba(186, 200, 255, .3); }
-/* the aurora: one soft band, drifting */
-.v19-aurora {
-  position: absolute; left: -30vw; right: -30vw; top: 4vh; height: 46vh; opacity: calc(var(--night) * 1.2 - 0.25);
-  background: linear-gradient(104deg, transparent 18%, rgba(118, 224, 190, .42) 36%, rgba(140, 170, 255, .34) 50%, rgba(214, 150, 240, .26) 60%, transparent 78%);
-  filter: blur(26px); animation: v19-aurora 26s ease-in-out infinite alternate; will-change: transform;
+.v19-moon { box-shadow: 0 0 34px 10px rgba(236, 240, 255, .55), 0 0 160px 60px rgba(186, 200, 255, .3); }
+/* the sun by day: a pale disc, soft at the edge, where the glow already is — quiet enough to
+   be found rather than noticed. It moves the way the moon does. */
+.v19-sun {
+  position: absolute; left: var(--sun-x, 50%); top: var(--sun-y, 20%); width: 5.2vmin; height: 5.2vmin; margin: -2.6vmin 0 0 -2.6vmin;
+  border-radius: 50%; opacity: 0;
+  background: radial-gradient(circle, rgba(255, 249, 226, .9) 0 46%, rgba(255, 240, 196, .5) 62%, rgba(255, 236, 190, 0) 72%);
+  box-shadow: 0 0 60px 20px rgba(255, 238, 190, .28), 0 0 160px 60px rgba(255, 226, 170, .16);
+  transition: opacity 600ms linear, left 420ms linear, top 420ms linear;
 }
-@keyframes v19-aurora { from { transform: translateX(-8vw) skewY(-4deg); } to { transform: translateX(10vw) skewY(3deg); } }
+.v19.has-sun .v19-sun { opacity: calc(0.9 - var(--night) * 4); }
 
 /* the disco: a layer under the page that only moves by transform, so it costs the compositor
    and nothing else. Three looks; the room's button switches it on. */
@@ -100,36 +103,11 @@ body.v19-locked { overflow: hidden; }
 .v19-disco i { position: absolute; display: block; will-change: transform; }
 .v19.is-disco .v19-disco i { animation-play-state: running; }
 .v19-disco i { animation-play-state: paused; }
-/* spots: three coloured pools wandering round each other */
-.v19.disco-spots .v19-disco i { left: 50%; top: 50%; width: 80vmax; height: 80vmax; margin: -40vmax 0 0 -40vmax; border-radius: 50%; animation: v19-orbit 9s linear infinite; }
-.v19.disco-spots .v19-disco i:nth-child(1) { background: radial-gradient(circle, rgba(255, 70, 190, .5) 0 16%, rgba(255, 70, 190, 0) 46%); }
-.v19.disco-spots .v19-disco i:nth-child(2) { background: radial-gradient(circle, rgba(60, 210, 255, .48) 0 16%, rgba(60, 210, 255, 0) 46%); animation-delay: -3s; animation-duration: 11s; }
-.v19.disco-spots .v19-disco i:nth-child(3) { background: radial-gradient(circle, rgba(255, 220, 60, .48) 0 16%, rgba(255, 220, 60, 0) 46%); animation-delay: -6s; animation-duration: 13s; }
-.v19.disco-spots .v19-disco i:nth-child(4) { background: radial-gradient(circle, rgba(120, 255, 150, .42) 0 14%, rgba(120, 255, 150, 0) 44%); animation-delay: -1.5s; animation-duration: 15s; animation-direction: reverse; }
-@keyframes v19-orbit { from { transform: rotate(0) translateX(26vw) rotate(0); } to { transform: rotate(360deg) translateX(26vw) rotate(-360deg); } }
-/* mirror ball: two sheets of coloured sparkle turning against each other, and a slow colour sweep */
-.v19.disco-ball .v19-disco i { left: 50%; top: 50%; width: 240vmax; height: 240vmax; margin: -120vmax 0 0 -120vmax; }
-.v19.disco-ball .v19-disco i:nth-child(1), .v19.disco-ball .v19-disco i:nth-child(2) {
-  background-image:
-    radial-gradient(circle, rgba(255, 80, 200, .75) 0 4px, transparent 5px),
-    radial-gradient(circle, rgba(70, 215, 255, .75) 0 4px, transparent 5px),
-    radial-gradient(circle, rgba(255, 225, 70, .75) 0 4px, transparent 5px),
-    radial-gradient(circle, rgba(120, 255, 150, .7) 0 3.5px, transparent 4.5px);
-  background-size: 68px 68px, 68px 68px, 68px 68px, 68px 68px;
-  background-position: 0 0, 37px 20px, 18px 51px, 55px 44px;
-  animation: v19-turn 60s linear infinite;
-}
-.v19.disco-ball .v19-disco i:nth-child(2) { animation-direction: reverse; animation-duration: 47s; background-position: 12px 30px, 50px 8px, 30px 60px, 4px 52px; }
-.v19.disco-ball .v19-disco i:nth-child(3) { width: 300vw; height: 100vh; left: 0; top: 0; margin: 0; background: linear-gradient(90deg, rgba(255,70,190,.18), rgba(60,210,255,.18), rgba(255,220,60,.18), rgba(120,255,150,.18), rgba(255,70,190,.18)); animation: v19-sweep 8s linear infinite; }
-.v19.disco-ball .v19-disco i:nth-child(4) { display: none; }
-@keyframes v19-turn { from { transform: rotate(0); } to { transform: rotate(360deg); } }
-@keyframes v19-sweep { from { transform: translateX(-200vw); } to { transform: translateX(0); } }
 /* beams: fans of light from the top corners, swinging */
-.v19.disco-beams .v19-disco i { width: 260vmax; height: 260vmax; margin: -130vmax 0 0 -130vmax; border-radius: 50%; animation: v19-swing 5.5s ease-in-out infinite alternate; }
-.v19.disco-beams .v19-disco i:nth-child(1) { left: 0; top: 0; background: conic-gradient(from 100deg, transparent 0 6deg, rgba(255, 70, 190, .3) 6deg 11deg, transparent 11deg 28deg, rgba(60, 210, 255, .3) 28deg 33deg, transparent 33deg 52deg, rgba(255, 220, 60, .3) 52deg 57deg, transparent 57deg 360deg); }
-.v19.disco-beams .v19-disco i:nth-child(2) { left: 100%; top: 0; background: conic-gradient(from 200deg, transparent 0 6deg, rgba(120, 255, 150, .3) 6deg 11deg, transparent 11deg 28deg, rgba(255, 70, 190, .3) 28deg 33deg, transparent 33deg 52deg, rgba(60, 210, 255, .3) 52deg 57deg, transparent 57deg 360deg); animation-delay: -2.7s; animation-duration: 6.5s; }
-.v19.disco-beams .v19-disco i:nth-child(3) { left: 50%; top: 100%; background: conic-gradient(from 320deg, transparent 0 8deg, rgba(255, 220, 60, .22) 8deg 12deg, transparent 12deg 60deg, rgba(60, 210, 255, .22) 60deg 64deg, transparent 64deg 360deg); animation-duration: 8s; }
-.v19.disco-beams .v19-disco i:nth-child(4) { display: none; }
+.v19-disco i { width: 260vmax; height: 260vmax; margin: -130vmax 0 0 -130vmax; border-radius: 50%; animation: v19-swing 5.5s ease-in-out infinite alternate; }
+.v19-disco i:nth-child(1) { left: 0; top: 0; background: conic-gradient(from 100deg, transparent 0 6deg, rgba(255, 70, 190, .3) 6deg 11deg, transparent 11deg 28deg, rgba(60, 210, 255, .3) 28deg 33deg, transparent 33deg 52deg, rgba(255, 220, 60, .3) 52deg 57deg, transparent 57deg 360deg); }
+.v19-disco i:nth-child(2) { left: 100%; top: 0; background: conic-gradient(from 200deg, transparent 0 6deg, rgba(120, 255, 150, .3) 6deg 11deg, transparent 11deg 28deg, rgba(255, 70, 190, .3) 28deg 33deg, transparent 33deg 52deg, rgba(60, 210, 255, .3) 52deg 57deg, transparent 57deg 360deg); animation-delay: -2.7s; animation-duration: 6.5s; }
+.v19-disco i:nth-child(3) { left: 50%; top: 100%; background: conic-gradient(from 320deg, transparent 0 8deg, rgba(255, 220, 60, .22) 8deg 12deg, transparent 12deg 60deg, rgba(60, 210, 255, .22) 60deg 64deg, transparent 64deg 360deg); animation-duration: 8s; }
 @keyframes v19-swing { from { transform: rotate(-22deg); } to { transform: rotate(22deg); } }
 
 /* the picker, local only */
@@ -831,7 +809,7 @@ body.v19-locked { overflow: hidden; }
 
 .v19-room { position: relative; z-index: 2; margin-top: clamp(20px, 5vh, 60px); }
 /* never shorter than it takes to show the posters on a wide screen: the canvas covers by width there */
-.v19-room-stage { position: relative; width: 100%; height: max(calc(100vh - var(--bar)), 56vw); line-height: 0; }
+.v19-room-stage { position: relative; width: 100%; height: max(calc(100vh - var(--bar)), 54vw); line-height: 0; }
 .v19-room-canvas {
   display: block; width: 100%; height: 100%; object-fit: cover; object-position: center bottom;
   image-rendering: pixelated; image-rendering: crisp-edges; cursor: none;

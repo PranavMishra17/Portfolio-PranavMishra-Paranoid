@@ -46,16 +46,14 @@ export const HOTSPOTS = [
   { id: 14, key: 'medals', label: 'Medals', kind: 'zoom', x: 40, y: 56, w: 20, h: 18 },
   { id: 15, key: 'books', label: 'Books', kind: 'zoom', x: 6, y: 32, w: 32, h: 24 },
   { id: 21, key: 'clock', label: 'The clock', kind: 'zoom', x: 20, y: 12, w: 20, h: 20 },
-  { id: 18, key: 'ball', label: 'Football and boots', kind: 'hand', x: 8, y: 118, w: 70, h: 26 },
-  { id: 22, key: 'bin', label: 'The bin', kind: 'hand', x: 262, y: 87, w: 24, h: 20 },
-  { id: 23, key: 'disco', label: 'A button', kind: 'hand', x: 264, y: 91, w: 20, h: 13 },
+  { id: 18, key: 'ball', label: 'Football and boots', kind: 'hand', x: 8, y: 104, w: 70, h: 22 },
+  { id: 23, key: 'disco', label: 'A button', kind: 'hand', x: 252, y: 88, w: 16, h: 16 },
   { id: 19, key: 'window', label: 'The window', kind: 'hand', x: 208, y: -2, w: 64, h: 46 },
   { id: 20, key: 'lights', label: 'String lights', kind: 'hand', x: 4, y: -7, w: 280, h: 12 },
 ];
 
-// the bin stands against the wall in the right corner; the plate is what it hides
-export const BIN = { x: 264, y: 89, w: 20, h: 17 };
-export const PLATE = { x: 264, y: 91, w: 20, h: 13 };
+// the button on the wall, right of the desk
+export const BUTTON = { x: 260, y: 96, r: 5 };
 
 export const LIGHTS = {
   lamp: { x: 68, y: 52, r: 78, warm: 1, strength: 0.95 },
@@ -469,9 +467,9 @@ function clock(g, hour) {
 function rug(g) {
   g.setId(0);
   const x = 40;
-  const y = 116;
+  const y = 109;
   const w = 210;
-  const h = 26;
+  const h = 18;
   g.rect(x, y, w, h, 'rug');
   g.frame(x, y, w, h, 'rug3');
   g.rect(x + 2, y + 2, w - 4, 2, 'rug2');
@@ -502,12 +500,12 @@ function ball(g, bounce) {
   const sw = 14 - Math.round(bounce / 3);
   for (let i = 0; i < sw; i += 1) {
     const dx = 20 - Math.round(sw / 2) + i;
-    g.px(dx, 140, 'floorDark');
-    if (Math.abs(i - sw / 2) < sw / 3) g.px(dx, 141, 'floorDark');
+    g.px(dx, 123, 'floorDark');
+    if (Math.abs(i - sw / 2) < sw / 3) g.px(dx, 124, 'floorDark');
   }
   g.setId(18);
   const cx = 20;
-  const by = 132 - bounce;
+  const by = 115 - bounce;
   g.disc(cx, by, 8, 'ball');
   // the shade on the underside, and the panels: one in the middle, five around it
   for (let yy = 4; yy <= 8; yy += 1) for (let xx = -6; xx <= 6; xx += 1) if (xx * xx + yy * yy <= 64 && (xx + yy) % 2 === 0) g.px(cx + xx, by + yy, 'grey2');
@@ -533,91 +531,42 @@ function ball(g, bounce) {
     const flip = i === 1;
     const heelX = flip ? bx + 9 : bx;
     const toeX = flip ? bx : bx + 8;
-    g.rect(bx, 131, 13, 6, 'boot');
-    g.rect(heelX, 126, 5, 6, 'boot');
-    g.rect(heelX + (flip ? -1 : 0), 125, 6, 1, 'grey3'); // the collar
-    g.rect(toeX, 133, 5, 4, 'boot');
-    g.px(toeX + (flip ? 0 : 4), 132, 'boot');
-    g.rect(heelX + (flip ? -2 : 4), 128, 3, 2, 'cream'); // the tongue
-    g.px(heelX + (flip ? -1 : 5), 130, 'cream'); // laces
-    g.px(heelX + (flip ? -2 : 6), 131, 'cream');
-    g.px(bx + 2, 134, 'grey3'); // the stripe
-    g.px(bx + 4, 134, 'grey3');
-    g.rect(bx, 137, 13, 1, 'bootSole');
-    g.px(bx + 2, 138, 'bootSole'); // studs
-    g.px(bx + 6, 138, 'bootSole');
-    g.px(bx + 10, 138, 'bootSole');
+    g.rect(bx, 117, 13, 6, 'boot');
+    g.rect(heelX, 112, 5, 6, 'boot');
+    g.rect(heelX + (flip ? -1 : 0), 111, 6, 1, 'grey3'); // the collar
+    g.rect(toeX, 119, 5, 4, 'boot');
+    g.px(toeX + (flip ? 0 : 4), 118, 'boot');
+    g.rect(heelX + (flip ? -2 : 4), 114, 3, 2, 'cream'); // the tongue
+    g.px(heelX + (flip ? -1 : 5), 116, 'cream'); // laces
+    g.px(heelX + (flip ? -2 : 6), 117, 'cream');
+    g.px(bx + 2, 120, 'grey3'); // the stripe
+    g.px(bx + 4, 120, 'grey3');
+    g.rect(bx, 123, 13, 1, 'bootSole');
+    g.px(bx + 2, 124, 'bootSole'); // studs
+    g.px(bx + 6, 124, 'bootSole');
+    g.px(bx + 10, 124, 'bootSole');
   });
   g.setId(0);
 }
 
 /* ── the right corner: a bin, and what it was standing in front of ──── */
 
-// three-by-five letters for the plate
-const GLYPH = {
-  D: ['##.', '#.#', '#.#', '#.#', '##.'],
-  I: ['###', '.#.', '.#.', '.#.', '###'],
-  S: ['.##', '#..', '.#.', '..#', '##.'],
-  C: ['.##', '#..', '#..', '#..', '.##'],
-  O: ['.#.', '#.#', '#.#', '#.#', '.#.'],
-};
-
-// the plate on the wall: a word and a round red button. Lit when the disco is on.
-function plate(g, on, t) {
-  const { x, y, w, h } = PLATE;
+// a round button on the wall, glossy, with a glitter that goes round it. Lit when the disco is on.
+function button(g, on, t) {
+  const { x, y, r } = BUTTON;
   g.setId(23);
-  g.rect(x, y, w, h, 'grey2');
-  g.frame(x, y, w, h, 'ink2');
-  'DISCO'.split('').forEach((ch, i) => {
-    g.sprite(x + 1 + i * 4, y + 2, GLYPH[ch], { '#': on ? 'ledRed' : 'ink' });
-  });
-  const cx = x + Math.floor(w / 2);
-  const cy = y + h - 3;
-  g.disc(cx, cy, 2, on && Math.floor(t / 180) % 2 ? 'ledRed' : 'red');
-  g.px(cx - 1, cy - 1, 'red2');
-  g.setId(0);
-}
-
-// the bin. `fall` is the time since it was clicked, or null: it leans, goes over, and rolls
-// away to the right until it is off the edge of the room.
-function bin(g, fall) {
-  const { x, y, w, h } = BIN;
-  const stripes = (bx, by, bw, bh, vertical, phase) => {
-    g.rect(bx, by, bw, bh, 'metal');
-    if (vertical) for (let i = 2 + (phase % 3); i < bw - 1; i += 3) g.vline(bx + i, by + 1, bh - 1, 'metal3');
-    else for (let i = 2 + (phase % 3); i < bh - 1; i += 3) g.hline(bx + 1, by + i, bw - 1, 'metal3');
-  };
-  g.setId(22);
-  if (fall == null || fall < 140) {
-    // standing: a shadow, the body, the rim, the lid handle
-    g.rect(x - 1, y + h, w + 3, 1, 'floorDark');
-    stripes(x, y, w, h, true, 0);
-    g.frame(x, y, w, h, 'metal3');
-    g.rect(x - 1, y - 1, w + 2, 2, 'metal3');
-    g.rect(x + Math.floor(w / 2) - 3, y - 3, 6, 2, 'ink');
-  } else if (fall < 420) {
-    // leaning to the right, more with every step
-    const lean = Math.min(6, Math.floor((fall - 140) / 40));
-    for (let r = 0; r < h; r += 1) {
-      const dx = Math.round(((h - r) / h) * lean * 2);
-      g.hline(x + dx, y + r, w, r === 0 ? 'metal3' : 'metal');
-      if (r > 0) for (let i = 2; i < w - 1; i += 3) g.px(x + dx + i, y + r, 'metal3');
-    }
-    g.rect(x - 1 + lean * 2, y - 1, w + 2, 2, 'metal3');
-  } else {
-    // on its side and rolling right, out of the room
-    const p = Math.min(1, (fall - 420) / 1100);
-    const eased = p * p;
-    const bx = x + Math.round(eased * 60);
-    const by = FLOOR_Y - w;
-    const phase = Math.floor(fall / 70);
-    if (bx < W) {
-      g.rect(bx, FLOOR_Y, h + 2, 1, 'floorDark');
-      stripes(bx, by, h, w, false, phase);
-      g.frame(bx, by, h, w, 'metal3');
-      g.rect(bx + h - 2, by - 1, 2, w + 2, 'metal3'); // the rim, now on the right
-      g.rect(bx + h, by + Math.floor(w / 2) - 3, 2, 6, 'ink'); // and the handle
-    }
+  g.ring(x, y, r + 1, 'ink2');
+  g.disc(x, y, r, on ? 'ledRed' : 'red');
+  g.disc(x - 1, y - 1, 2, on ? 'pink' : 'red2');
+  g.px(x - 2, y - 2, 'white');
+  // the glitter: eight sparks round the rim, three lit at a time, turning
+  const k = Math.floor(t / 140);
+  for (let i = 0; i < 8; i += 1) {
+    const ang = (i / 8) * Math.PI * 2;
+    const sx = x + Math.round(Math.cos(ang) * (r + 3));
+    const sy = y + Math.round(Math.sin(ang) * (r + 3));
+    const lit = (i + k) % 8 < 3;
+    if (lit) g.px(sx, sy, (i + k) % 8 === 0 ? 'white' : on ? 'yellow2' : 'gold2');
   }
   g.setId(0);
 }
@@ -648,7 +597,7 @@ export function drawScene(grid, state) {
   stringLights(g, state.string, t);
   if (state.disco) mirrorBall(g, t);
   POSTERS.forEach((p, i) => poster(g, 10 + i, 85 + i * 40, 6, i));
-  plate(g, state.disco, t);
+  button(g, state.disco, t);
   clock(g, state.hour || 0);
   windowUnit(g, state.windowT || 0, t);
   shelf(g, state.sparkle, t);
@@ -662,7 +611,6 @@ export function drawScene(grid, state) {
   mug(g, !state.cold, t);
   chair(g, state.spin || 0);
   ball(g, state.bounce || 0);
-  if (!state.binGone) bin(g, state.binAt == null ? null : t - state.binAt);
   return grid;
 }
 

@@ -60,10 +60,9 @@ function Page() {
     try { window.localStorage.setItem('v19-lab', JSON.stringify(next)); } catch (err) { /* fine */ }
     return next;
   });
-  const nightV = lab.night || 'a';
-  const discoV = lab.disco || 'spots';
+  const sun = lab.sun !== false;
   const hour = lab.forceNight ? 23.5 : flip ? (real >= 6 && real < 18 ? 22 : 10) : real;
-  useSky(skyRef, hour, nightV === 'b' ? 0.32 : 0.2);
+  useSky(skyRef, hour, 0.32);
 
   /* body, fonts, and the scroll the browser must not restore under a wall */
   useEffect(() => {
@@ -177,14 +176,14 @@ function Page() {
   const current = WHERE.find((w) => w.id === where) || WHERE[0];
 
   return (
-    <div className={`v19 land-plate${blown ? ' is-open' : ''}${disco ? ' is-disco' : ''} night-${nightV} disco-${discoV}`}>
+    <div className={`v19 land-plate${blown ? ' is-open' : ''}${disco ? ' is-disco' : ''}${sun ? ' has-sun' : ''}`}>
       <div className="v19-sky" ref={skyRef} aria-hidden="true">
         <i className="v19-stars" style={{ backgroundImage: `url("${STARS[0]}")` }} />
         <i className="v19-stars is-b" style={{ backgroundImage: `url("${STARS[1]}")` }} />
         <i className="v19-moon" />
-        {nightV === 'c' ? <i className="v19-aurora" /> : null}
+        <i className="v19-sun" />
       </div>
-      <div className="v19-disco" aria-hidden="true"><i /><i /><i /><i /></div>
+      <div className="v19-disco" aria-hidden="true"><i /><i /><i /></div>
       <div className="v19-grain" aria-hidden="true" />
 
       <header className={`v19-bar${blown ? ' on' : ''}`}>
@@ -249,15 +248,8 @@ function Page() {
 
       <aside className="v19-lab" data-keep-open="">
         <b>Lab</b>
-        <span>Night</span>
-        {['a', 'b', 'c'].map((v) => (
-          <button type="button" key={v} className={nightV === v ? 'on' : ''} onClick={() => pick('night', v)}>{{ a: 'Stars', b: 'Indigo', c: 'Aurora' }[v]}</button>
-        ))}
+        <button type="button" className={sun ? 'on' : ''} onClick={() => pick('sun', !sun)}>Sun by day</button>
         <button type="button" className={lab.forceNight ? 'on' : ''} onClick={() => pick('forceNight', !lab.forceNight)}>Force night</button>
-        <span>Disco</span>
-        {['spots', 'ball', 'beams'].map((v) => (
-          <button type="button" key={v} className={discoV === v ? 'on' : ''} onClick={() => pick('disco', v)}>{{ spots: 'Spots', ball: 'Mirror ball', beams: 'Beams' }[v]}</button>
-        ))}
         <button type="button" className={disco ? 'on' : ''} onClick={() => setDisco((d) => !d)}>Disco on</button>
       </aside>
 

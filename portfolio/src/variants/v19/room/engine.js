@@ -1,4 +1,4 @@
-// v19 — the room's pixel engine, at 288×152.
+// v19 — the room's pixel engine, at 288×130.
 //
 // The old room ran at 192×108 and his complaint was fair: at that size a book is three pixels
 // and a poster is a coloured rectangle. Half again in each direction is 2.25× the pixels, which
@@ -12,7 +12,7 @@ export const W = 288;
 // The room proper is 152 tall. Above it is a roof band: ceiling and the top of the wall, so
 // that when the canvas covers a wide viewport and crops the top, what goes is wall and not
 // the posters. Everything in scene.js is drawn in room coordinates; the painter adds ROOF.
-export const ROOM_H = 152;
+export const ROOM_H = 130;
 export const ROOF = 26;
 export const H = ROOM_H + ROOF;
 // The canvas covers the viewport, so a wide window crops the top and a narrow one crops the
