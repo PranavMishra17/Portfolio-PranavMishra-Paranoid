@@ -15,7 +15,7 @@
 //
 // Room is 288 × 144. The floor is at 106; the desk surface at 84.
 
-import { painter, W, ROOM_H as H, ROOF } from './engine';
+import { painter, createGrid, W, ROOM_H as H, ROOF } from './engine';
 import { BOOKS, GAMES, MAGNETS, POSTERS } from '../personal';
 
 const FLOOR_Y = 106;
@@ -625,22 +625,40 @@ function mirrorBall(g, t) {
 
 /* ── the whole thing, back to front ────────────────────────────────── */
 
-export function drawScene(grid, state) {
-  const g = painter(grid, ROOF);
-  const t = state.t || 0;
+// The parts of the room that do not move — the shell, the posters, the stripes, the rug, the
+// desk, the games, the clock — are drawn once into a grid of their own and copied in at the
+// start of every frame; only what animates is drawn on top. Nothing in the still set overlaps
+// anything drawn after it, so the order is safe. The clock face carries the hour, so the still
+// set is made again when the hour changes.
+let still = null;
+let stillHour = null;
+function stillParts(hour) {
+  if (still && stillHour === hour) return still;
+  still = createGrid();
+  stillHour = hour;
+  const g = painter(still, ROOF);
   shell(g);
-  stringLights(g, state.string, t);
-  if (state.disco) mirrorBall(g, t);
   POSTERS.forEach((p, i) => poster(g, 10 + i, 85 + i * 40, 6, i));
   hazard(g);
-  button(g, state.disco, t);
-  clock(g, state.hour || 0);
-  windowUnit(g, state.windowT || 0, t, (state.night || 0) > 0.45);
-  shelf(g, state.sparkle, t);
+  clock(g, hour);
   rug(g);
   desk(g);
-  tower(g, state.pc, t);
   games(g);
+  return still;
+}
+
+export function drawScene(grid, state) {
+  const base = stillParts(state.hour || 0);
+  grid.buf.set(base.buf);
+  grid.ids.set(base.ids);
+  const g = painter(grid, ROOF);
+  const t = state.t || 0;
+  stringLights(g, state.string, t);
+  if (state.disco) mirrorBall(g, t);
+  button(g, state.disco, t);
+  windowUnit(g, state.windowT || 0, t, (state.night || 0) > 0.45);
+  shelf(g, state.sparkle, t);
+  tower(g, state.pc, t);
   monitors(g, state.pc);
   laptop(g, state.pc);
   lamp(g, state.lamp);

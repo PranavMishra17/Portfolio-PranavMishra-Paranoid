@@ -117,17 +117,26 @@ export function useSky(ref, hour, deep = 0.2) {
       el.style.setProperty('--sun-c', c.sunC);
     };
 
+    // the drift is applied in 48 steps down the page, so a scroll repaints the sky a few times
+    // on the way down rather than at every frame — a change of colour is a full-screen paint
+    let step = -1;
     const onScroll = () => {
       if (ticking) return;
       ticking = true;
       window.requestAnimationFrame(() => {
         const max = document.documentElement.scrollHeight - window.innerHeight;
-        apply(max > 0 ? window.scrollY / max : 0);
+        const p = max > 0 ? window.scrollY / max : 0;
+        const s = Math.round(p * 48);
+        if (s !== step) {
+          step = s;
+          apply(s / 48);
+        }
         ticking = false;
       });
     };
 
     apply(0);
+    step = 0;
     // and once more on a timeout, so the first paint is right even if rAF never runs
     const settle = window.setTimeout(onScroll, 60);
     window.addEventListener('scroll', onScroll, { passive: true });

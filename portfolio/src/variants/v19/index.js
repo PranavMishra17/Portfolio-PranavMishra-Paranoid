@@ -105,6 +105,23 @@ function Page() {
     return () => window.clearTimeout(t);
   }, [blown]);
 
+  /* animations run only where they can be seen: under the wall nothing in the page animates,
+     and once it is open a section animates only while some of it is in the viewport. The Work
+     drawings alone are a few dozen CSS animations, and a page left on the wall was painting
+     them sixty times a second behind it. */
+  useEffect(() => {
+    const els = sections.current.filter(Boolean);
+    if (!('IntersectionObserver' in window) || !els.length) return undefined;
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) e.target.removeAttribute('data-off');
+        else e.target.setAttribute('data-off', '');
+      });
+    }, { rootMargin: '10% 0px' });
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+
   /* the header's middle: which section owns the top of the viewport */
   useEffect(() => {
     if (!blown) return undefined;
@@ -166,14 +183,14 @@ function Page() {
   const current = WHERE.find((w) => w.id === where) || WHERE[0];
 
   return (
-    <div className={`v19 land-plate${blown ? ' is-open' : ''}${disco ? ' is-disco' : ''} has-sun`}>
+    <div className={`v19 land-plate${blown ? ' is-open' : ' is-shut'}${disco ? ' is-disco' : ''} has-sun`}>
       <div className="v19-sky" ref={skyRef} aria-hidden="true">
         <i className="v19-stars" style={{ backgroundImage: `url("${STARS[0]}")` }} />
         <i className="v19-stars is-b" style={{ backgroundImage: `url("${STARS[1]}")` }} />
         <i className="v19-moon" />
         <i className="v19-sun" />
       </div>
-      <div className="v19-disco" aria-hidden="true"><i /><i /><i /></div>
+      {disco ? <div className="v19-disco" aria-hidden="true"><i /><i /><i /></div> : null}
       <div className="v19-grain" aria-hidden="true" />
 
       <header className={`v19-bar${blown ? ' on' : ''}`}>

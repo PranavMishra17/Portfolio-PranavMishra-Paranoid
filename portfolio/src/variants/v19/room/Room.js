@@ -419,21 +419,6 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
         const hs = HOTSPOTS.find((h) => h.key === `poster${i + 1}`);
         if (hs) blit(img, hs.x, hs.y + ROOF, hs.w, hs.h);
       });
-      // the chair is in front of the wall: put its pixels back over any art that landed on it
-      const grid = gridRef.current;
-      const frame = imgRef.current;
-      if (!grid || !frame) return;
-      HOTSPOTS.filter((h) => h.key.startsWith('poster')).forEach((hs) => {
-        for (let y = hs.y + ROOF; y < hs.y + ROOF + hs.h; y += 1) {
-          for (let x = hs.x; x < hs.x + hs.w; x += 1) {
-            const k = y * W + x;
-            if (grid.ids[k] !== 2) continue;
-            const o = k * 4;
-            ctx.fillStyle = `rgb(${frame.data[o]},${frame.data[o + 1]},${frame.data[o + 2]})`;
-            ctx.fillRect(x, y, 1, 1);
-          }
-        }
-      });
     };
 
     const paintScreens = (now) => {

@@ -66,6 +66,7 @@ const Detonator = forwardRef(function Detonator(
     // nobody is touching costs nothing
     const drawn = { x: undefined, y: undefined, heat: -1, w: 0, h: 0, gen: 0 };
     let gen = 0;
+    let probeAt = 0; // the last time the canvas was checked for having gone blank
 
     // the only way a frame is ever asked for: whatever was pending is dropped first
     const schedule = () => {
@@ -148,6 +149,20 @@ const Detonator = forwardRef(function Detonator(
         wall.state === 'intact' && !holdRef.current && shakeRef.current <= 0 &&
         pt.x === drawn.x && pt.y === drawn.y && heatRef.current === drawn.heat &&
         cv.width === drawn.w && cv.height === drawn.h && gen === drawn.gen;
+      // every couple of seconds, one pixel is read back: a canvas the browser has emptied under
+      // memory pressure without saying so is painted again rather than left transparent
+      if (still && now - probeAt > 2000) {
+        probeAt = now;
+        try {
+          const px = ctx.getImageData(Math.floor(cv.width / 2), Math.floor(cv.height / 2), 1, 1).data;
+          if (px[3] === 0) {
+            gen += 1;
+            try { size(); } catch (err) { /* the next resize will */ }
+          }
+        } catch (err) {
+          // a context that cannot be read is a lost one; the check above handles it next frame
+        }
+      }
       if (!still) {
         wall.step(now, dt);
         wall.draw(ctx);

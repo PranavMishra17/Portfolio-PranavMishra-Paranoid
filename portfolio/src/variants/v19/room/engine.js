@@ -261,6 +261,21 @@ export function rasterize(grid, out, { night = 0, lights = [], hover = 0, mono =
   const n = Math.max(0, Math.min(1, night));
   const live = lights.filter((l) => l && l.on && l.r > 0);
   const tinted = live.some((l) => l.tint);
+  // per light, once: its reach, and the strength it lands with
+  const L = live.length;
+  const lx = new Float64Array(L);
+  const ly = new Float64Array(L);
+  const lr = new Float64Array(L);
+  const lrY = new Float64Array(L);
+  const ls = new Float64Array(L);
+  for (let li = 0; li < L; li += 1) {
+    const l = live[li];
+    lx[li] = l.x;
+    ly[li] = l.y;
+    lr[li] = l.r;
+    lrY[li] = l.r / 1.12;
+    ls[li] = l.strength === undefined ? (l.tint ? 0.8 : 0.95) : l.strength;
+  }
 
   for (let y = 0; y < H; y += 1) {
     for (let x = 0; x < W; x += 1) {
@@ -296,20 +311,24 @@ export function rasterize(grid, out, { night = 0, lights = [], hover = 0, mono =
         r = day[0] + (nite[0] - day[0]) * n;
         gg = day[1] + (nite[1] - day[1]) * n;
         b = day[2] + (nite[2] - day[2]) * n;
-        for (let li = 0; li < live.length; li += 1) {
-          const l = live[li];
-          const dx = x - l.x;
-          const dy = (y - l.y) * 1.12;
-          let k = 1 - Math.sqrt(dx * dx + dy * dy) / l.r;
+        for (let li = 0; li < L; li += 1) {
+          // the cheap rejection first: most pixels are nowhere near most lights
+          const dx = x - lx[li];
+          if (dx > lr[li] || dx < -lr[li]) continue;
+          const dy0 = y - ly[li];
+          if (dy0 > lrY[li] || dy0 < -lrY[li]) continue;
+          const dy = dy0 * 1.12;
+          let k = 1 - Math.sqrt(dx * dx + dy * dy) / lr[li];
           if (k <= 0) continue;
+          const l = live[li];
           if (l.tint) {
-            k = k * k * (l.strength === undefined ? 0.8 : l.strength);
+            k = k * k * ls[li];
             r += (l.tint[0] - r) * k;
             gg += (l.tint[1] - gg) * k;
             b += (l.tint[2] - b) * k;
             continue;
           }
-          k = k * k * n * (l.strength === undefined ? 0.95 : l.strength);
+          k = k * k * n * ls[li];
           const warm = l.warm === undefined ? 1 : l.warm;
           r += (day[0] * (1 + 0.08 * warm) - r) * k;
           gg += (day[1] * (1 - 0.02 * warm) - gg) * k;
