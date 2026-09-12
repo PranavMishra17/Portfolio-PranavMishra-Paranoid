@@ -62,6 +62,10 @@ const Detonator = forwardRef(function Detonator(
     let lastFrame = 0;
     let slow = 0; // on a slow machine the field pass is the first thing to go
     let lost = false; // the canvas has lost its backing store (GPU reset, memory pressure)
+    // what the last frame was drawn from; an identical frame is not drawn again, so a wall
+    // nobody is touching costs nothing
+    const drawn = { x: undefined, y: undefined, heat: -1, w: 0, h: 0, gen: 0 };
+    let gen = 0;
 
     // the only way a frame is ever asked for: whatever was pending is dropped first
     const schedule = () => {
@@ -80,6 +84,7 @@ const Detonator = forwardRef(function Detonator(
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       if (!wallRef.current) wallRef.current = new Wall({ W, H, dpr, surface });
       else wallRef.current.resize(W, H);
+      gen += 1;
     };
 
     try {
@@ -138,9 +143,22 @@ const Detonator = forwardRef(function Detonator(
         }
       }
 
-      wall.step(now, dt);
-      wall.draw(ctx);
-      if (slow < 12) wall.drawField(ctx, pointRef.current.x, pointRef.current.y, heatRef.current, now);
+      const pt = pointRef.current;
+      const still =
+        wall.state === 'intact' && !holdRef.current && shakeRef.current <= 0 &&
+        pt.x === drawn.x && pt.y === drawn.y && heatRef.current === drawn.heat &&
+        cv.width === drawn.w && cv.height === drawn.h && gen === drawn.gen;
+      if (!still) {
+        wall.step(now, dt);
+        wall.draw(ctx);
+        if (slow < 12) wall.drawField(ctx, pt.x, pt.y, heatRef.current, now);
+        drawn.x = pt.x;
+        drawn.y = pt.y;
+        drawn.heat = heatRef.current;
+        drawn.w = cv.width;
+        drawn.h = cv.height;
+        drawn.gen = gen;
+      }
 
       if (shakeRef.current > 0) {
         shakeRef.current -= dt;
