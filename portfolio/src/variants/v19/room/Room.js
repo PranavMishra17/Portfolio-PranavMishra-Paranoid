@@ -83,7 +83,7 @@ function Slip({ hotspot, onClose, onJump }) {
           title: 'Everything I have built',
           node: (
             <>
-              <p className="v19-slip-p">{ALL_PROJECTS.length} projects, from a CAVE you stand inside to a voice that interrupts you.</p>
+              <p className="v19-slip-p">{ALL_PROJECTS.length} projects, from a CAVE you stand inside to an interviewer that talks back.</p>
               <button type="button" className="v19-slip-go" onClick={() => onJump && onJump('projects')}>Go and see them</button>
             </>
           ),
@@ -289,6 +289,14 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
     let alive = true;
     let lastDraw = 0;
     let lastFrame = 0;
+    let onScreen = true; // the room is the bottom of the page; behind the wall it is not drawn
+
+    // the only way a frame is ever asked for: whatever was pending is dropped first, so a
+    // hidden tab never comes back with a queue of them
+    const schedule = () => {
+      if (raf) window.cancelAnimationFrame(raf);
+      raf = window.requestAnimationFrame(loop);
+    };
 
     /* the real posters and covers, downsampled onto the drawn ones */
     const paintArt = () => {
@@ -458,8 +466,9 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
       paintScreens(now);
     };
 
-    const loop = (now) => {
+    function loop(now) {
       if (!alive) return;
+      if (!onScreen || document.hidden) return; // it is picked up again when it is seen
       lastFrame = now;
       if (now - lastDraw >= FRAME_MS) {
         const dt = lastDraw ? now - lastDraw : FRAME_MS;
@@ -470,13 +479,13 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
           // one bad frame must not take the room down
         }
       }
-      raf = window.requestAnimationFrame(loop);
-    };
+      schedule();
+    }
 
     paint(performance.now(), FRAME_MS);
-    raf = window.requestAnimationFrame(loop);
+    schedule();
     const watchdog = window.setInterval(() => {
-      if (!alive) return;
+      if (!alive || !onScreen || document.hidden) return;
       const now = performance.now();
       if (now - lastFrame > 400) {
         lastDraw = 0;
@@ -484,10 +493,35 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
       }
     }, 300);
 
+    const wake = () => {
+      if (!alive || !onScreen || document.hidden) return;
+      lastDraw = 0;
+      lastFrame = performance.now();
+      schedule();
+    };
+    document.addEventListener('visibilitychange', wake);
+    let io = null;
+    if ('IntersectionObserver' in window) {
+      io = new IntersectionObserver((entries) => {
+        onScreen = entries.some((e) => e.isIntersecting);
+        if (onScreen) wake();
+      }, { rootMargin: '120px 0px' });
+      io.observe(cv);
+    }
+    // after a GPU reset the small copies of the posters are blank canvases: made again
+    const onRestored = () => {
+      (artRef.current.posters || []).forEach((img) => { if (img) delete img.__small; }); // eslint-disable-line no-param-reassign
+      wake();
+    };
+    cv.addEventListener('contextrestored', onRestored);
+
     return () => {
       alive = false;
       window.cancelAnimationFrame(raf);
       window.clearInterval(watchdog);
+      document.removeEventListener('visibilitychange', wake);
+      cv.removeEventListener('contextrestored', onRestored);
+      if (io) io.disconnect();
       if (bounceRef.current) window.clearInterval(bounceRef.current);
     };
   }, []);

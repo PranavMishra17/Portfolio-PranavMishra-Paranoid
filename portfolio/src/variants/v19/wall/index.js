@@ -4,7 +4,9 @@
 // single custom property, --p, written once a frame; the art is CSS reacting to it.
 //
 // Nothing here gates the page on requestAnimationFrame. A watchdog hand-cranks the loop if
-// frames stop arriving, and a guard removes the wall outright if they never start.
+// frames stop arriving while the page is visible, and a guard removes the wall outright if
+// they never start. Exactly one frame is ever pending: rAF callbacks queue up in a hidden tab
+// rather than run, and every extra one would come back as a loop of its own.
 
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import Wall from './Wall';
@@ -59,6 +61,13 @@ const Detonator = forwardRef(function Detonator(
     let ticked = false;
     let lastFrame = 0;
     let slow = 0; // on a slow machine the field pass is the first thing to go
+    let lost = false; // the canvas has lost its backing store (GPU reset, memory pressure)
+
+    // the only way a frame is ever asked for: whatever was pending is dropped first
+    const schedule = () => {
+      if (raf) window.cancelAnimationFrame(raf);
+      raf = window.requestAnimationFrame(loop);
+    };
 
     const size = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -81,7 +90,7 @@ const Detonator = forwardRef(function Detonator(
       return undefined;
     }
 
-    const loop = (now) => {
+    function loop(now) {
       if (!alive) return;
       ticked = true;
       const dt = lastFrame ? now - lastFrame : 16.7;
@@ -90,6 +99,21 @@ const Detonator = forwardRef(function Detonator(
       else if (slow > 0) slow -= 1;
       const wall = wallRef.current;
       if (!wall) return;
+
+      // a lost context ignores every draw; when it comes back, the face and the atlas were
+      // canvases too and are blank, so the wall is painted again before the next frame
+      if (typeof ctx.isContextLost === 'function') {
+        const isLost = ctx.isContextLost();
+        if (isLost) {
+          lost = true;
+          schedule();
+          return;
+        }
+        if (lost) {
+          lost = false;
+          try { size(); } catch (err) { /* the next resize will */ }
+        }
+      }
 
       const hold = holdRef.current;
       if (hold && wall.state === 'intact') {
@@ -126,17 +150,35 @@ const Detonator = forwardRef(function Detonator(
         cv.style.transform = '';
       }
 
-      raf = window.requestAnimationFrame(loop);
-    };
+      schedule();
+    }
 
-    raf = window.requestAnimationFrame(loop);
+    schedule();
 
-    // rAF does not tick in a hidden document, and it can stop part way through a collapse.
+    // rAF can stop part way through a collapse while the page is still visible; this cranks
+    // it. In a hidden tab nothing runs at all — the one pending frame fires on the way back.
     const watchdog = window.setInterval(() => {
-      if (!alive) return;
+      if (!alive || document.hidden) return;
       const now = performance.now();
       if (now - lastFrame > 320) loop(now);
     }, 240);
+
+    const onVisible = () => {
+      if (document.hidden || !alive) return;
+      lastFrame = performance.now();
+      schedule();
+    };
+    document.addEventListener('visibilitychange', onVisible);
+
+    // the browser restores a lost 2D context on its own unless the event is cancelled; the
+    // loop repaints when it sees the context back. This is the same thing for browsers
+    // without isContextLost().
+    const onRestored = () => {
+      lost = false;
+      try { size(); } catch (err) { /* as above */ }
+      schedule();
+    };
+    cv.addEventListener('contextrestored', onRestored);
 
     // and if it never ticked at all, the wall is a lid over the page — take it off.
     const guard = window.setTimeout(() => {
@@ -160,6 +202,8 @@ const Detonator = forwardRef(function Detonator(
       window.clearInterval(watchdog);
       window.clearTimeout(guard);
       window.removeEventListener('resize', size);
+      document.removeEventListener('visibilitychange', onVisible);
+      cv.removeEventListener('contextrestored', onRestored);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
