@@ -50,17 +50,8 @@ function Page() {
   // other half of the day, and clicked again, back
   const real = useClock('now');
   const [flip, setFlip] = useState(false);
-  const [disco, setDisco] = useState(false);
-  // the picker, while the variants are being chosen (local only; it goes before this ships)
-  const [lab, setLab] = useState(() => {
-    try { return JSON.parse(window.localStorage.getItem('v19-lab')) || {}; } catch (err) { return {}; }
-  });
-  const pick = (k, v) => setLab((cur) => {
-    const next = { ...cur, [k]: v };
-    try { window.localStorage.setItem('v19-lab', JSON.stringify(next)); } catch (err) { /* fine */ }
-    return next;
-  });
-  const hour = lab.forceNight ? 23.5 : flip ? (real >= 6 && real < 18 ? 22 : 10) : real;
+  const [disco, setDisco] = useState(false); // the button in the room
+  const hour = flip ? (real >= 6 && real < 18 ? 22 : 10) : real;
   useSky(skyRef, hour, 0.32);
 
   /* body, fonts, and the scroll the browser must not restore under a wall */
@@ -244,12 +235,6 @@ function Page() {
         <Papers sectionRef={(el) => { sections.current[2] = el; }} />
         <Room sectionRef={(el) => { sections.current[3] = el; }} onTop={home} hour={hour} flipped={flip} onClock={() => setFlip((f) => !f)} onJump={jump} onDisco={setDisco} />
       </main>
-
-      <aside className="v19-lab" data-keep-open="">
-        <b>Lab</b>
-        <button type="button" className={lab.forceNight ? 'on' : ''} onClick={() => pick('forceNight', !lab.forceNight)}>Force night</button>
-        <button type="button" className={disco ? 'on' : ''} onClick={() => setDisco((d) => !d)}>Disco on</button>
-      </aside>
 
       {landing ? (
         <div

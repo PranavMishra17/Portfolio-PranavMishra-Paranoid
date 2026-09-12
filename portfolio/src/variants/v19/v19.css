@@ -110,13 +110,6 @@ body.v19-locked { overflow: hidden; }
 .v19-disco i:nth-child(3) { left: 50%; top: 100%; background: conic-gradient(from 320deg, transparent 0 8deg, rgba(255, 220, 60, .22) 8deg 12deg, transparent 12deg 60deg, rgba(60, 210, 255, .22) 60deg 64deg, transparent 64deg 360deg); animation-duration: 8s; }
 @keyframes v19-swing { from { transform: rotate(-22deg); } to { transform: rotate(22deg); } }
 
-/* the picker, local only */
-.v19-lab { position: fixed; left: 14px; bottom: 14px; z-index: 90; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; max-width: 420px; padding: 8px 10px; border-radius: 4px; background: rgba(23,23,26,.86); color: #f4f3f0; font-family: var(--mono); font-size: 11px; }
-.v19-lab b { margin-right: 4px; }
-.v19-lab span { width: 100%; margin-top: 2px; color: rgba(244,243,240,.6); }
-.v19-lab button { padding: 3px 8px; border-radius: 3px; border: 1px solid rgba(244,243,240,.3); color: inherit; font: inherit; }
-.v19-lab button.on { background: var(--ember); border-color: var(--ember); }
-
 .v19-grain {
   position: fixed; inset: 0; z-index: 1; pointer-events: none;
   opacity: .5;
@@ -819,17 +812,22 @@ body.v19-locked { overflow: hidden; }
 .v19-room-stage:not(.k-hand):not(.k-zoom) .v19-room-canvas { cursor: default; }
 
 /* the real picture, sat exactly over its pixelated self while you point at it */
-/* the disco button: a real circle over the pixel plate, glossy, lit when it is on */
+/* the disco button: a circle laid over the pixel plate. Banded shading and a coarse grain, so
+   it is round without being glossy in a room that is not. Lit, with stepped rings, when on. */
 .v19-room-btn {
   position: absolute; z-index: 3; border-radius: 50%; pointer-events: none; box-sizing: border-box;
-  background: radial-gradient(circle at 36% 32%, #f3a49a 0 12%, #d64a3c 34%, #a52e25 78%, #7c221b 100%);
+  background:
+    repeating-conic-gradient(rgba(0, 0, 0, .1) 0 25%, transparent 0 50%) 0 0 / 4px 4px,
+    radial-gradient(circle at 36% 32%, #eb9a8e 0 11%, #d64a3c 11% 42%, #a83127 42% 76%, #7c221b 76% 100%);
   border: 2px solid #2a2530;
-  box-shadow: inset 0 -3px 5px rgba(0,0,0,.35), inset 0 2px 3px rgba(255,255,255,.35), 0 2px 3px rgba(0,0,0,.35);
-  transition: box-shadow 200ms ease, background 200ms ease;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, .3);
+  transition: box-shadow 200ms ease;
 }
 .v19-room-btn.on {
-  background: radial-gradient(circle at 36% 32%, #ffc2b8 0 7%, #ff6a5a 26%, #e0402f 74%, #a82c22 100%);
-  box-shadow: inset 0 -3px 5px rgba(0,0,0,.25), inset 0 2px 3px rgba(255,255,255,.4), 0 0 14px 4px rgba(255,110,90,.85), 0 0 40px 14px rgba(255,120,100,.45);
+  background:
+    repeating-conic-gradient(rgba(0, 0, 0, .08) 0 25%, transparent 0 50%) 0 0 / 4px 4px,
+    radial-gradient(circle at 36% 32%, #ffd0c6 0 11%, #ff7a68 11% 42%, #e0402f 42% 76%, #a82c22 76% 100%);
+  box-shadow: 0 0 0 3px rgba(255, 120, 100, .55), 0 0 0 7px rgba(255, 120, 100, .28), 0 0 0 12px rgba(255, 120, 100, .12);
 }
 .v19-room-art { position: absolute; z-index: 4; object-fit: contain; background: #17171a; pointer-events: none; image-rendering: auto; box-shadow: 0 10px 30px -12px rgba(0,0,0,.6); animation: v19-clear 260ms ease both; }
 @keyframes v19-clear { from { opacity: 0; filter: blur(6px); } to { opacity: 1; filter: blur(0); } }
