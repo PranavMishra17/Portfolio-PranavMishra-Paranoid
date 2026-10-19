@@ -928,11 +928,13 @@ html.v19-html { scrollbar-gutter: stable; }
 .v19-nowintro-film { display: block; width: 100%; max-width: 720px; margin-top: 16px; border-radius: 2px; background: #000; aspect-ratio: 16 / 9; }
 
 /* the draft picker, only with ?pick */
-.v19-pick { position: fixed; left: 12px; bottom: 12px; z-index: 60; display: flex; flex-direction: column; gap: 6px; padding: 8px 10px; background: rgba(250,249,246,.96); border: 1px solid var(--rule); border-radius: 3px; font-family: var(--mono); font-size: 11px; box-shadow: 0 8px 24px -16px rgba(0,0,0,.5); }
-.v19-pick-row { display: flex; align-items: center; gap: 4px; }
-.v19-pick-row b { font-weight: 500; color: var(--ink-3); width: 58px; }
-.v19-pick-row button { width: 24px; height: 22px; border: 1px solid var(--rule); border-radius: 2px; color: var(--ink-2); cursor: pointer; }
-.v19-pick-row button.on { background: var(--ink); color: var(--paper-2); border-color: var(--ink); }
+.v19-pick { position: fixed; left: 14px; bottom: 14px; z-index: 60; display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; background: #fffdf7; border: 1px solid var(--ink-3); border-radius: 4px; font-family: var(--mono); font-size: 13px; box-shadow: 0 12px 30px -14px rgba(0,0,0,.55); }
+.v19-pick::before { content: 'Drafts'; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ember); }
+.v19-pick-row { display: flex; align-items: center; gap: 5px; }
+.v19-pick-row b { font-weight: 500; color: var(--ink-2); width: 72px; }
+.v19-pick-row button { width: 32px; height: 30px; border: 1px solid var(--rule); border-radius: 3px; color: var(--ink); font-size: 13px; cursor: pointer; }
+.v19-pick-row button:hover { border-color: var(--ink); }
+.v19-pick-row button.on { background: var(--ember); color: #fff; border-color: var(--ember); }
 
 /* ── phones ──────────────────────────────────────────────────────────── */
 @media (max-width: 720px) {

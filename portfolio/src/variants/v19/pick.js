@@ -1,6 +1,6 @@
 // v19 — the two intros, three drafts of each, and a picker for choosing between them.
 //
-// The picker is for Pranav, not for visitors: it shows only when the URL has ?pick. The choice
+// The picker is for Pranav, not for visitors: it shows on localhost, or when the URL has ?pick. The choice
 // is kept in this browser. Once he has chosen, set DEFAULT and the picker can go.
 
 import React, { useEffect, useState } from 'react';
@@ -67,7 +67,9 @@ function set(k, v) {
 
 export function Picker() {
   const pick = usePick();
-  const on = typeof window !== 'undefined' && /[?&]pick\b/.test(window.location.search);
+  const on =
+    typeof window !== 'undefined' &&
+    (/[?&]pick\b/.test(window.location.search) || /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname));
   if (!on) return null;
   const row = (k, label, opts) => (
     <span className="v19-pick-row">
