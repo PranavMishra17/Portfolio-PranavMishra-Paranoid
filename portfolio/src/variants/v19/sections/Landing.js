@@ -42,6 +42,23 @@ function Face({ className }) {
   );
 }
 
+function Intro({ d }) {
+  return (
+    <div className="v19-land-intro">
+      <p>
+        {d.say} {d.more}
+        {d.into ? ` ${d.into}` : ''}
+      </p>
+      {d.list ? (
+        <p className="v19-land-into">
+          {d.list.map((x) => <span key={x}>{x}</span>)}
+        </p>
+      ) : null}
+      <p className="v19-land-close">{d.close}</p>
+    </div>
+  );
+}
+
 export default function Landing({ hint, onGo }) {
   const pick = usePick();
   const Hint = (
@@ -60,7 +77,7 @@ export default function Landing({ hint, onGo }) {
         <div className="v19-land-words">
           <Name />
           <p className="v19-land-role">{ME.role}</p>
-          <p className="v19-land-intro">{INTRO[pick.intro]}</p>
+          <Intro d={INTRO[pick.intro]} />
           <Links onGo={onGo} />
         </div>
       </div>

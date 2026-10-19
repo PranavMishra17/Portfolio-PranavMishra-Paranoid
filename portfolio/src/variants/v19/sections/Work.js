@@ -14,7 +14,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ALFRED, AFTER, AFTER_LINE, FIGURES, WHEELPRICE } from '../copy';
 import { useOnScreen, useOpener } from '../hooks';
-import { NOW, usePick } from '../pick';
+import { BEATS, usePick } from '../pick';
 
 /* A number that counts to itself when it first arrives on screen, and again whenever you point
    at it. */
@@ -404,34 +404,176 @@ function Car({ go }) {
   );
 }
 
-/* what I have been doing at Alfred_, in my words, and the film */
-function Now() {
-  const pick = usePick();
-  const [film, setFilm] = useState(false);
-  const lines = NOW[pick.now];
+/* ── Alfred_, in my words ───────────────────────────────────────────
+   The role is the small line; the heading is what I'm building; the words are mine, in three
+   beats, each with a drawing. The site sits beside them as a window you can go through, with the
+   numbers under it. Three layouts on the same parts; the picker chooses (pick.js). */
+
+/* the eval harness: every version of the agent gets a score, and the scanner watches production */
+function DrawEvals() {
+  const bars = [['v1', 34], ['v2', 46], ['v3', 40], ['v4', 60]];
   return (
-    <div className="v19-nowintro">
-      {pick.now === 'c' ? (
-        <dl className="v19-nowintro-steps">
-          {lines.map(([k, v]) => (
-            <div key={k}><dt>{k}</dt><dd>{v}</dd></div>
-          ))}
-        </dl>
-      ) : (
-        lines.map((l) => <p key={l}>{l}</p>)
-      )}
-      {ALFRED.film ? (
-        film ? (
-          // eslint-disable-next-line jsx-a11y/media-has-caption
-          <video className="v19-nowintro-film" src={ALFRED.film} controls autoPlay playsInline preload="none" />
-        ) : (
-          <button type="button" className="v19-nowintro-play" onClick={() => setFilm(true)}>
-            <i aria-hidden="true" />
-            Watch the Alfred_ film
-          </button>
-        )
-      ) : null}
+    <svg className="v19-bd" viewBox="0 0 240 96" aria-hidden="true">
+      <line x1="16" y1="78" x2="150" y2="78" className="v19-bd-axis" />
+      {bars.map(([v, h], i) => (
+        <g key={v}>
+          <rect x={22 + i * 32} y={78 - h} width="18" height={h} className={i === 3 ? 'v19-bd-hot' : 'v19-bd-bar'} />
+          <text x={31 + i * 32} y="91" className="v19-bd-t" textAnchor="middle">{v}</text>
+        </g>
+      ))}
+      <text x="16" y="12" className="v19-bd-t">a score per version</text>
+      <rect x="170" y="30" width="56" height="30" rx="2" className="v19-bd-box" />
+      <text x="198" y="49" className="v19-bd-t" textAnchor="middle">scanner</text>
+      <path d="M198 60 V78 M150 78 H198" className="v19-bd-wire" />
+      <text x="198" y="22" className="v19-bd-t" textAnchor="middle">production</text>
+    </svg>
+  );
+}
+
+/* working memory: every source, condensed onto one screen */
+function DrawMemory() {
+  const src = ['Email', 'Calendar', 'Meetings', 'Slack', 'Teams'];
+  return (
+    <svg className="v19-bd" viewBox="0 0 240 96" aria-hidden="true">
+      {src.map((x, i) => (
+        <g key={x}>
+          <text x="58" y={14 + i * 18} className="v19-bd-t" textAnchor="end">{x}</text>
+          <path d={`M64 ${11 + i * 18} C 110 ${11 + i * 18}, 120 48, 156 48`} className="v19-bd-wire" />
+        </g>
+      ))}
+      <rect x="156" y="20" width="68" height="56" rx="3" className="v19-bd-box is-hot" />
+      <line x1="164" y1="34" x2="214" y2="34" className="v19-bd-line" />
+      <line x1="164" y1="44" x2="204" y2="44" className="v19-bd-line" />
+      <line x1="164" y1="54" x2="210" y2="54" className="v19-bd-line" />
+      <line x1="164" y1="64" x2="196" y2="64" className="v19-bd-line" />
+      <text x="190" y="90" className="v19-bd-t" textAnchor="middle">one screen</text>
+    </svg>
+  );
+}
+
+/* orchestration: Alfred_ in the middle, handing work out */
+function DrawOrchestrate() {
+  const out = [['Routines', 30, 18], ['MCP apps', 210, 18], ['Long tasks', 30, 80], ['Workflows', 210, 80]];
+  return (
+    <svg className="v19-bd" viewBox="0 0 240 96" aria-hidden="true">
+      {out.map(([x, cx, cy]) => (
+        <g key={x}>
+          <path d={`M120 48 L${cx} ${cy}`} className="v19-bd-wire" />
+          <rect x={cx - 30} y={cy - 9} width="60" height="18" rx="2" className="v19-bd-box" />
+          <text x={cx} y={cy + 3.5} className="v19-bd-t" textAnchor="middle">{x}</text>
+        </g>
+      ))}
+      <rect x="92" y="36" width="56" height="24" rx="3" className="v19-bd-box is-hot" />
+      <text x="120" y="52" className="v19-bd-t is-strong" textAnchor="middle">Alfred_</text>
+    </svg>
+  );
+}
+
+const DRAW = { evals: DrawEvals, memory: DrawMemory, orchestrate: DrawOrchestrate };
+
+function Beat({ b, draw }) {
+  const D = DRAW[b.d];
+  return (
+    <div className="v19-beat">
+      {draw && D ? <D /> : null}
+      <p className="v19-beat-k">{b.k}</p>
+      <p className="v19-beat-t">{b.t}</p>
     </div>
+  );
+}
+
+/* the site, as a window you can go through, and the numbers that go with it */
+function Window() {
+  return (
+    <a className="v19-site-win" href={ALFRED.url} target="_blank" rel="noreferrer" aria-label="Open get-alfred.ai">
+      <span className="v19-site-chrome" aria-hidden="true">
+        <i /><i /><i />
+        <b>get-alfred.ai</b>
+      </span>
+      <img src={ALFRED.shot} alt="The Alfred_ website" loading="lazy" decoding="async" />
+    </a>
+  );
+}
+
+function Glance() {
+  return (
+    <div className="v19-site-under">
+      <dl className="v19-site-glance">
+        {ALFRED.glance.map((g) => (
+          <div key={g.k}><dt>{g.k}</dt><dd>{g.v}</dd></div>
+        ))}
+      </dl>
+      <a className="v19-glance-go" href={ALFRED.url} target="_blank" rel="noreferrer">
+        {ALFRED.tryLabel}
+      </a>
+    </div>
+  );
+}
+
+function Site({ wide }) {
+  return (
+    <aside className={`v19-site${wide ? ' is-wide' : ''}`}>
+      <Window />
+      <Glance />
+    </aside>
+  );
+}
+
+function AlfredHead() {
+  const { now } = usePick();
+  const head = (
+    <>
+      <p className="v19-eye">
+        <span className="v19-dot is-live" aria-hidden="true" />
+        {ALFRED.title} · {ALFRED.eyebrow}
+      </p>
+      <h2 className="v19-h2">
+        What I'm building at{' '}
+        <a className="v19-mark" href={ALFRED.url} target="_blank" rel="noreferrer">
+          <img src={ALFRED.logo} alt="" />
+          <span>{ALFRED.company}</span>
+        </a>
+      </h2>
+    </>
+  );
+
+  if (now === 'b') {
+    return (
+      <header className="v19-ah is-b">
+        <div className="v19-ah-top">
+          <div>
+            {head}
+            <div className="v19-site is-beside"><Glance /></div>
+          </div>
+          <div className="v19-site"><Window /></div>
+        </div>
+        <div className="v19-beats is-cols">
+          {BEATS.map((b) => <Beat key={b.k} b={b} draw />)}
+        </div>
+      </header>
+    );
+  }
+  if (now === 'c') {
+    return (
+      <header className="v19-ah is-c">
+        {head}
+        <Site wide />
+        <div className="v19-beats is-rows">
+          {BEATS.map((b) => <Beat key={b.k} b={b} draw />)}
+        </div>
+      </header>
+    );
+  }
+  return (
+    <header className="v19-ah is-a">
+      <div className="v19-ah-words">
+        {head}
+        <div className="v19-beats is-plain">
+          {BEATS.map((b) => <Beat key={b.k} b={b} />)}
+        </div>
+      </div>
+      <Site />
+    </header>
   );
 }
 
@@ -464,36 +606,7 @@ export default function Work({ sectionRef }) {
     <section className="v19-work" ref={sectionRef} id="work" aria-label="What I do now">
       <div className="v19-now">
         <div className="v19-slab-in" ref={ref}>
-          <Now />
-          <header className="v19-head-split">
-            <div>
-              <p className="v19-eye">
-                <span className="v19-dot is-live" aria-hidden="true" />
-                {ALFRED.eyebrow}
-              </p>
-              <h2 className="v19-h2">
-                {ALFRED.hello}{' '}
-                <a className="v19-mark" href={ALFRED.url} target="_blank" rel="noreferrer">
-                  <img src={ALFRED.logo} alt="" />
-                  <span>{ALFRED.company}</span>
-                </a>
-                .
-              </h2>
-              <p className="v19-lede">{ALFRED.about}</p>
-            </div>
-
-            <aside className="v19-glance">
-              <p className="v19-mini">At a glance</p>
-              <dl>
-                {ALFRED.glance.map((g) => (
-                  <div key={g.k}><dt>{g.k}</dt><dd>{g.v}</dd></div>
-                ))}
-              </dl>
-              <a className="v19-glance-go" href={ALFRED.url} target="_blank" rel="noreferrer">
-                {ALFRED.tryLabel}
-              </a>
-            </aside>
-          </header>
+          <AlfredHead />
 
           <div className="v19-dials" onMouseLeave={() => setLive(null)}>
             {FIGURES.map((f) => (

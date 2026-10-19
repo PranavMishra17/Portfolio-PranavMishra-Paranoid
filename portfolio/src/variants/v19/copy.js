@@ -72,8 +72,8 @@ export const ALFRED = {
     { k: 'Mine', v: 'memory · rules · evals' },
   ],
   tryLabel: 'Try it for free',
-  // Alfred_'s own film, played from their site, and only when asked for (11 MB)
-  film: 'https://get-alfred.ai/home-v3/kayak-film.mp4',
+  // the top of get-alfred.ai, as it was on 2026-10-19
+  shot: '/assets/images/web/alfred-site.jpg',
   bullets: (alfredRole.description || []).filter((b) => !BANNED.test(b)),
 };
 
