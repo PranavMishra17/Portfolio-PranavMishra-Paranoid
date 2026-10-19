@@ -14,6 +14,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ALFRED, AFTER, AFTER_LINE, FIGURES, WHEELPRICE } from '../copy';
 import { useOnScreen, useOpener } from '../hooks';
+import { NOW, usePick } from '../pick';
 
 /* A number that counts to itself when it first arrives on screen, and again whenever you point
    at it. */
@@ -334,6 +335,10 @@ function Dial({ f, live, isOpen, run, onLive, onPick }) {
         <span className="v19-dial-label">{f.label}</span>
         <span className="v19-dial-mark" aria-hidden="true">{isOpen ? '−' : '+'}</span>
       </button>
+      {/* on a phone the row below is a screen away, so the note opens in the box itself */}
+      {isOpen && f.note ? (
+        <p className="v19-dial-note"><Rich text={f.note} /></p>
+      ) : null}
     </div>
   );
 }
@@ -399,6 +404,37 @@ function Car({ go }) {
   );
 }
 
+/* what I have been doing at Alfred_, in my words, and the film */
+function Now() {
+  const pick = usePick();
+  const [film, setFilm] = useState(false);
+  const lines = NOW[pick.now];
+  return (
+    <div className="v19-nowintro">
+      {pick.now === 'c' ? (
+        <dl className="v19-nowintro-steps">
+          {lines.map(([k, v]) => (
+            <div key={k}><dt>{k}</dt><dd>{v}</dd></div>
+          ))}
+        </dl>
+      ) : (
+        lines.map((l) => <p key={l}>{l}</p>)
+      )}
+      {ALFRED.film ? (
+        film ? (
+          // eslint-disable-next-line jsx-a11y/media-has-caption
+          <video className="v19-nowintro-film" src={ALFRED.film} controls autoPlay playsInline preload="none" />
+        ) : (
+          <button type="button" className="v19-nowintro-play" onClick={() => setFilm(true)}>
+            <i aria-hidden="true" />
+            Watch the Alfred_ film
+          </button>
+        )
+      ) : null}
+    </div>
+  );
+}
+
 export default function Work({ sectionRef }) {
   const ref = useRef(null);
   const seen = useOnScreen(ref);
@@ -412,14 +448,15 @@ export default function Work({ sectionRef }) {
   const [go, setGo] = useState(false);
   const goRef = useRef(null);
 
-  // the lap: wheels spin up, off left, back from the right, stop. Not again until it has stopped.
+  // the lap, about two seconds: wheels spin up, off left, back from the right, stop. Not again
+  // until it has stopped.
   const lap = () => {
     if (goRef.current) return;
     setGo(true);
     goRef.current = window.setTimeout(() => {
       setGo(false);
       goRef.current = null;
-    }, 3600);
+    }, 2100);
   };
   useEffect(() => () => { if (goRef.current) window.clearTimeout(goRef.current); }, []);
 
@@ -427,6 +464,7 @@ export default function Work({ sectionRef }) {
     <section className="v19-work" ref={sectionRef} id="work" aria-label="What I do now">
       <div className="v19-now">
         <div className="v19-slab-in" ref={ref}>
+          <Now />
           <header className="v19-head-split">
             <div>
               <p className="v19-eye">
@@ -487,21 +525,13 @@ export default function Work({ sectionRef }) {
               <span className="v19-wp-when">{WHEELPRICE.when}</span>
               <span className="v19-wp-chev" aria-hidden="true" />
             </button>
-            {!past ? (
-              <span className="v19-wp-drive" onMouseEnter={lap} onClick={lap} aria-hidden="true">
-                <Car go={go} />
-              </span>
-            ) : null}
+            {/* the car stays on the bar, open or shut */}
+            <span className="v19-wp-drive" onMouseEnter={lap} onClick={lap} aria-hidden="true">
+              <Car go={go} />
+            </span>
 
             <div className="v19-wp-open" hidden={!past}>
               <p className="v19-lede">{WHEELPRICE.about}</p>
-              {/* the car comes down off the bar and parks on its own shelf */}
-              <div className="v19-wp-shelf" aria-hidden="true">
-                <span className="v19-wp-shelf-line" />
-                <span className="v19-wp-drive is-shelved" onMouseEnter={lap} onClick={lap}>
-                  <Car go={go} />
-                </span>
-              </div>
               <div className="v19-dials is-small" onMouseLeave={() => setWpLive(null)}>
                 {WHEELPRICE.figures.map((f) => (
                   <Dial key={f.id} f={f} live={wpLive === f.id} isOpen={open === f.id} run={past} onLive={setWpLive} onPick={toggle} />

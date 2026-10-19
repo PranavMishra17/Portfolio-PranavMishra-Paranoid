@@ -17,6 +17,7 @@ import Papers from './sections/Papers';
 import Room from './room/Room';
 import { useSky, useClock, STARS } from './hooks';
 import { ME, LINKS } from './copy';
+import { Picker } from './pick';
 import './v19.css';
 
 import { FONTS } from './fonts';
@@ -57,6 +58,7 @@ function Page() {
   /* body, fonts, and the scroll the browser must not restore under a wall */
   useEffect(() => {
     document.body.classList.add('v19-body');
+    document.documentElement.classList.add('v19-html');
     document.title = `${ME.first} ${ME.last} — ${ME.role}`;
     let link = document.getElementById('v19-fonts');
     if (!link) {
@@ -87,6 +89,7 @@ function Page() {
         // as above
       }
       document.body.classList.remove('v19-body', 'v19-locked');
+      document.documentElement.classList.remove('v19-html');
     };
   }, []);
 
@@ -267,11 +270,12 @@ function Page() {
           />
           <Landing
             onGo={go}
-            hint={reduced ? 'Tap anywhere' : touch ? 'Press and hold' : 'Hold the left mouse button'}
+            hint={reduced || touch ? 'Tap anywhere' : 'Hold the left mouse button'}
           />
         </div>
       ) : null}
 
+      <Picker />
     </div>
   );
 }

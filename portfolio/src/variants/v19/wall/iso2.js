@@ -186,6 +186,8 @@ const iso2 = {
     const { rows, th, vs, dpr, slotW, slotH } = L;
     const R = Math.min(g.W, g.H) * (0.24 + heat * 0.16);
     const liftMax = 10 + heat * 16;
+    // the fuse, with no cursor to show it: the raised tiles tremble, harder as it burns down
+    const shake = heat * heat * 6;
 
     // only the rows whose centres can be within reach; row r has centre y = -th + r*vs + vs
     const r0 = Math.max(0, Math.floor((py - R + th - vs) / vs));
@@ -202,12 +204,14 @@ const iso2 = {
         const k = (1 - d / R) ** 1.5;
         const lift = Math.round(k * liftMax);
         const a = Math.min(1, k * 1.9);
+        const jx = shake ? Math.round((Math.random() - 0.5) * shake * k * 2) : 0;
+        const jy = shake ? Math.round((Math.random() - 0.5) * shake * k * 2) : 0;
         ctx.globalAlpha = a;
-        if (lift > 0) skirt(ctx, rc.x, rc.y, rc.w, rc.h, lift);
-        blitTile(ctx, L, r, rc.x, rc.y, lift);
+        if (lift > 0) skirt(ctx, rc.x + jx, rc.y + jy, rc.w, rc.h, lift);
+        blitTile(ctx, L, r, rc.x + jx, rc.y + jy, lift);
         if (k > 0.03) {
           ctx.globalAlpha = a * k;
-          ctx.drawImage(L.light, 0, 0, slotW * dpr, slotH * dpr, rc.x - PAD, rc.y - lift - PAD, rc.w + 2 * PAD, rc.h + 2 * PAD);
+          ctx.drawImage(L.light, 0, 0, slotW * dpr, slotH * dpr, rc.x + jx - PAD, rc.y + jy - lift - PAD, rc.w + 2 * PAD, rc.h + 2 * PAD);
         }
       }
     }

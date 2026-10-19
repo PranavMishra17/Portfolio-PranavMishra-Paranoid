@@ -1,7 +1,13 @@
-// v19 — the detonator: the wall, the crosshair in your hand, and the one loop driving both.
+// v19 — the detonator: the wall and the one loop driving it.
 //
-// The cursor is four marks that close on a point and go red as you hold. It is driven by a
-// single custom property, --p, written once a frame; the art is CSS reacting to it.
+// There is no cursor. The tiles lifting under your hand are the cursor, and as you hold they
+// lift higher and tremble (see iso2.field). The fuse is one number, heat, read by the field.
+//
+// The blast is two phases, and that ordering is the whole performance story. At the moment
+// of detonation only the canvas changes: the landing is faded by a class set straight on the
+// DOM, and React is not told. The page underneath wakes — header in, animations resumed,
+// scroll unlocked — only once the tiles have cleared (onBlast). Waking it during the
+// collapse put GPU raster and an image decode into the frames the tiles were flying in.
 //
 // Nothing here gates the page on requestAnimationFrame. A watchdog hand-cranks the loop if
 // frames stop arriving while the page is visible, and a guard removes the wall outright if
@@ -18,8 +24,6 @@ const Detonator = forwardRef(function Detonator(
   ref
 ) {
   const canvasRef = useRef(null);
-  const cursorRef = useRef(null);
-  const shakeElRef = useRef(null);
   const flashRef = useRef(null);
   const wallRef = useRef(null);
   const holdRef = useRef(null);
@@ -27,29 +31,45 @@ const Detonator = forwardRef(function Detonator(
   const heatRef = useRef(0);
   const armedRef = useRef(armed);
   const shakeRef = useRef(0);
-  const [held, setHeld] = useState(false);
   const [dead, setDead] = useState(false); // frames never arrived; the wall is not survivable
 
   armedRef.current = armed;
 
-  /* one write per frame: the fuse, everywhere it shows */
-  const rest = useCallback((p = 0) => {
-    heatRef.current = p;
-    const root = cursorRef.current;
-    if (root) root.style.setProperty('--p', p.toFixed(3));
+  const pendingRef = useRef(null); // a blast whose page has not been woken yet
+  const onBlastRef = useRef(onBlast);
+  onBlastRef.current = onBlast;
 
-    const body = shakeElRef.current;
-    if (body) {
-      if (p <= 0) {
-        body.style.transform = 'translate(0,0) rotate(0deg)';
-      } else {
-        const amp = 0.5 + p * p * 7;
-        body.style.transform =
-          `translate(${(Math.random() - 0.5) * amp * 2}px, ${(Math.random() - 0.5) * amp * 2}px)` +
-          ` rotate(${(Math.random() - 0.5) * p * 9}deg)`;
-      }
+  const rest = useCallback((p = 0) => { heatRef.current = p; }, []);
+
+  /* phase one: the canvas and one class. Nothing React renders changes here. */
+  const detonate = useCallback((x, y, now) => {
+    const wall = wallRef.current;
+    if (!wall || !wall.explode(x, y, now)) return false;
+    shakeRef.current = 260;
+    const cv = canvasRef.current;
+    if (cv && cv.parentElement) cv.parentElement.classList.add('is-blown');
+    const flash = flashRef.current;
+    if (flash) {
+      flash.style.setProperty('--bx', `${x}px`);
+      flash.style.setProperty('--by', `${y}px`);
+      flash.classList.remove('go');
+      void flash.offsetWidth; // reflow, so a second detonation replays it
+      flash.classList.add('go');
     }
+    const at = { x, y };
+    pendingRef.current = at;
+    // phase two normally comes from the loop when the wall reports gone; this is the backstop
+    window.setTimeout(() => wake(at), 900);
+    return true;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  /* phase two: the page underneath wakes, once */
+  const wake = (at) => {
+    if (pendingRef.current !== at) return;
+    pendingRef.current = null;
+    if (onBlastRef.current) onBlastRef.current(at);
+  };
 
   /* ── one loop: the wall, the field, the fuse and the shake ── */
   useEffect(() => {
@@ -127,20 +147,8 @@ const Detonator = forwardRef(function Detonator(
         rest(p);
         if (p >= 1) {
           holdRef.current = null;
-          setHeld(false);
           rest(0);
-          if (wall.explode(hold.x, hold.y, now)) {
-            shakeRef.current = 260;
-            const flash = flashRef.current;
-            if (flash) {
-              flash.style.setProperty('--bx', `${hold.x}px`);
-              flash.style.setProperty('--by', `${hold.y}px`);
-              flash.classList.remove('go');
-              void flash.offsetWidth; // reflow, so a second detonation replays it
-              flash.classList.add('go');
-            }
-            if (onBlast) onBlast({ x: hold.x, y: hold.y });
-          }
+          detonate(hold.x, hold.y, now);
         }
       }
 
@@ -165,6 +173,7 @@ const Detonator = forwardRef(function Detonator(
       }
       if (!still) {
         wall.step(now, dt);
+        if (wall.state === 'gone' && pendingRef.current) wake(pendingRef.current);
         wall.draw(ctx);
         if (slow < 12) wall.drawField(ctx, pt.x, pt.y, heatRef.current, now);
         drawn.x = pt.x;
@@ -252,8 +261,6 @@ const Detonator = forwardRef(function Detonator(
   useEffect(() => {
     if (dead) return undefined;
     const move = (e) => {
-      const c = cursorRef.current;
-      if (c) c.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
       pointRef.current = { x: e.clientX, y: e.clientY };
       if (holdRef.current) {
         holdRef.current.x = e.clientX;
@@ -276,13 +283,16 @@ const Detonator = forwardRef(function Detonator(
         if (onBlast) onBlast({ x: e.clientX, y: e.clientY });
         return;
       }
+      // on a phone a long press belongs to the OS (selection, the context menu): a tap is the fuse
+      if (e.pointerType === 'touch') {
+        detonate(e.clientX, e.clientY, performance.now());
+        return;
+      }
       holdRef.current = { x: e.clientX, y: e.clientY, t0: performance.now() };
-      setHeld(true);
     };
     const up = () => {
       if (holdRef.current) {
         holdRef.current = null;
-        setHeld(false);
         rest(0);
       }
     };
@@ -300,32 +310,20 @@ const Detonator = forwardRef(function Detonator(
       window.removeEventListener('pointercancel', up);
       window.removeEventListener('blur', up);
     };
-  }, [dead, reduced, rest, onBlast]);
+  }, [dead, reduced, rest, onBlast, detonate]);
 
   useImperativeHandle(ref, () => ({
     fire(x, y) {
       const wall = wallRef.current;
       if (!wall || dead || wall.state !== 'intact') return false;
       holdRef.current = null;
-      setHeld(false);
       rest(0);
-      const now = performance.now();
-      if (!wall.explode(x, y, now)) return false;
-      shakeRef.current = 260;
-      const flash = flashRef.current;
-      if (flash) {
-        flash.style.setProperty('--bx', `${x}px`);
-        flash.style.setProperty('--by', `${y}px`);
-        flash.classList.remove('go');
-        void flash.offsetWidth;
-        flash.classList.add('go');
-      }
-      if (onBlast) onBlast({ x, y });
-      return true;
+      return detonate(x, y, performance.now());
     },
     rebuild() {
       const wall = wallRef.current;
       if (!wall || dead) return false;
+      pendingRef.current = null;
       if (wall.state === 'intact') return true;
       wall.rebuild(performance.now());
       return true;
@@ -333,7 +331,7 @@ const Detonator = forwardRef(function Detonator(
     state() {
       return wallRef.current ? wallRef.current.state : 'gone';
     },
-  }), [dead, onBlast, rest]);
+  }), [dead, detonate, rest]);
 
   if (dead) return null;
 
@@ -341,18 +339,6 @@ const Detonator = forwardRef(function Detonator(
     <>
       <canvas ref={canvasRef} className="v19-wall-canvas" aria-hidden="true" />
       <div className="v19-flash" ref={flashRef} aria-hidden="true" />
-
-      <div className={`v19-cur${held ? ' is-held' : ''}`} ref={cursorRef} aria-hidden="true">
-        <div className="v19-cur-body" ref={shakeElRef}>
-          <span className="v19-cur-pin">
-            <i className="v19-cur-pin-n" />
-            <i className="v19-cur-pin-e" />
-            <i className="v19-cur-pin-s" />
-            <i className="v19-cur-pin-w" />
-            <i className="v19-cur-pin-c" />
-          </span>
-        </div>
-      </div>
     </>
   );
 });

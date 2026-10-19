@@ -1,11 +1,12 @@
 // v19 — the first screen.
 //
-// Four things — the face, the name, one line, four buttons — and never a fifth. The face beside
-// the name, set in mono.
+// The face, the name, one line, a short intro, four buttons. The face beside the name, set in
+// mono. The intro is what I do and what I love; where I work comes after the wall.
 
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ME, LINKS, GO } from '../copy';
+import { INTRO, usePick } from '../pick';
 
 function Links({ onGo }) {
   return (
@@ -42,6 +43,7 @@ function Face({ className }) {
 }
 
 export default function Landing({ hint, onGo }) {
+  const pick = usePick();
   const Hint = (
     <p className="v19-land-hint">
       <span className="v19-land-hint-key" aria-hidden="true">
@@ -58,6 +60,7 @@ export default function Landing({ hint, onGo }) {
         <div className="v19-land-words">
           <Name />
           <p className="v19-land-role">{ME.role}</p>
+          <p className="v19-land-intro">{INTRO[pick.intro]}</p>
           <Links onGo={onGo} />
         </div>
       </div>

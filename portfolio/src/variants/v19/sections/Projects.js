@@ -145,7 +145,19 @@ export default function Projects({ sectionRef }) {
 
   const onPeek = useCallback((id) => setPeek(id), []);
   const onRest = useCallback(() => setPeek(null), []);
-  const onPick = useCallback((id) => { setPeek(null); toggle(id); }, [toggle]);
+  const onPick = useCallback((id) => {
+    setPeek(null);
+    // on a phone the viewer can be a screen above the tile you tapped: bring it into view first,
+    // instantly, so the opener (which closes after a long scroll) records the new position
+    const view = wrapRef.current && wrapRef.current.querySelector('.v19-view');
+    if (view && open !== id) {
+      const top = view.getBoundingClientRect().top;
+      if (top < 64 || top > window.innerHeight * 0.5) {
+        window.scrollTo({ top: window.scrollY + top - 72, behavior: 'instant' });
+      }
+    }
+    toggle(id);
+  }, [toggle, open]);
 
   const shown =
     (open && ALL_PROJECTS.find((p) => p.id === open)) ||
