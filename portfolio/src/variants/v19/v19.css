@@ -914,14 +914,6 @@ html.v19-html { scrollbar-gutter: stable; }
 /* ── the two intros ──────────────────────────────────────────────────── */
 .v19-land-intro { font-family: var(--body); font-size: clamp(15.5px, 1.2vw, 17px); line-height: 1.62; color: var(--ink-2); max-width: 46ch; margin-top: clamp(16px, 2.4vh, 24px); }
 
-/* the draft picker, only with ?pick */
-.v19-pick { position: fixed; left: 14px; bottom: 14px; z-index: 60; display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; background: #fffdf7; border: 1px solid var(--ink-3); border-radius: 4px; font-family: var(--mono); font-size: 13px; box-shadow: 0 12px 30px -14px rgba(0,0,0,.55); }
-.v19-pick::before { content: 'Drafts'; font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ember); }
-.v19-pick-row { display: flex; align-items: center; gap: 5px; }
-.v19-pick-row b { font-weight: 500; color: var(--ink-2); width: 72px; }
-.v19-pick-row button { width: 32px; height: 30px; border: 1px solid var(--rule); border-radius: 3px; color: var(--ink); font-size: 13px; cursor: pointer; }
-.v19-pick-row button:hover { border-color: var(--ink); }
-.v19-pick-row button.on { background: var(--ember); color: #fff; border-color: var(--ember); }
 
 /* ── phones ──────────────────────────────────────────────────────────── */
 @media (max-width: 720px) {
@@ -1022,12 +1014,6 @@ html.v19-html { scrollbar-gutter: stable; }
   .v19-site-view img { animation: none !important; transition: none !important; }
 }
 
-@media (max-width: 720px) {
-  .v19-pick { left: auto; right: 8px; bottom: 8px; padding: 7px 8px; gap: 5px; font-size: 11px; }
-  .v19-pick::before { font-size: 9.5px; }
-  .v19-pick-row b { width: 52px; }
-  .v19-pick-row button { width: 26px; height: 26px; font-size: 11px; }
-}
 .v19-site .v19-glance-go { color: var(--alfred); border-color: var(--alfred); }
 .v19-site .v19-glance-go:hover, .v19-site .v19-glance-go:focus-visible { background: var(--alfred); color: #fff; }
 @media (max-width: 720px) { .v19-site-hint { display: none; } }
@@ -1082,37 +1068,14 @@ html.v19-html { scrollbar-gutter: stable; }
 @keyframes v19-spark { 50% { transform: scale(.6) translate(1px, -1px); box-shadow: 0 0 10px 3px rgba(255,140,40,.95); } }
 
 @media (prefers-reduced-motion: reduce) {
-  .v19-int::after, .v19-go-spark, .v19-marquee { animation: none !important; }
+  .v19-int::after, .v19-go-spark { animation: none !important; }
 }
 
-/* ── Letterboxd, three ways (pick.js FILMS) ───────────────────────────── */
-/* a: a cinema marquee lights up over "watching films" */
-.v19-int.is-marquee { position: relative; }
-.v19-marquee {
-  position: absolute; left: 50%; bottom: calc(100% + 10px); z-index: 4; display: grid; justify-items: center; gap: 1px;
-  padding: 8px 14px 7px; min-width: 150px; background: #17171c; color: #fff8e6; border-radius: 3px; text-decoration: none;
-  /* the bulbs round the sign */
-  box-shadow: 0 0 0 3px #17171c, 0 0 0 4px #ffcf6a, 0 14px 26px -12px rgba(0,0,0,.6);
-  background-image: radial-gradient(circle, #ffd88a 0 1.6px, transparent 2.2px);
-  background-size: 9px 6px; background-repeat: repeat-x; background-position: 0 2px;
-  transform: translate(-50%, 6px) scale(.96); opacity: 0; pointer-events: none;
-  transition: opacity 160ms ease, transform 200ms cubic-bezier(.2,.9,.3,1);
-}
-.v19-marquee::after { content: ''; position: absolute; left: 50%; top: 100%; margin-left: -6px; border: 6px solid transparent; border-top-color: #17171c; }
-.v19-marquee-k { font-family: var(--mono); font-size: 9px; letter-spacing: .24em; text-transform: uppercase; color: #ffcf6a; margin-top: 6px; }
-.v19-marquee-v { font-family: var(--display); font-weight: 600; font-size: 15px; letter-spacing: .02em; }
-.v19-marquee-s { font-family: var(--mono); font-size: 9.5px; color: #9aa3ad; }
-.v19-int.is-marquee:hover .v19-marquee, .v19-int.is-marquee:focus-visible .v19-marquee { opacity: 1; transform: translate(-50%, 0) scale(1); animation: v19-bulbs 700ms steps(2) infinite; }
-@keyframes v19-bulbs { 50% { background-position: 4.5px 2px; } }
-
-/* b: the three dots after "films"; pointing at either shows the name over them */
-.v19-filmset { white-space: nowrap; }
+/* ── Letterboxd: the dots after "watching films" ───────────────────── */
+.v19-filmset { white-space: nowrap; position: relative; padding: 12px 6px; margin: -12px -6px; }
 .v19-lbdots { position: relative; display: inline-block; vertical-align: -3px; margin-left: 6px; text-decoration: none; }
 .v19-lbdots img { width: 17px; height: 17px; display: block; transition: transform 220ms cubic-bezier(.3,1.6,.5,1); }
 .v19-lbdots span { position: absolute; left: 50%; bottom: calc(100% + 6px); padding: 3px 8px; border-radius: 10px; background: #202830; color: #fff; font-family: var(--mono); font-size: 11px; white-space: nowrap; transform: translate(-50%, 4px); opacity: 0; pointer-events: none; transition: opacity 150ms ease, transform 180ms ease; }
 .v19-lbdots:hover img, .v19-lbdots:focus-visible img, .v19-filmset:hover .v19-lbdots img { transform: rotate(360deg) scale(1.15); }
 .v19-lbdots:hover span, .v19-lbdots:focus-visible span, .v19-filmset:hover .v19-lbdots span { opacity: 1; transform: translate(-50%, 0); }
 
-/* c: a Films button in the row, same as GitHub and LinkedIn */
-.v19-land-links .v19-land-film { display: inline-flex; align-items: center; gap: 7px; }
-.v19-land-film img { width: 16px; height: 16px; display: block; }

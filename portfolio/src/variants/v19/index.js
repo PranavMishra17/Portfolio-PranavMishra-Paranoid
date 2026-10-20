@@ -17,7 +17,6 @@ import Papers from './sections/Papers';
 import Room from './room/Room';
 import { useSky, useClock, STARS } from './hooks';
 import { ME, LINKS } from './copy';
-import { Picker } from './pick';
 import './v19.css';
 
 import { FONTS } from './fonts';
@@ -275,7 +274,6 @@ function Page() {
         </div>
       ) : null}
 
-      <Picker />
     </div>
   );
 }
