@@ -5,8 +5,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ME, LINKS, GO } from '../copy';
-import { INTRO, usePick } from '../pick';
+import { ME, LINKS, GO, LETTERBOXD, ALFRED } from '../copy';
 
 function Links({ onGo }) {
   return (
@@ -21,6 +20,9 @@ function Links({ onGo }) {
       <button type="button" className="v19-land-go" onClick={onGo}>
         {GO.label}
       </button>
+      <a className="v19-land-lb" href={LETTERBOXD} target="_blank" rel="noreferrer" aria-label="My films on Letterboxd" title="My films on Letterboxd">
+        <img src="/assets/images/icons/letterboxd.svg" alt="" />
+      </a>
     </nav>
   );
 }
@@ -38,12 +40,16 @@ function Face({ className }) {
   return (
     <figure className={`v19-land-face ${className || ''}`}>
       <img src={ME.photo} alt={ME.photoAlt} />
+      {/* where I work: a caption on the photo, the way a badge says it, not a tagline */}
+      <figcaption className="v19-land-badge">
+        <img src={ALFRED.logo} alt="" />
+        <span>{ME.role}</span>
+      </figcaption>
     </figure>
   );
 }
 
 export default function Landing({ hint, onGo }) {
-  const pick = usePick();
   const Hint = (
     <p className="v19-land-hint">
       <span className="v19-land-hint-key" aria-hidden="true">
@@ -59,12 +65,8 @@ export default function Landing({ hint, onGo }) {
         <Face />
         <div className="v19-land-words">
           <Name />
-          <p className="v19-land-intro">
-            {INTRO[pick.intro]} <span>{ME.close}</span>
-          </p>
+          <p className="v19-land-intro">{ME.intro}</p>
           <Links onGo={onGo} />
-          {/* where I work, said last and quietly: not a tagline */}
-          <p className="v19-land-role">{ME.role}</p>
         </div>
       </div>
       {Hint}

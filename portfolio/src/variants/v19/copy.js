@@ -21,8 +21,9 @@ export const ME = {
   // the whole of the landing page's prose, on purpose
   role: 'Founding Engineer at alfred_',
   short: 'Founding Engineer at alfred_',
-  // the intro beside the face is in pick.js while he chooses between drafts
-  close: 'Explore the work, or get in touch.',
+  // beside the face on the landing, in his words; it ends on what he loves, not a call to action
+  intro:
+    "I came to AI from making games, and I still build that way: make it, play it, find where it breaks. There's always something half-built on my desk, and it usually teaches me the next thing I need: virtual patients in Unreal, computer vision, voice agents, research on retrieval and on AI agents that reason through medical cases as a team, and now an assistant five thousand people use every day. When I'm not building, I'm designing games, watching films, or playing football.",
   photo: '/assets/images/web/profile.jpg',
   photoAlt: 'Pranav Mishra',
   city: 'New York',
@@ -40,6 +41,8 @@ export const LINKS = [
   { label: 'Résumé', href: '/resume' },
 ];
 export const GO = { label: 'See my work', target: 'work' };
+// films: an icon-only button beside See my work
+export const LETTERBOXD = 'https://letterboxd.com/paranoid_critic/';
 
 // The rest of the places, for the room's card
 export const MORE_LINKS = [

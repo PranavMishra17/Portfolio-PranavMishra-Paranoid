@@ -205,9 +205,8 @@ html.v19-html { scrollbar-gutter: stable; }
 
 .v19-land { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; justify-content: center; padding: clamp(28px, 6vh, 72px) clamp(22px, 7vw, 110px); }
 .v19-land-face { flex: none; }
-.v19-land-face img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 2px; filter: grayscale(0.18) contrast(1.03); box-shadow: 0 26px 54px -34px rgba(40, 36, 30, .8); }
+.v19-land-face > img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 2px; filter: grayscale(0.18) contrast(1.03); box-shadow: 0 26px 54px -34px rgba(40, 36, 30, .8); }
 .v19-land-name { font-family: var(--display); font-weight: var(--display-w); font-size: clamp(48px, 8.6vw, 118px); line-height: .88; letter-spacing: var(--display-tr); display: flex; flex-direction: column; }
-.v19-land-role { font-family: var(--display); font-weight: 400; font-size: clamp(15px, 1.5vw, 19px); line-height: 1.6; color: var(--ink-2); margin-top: clamp(14px, 2.2vh, 24px); max-width: 48ch; }
 
 .v19-land-links { display: flex; flex-wrap: wrap; gap: 7px; margin-top: clamp(18px, 2.8vh, 30px); }
 .v19-land-links a, .v19-land-go { font-family: var(--display); font-size: 13.5px; font-weight: 500; padding: 9px 16px; border: 1px solid var(--rule); border-radius: 2px; color: var(--ink); transition: background 150ms ease, color 150ms ease, border-color 150ms ease; }
@@ -914,9 +913,6 @@ html.v19-html { scrollbar-gutter: stable; }
 
 /* ── the two intros ──────────────────────────────────────────────────── */
 .v19-land-intro { font-family: var(--body); font-size: clamp(15.5px, 1.2vw, 17px); line-height: 1.62; color: var(--ink-2); max-width: 46ch; margin-top: clamp(16px, 2.4vh, 24px); }
-.v19-land-intro span { color: var(--ink); }
-/* where I work: after the buttons, small and quiet, in the body face */
-.v19.land-plate .v19-land-role { font-family: var(--body); font-size: 13.5px; letter-spacing: 0; line-height: 1.5; color: var(--ink-2); margin-top: 14px; }
 
 /* the draft picker, only with ?pick */
 .v19-pick { position: fixed; left: 14px; bottom: 14px; z-index: 60; display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; background: #fffdf7; border: 1px solid var(--ink-3); border-radius: 4px; font-family: var(--mono); font-size: 13px; box-shadow: 0 12px 30px -14px rgba(0,0,0,.55); }
@@ -1040,3 +1036,16 @@ html.v19-html { scrollbar-gutter: stable; }
   .v19-land-name { font-size: 46px; }
   .v19-land-hint { bottom: 14px; }
 }
+
+/* the role, as the photo's caption */
+.v19-land-face { position: relative; }
+.v19-land-badge { display: flex; align-items: center; justify-content: center; gap: 7px; margin-top: 12px; font-family: var(--body); font-size: 13px; line-height: 1.3; color: var(--ink-2); text-align: center; }
+.v19-land-badge img { width: 15px; height: 15px; border-radius: 3px; flex: none; }
+/* films: icon only, beside See my work */
+.v19-land-lb { display: inline-flex; align-items: center; justify-content: center; align-self: center; width: 40px; height: 40px; margin-left: 4px; border-radius: 50%; transition: transform 180ms cubic-bezier(.2,.9,.3,1), box-shadow 180ms ease; }
+.v19-land-lb img { width: 40px; height: 40px; display: block; }
+.v19-land-lb:hover, .v19-land-lb:focus-visible { transform: translateY(-2px) rotate(-8deg); box-shadow: 0 8px 18px -8px rgba(20,24,28,.6); }
+@media (max-width: 720px) {
+  .v19-land-badge { font-size: 12px; margin-top: 8px; white-space: nowrap; }
+}
+.v19-land-links .v19-land-lb, .v19-land-links .v19-land-lb:hover { padding: 0; border: 0; background: none; }
