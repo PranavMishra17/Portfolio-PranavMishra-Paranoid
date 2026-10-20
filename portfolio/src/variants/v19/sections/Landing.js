@@ -6,6 +6,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ME, LINKS, GO } from '../copy';
+import { INTRO, usePick } from '../pick';
 
 function Links({ onGo }) {
   return (
@@ -42,6 +43,7 @@ function Face({ className }) {
 }
 
 export default function Landing({ hint, onGo }) {
+  const pick = usePick();
   const Hint = (
     <p className="v19-land-hint">
       <span className="v19-land-hint-key" aria-hidden="true">
@@ -58,7 +60,7 @@ export default function Landing({ hint, onGo }) {
         <div className="v19-land-words">
           <Name />
           <p className="v19-land-intro">
-            {ME.intro} <span>{ME.close}</span>
+            {INTRO[pick.intro]} <span>{ME.close}</span>
           </p>
           <Links onGo={onGo} />
           {/* where I work, said last and quietly: not a tagline */}

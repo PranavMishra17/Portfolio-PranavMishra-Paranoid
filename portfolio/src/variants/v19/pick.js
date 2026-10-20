@@ -19,7 +19,15 @@ export const STORY = {
   ],
 };
 
-export const DEFAULT = { story: 'a' };
+
+// The landing intro: three drafts, all starting from the line he said is actually him.
+export const INTRO = {
+  a: "I came to AI from making games, and I still build that way: make it, play it, find where it breaks. Most of what I know I picked up mid-project: virtual patients in Unreal, computer vision, voice agents, two research papers, and now agents that five thousand people use every day. Outside of that, I love game development, film and football.",
+  b: "I came to AI from making games, and I still build that way: make it, play it, find where it breaks. I usually start something before I know how to finish it, and learn what it needs on the way. That's how I ended up shipping voice agents, virtual patients in Unreal, two papers, and agents five thousand people rely on. I also love game development, film and football.",
+  c: "I came to AI from making games, and I still build that way: make it, play it, find where it breaks. There's always something half-built on my desk, and it usually teaches me the next thing I need. Away from the desk: game development, film, football.",
+};
+
+export const DEFAULT = { story: 'a', intro: 'a' };
 
 const KEY = 'v19.pick.3';
 const EVENT = 'v19-pick';
@@ -27,7 +35,10 @@ const EVENT = 'v19-pick';
 function read() {
   try {
     const v = JSON.parse(window.localStorage.getItem(KEY) || '{}');
-    return { story: STORY[v.story] ? v.story : DEFAULT.story };
+    return {
+      story: STORY[v.story] ? v.story : DEFAULT.story,
+      intro: INTRO[v.intro] ? v.intro : DEFAULT.intro,
+    };
   } catch (err) {
     return DEFAULT;
   }
@@ -60,6 +71,14 @@ export function Picker() {
   if (!on) return null;
   return (
     <div className="v19-pick" role="group" aria-label="Choose a draft">
+      <span className="v19-pick-row">
+        <b>Landing</b>
+        {Object.keys(INTRO).map((o) => (
+          <button type="button" key={o} className={pick.intro === o ? 'on' : ''} onClick={() => set('intro', o)}>
+            {o.toUpperCase()}
+          </button>
+        ))}
+      </span>
       <span className="v19-pick-row">
         <b>alfred_</b>
         {Object.keys(STORY).map((o) => (

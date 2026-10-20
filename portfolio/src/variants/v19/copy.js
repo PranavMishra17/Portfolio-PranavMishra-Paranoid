@@ -21,9 +21,7 @@ export const ME = {
   // the whole of the landing page's prose, on purpose
   role: 'Founding Engineer at alfred_',
   short: 'Founding Engineer at alfred_',
-  // beside the face on the landing: what I do, how I build, what I'm into. Where I work comes last.
-  intro:
-    "I build AI that does things: agents that take actions, voices that answer, and the plumbing that keeps both reliable. I came to it from making games, and I still build that way: make it, play it, find where it breaks. Outside of work, it's game development, film and football.",
+  // the intro beside the face is in pick.js while he chooses between drafts
   close: 'Explore the work, or get in touch.',
   photo: '/assets/images/web/profile.jpg',
   photoAlt: 'Pranav Mishra',

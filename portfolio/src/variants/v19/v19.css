@@ -1032,3 +1032,11 @@ html.v19-html { scrollbar-gutter: stable; }
 .v19-site .v19-glance-go { color: var(--alfred); border-color: var(--alfred); }
 .v19-site .v19-glance-go:hover, .v19-site .v19-glance-go:focus-visible { background: var(--alfred); color: #fff; }
 @media (max-width: 720px) { .v19-site-hint { display: none; } }
+@media (max-width: 720px) {
+  /* the landing has to hold the face, the words, the buttons and the hint in one phone screen */
+  .v19-land.is-plate .v19-land-face { width: 112px; }
+  .v19-land.is-plate .v19-land-in { gap: 18px; }
+  .v19-land { justify-content: flex-start; padding-top: 40px; }
+  .v19-land-name { font-size: 46px; }
+  .v19-land-hint { bottom: 14px; }
+}
