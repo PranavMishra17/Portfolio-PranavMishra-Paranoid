@@ -17,12 +17,13 @@ function Links({ onGo }) {
           <Link key={l.label} to={l.href}>{l.label}</Link>
         )
       )}
-      <button type="button" className="v19-land-go" onClick={onGo}>
-        {GO.label}
+      <button type="button" className="v19-land-go" onClick={onGo} aria-label={GO.label}>
+        <span className="v19-go-roll" aria-hidden="true">
+          <span>{GO.label}</span>
+          <span>Light the fuse</span>
+        </span>
+        <i className="v19-go-spark" aria-hidden="true" />
       </button>
-      <a className="v19-land-lb" href={LETTERBOXD} target="_blank" rel="noreferrer" aria-label="My films on Letterboxd" title="My films on Letterboxd">
-        <img src="/assets/images/icons/letterboxd.svg" alt="" />
-      </a>
     </nav>
   );
 }
@@ -40,6 +41,14 @@ function Face({ className }) {
   return (
     <figure className={`v19-land-face ${className || ''}`}>
       <img src={ME.photo} alt={ME.photoAlt} />
+      {/* films: a ticket stub tucked on the corner of the photo */}
+      <a className="v19-ticket" href={LETTERBOXD} target="_blank" rel="noreferrer" aria-label="My films on Letterboxd">
+        <span className="v19-ticket-k">Admit one</span>
+        <span className="v19-ticket-v">
+          <img src="/assets/images/icons/letterboxd.svg" alt="" />
+          paranoid_critic
+        </span>
+      </a>
       {/* where I work: a caption on the photo, the way a badge says it, not a tagline */}
       <figcaption className="v19-land-badge">
         <img src={ALFRED.logo} alt="" />
@@ -65,7 +74,12 @@ export default function Landing({ hint, onGo }) {
         <Face />
         <div className="v19-land-words">
           <Name />
-          <p className="v19-land-intro">{ME.intro}</p>
+          <p className="v19-land-intro">
+            {ME.intro}{' '}
+            <span className="v19-int is-games" tabIndex={0}>designing games</span>,{' '}
+            <a className="v19-int is-film" href={LETTERBOXD} target="_blank" rel="noreferrer" title="What I've been watching, on Letterboxd">watching films</a>, or{' '}
+            <span className="v19-int is-ball" tabIndex={0}>playing football</span>.
+          </p>
           <Links onGo={onGo} />
         </div>
       </div>

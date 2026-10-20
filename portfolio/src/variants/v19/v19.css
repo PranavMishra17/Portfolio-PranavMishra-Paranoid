@@ -1041,11 +1041,67 @@ html.v19-html { scrollbar-gutter: stable; }
 .v19-land-face { position: relative; }
 .v19-land-badge { display: flex; align-items: center; justify-content: center; gap: 7px; margin-top: 12px; font-family: var(--body); font-size: 13px; line-height: 1.3; color: var(--ink-2); text-align: center; }
 .v19-land-badge img { width: 15px; height: 15px; border-radius: 3px; flex: none; }
-/* films: icon only, beside See my work */
-.v19-land-lb { display: inline-flex; align-items: center; justify-content: center; align-self: center; width: 40px; height: 40px; margin-left: 4px; border-radius: 50%; transition: transform 180ms cubic-bezier(.2,.9,.3,1), box-shadow 180ms ease; }
-.v19-land-lb img { width: 40px; height: 40px; display: block; }
-.v19-land-lb:hover, .v19-land-lb:focus-visible { transform: translateY(-2px) rotate(-8deg); box-shadow: 0 8px 18px -8px rgba(20,24,28,.6); }
 @media (max-width: 720px) {
   .v19-land-badge { font-size: 12px; margin-top: 8px; white-space: nowrap; }
 }
-.v19-land-links .v19-land-lb, .v19-land-links .v19-land-lb:hover { padding: 0; border: 0; background: none; }
+
+/* ── the landing's small pleasures ───────────────────────────────────── */
+/* the interests: each does one thing when you point at it */
+.v19-int { position: relative; color: var(--ink); cursor: default; outline: none; }
+.v19-int.is-film { cursor: pointer; text-decoration: underline dotted rgba(23,23,26,.45); text-decoration-thickness: 1.5px; text-underline-offset: 4px; transition: color 150ms ease, text-decoration-color 150ms ease; }
+.v19-int.is-film:hover, .v19-int.is-film:focus-visible { color: #ff8000; text-decoration-color: #ff8000; text-decoration-style: solid; }
+/* games: a blinking PRESS START over the words */
+.v19-int.is-games::after {
+  content: 'PRESS START'; position: absolute; left: 50%; bottom: calc(100% + 4px); transform: translate(-50%, 4px);
+  font-family: var(--mono); font-size: 10px; letter-spacing: .14em; color: var(--ember); white-space: nowrap;
+  opacity: 0; pointer-events: none; transition: opacity 120ms ease, transform 160ms ease;
+}
+.v19-int.is-games:hover::after, .v19-int.is-games:focus-visible::after { opacity: 1; transform: translate(-50%, 0); animation: v19-blink 900ms steps(1) 160ms infinite; }
+@keyframes v19-blink { 50% { opacity: 0; } }
+/* football: a ball rolls along under the words */
+.v19-int.is-ball::after {
+  content: ''; position: absolute; left: 0; bottom: -9px; width: 9px; height: 9px; border-radius: 50%;
+  background: radial-gradient(circle at 50% 50%, #1b1b1f 0 22%, transparent 24%), #fff;
+  box-shadow: inset 0 0 0 1px #1b1b1f; opacity: 0; pointer-events: none;
+}
+.v19-int.is-ball:hover::after, .v19-int.is-ball:focus-visible::after { opacity: 1; animation: v19-roll 900ms cubic-bezier(.3,.1,.3,1) forwards; }
+@keyframes v19-roll { from { left: 0; transform: rotate(0); } to { left: calc(100% - 9px); transform: rotate(540deg); } }
+
+/* films: the ticket on the photo */
+.v19-ticket {
+  position: absolute; right: -26px; bottom: 34px; z-index: 2; display: flex; flex-direction: column; gap: 3px;
+  padding: 7px 12px 7px 16px; background: #fffaf0; color: #1b1b1f; border-radius: 3px;
+  box-shadow: 0 10px 22px -12px rgba(0,0,0,.55);
+  /* the perforation down the stub edge */
+  background-image: radial-gradient(circle at 0 50%, transparent 0 4px, #fffaf0 4.5px);
+  background-size: 100% 9px; background-repeat: repeat-y;
+  transform: rotate(7deg); transform-origin: 100% 100%;
+  transition: transform 220ms cubic-bezier(.2,.9,.3,1), box-shadow 220ms ease;
+}
+.v19-ticket-k { font-family: var(--mono); font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #a33a26; }
+.v19-ticket-v { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 11.5px; }
+.v19-ticket-v img { width: 16px; height: 16px; border-radius: 50%; }
+.v19-ticket:hover, .v19-ticket:focus-visible { transform: rotate(0deg) translateY(-3px); box-shadow: 0 16px 28px -14px rgba(0,0,0,.6); }
+/* pointing at "watching films" makes the ticket jump */
+.v19-land-in:has(.v19-int.is-film:hover) .v19-ticket,
+.v19-land-in:has(.v19-int.is-film:focus-visible) .v19-ticket { animation: v19-hop 520ms cubic-bezier(.3,1.6,.5,1); }
+@keyframes v19-hop { 0% { transform: rotate(7deg); } 40% { transform: rotate(-4deg) translateY(-12px) scale(1.06); } 100% { transform: rotate(7deg); } }
+
+/* See my work: the label rolls over to Light the fuse, and a spark lives on the corner */
+.v19-land-go { position: relative; overflow: visible; display: inline-flex; align-items: center; }
+.v19-go-roll { display: grid; justify-items: center; height: 1.3em; overflow: hidden; }
+.v19-go-roll > span { grid-area: 1 / 1; line-height: 1.3em; transition: transform 260ms cubic-bezier(.2,.9,.3,1); }
+.v19-go-roll > span + span { transform: translateY(110%); }
+.v19-land-go:hover .v19-go-roll > span:first-child, .v19-land-go:focus-visible .v19-go-roll > span:first-child { transform: translateY(-110%); }
+.v19-land-go:hover .v19-go-roll > span + span, .v19-land-go:focus-visible .v19-go-roll > span + span { transform: none; }
+.v19-go-spark { position: absolute; right: -4px; top: -4px; width: 8px; height: 8px; border-radius: 50%; background: #ffd27a; box-shadow: 0 0 6px 2px rgba(255,170,60,.9); opacity: 0; transform: scale(.4); transition: opacity 150ms ease, transform 150ms ease; pointer-events: none; }
+.v19-land-go:hover .v19-go-spark, .v19-land-go:focus-visible .v19-go-spark { opacity: 1; transform: scale(1); animation: v19-spark 260ms steps(2) infinite; }
+@keyframes v19-spark { 50% { transform: scale(.6) translate(1px, -1px); box-shadow: 0 0 10px 3px rgba(255,140,40,.95); } }
+
+@media (max-width: 720px) {
+  .v19-ticket { right: -118px; bottom: 26px; transform: rotate(7deg) scale(.86); transform-origin: 100% 100%; }
+  .v19-ticket:hover { transform: rotate(0) scale(.86); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .v19-int::after, .v19-ticket, .v19-go-spark { animation: none !important; }
+}

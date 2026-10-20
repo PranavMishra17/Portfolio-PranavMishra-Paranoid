@@ -21,9 +21,9 @@ export const ME = {
   // the whole of the landing page's prose, on purpose
   role: 'Founding Engineer at alfred_',
   short: 'Founding Engineer at alfred_',
-  // beside the face on the landing, in his words; it ends on what he loves, not a call to action
-  intro:
-    "I came to AI from making games, and I still build that way: make it, play it, find where it breaks. There's always something half-built on my desk, and it usually teaches me the next thing I need: virtual patients in Unreal, computer vision, voice agents, research on retrieval and on AI agents that reason through medical cases as a team, and now an assistant five thousand people use every day. When I'm not building, I'm designing games, watching films, or playing football.",
+  // beside the face on the landing, in his words. The interests that end it are set by
+  // sections/Landing.js, because each one does something when you point at it.
+  intro: "I came to AI from making games, and I still build that way: make it, play it, find where it breaks. There's always something half-built on my desk, and it usually teaches me the next thing I need: virtual patients in Unreal, computer vision, NPCs that remember you, voices built from a line of text, AI agents that work as a team, and now an assistant five thousand people use every day. When I'm not building, I'm",
   photo: '/assets/images/web/profile.jpg',
   photoAlt: 'Pranav Mishra',
   city: 'New York',
