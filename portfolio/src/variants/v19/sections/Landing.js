@@ -74,8 +74,10 @@ export default function Landing({ hint, onGo }) {
         <Face />
         <div className="v19-land-words">
           <Name />
-          <p className="v19-land-intro">
-            {ME.intro}{' '}
+          <p className="v19-land-intro">{ME.intro}</p>
+          {/* what I love, on its own line, in the same voice and colour as the rest */}
+          <p className="v19-land-intro is-away">
+            Away from the desk, I'm{' '}
             <span className="v19-int">playing and designing games</span>,{' '}
             <Films />, or{' '}
             <span className="v19-int is-ball" tabIndex={0}>out on a football pitch</span>.

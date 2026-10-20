@@ -1030,7 +1030,8 @@ html.v19-html { scrollbar-gutter: stable; }
 
 /* ── the landing's small pleasures ───────────────────────────────────── */
 /* the interests: each does one thing when you point at it */
-.v19-int { position: relative; color: var(--ink); cursor: default; outline: none; }
+.v19-int { position: relative; color: inherit; cursor: default; outline: none; }
+.v19-land-intro.is-away { margin-top: 10px; }
 .v19-int.is-film { cursor: pointer; text-decoration: underline dotted rgba(23,23,26,.45); text-decoration-thickness: 1.5px; text-underline-offset: 4px; transition: color 150ms ease, text-decoration-color 150ms ease; }
 /* football: a ball rolls along under the words */
 .v19-int.is-ball::after {

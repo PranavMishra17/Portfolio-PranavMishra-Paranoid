@@ -23,7 +23,7 @@ export const ME = {
   short: 'Founding Engineer at alfred_',
   // beside the face on the landing, in his words. The interests that end it are set by
   // sections/Landing.js, because each one does something when you point at it.
-  intro: "I learned to build by making games: make it, play it, find where it breaks. I do the same with AI. Something is always half-built on my desk, and each one teaches me the next: agentic teamwork frameworks, voices built from a line of text, NPCs that remember you, computer vision, virtual patients in Unreal, and now a product thousands use every day. Away from the desk, I'm",
+  intro: "I learned to build by making games: make it, play it, find where it breaks. I do the same with AI. Something is always half-built on my desk, and each one teaches me the next: agentic teamwork frameworks, voices built from a line of text, NPCs that remember you, computer vision, virtual patients in Unreal, and now a product thousands use every day.",
   photo: '/assets/images/web/profile.jpg',
   photoAlt: 'Pranav Mishra',
   city: 'New York',
