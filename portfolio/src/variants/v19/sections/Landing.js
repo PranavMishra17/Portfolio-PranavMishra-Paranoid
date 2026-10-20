@@ -1,12 +1,11 @@
 // v19 — the first screen.
 //
-// The face, the name, one line, a short intro, four buttons. The face beside the name, set in
-// mono. The intro is what I do and what I love; where I work comes after the wall.
+// The face, the name, a short intro, four buttons, and where I work, last. Two faces only: the
+// display face for the name and the buttons, the body face for everything else.
 
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ME, LINKS, GO } from '../copy';
-import { INTRO, usePick } from '../pick';
 
 function Links({ onGo }) {
   return (
@@ -42,25 +41,7 @@ function Face({ className }) {
   );
 }
 
-function Intro({ d }) {
-  return (
-    <div className="v19-land-intro">
-      <p>
-        {d.say} {d.more}
-        {d.into ? ` ${d.into}` : ''}
-      </p>
-      {d.list ? (
-        <p className="v19-land-into">
-          {d.list.map((x) => <span key={x}>{x}</span>)}
-        </p>
-      ) : null}
-      <p className="v19-land-close">{d.close}</p>
-    </div>
-  );
-}
-
 export default function Landing({ hint, onGo }) {
-  const pick = usePick();
   const Hint = (
     <p className="v19-land-hint">
       <span className="v19-land-hint-key" aria-hidden="true">
@@ -76,9 +57,12 @@ export default function Landing({ hint, onGo }) {
         <Face />
         <div className="v19-land-words">
           <Name />
-          <p className="v19-land-role">{ME.role}</p>
-          <Intro d={INTRO[pick.intro]} />
+          <p className="v19-land-intro">
+            {ME.intro} <span>{ME.close}</span>
+          </p>
           <Links onGo={onGo} />
+          {/* where I work, said last and quietly: not a tagline */}
+          <p className="v19-land-role">{ME.role}</p>
         </div>
       </div>
       {Hint}

@@ -19,15 +19,19 @@ export const ME = {
   first: 'Pranav',
   last: 'Mishra',
   // the whole of the landing page's prose, on purpose
-  role: 'Founding Engineer at Alfred_',
-  short: 'Founding Engineer at Alfred_',
+  role: 'Founding Engineer at alfred_',
+  short: 'Founding Engineer at alfred_',
+  // beside the face on the landing: what I do, how I build, what I'm into. Where I work comes last.
+  intro:
+    "I build AI that does things: agents that take actions, voices that answer, and the plumbing that keeps both reliable. I came to it from making games, and I still build that way: make it, play it, find where it breaks. Outside of work, it's game development, film and football.",
+  close: 'Explore the work, or get in touch.',
   photo: '/assets/images/web/profile.jpg',
   photoAlt: 'Pranav Mishra',
   city: 'New York',
   lede:
     'I build the half of an AI system that has to be right — memory that cannot invent things, evals that fail loudly, and the plumbing underneath.',
   lines: [
-    'Before Alfred_: voice agents, computer vision, virtual patients in Unreal, and a long tail of games. Computer science at UIC.',
+    'Before alfred_: voice agents, computer vision, virtual patients in Unreal, and a long tail of games. Computer science at UIC.',
   ],
 };
 
@@ -51,7 +55,7 @@ export const MORE_LINKS = [
 const alfredRole = experiences.find((e) => e.id === 'alfred-founding-llm') || {};
 
 export const ALFRED = {
-  company: 'Alfred_',
+  company: 'alfred_',
   title: alfredRole.title || 'Founding LLM Engineer',
   when: alfredRole.duration || '',
   where: alfredRole.location || '',
@@ -64,7 +68,7 @@ export const ALFRED = {
   hello: 'Founding LLM Engineer at',
   claim: '',
   about:
-    'Alfred_ is a multi-agent assistant over email, calendar, SMS and voice, for five thousand people. I own working memory, the rules engine, the eval harness, inference cost, and the Postgres and ingestion underneath.',
+    'alfred_ is a multi-agent assistant over email, calendar, SMS and voice, for five thousand people. I own working memory, the rules engine, the eval harness, inference cost, and the Postgres and ingestion underneath.',
   glance: [
     { k: 'People relying on it', v: '5,000+' },
     { k: 'Reaches you by', v: 'text · chat · voice' },
@@ -72,8 +76,9 @@ export const ALFRED = {
     { k: 'Mine', v: 'memory · rules · evals' },
   ],
   tryLabel: 'Try it for free',
-  // the top of get-alfred.ai, as it was on 2026-10-19
-  shot: '/assets/images/web/alfred-site.jpg',
+  // get-alfred.ai from the top down, as it was on 2026-10-19; the window on the work section
+  // scrolls through it
+  shot: '/assets/images/web/alfred-site-tall.jpg',
   bullets: (alfredRole.description || []).filter((b) => !BANNED.test(b)),
 };
 
@@ -100,8 +105,8 @@ export const FIGURES = [
     id: 'auth',
     was: '721 ms',
     now: '30×',
-    label: 'Alfred_ inside Claude Code, Codex, and any agent that speaks MCP',
-    note: 'Alfred_ is a public **MCP server** behind an **OAuth 2.0 authorization server** I built, usable from Claude Code, Codex, Antigravity or any MCP client. Auth was **98.3% of connector traffic** at 721 ms p50; it is now **one database lookup**, ~30× faster. Also designed the **graduated permission model**: standing grants for send, per-use scoped grants for calendar writes.',
+    label: 'alfred_ inside Claude Code, Codex, and any agent that speaks MCP',
+    note: 'alfred_ is a public **MCP server** behind an **OAuth 2.0 authorization server** I built, usable from Claude Code, Codex, Antigravity or any MCP client. Auth was **98.3% of connector traffic** at 721 ms p50; it is now **one database lookup**, ~30× faster. Also designed the **graduated permission model**: standing grants for send, per-use scoped grants for calendar writes.',
     sketch: { kind: 'calltime' },
   },
   {
@@ -117,7 +122,7 @@ export const FIGURES = [
     was: 'on request',
     now: 'ahead of the turn',
     label: 'Context that is there before the agent needs it',
-    note: 'Alfred_ answers over SMS and voice, where a pause is a failure. I own the **low-latency context retrieval** on those real-time pipelines, assembled **ahead of the turn** rather than inside it, and the **tool-calling stability** that keeps a multi-agent turn deterministic under load, retries and partial failures included. **Cartesia TTS** on the voice surface.',
+    note: 'alfred_ answers over SMS and voice, where a pause is a failure. I own the **low-latency context retrieval** on those real-time pipelines, assembled **ahead of the turn** rather than inside it, and the **tool-calling stability** that keeps a multi-agent turn deterministic under load, retries and partial failures included. **Cartesia TTS** on the voice surface.',
     sketch: { kind: 'budget' },
   },
 ];
@@ -146,7 +151,7 @@ export const ROLES = experiences
     url: (e.links && e.links.website) || '',
   }));
 
-// The one before Alfred_ that ran for months rather than weeks. It gets the same treatment,
+// The one before alfred_ that ran for months rather than weeks. It gets the same treatment,
 // at half the size, and it stays shut until you ask for it.
 export const WHEELPRICE = ROLES.find((r) => r.id === 'wheelprice-intern') || ROLES[0];
 // the company file is a wide canvas with a small mark in the middle; this is the mark, cropped square

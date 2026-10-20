@@ -24,7 +24,7 @@ import { FONTS } from './fonts';
 
 // what the middle of the header says, per section
 const WHERE = [
-  { id: 'work', label: 'Now — at Alfred_' },
+  { id: 'work', label: 'Now — at alfred_' },
   { id: 'projects', label: 'Everything I built' },
   { id: 'papers', label: 'Two papers' },
   { id: 'room', label: 'My room' },

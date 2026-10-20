@@ -1,77 +1,33 @@
-// v19 — the two intros, and a picker for choosing between drafts of them.
+// v19 — my story at alfred_, two ways of telling it, and a picker for choosing between them.
 //
 // The picker is for Pranav, not for visitors: it shows on localhost, or when the URL has ?pick.
 // The choice is kept in this browser. Once he has chosen, set DEFAULT and the picker can go.
+// **Words like this** are set in alfred_'s colour.
 
 import React, { useEffect, useState } from 'react';
 
-// On the landing, beside the face: what I do, one more line, what I'm into. Never where I work.
-// All three keep the same first line (draft B, his pick); they differ in the line after it and
-// in how the interests are set.
-const SAY = 'Applied AI is what I do: agents that take actions, voices that answer, and the plumbing that makes both reliable.';
-const INTO = ['Game development', 'Film', 'Football'];
-const CLOSE = 'Explore the work, or get in touch.';
-
-export const INTRO = {
-  a: {
-    say: SAY,
-    more: "I care most about the part that has to be right: memory that doesn't invent things, and evals that fail loudly.",
-    into: 'Outside of that: game development, film and football.',
-    close: CLOSE,
-  },
-  b: {
-    say: SAY,
-    more: 'I came to AI from making games, and I still build that way: make it, play it, find where it breaks.',
-    list: INTO,
-    close: CLOSE,
-  },
-  c: {
-    say: SAY,
-    more: 'I like owning the whole thing, from the model call to the screen someone actually uses.',
-    into: "I'm also into game development, film and football.",
-    close: CLOSE,
-  },
+export const STORY = {
+  // compact: three short beats, a label in the margin of each
+  a: [
+    ['Then', 'I joined as a founding engineer and built the **eval harness** and the **production scanner**: a number for every version of the agent, and an eye on what it does with real users.'],
+    ['Now', "**Working memory**: your whole workday on one screen, kept current across email, calendar, meeting notes, Slack and Teams. A really interesting data problem."],
+    ['Also', 'Making alfred_ the layer that **orchestrates and delegates**: routine workers, MCP apps, long-running tasks and workflows.'],
+  ],
+  // told straight through, as one paragraph
+  b: [
+    [null, "I joined alfred_ as a founding engineer. First I built the **eval harness** and the **production scanner**, so we could say in numbers which version of the agent was better, and see what it did with real users. Now I'm on **working memory**, a really interesting data problem: everything about your work, from email, calendar, meeting notes, Slack and Teams, condensed onto one screen and kept current. And I'm making alfred_ the layer that **orchestrates and delegates**: routine workers, MCP apps, long-running tasks and workflows."],
+  ],
 };
 
-// Above the five figures at Alfred_: draft A, his pick, in three beats. Each beat names the
-// drawing that goes with it (see AlfredHead in sections/Work.js).
-export const BEATS = [
-  {
-    k: 'Joined',
-    d: 'evals',
-    t: 'I joined Alfred_ and built the eval harness and the production scanner, so we could say in numbers which version of the agent was better.',
-  },
-  {
-    k: 'Now',
-    d: 'memory',
-    t: "Now I'm on working memory, a really interesting data problem: everything about your work, from email, calendar, meeting notes, Slack and Teams, condensed onto one screen and kept current.",
-  },
-  {
-    k: 'Also',
-    d: 'orchestrate',
-    t: "And I'm making Alfred_ the layer that orchestrates and delegates: routine workers, MCP apps, long-running tasks and workflows.",
-  },
-];
+export const DEFAULT = { story: 'a' };
 
-// Three layouts for the Alfred_ section; the words are the same in all three.
-export const NOW = {
-  a: 'Words left, the site right',
-  b: 'Three beats, each with a drawing',
-  c: 'The site first, beats as rows',
-};
-
-export const DEFAULT = { intro: 'b', now: 'a' };
-
-const KEY = 'v19.pick.2'; // a new key: the old drafts are gone, so old choices mean nothing
+const KEY = 'v19.pick.3';
 const EVENT = 'v19-pick';
 
 function read() {
   try {
     const v = JSON.parse(window.localStorage.getItem(KEY) || '{}');
-    return {
-      intro: INTRO[v.intro] ? v.intro : DEFAULT.intro,
-      now: NOW[v.now] ? v.now : DEFAULT.now,
-    };
+    return { story: STORY[v.story] ? v.story : DEFAULT.story };
   } catch (err) {
     return DEFAULT;
   }
@@ -102,26 +58,16 @@ export function Picker() {
     typeof window !== 'undefined' &&
     (/[?&]pick\b/.test(window.location.search) || /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname));
   if (!on) return null;
-  const row = (k, label, opts) => (
-    <span className="v19-pick-row">
-      <b>{label}</b>
-      {Object.keys(opts).map((o) => (
-        <button
-          type="button"
-          key={o}
-          className={pick[k] === o ? 'on' : ''}
-          onClick={() => set(k, o)}
-          title={typeof opts[o] === 'string' ? opts[o] : undefined}
-        >
-          {o.toUpperCase()}
-        </button>
-      ))}
-    </span>
-  );
   return (
     <div className="v19-pick" role="group" aria-label="Choose a draft">
-      {row('intro', 'Landing', INTRO)}
-      {row('now', 'Alfred_', NOW)}
+      <span className="v19-pick-row">
+        <b>alfred_</b>
+        {Object.keys(STORY).map((o) => (
+          <button type="button" key={o} className={pick.story === o ? 'on' : ''} onClick={() => set('story', o)}>
+            {o.toUpperCase()}
+          </button>
+        ))}
+      </span>
     </div>
   );
 }
