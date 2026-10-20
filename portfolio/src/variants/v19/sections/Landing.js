@@ -76,9 +76,9 @@ export default function Landing({ hint, onGo }) {
           <Name />
           <p className="v19-land-intro">
             {ME.intro}{' '}
-            <span className="v19-int is-games" tabIndex={0}>designing games</span>,{' '}
+            <span className="v19-int">playing and designing games</span>,{' '}
             <Films />, or{' '}
-            <span className="v19-int is-ball" tabIndex={0}>playing football</span>.
+            <span className="v19-int is-ball" tabIndex={0}>out on a football pitch</span>.
           </p>
           <Links onGo={onGo} />
         </div>
