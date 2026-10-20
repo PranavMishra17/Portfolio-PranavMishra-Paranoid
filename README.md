@@ -1,18 +1,18 @@
 # Portfolio — Pranav Pushkar Mishra
 
-Founding LLM Engineer at Alfred\_. One page, no backend: a wall you have to break, the work at Alfred\_ in five measured figures, thirty projects, two papers, and a pixel room at the bottom that keeps real time.
+Founding Engineer at alfred\_. One page, no backend: a wall you have to break, what I'm building at alfred\_ in my own words and five measured figures, thirty projects, the papers, and a pixel room at the bottom that keeps real time.
 
 Live at [pranavmishra17.vercel.app](https://pranavmishra17.vercel.app/).
 
-![The wall](./preview.png)
+![The landing, on the wall](./preview.png)
 
 ## What's on the page
 
-**The wall.** The site opens behind a plaster wall. Hold the mouse button and the tiles under the cursor lift, then the whole thing comes apart and the page is underneath. The face in the header puts it back.
+**The wall.** The site opens on a plaster wall with a short intro on it. There is no cursor: the tiles lift under your hand, and hold the mouse button and they tremble harder until the whole thing comes apart and the page is underneath (on a phone, one tap). See my work does the same from a button; point at it and it says Light the fuse. The words at the end of the intro each do something when you point at them, and watching films goes to Letterboxd. The face in the header puts the wall back.
 
-![Alfred_](./docs/screens/work.jpg)
+![alfred\_](./docs/screens/work.jpg)
 
-**Now.** Alfred\_ takes the first screen: five figures, each a before struck through and an after that counts up. Point at one and its drawing appears; click and the note stays. Below the fold, WheelPrice as a bar with a car on it (point at the car), and the roles before that, folded.
+**Now.** What I'm building at alfred\_ takes the first screen, in three beats with the key words in alfred\_'s colour. Beside it the alfred\_ site sits in a window: point at it and it scrolls down the real page, and it stays where you leave it. Under that, five figures, each a before struck through and an after that counts up. Point at one and its drawing appears; click and the note stays. Below the fold, WheelPrice as a bar with a car on it (point at the car and it does a two-second lap), and the roles before that, folded.
 
 ![Projects](./docs/screens/projects.jpg)
 
@@ -32,12 +32,16 @@ Live at [pranavmishra17.vercel.app](https://pranavmishra17.vercel.app/).
 
 ![Night](./docs/screens/night.jpg)
 
+**On a phone.** The same page, laid out for one hand: the wall goes with a tap, the header keeps the section dots and the résumé, a figure's note opens inside its own box, and the whole room fits across the screen, its notes rising from the bottom.
+
+![On a phone](./docs/screens/phone.jpg)
+
 ## How it is built
 
 React 19, react-router 7, react-scripts 5, plain CSS. No TypeScript, no Tailwind, no server. Fonts from Google Fonts; everything else is in the repo.
 
 - `src/variants/v19/` is the site. `index.js` is the page shell; `copy.js` rewrites the content in `src/data/` at render time (one-liners, renames, the Alfred\_ figures, the paper overrides); `personal.js` is the shelf — books, games, posters, trophies.
-- `wall/` is the wall: `iso2.js` cuts the isometric tiles into a sprite atlas once and blits them; `Wall.js` owns the physics of the collapse; `index.js` runs the one loop and the crosshair. A frame identical to the last one is not drawn, so a wall nobody is touching costs nothing.
+- `wall/` is the wall: `iso2.js` cuts the isometric tiles into a sprite atlas once and blits them; `Wall.js` owns the physics of the collapse; `index.js` runs the one loop. A frame identical to the last one is not drawn, so a wall nobody is touching costs nothing. The blast is two phases: only the canvas changes when it goes off, and the page underneath wakes once the tiles have cleared, so nothing repaints under them while they fly.
 - `room/` is the room: `engine.js` is the pixel engine (palette indices with day and night values, lights that pull colour back toward day, a hover outline for free), `scene.js` draws it, `Room.js` runs it and handles what you click. The still parts are drawn once and copied in each frame; the room does not draw at all when it is off screen.
 - The classic site that came before is kept at [`/classic`](https://pranavmishra17.vercel.app/classic), loaded only if asked for. Prompt Patrol, the LLM-themed shooter, lives there; its design doc is [docs/prompt-patrol-gdd.html](./docs/prompt-patrol-gdd.html).
 
@@ -53,6 +57,7 @@ portfolio/
 │   └── resumes/{ai,game}/           # local backup of the résumé PDF
 ├── scripts/
 │   ├── stress.js                    # performance and stress harness (see below)
+│   ├── blast.js                     # frame timing across the wall's collapse only
 │   └── generate-resume-manifest.js
 └── src/
     ├── App.js                       # "/" and "/resume" are v19; "/classic" is the old site
@@ -81,6 +86,7 @@ npm start                         # http://localhost:3000
 |---|---|
 | `npm run build` | Production build. Bash sets `CI=false`; on Windows CMD use `set CI=false && npx react-scripts build`. |
 | `node scripts/stress.js <url> [dpr] [--quick]` | Loads the page in a real Chromium and reports fps, animation loops per frame, JS time per frame, long frames, heap, nodes and listeners across a set of scenes: idle on the wall, a stalled main thread, twenty seconds in a background tab, a resize storm, the blast, the room, three rebuild-and-blast cycles and a soak. Needs `playwright-core` and a Chromium. |
+| `node scripts/blast.js <url> [dpr]` | Holds the wall until it goes, then times every frame of the collapse at 1x and 4x CPU throttle: median, 95th percentile, worst frame and frames over 25 ms. The worst frame should stay near 17 ms. Point `PLAYWRIGHT_CORE` at a `playwright-core` directory. |
 | `npm run resume-manifest` | Scans `public/resumes/{ai,game}/` and writes `manifest.json`. Runs on `prestart` and `prebuild`. |
 | `npm test` | Jest via react-scripts. |
 

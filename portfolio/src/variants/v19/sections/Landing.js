@@ -31,16 +31,17 @@ function Links({ onGo }) {
   );
 }
 
-/* "watching films", with the Letterboxd dots after it; pointing near either shows the name */
+/* "watching films" and the Letterboxd dots are one link with a target much bigger than the words:
+   the wall has no cursor, so the box around them has to be easy to land in */
 function Films() {
   return (
-    <span className="v19-filmset">
-      <a className="v19-int is-film" href={LETTERBOXD} target="_blank" rel="noreferrer">watching films</a>
-      <a className="v19-lbdots" href={LETTERBOXD} target="_blank" rel="noreferrer" aria-label="paranoid_critic on Letterboxd">
+    <a className="v19-filmset" href={LETTERBOXD} target="_blank" rel="noreferrer" aria-label="watching films: paranoid_critic on Letterboxd">
+      <span className="v19-int is-film">watching films</span>
+      <span className="v19-lbdots" aria-hidden="true">
         <img src={LB} alt="" />
         <span>paranoid_critic</span>
-      </a>
-    </span>
+      </span>
+    </a>
   );
 }
 

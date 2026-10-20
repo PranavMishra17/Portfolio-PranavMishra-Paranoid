@@ -1038,7 +1038,6 @@ html.v19-html { scrollbar-gutter: stable; }
 /* the interests: each does one thing when you point at it */
 .v19-int { position: relative; color: var(--ink); cursor: default; outline: none; }
 .v19-int.is-film { cursor: pointer; text-decoration: underline dotted rgba(23,23,26,.45); text-decoration-thickness: 1.5px; text-underline-offset: 4px; transition: color 150ms ease, text-decoration-color 150ms ease; }
-.v19-int.is-film:hover, .v19-int.is-film:focus-visible { color: #ff8000; text-decoration-color: #ff8000; text-decoration-style: solid; }
 /* games: a blinking PRESS START over the words */
 .v19-int.is-games::after {
   content: 'PRESS START'; position: absolute; left: 50%; bottom: calc(100% + 4px); transform: translate(-50%, 4px);
@@ -1072,10 +1071,20 @@ html.v19-html { scrollbar-gutter: stable; }
 }
 
 /* ── Letterboxd: the dots after "watching films" ───────────────────── */
-.v19-filmset { white-space: nowrap; position: relative; padding: 12px 6px; margin: -12px -6px; }
-.v19-lbdots { position: relative; display: inline-block; vertical-align: -3px; margin-left: 6px; text-decoration: none; }
+/* "watching films" + the dots: one link. ::before is the target, well past the words; ::after is
+   the box that shows behind them while you are in it */
+.v19-filmset { position: relative; display: inline-block; white-space: nowrap; color: inherit; text-decoration: none; isolation: isolate; cursor: pointer; }
+.v19-filmset::before { content: ''; position: absolute; inset: -22px -18px; }
+.v19-filmset::after {
+  content: ''; position: absolute; inset: -6px -10px; z-index: -1; border-radius: 8px;
+  background: rgba(255, 128, 0, .09); box-shadow: inset 0 0 0 1px rgba(255, 128, 0, .35);
+  opacity: 0; transform: scale(.94); transition: opacity 160ms ease, transform 200ms cubic-bezier(.2,.9,.3,1);
+}
+.v19-filmset:hover::after, .v19-filmset:focus-visible::after { opacity: 1; transform: none; }
+.v19-filmset:hover .v19-int.is-film, .v19-filmset:focus-visible .v19-int.is-film { color: #c45f00; text-decoration-color: #ff8000; text-decoration-style: solid; }
+.v19-lbdots { position: relative; display: inline-block; vertical-align: -3px; margin-left: 6px; }
 .v19-lbdots img { width: 17px; height: 17px; display: block; transition: transform 220ms cubic-bezier(.3,1.6,.5,1); }
-.v19-lbdots span { position: absolute; left: 50%; bottom: calc(100% + 6px); padding: 3px 8px; border-radius: 10px; background: #202830; color: #fff; font-family: var(--mono); font-size: 11px; white-space: nowrap; transform: translate(-50%, 4px); opacity: 0; pointer-events: none; transition: opacity 150ms ease, transform 180ms ease; }
-.v19-lbdots:hover img, .v19-lbdots:focus-visible img, .v19-filmset:hover .v19-lbdots img { transform: rotate(360deg) scale(1.15); }
-.v19-lbdots:hover span, .v19-lbdots:focus-visible span, .v19-filmset:hover .v19-lbdots span { opacity: 1; transform: translate(-50%, 0); }
+.v19-lbdots span { position: absolute; left: 50%; bottom: calc(100% + 10px); padding: 3px 8px; border-radius: 10px; background: #202830; color: #fff; font-family: var(--mono); font-size: 11px; white-space: nowrap; transform: translate(-50%, 4px); opacity: 0; pointer-events: none; transition: opacity 150ms ease, transform 180ms ease; }
+.v19-filmset:hover .v19-lbdots img, .v19-filmset:focus-visible .v19-lbdots img { transform: rotate(360deg) scale(1.15); }
+.v19-filmset:hover .v19-lbdots span, .v19-filmset:focus-visible .v19-lbdots span { opacity: 1; transform: translate(-50%, 0); }
 
