@@ -14,7 +14,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ALFRED, AFTER, AFTER_LINE, FIGURES, WHEELPRICE } from '../copy';
 import { useOnScreen, useOpener } from '../hooks';
-import { STORY, usePick } from '../pick';
 
 /* A number that counts to itself when it first arrives on screen, and again whenever you point
    at it. */
@@ -441,8 +440,7 @@ function Glance() {
 }
 
 function AlfredHead() {
-  const { story } = usePick();
-  const beats = STORY[story];
+  const beats = ALFRED.story;
   return (
     <header className="v19-ah">
       <div className="v19-ah-words">

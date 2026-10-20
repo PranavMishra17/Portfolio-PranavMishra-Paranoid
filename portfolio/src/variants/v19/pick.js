@@ -1,34 +1,39 @@
-// v19 — my story at alfred_, two ways of telling it, and a picker for choosing between them.
+// v19 — drafts still being chosen on the landing, and a picker for choosing between them.
 //
 // The picker is for Pranav, not for visitors: it shows on localhost, or when the URL has ?pick.
 // The choice is kept in this browser. Once he has chosen, set DEFAULT and the picker can go.
-// **Words like this** are set in alfred_'s colour.
 
 import React, { useEffect, useState } from 'react';
 
-export const STORY = {
-  // compact: three short beats, a label in the margin of each
-  a: [
-    ['Then', 'I joined as a founding engineer and built the **eval harness** and the **production scanner**: a number for every version of the agent, and an eye on what it does with real users.'],
-    ['Now', "**Working memory**: your whole workday on one screen, kept current across email, calendar, meeting notes, Slack and Teams. A really interesting data problem."],
-    ['Also', 'Making alfred_ the layer that **orchestrates and delegates**: routine workers, MCP apps, long-running tasks and workflows.'],
-  ],
-  // told straight through, as one paragraph
-  b: [
-    [null, "I joined alfred_ as a founding engineer. First I built the **eval harness** and the **production scanner**, so we could say in numbers which version of the agent was better, and see what it did with real users. Now I'm on **working memory**, a really interesting data problem: everything about your work, from email, calendar, meeting notes, Slack and Teams, condensed onto one screen and kept current. And I'm making alfred_ the layer that **orchestrates and delegates**: routine workers, MCP apps, long-running tasks and workflows."],
-  ],
+// the first sentence of the landing intro
+export const OPEN = {
+  1: 'I build the way games taught me to: make it, play it, find where it breaks.',
+  2: 'Games taught me how to build: make it, play it, find where it breaks. I still work that way, just with AI now.',
+  3: 'I learned to build by making games: make it, play it, find where it breaks. I do the same with AI.',
+  4: 'Everything I know about building, I learned making games: make it, play it, find where it breaks.',
+  5: 'I started out making games, and I never stopped building like that: make it, play it, find where it breaks.',
+  6: 'I make things the way you make a game: build it, play it, find where it breaks.',
 };
 
+// where Letterboxd lives on the landing
+export const FILMS = {
+  a: 'Marquee: pointing at "watching films" lights a little cinema sign',
+  b: 'Inline: the three dots sit after "films" and open into the name',
+  c: 'Button: a Films button in the row with GitHub and LinkedIn',
+};
 
-export const DEFAULT = { story: 'a' };
+export const DEFAULT = { open: '1', films: 'a' };
 
-const KEY = 'v19.pick.3';
+const KEY = 'v19.pick.4';
 const EVENT = 'v19-pick';
 
 function read() {
   try {
     const v = JSON.parse(window.localStorage.getItem(KEY) || '{}');
-    return { story: STORY[v.story] ? v.story : DEFAULT.story };
+    return {
+      open: OPEN[v.open] ? String(v.open) : DEFAULT.open,
+      films: FILMS[v.films] ? v.films : DEFAULT.films,
+    };
   } catch (err) {
     return DEFAULT;
   }
@@ -59,16 +64,26 @@ export function Picker() {
     typeof window !== 'undefined' &&
     (/[?&]pick\b/.test(window.location.search) || /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname));
   if (!on) return null;
+  const row = (k, label, opts) => (
+    <span className="v19-pick-row">
+      <b>{label}</b>
+      {Object.keys(opts).map((o) => (
+        <button
+          type="button"
+          key={o}
+          className={pick[k] === o ? 'on' : ''}
+          onClick={() => set(k, o)}
+          title={opts[o]}
+        >
+          {o.toUpperCase()}
+        </button>
+      ))}
+    </span>
+  );
   return (
     <div className="v19-pick" role="group" aria-label="Choose a draft">
-      <span className="v19-pick-row">
-        <b>alfred_</b>
-        {Object.keys(STORY).map((o) => (
-          <button type="button" key={o} className={pick.story === o ? 'on' : ''} onClick={() => set('story', o)}>
-            {o.toUpperCase()}
-          </button>
-        ))}
-      </span>
+      {row('open', 'Opening', OPEN)}
+      {row('films', 'Films', FILMS)}
     </div>
   );
 }

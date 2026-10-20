@@ -991,8 +991,11 @@ html.v19-html { scrollbar-gutter: stable; }
 .v19-site-win:hover .v19-site-chrome em, .v19-site-win:focus-visible .v19-site-chrome em { opacity: 1; transform: none; }
 .v19-site-view { display: block; position: relative; aspect-ratio: 16 / 10; overflow: hidden; }
 /* the page is a tall picture; pointing scrolls it down at reading pace, leaving scrolls it back */
-.v19-site-view img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0%; transition: object-position 900ms cubic-bezier(.4,0,.2,1); }
-.v19-site-win:hover .v19-site-view img, .v19-site-win:focus-visible .v19-site-view img { object-position: 50% 100%; transition: object-position 11s linear; }
+.v19-site-view img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 0%;
+  animation: v19-site-pan 14s linear forwards paused; }
+/* pointing runs the scroll; leaving pauses it where it is, it never jumps back */
+.v19-site-win:hover .v19-site-view img, .v19-site-win:focus-visible .v19-site-view img { animation-play-state: running; }
+@keyframes v19-site-pan { to { object-position: 50% 100%; } }
 .v19-site-hint { position: absolute; right: 10px; bottom: 10px; padding: 4px 9px; border-radius: 3px; background: rgba(20,18,30,.72); color: #fff; font-family: var(--mono); font-size: 10.5px; letter-spacing: .04em; transition: opacity 200ms ease; pointer-events: none; }
 .v19-site-win:hover .v19-site-hint { opacity: 0; }
 .v19-site-under { display: grid; gap: 10px; }
@@ -1067,26 +1070,6 @@ html.v19-html { scrollbar-gutter: stable; }
 .v19-int.is-ball:hover::after, .v19-int.is-ball:focus-visible::after { opacity: 1; animation: v19-roll 900ms cubic-bezier(.3,.1,.3,1) forwards; }
 @keyframes v19-roll { from { left: 0; transform: rotate(0); } to { left: calc(100% - 9px); transform: rotate(540deg); } }
 
-/* films: the ticket on the photo */
-.v19-ticket {
-  position: absolute; right: -26px; bottom: 34px; z-index: 2; display: flex; flex-direction: column; gap: 3px;
-  padding: 7px 12px 7px 16px; background: #fffaf0; color: #1b1b1f; border-radius: 3px;
-  box-shadow: 0 10px 22px -12px rgba(0,0,0,.55);
-  /* the perforation down the stub edge */
-  background-image: radial-gradient(circle at 0 50%, transparent 0 4px, #fffaf0 4.5px);
-  background-size: 100% 9px; background-repeat: repeat-y;
-  transform: rotate(7deg); transform-origin: 100% 100%;
-  transition: transform 220ms cubic-bezier(.2,.9,.3,1), box-shadow 220ms ease;
-}
-.v19-ticket-k { font-family: var(--mono); font-size: 9px; letter-spacing: .2em; text-transform: uppercase; color: #a33a26; }
-.v19-ticket-v { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 11.5px; }
-.v19-ticket-v img { width: 16px; height: 16px; border-radius: 50%; }
-.v19-ticket:hover, .v19-ticket:focus-visible { transform: rotate(0deg) translateY(-3px); box-shadow: 0 16px 28px -14px rgba(0,0,0,.6); }
-/* pointing at "watching films" makes the ticket jump */
-.v19-land-in:has(.v19-int.is-film:hover) .v19-ticket,
-.v19-land-in:has(.v19-int.is-film:focus-visible) .v19-ticket { animation: v19-hop 520ms cubic-bezier(.3,1.6,.5,1); }
-@keyframes v19-hop { 0% { transform: rotate(7deg); } 40% { transform: rotate(-4deg) translateY(-12px) scale(1.06); } 100% { transform: rotate(7deg); } }
-
 /* See my work: the label rolls over to Light the fuse, and a spark lives on the corner */
 .v19-land-go { position: relative; overflow: visible; display: inline-flex; align-items: center; }
 .v19-go-roll { display: grid; justify-items: center; height: 1.3em; overflow: hidden; }
@@ -1098,10 +1081,38 @@ html.v19-html { scrollbar-gutter: stable; }
 .v19-land-go:hover .v19-go-spark, .v19-land-go:focus-visible .v19-go-spark { opacity: 1; transform: scale(1); animation: v19-spark 260ms steps(2) infinite; }
 @keyframes v19-spark { 50% { transform: scale(.6) translate(1px, -1px); box-shadow: 0 0 10px 3px rgba(255,140,40,.95); } }
 
-@media (max-width: 720px) {
-  .v19-ticket { right: -118px; bottom: 26px; transform: rotate(7deg) scale(.86); transform-origin: 100% 100%; }
-  .v19-ticket:hover { transform: rotate(0) scale(.86); }
-}
 @media (prefers-reduced-motion: reduce) {
-  .v19-int::after, .v19-ticket, .v19-go-spark { animation: none !important; }
+  .v19-int::after, .v19-go-spark, .v19-marquee { animation: none !important; }
 }
+
+/* ── Letterboxd, three ways (pick.js FILMS) ───────────────────────────── */
+/* a: a cinema marquee lights up over "watching films" */
+.v19-int.is-marquee { position: relative; }
+.v19-marquee {
+  position: absolute; left: 50%; bottom: calc(100% + 10px); z-index: 4; display: grid; justify-items: center; gap: 1px;
+  padding: 8px 14px 7px; min-width: 150px; background: #17171c; color: #fff8e6; border-radius: 3px; text-decoration: none;
+  /* the bulbs round the sign */
+  box-shadow: 0 0 0 3px #17171c, 0 0 0 4px #ffcf6a, 0 14px 26px -12px rgba(0,0,0,.6);
+  background-image: radial-gradient(circle, #ffd88a 0 1.6px, transparent 2.2px);
+  background-size: 9px 6px; background-repeat: repeat-x; background-position: 0 2px;
+  transform: translate(-50%, 6px) scale(.96); opacity: 0; pointer-events: none;
+  transition: opacity 160ms ease, transform 200ms cubic-bezier(.2,.9,.3,1);
+}
+.v19-marquee::after { content: ''; position: absolute; left: 50%; top: 100%; margin-left: -6px; border: 6px solid transparent; border-top-color: #17171c; }
+.v19-marquee-k { font-family: var(--mono); font-size: 9px; letter-spacing: .24em; text-transform: uppercase; color: #ffcf6a; margin-top: 6px; }
+.v19-marquee-v { font-family: var(--display); font-weight: 600; font-size: 15px; letter-spacing: .02em; }
+.v19-marquee-s { font-family: var(--mono); font-size: 9.5px; color: #9aa3ad; }
+.v19-int.is-marquee:hover .v19-marquee, .v19-int.is-marquee:focus-visible .v19-marquee { opacity: 1; transform: translate(-50%, 0) scale(1); animation: v19-bulbs 700ms steps(2) infinite; }
+@keyframes v19-bulbs { 50% { background-position: 4.5px 2px; } }
+
+/* b: the three dots after "films"; pointing at either shows the name over them */
+.v19-filmset { white-space: nowrap; }
+.v19-lbdots { position: relative; display: inline-block; vertical-align: -3px; margin-left: 6px; text-decoration: none; }
+.v19-lbdots img { width: 17px; height: 17px; display: block; transition: transform 220ms cubic-bezier(.3,1.6,.5,1); }
+.v19-lbdots span { position: absolute; left: 50%; bottom: calc(100% + 6px); padding: 3px 8px; border-radius: 10px; background: #202830; color: #fff; font-family: var(--mono); font-size: 11px; white-space: nowrap; transform: translate(-50%, 4px); opacity: 0; pointer-events: none; transition: opacity 150ms ease, transform 180ms ease; }
+.v19-lbdots:hover img, .v19-lbdots:focus-visible img, .v19-filmset:hover .v19-lbdots img { transform: rotate(360deg) scale(1.15); }
+.v19-lbdots:hover span, .v19-lbdots:focus-visible span, .v19-filmset:hover .v19-lbdots span { opacity: 1; transform: translate(-50%, 0); }
+
+/* c: a Films button in the row, same as GitHub and LinkedIn */
+.v19-land-links .v19-land-film { display: inline-flex; align-items: center; gap: 7px; }
+.v19-land-film img { width: 16px; height: 16px; display: block; }

@@ -23,7 +23,8 @@ export const ME = {
   short: 'Founding Engineer at alfred_',
   // beside the face on the landing, in his words. The interests that end it are set by
   // sections/Landing.js, because each one does something when you point at it.
-  intro: "I came to AI from making games, and I still build that way: make it, play it, find where it breaks. There's always something half-built on my desk, and it usually teaches me the next thing I need: virtual patients in Unreal, computer vision, NPCs that remember you, voices built from a line of text, AI agents that work as a team, and now an assistant five thousand people use every day. When I'm not building, I'm",
+  // the rest of the intro; its first sentence is still being chosen (pick.js OPEN)
+  intro: "Something is always half-built on my desk, and each one teaches me the next: virtual patients in Unreal, computer vision, NPCs that remember you, voices built from a line of text, AI agents that work as a team, and now a product five thousand people use every day. When I'm not building, I'm",
   photo: '/assets/images/web/profile.jpg',
   photoAlt: 'Pranav Mishra',
   city: 'New York',
@@ -77,6 +78,12 @@ export const ALFRED = {
     { k: 'Mine', v: 'memory · rules · evals' },
   ],
   tryLabel: 'Try it for free',
+  // my story there, in three beats; **words like this** are set in alfred_'s colour
+  story: [
+    ['Then', 'I joined as a founding engineer and built the **eval harness** and the **production scanner**: a number for every version of the agent, and an eye on what it does with real users.'],
+    ['Now', "**Working memory**: your whole workday on one screen, kept current across email, calendar, meeting notes, Slack and Teams. The hard part is the data: sources that overlap, contradict each other and change by the minute, reconciled into one view you can trust."],
+    ['Also', 'Making alfred_ the layer that **orchestrates and delegates**: routine workers, MCP apps, long-running tasks and workflows.'],
+  ],
   // get-alfred.ai from the top down, as it was on 2026-10-19; the window on the work section
   // scrolls through it
   shot: '/assets/images/web/alfred-site-tall.jpg',
