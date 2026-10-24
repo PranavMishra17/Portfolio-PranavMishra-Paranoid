@@ -58,10 +58,9 @@ export const HOTSPOTS = [
 export const BUTTON = { x: 200, y: 98, r: 3 };
 
 /* On a phone held upright the room is walked along from its middle, so what has to be seen goes
-   there: the right screen is a stack of books, and the chess stands on top of it. */
+   there: the right screen is a stack of books. */
 const PHONE_SPOTS = {
   monitorB: { id: 25, key: 'books', label: 'Books', kind: 'zoom', x: 152, y: 62, w: 31, h: 22 },
-  chess: { id: 24, key: 'chess', label: 'Chess', kind: 'zoom', x: 45, y: 68, w: 16, h: 17 },
 };
 export function hotspotsFor(phone) {
   if (!phone) return HOTSPOTS;
@@ -458,8 +457,8 @@ function chess(g, x, y) {
   g.setId(0);
 }
 
-// the phone's right screen: books standing on the desk, spines out, one leaning; the chess at
-// the left end of the desk
+// the phone's right screen: books standing on the desk, spines out, one leaning. The chess stays
+// where it is on the desk, between the lamp and the left screen
 function bookStack(g) {
   g.setId(25);
   const SPINE = ['blue2', 'red2', 'sand', 'green2', 'purple2', 'orange2'];
@@ -477,7 +476,6 @@ function bookStack(g) {
   g.line(bx + 1, DESK_Y - 14, bx + 5, DESK_Y - 1, 'wood3');
   g.line(bx + 2, DESK_Y - 14, bx + 6, DESK_Y - 1, 'red3');
   g.setId(0);
-  chess(g, 47, DESK_Y);
 }
 
 /* ── him, and the chair he is inside ───────────────────────────────── */
@@ -739,7 +737,7 @@ export function drawScene(grid, state) {
   tower(g, state.pc, t);
   monitors(g, state.pc, state.phone);
   if (state.phone) bookStack(g);
-  else chess(g, 80, DESK_Y);
+  chess(g, 80, DESK_Y);
   laptop(g, state.pc);
   lamp(g, state.lamp);
   mug(g, !state.cold, t);

@@ -232,7 +232,7 @@ function Slip({ hotspot, onClose, onJump, phone }) {
       }
       case 'chess':
         return {
-          eye: phone ? 'On the books' : 'On the desk',
+          eye: 'On the desk',
           title: 'Chess',
           node: (
             <>
@@ -335,11 +335,12 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
     };
   }, []);
 
-  /* a room wider than the phone starts at its middle, where the desk is */
+  /* a room wider than the phone starts on the desk, from the chess on its left to the books on
+     its right */
   useEffect(() => {
     const pan = panRef.current;
     if (!pan) return undefined;
-    const centre = () => { pan.scrollLeft = (pan.scrollWidth - pan.clientWidth) / 2; };
+    const centre = () => { pan.scrollLeft = (pan.scrollWidth * 70) / W; };
     centre();
     window.addEventListener('orientationchange', centre);
     return () => window.removeEventListener('orientationchange', centre);
