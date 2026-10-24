@@ -1300,8 +1300,11 @@ html.v19-html { scrollbar-gutter: stable; }
   .lv-say .v19-land-intro:not(.is-away) { display: none; }
   .lv-say .v19-land-intro.is-away { margin-top: 22px; }
 }
-/* a phone held upright: Try it for free above the alfred_ site, not under it */
+/* a phone held upright: Try it for free sits on the alfred_ site itself, bottom centre, taking
+   no room of its own */
 @media (max-width: 720px) and (orientation: portrait) {
   .v19-site-under { display: contents; }
-  .v19-site .v19-glance-go { order: -1; justify-self: start; }
+  .v19-site-win { grid-row: 1; grid-column: 1; }
+  .v19-site-glance { grid-row: 2; }
+  .v19-site .v19-glance-go { grid-row: 1; grid-column: 1; align-self: end; justify-self: center; z-index: 2; margin-bottom: 14px; background: #fff; box-shadow: 0 10px 22px -12px rgba(40, 32, 120, .7); }
 }
