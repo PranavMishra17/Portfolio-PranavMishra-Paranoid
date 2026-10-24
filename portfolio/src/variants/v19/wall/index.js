@@ -20,7 +20,7 @@ import Wall from './Wall';
 const FUSE_MS = 880;
 
 const Detonator = forwardRef(function Detonator(
-  { surface = 'iso2', armed, onBlast, reduced },
+  { surface = 'iso2', armed, onBlast, reduced, scroll = false },
   ref
 ) {
   const canvasRef = useRef(null);
@@ -302,9 +302,16 @@ const Detonator = forwardRef(function Detonator(
     };
     const touchStart = (e) => {
       const t = e.touches[0];
+      // where the finger is, so a scroll lifts the tiles under it (see fuse)
+      pointRef.current = { x: t.clientX, y: t.clientY };
+      if (scroll) return;
       finger = e.touches.length === 1
         ? { x: t.clientX, y: t.clientY, t0: performance.now(), end: landEnd(), link: !!(e.target.closest && e.target.closest('a, button')) }
         : null;
+    };
+    const touchMove = (e) => {
+      const t = e.touches[0];
+      if (t) pointRef.current = { x: t.clientX, y: t.clientY };
     };
     const touchEnd = (e) => {
       const f = finger;
@@ -326,6 +333,7 @@ const Detonator = forwardRef(function Detonator(
       detonate(t.clientX, onward ? window.innerHeight * 0.7 : t.clientY, performance.now());
     };
     window.addEventListener('touchstart', touchStart, { passive: true });
+    window.addEventListener('touchmove', touchMove, { passive: true });
     window.addEventListener('touchend', touchEnd, { passive: true });
     window.addEventListener('pointermove', move, { passive: true });
     window.addEventListener('pointerout', leave);
@@ -335,6 +343,7 @@ const Detonator = forwardRef(function Detonator(
     window.addEventListener('blur', up);
     return () => {
       window.removeEventListener('touchstart', touchStart);
+      window.removeEventListener('touchmove', touchMove);
       window.removeEventListener('touchend', touchEnd);
       window.removeEventListener('pointermove', move);
       window.removeEventListener('pointerout', leave);
@@ -343,9 +352,31 @@ const Detonator = forwardRef(function Detonator(
       window.removeEventListener('pointercancel', up);
       window.removeEventListener('blur', up);
     };
-  }, [dead, reduced, rest, onBlast, detonate]);
+  }, [dead, reduced, rest, onBlast, detonate, scroll]);
 
   useImperativeHandle(ref, () => ({
+    // the page's scroll is the fuse on a phone: 0 is the landing at rest, 1 blows it from under
+    // the finger (or low in the middle, for a wheel)
+    fuse(p) {
+      const wall = wallRef.current;
+      if (!wall || dead || wall.state !== 'intact') return false;
+      const pt = pointRef.current;
+      const x = pt.x == null ? window.innerWidth / 2 : pt.x;
+      const y = pt.y == null ? window.innerHeight * 0.7 : pt.y;
+      if (pt.x == null) pointRef.current = { x, y };
+      if (p < 1) {
+        rest(Math.max(0, p));
+        return false;
+      }
+      rest(0);
+      if (reduced) {
+        wall.state = 'gone';
+        wall.alpha = 0;
+        if (onBlast) onBlast({ x, y });
+        return true;
+      }
+      return detonate(x, y, performance.now());
+    },
     fire(x, y) {
       const wall = wallRef.current;
       if (!wall || dead || wall.state !== 'intact') return false;
@@ -364,7 +395,7 @@ const Detonator = forwardRef(function Detonator(
     state() {
       return wallRef.current ? wallRef.current.state : 'gone';
     },
-  }), [dead, detonate, rest]);
+  }), [dead, detonate, rest, reduced, onBlast]);
 
   if (dead) return null;
 

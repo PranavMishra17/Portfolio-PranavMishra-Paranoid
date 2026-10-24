@@ -246,6 +246,7 @@ function Slip({ hotspot, onClose, onJump }) {
 
 export default function Room({ sectionRef, onTop, hour = 19, flipped = false, onClock, onJump, onDisco }) {
   const canvasRef = useRef(null);
+  const panRef = useRef(null);
   const artRef = useRef({ posters: [], books: [] });
   const hoverScreenRef = useRef(null);
   const [hoverScreen, setHoverScreen] = useState(null);
@@ -300,6 +301,16 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
       if (ro) ro.disconnect();
       else window.removeEventListener('resize', place);
     };
+  }, []);
+
+  /* a room wider than the phone starts at its middle, where the desk is */
+  useEffect(() => {
+    const pan = panRef.current;
+    if (!pan) return undefined;
+    const centre = () => { pan.scrollLeft = (pan.scrollWidth - pan.clientWidth) / 2; };
+    centre();
+    window.addEventListener('orientationchange', centre);
+    return () => window.removeEventListener('orientationchange', centre);
   }, []);
 
   /* the hour, from the page: how dark, and whether the lights are on */
@@ -717,6 +728,8 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
   return (
     <section className="v19-room" ref={sectionRef} id="room" aria-label="My room">
       <div className={`v19-room-stage${kind ? ` k-${kind}` : ''}`}>
+        {/* on a phone held upright the room is taller than the screen is wide, and you walk along it */}
+        <div className="v19-room-pan" ref={panRef}>
         <canvas
           ref={canvasRef}
           className="v19-room-canvas"
@@ -726,8 +739,6 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
           aria-label="An interactive drawing of my room. Everything in it does something."
           role="img"
         />
-        <p className={`v19-room-cap${caption ? ' on' : ''}`}>{caption}</p>
-        <Slip hotspot={openHotspot} onClose={() => setOpenKey(null)} onJump={(id) => { setOpenKey(null); if (onJump) onJump(id); }} />
 
         {/* the real picture, over the pixelated one, while you point at it */}
         {hoverScreen && hoverScreen.key.startsWith('poster') && POSTERS[Number(hoverScreen.key.slice(-1)) - 1].image ? (
@@ -747,6 +758,9 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
             aria-hidden="true"
           />
         ) : null}
+        </div>
+        <p className={`v19-room-cap${caption ? ' on' : ''}`}>{caption}</p>
+        <Slip hotspot={openHotspot} onClose={() => setOpenKey(null)} onJump={(id) => { setOpenKey(null); if (onJump) onJump(id); }} />
 
         {/* the way back up, standing on the rug */}
         <button type="button" className="v19-top" onClick={onTop} data-keep-open="">

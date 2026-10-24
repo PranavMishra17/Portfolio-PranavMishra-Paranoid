@@ -67,7 +67,7 @@ function Face() {
   );
 }
 
-export default function Landing({ hint, onGo }) {
+export default function Landing({ hint, onGo, scroll }) {
   return (
     <div className="v19-land is-plate">
       <div className="v19-land-in">
@@ -86,7 +86,7 @@ export default function Landing({ hint, onGo }) {
         </div>
       </div>
       <p className="v19-land-hint">
-        <span className="v19-land-hint-key" aria-hidden="true">
+        <span className={`v19-land-hint-key${scroll ? ' is-scroll' : ''}`} aria-hidden="true">
           <i />
         </span>
         {hint}

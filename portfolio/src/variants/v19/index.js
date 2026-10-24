@@ -48,6 +48,17 @@ function Page() {
       !!window.matchMedia &&
       window.matchMedia('(pointer: coarse), (hover: none)').matches
   );
+  // a phone held upright is its own site: the page scrolls from the start and the scroll is the
+  // fuse; back at the very top, the wall is up again
+  const PHONE = '(max-width: 720px) and (orientation: portrait)';
+  const [phone, setPhone] = useState(() => typeof window !== 'undefined' && !!window.matchMedia && window.matchMedia(PHONE).matches);
+  useEffect(() => {
+    if (!window.matchMedia) return undefined;
+    const mq = window.matchMedia(PHONE);
+    const on = () => setPhone(mq.matches);
+    mq.addEventListener('change', on);
+    return () => mq.removeEventListener('change', on);
+  }, []);
   useEffect(() => {
     if (touch) return undefined;
     const on = () => setTouch(true);
@@ -102,9 +113,41 @@ function Page() {
   }, []);
 
   useEffect(() => {
-    document.body.classList.toggle('v19-locked', !blown);
-    if (!blown) window.scrollTo(0, 0);
-  }, [blown]);
+    document.body.classList.toggle('v19-locked', !blown && !phone);
+    if (!blown && !phone) window.scrollTo(0, 0);
+  }, [blown, phone]);
+
+  /* the phone's fuse: the first part of the scroll lifts the tiles and the landing with it; past
+     FUSE of a screen it blows. Back at the top, the wall is rebuilt. */
+  useEffect(() => {
+    if (!phone) return undefined;
+    const FUSE = 0.4;
+    let ticking = false;
+    const read = () => {
+      ticking = false;
+      const y = window.scrollY;
+      if (blown) {
+        if (y <= 2) {
+          setBlown(false);
+          if (detRef.current) detRef.current.rebuild();
+        }
+        return;
+      }
+      const face = document.querySelector('.v19-face');
+      if (face) face.style.setProperty('--lift', `${Math.round(y)}px`);
+      // the wall wakes the page itself once its tiles are clear (onBlast); with no wall, this does
+      if (detRef.current) detRef.current.fuse(y / (window.innerHeight * FUSE));
+      else if (y > window.innerHeight * FUSE) setBlown(true);
+    };
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      window.requestAnimationFrame(read);
+    };
+    read();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [phone, blown]);
 
   /* once the landing has been blown away it is taken out of the page entirely */
   useEffect(() => {
@@ -258,6 +301,7 @@ function Page() {
       </header>
 
       <main className="v19-main">
+        {phone ? <div className="v19-lead" aria-hidden="true" /> : null}
         <Work sectionRef={(el) => { sections.current[0] = el; }} />
         <Projects sectionRef={(el) => { sections.current[1] = el; }} />
         <Papers sectionRef={(el) => { sections.current[2] = el; }} />
@@ -275,10 +319,12 @@ function Page() {
             armed={!blown}
             reduced={reduced}
             onBlast={onBlast}
+            scroll={phone}
           />
           <Landing
             onGo={go}
-            hint={reduced || touch ? 'Tap anywhere' : 'Hold the left mouse button'}
+            hint={phone ? 'Scroll down' : reduced || touch ? 'Tap anywhere' : 'Hold the left mouse button'}
+            scroll={phone}
           />
         </div>
       ) : null}
