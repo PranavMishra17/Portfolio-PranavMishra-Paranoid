@@ -41,10 +41,19 @@ function Page() {
     typeof window !== 'undefined' &&
     window.matchMedia &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const touch =
-    typeof window !== 'undefined' &&
-    window.matchMedia &&
-    window.matchMedia('(pointer: coarse)').matches;
+  // some phones report a fine pointer that can hover, so a finger on the glass settles it
+  const [touch, setTouch] = useState(
+    () =>
+      typeof window !== 'undefined' &&
+      !!window.matchMedia &&
+      window.matchMedia('(pointer: coarse), (hover: none)').matches
+  );
+  useEffect(() => {
+    if (touch) return undefined;
+    const on = () => setTouch(true);
+    window.addEventListener('touchstart', on, { passive: true, once: true });
+    return () => window.removeEventListener('touchstart', on);
+  }, [touch]);
 
   // the real clock, unless the clock in the room has been clicked: then it is flipped to the
   // other half of the day, and clicked again, back

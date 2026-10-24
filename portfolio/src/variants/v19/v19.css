@@ -900,7 +900,7 @@ html.v19-html { scrollbar-gutter: stable; }
 .v19-slip-links a:hover { border-bottom-color: var(--ember); }
 .v19-sample { margin-top: 12px; font-family: var(--mono); font-size: 11px; line-height: 1.55; color: var(--ink-3); border-left: 2px solid var(--brass); padding-left: 9px; }
 
-@media (max-width: 720px) {
+@media (max-width: 720px), (orientation: landscape) and (max-height: 500px) {
   .v19-slip { position: static; width: auto; max-height: none; margin: 0 14px 18px; transform: none; animation: none; }
   .v19-slip-pin { display: none; }
 }
@@ -924,7 +924,7 @@ html.v19-html { scrollbar-gutter: stable; }
 
 }
 .v19-dial-note { display: none; }
-@media (max-width: 720px) {
+@media (max-width: 720px), (orientation: landscape) and (max-height: 500px) {
   .v19-bar .v19-bar-dots button, .v19-bar .v19-bar-dots button.on { background-clip: content-box; }
   .v19-sk-row { display: none; }
   .v19-dial { flex-direction: column; }
@@ -941,7 +941,7 @@ html.v19-html { scrollbar-gutter: stable; }
 }
 /* on a phone there is no room beside anything: the slip rises from the bottom of the screen.
    !important because its place beside the object is written inline. */
-@media (max-width: 720px) {
+@media (max-width: 720px), (orientation: landscape) and (max-height: 500px) {
   .v19-slip, .v19-slip.is-right, .v19-slip.is-left {
     position: fixed; left: 10px !important; right: 10px !important; top: auto !important; bottom: 10px;
     width: auto !important; max-height: 62vh; z-index: 45; transform: none;
@@ -1075,3 +1075,74 @@ html.v19-html { scrollbar-gutter: stable; }
 .v19-filmset:hover .v19-lbdots img, .v19-filmset:focus-visible .v19-lbdots img { transform: rotate(360deg) scale(1.15); }
 .v19-filmset:hover .v19-lbdots span, .v19-filmset:focus-visible .v19-lbdots span { opacity: 1; transform: translate(-50%, 0); }
 
+
+/* ── phones, both ways up: shorter page, bigger targets, one left edge ──── */
+@media (max-width: 720px), (orientation: landscape) and (max-height: 500px) {
+  /* a section is as tall as what is in it; a full screen each left a gap round the short ones */
+  .v19-slab { min-height: 0; padding-top: calc(var(--bar) + 6px); padding-bottom: 16px; }
+  .v19-past { padding-bottom: 12px; }
+  /* the landing scrolls when it is taller than the screen; past its end, the page opens */
+  .v19-land { justify-content: flex-start; overflow-y: auto; overscroll-behavior: contain; }
+  .v19-land.is-plate .v19-land-in { justify-content: flex-start; align-items: flex-start; margin: 0; }
+  .v19-land-badge { justify-content: flex-start; text-align: left; white-space: nowrap; font-size: 12px; }
+  .v19-land-hint { position: static; transform: none; align-self: flex-start; margin-top: 22px; font-size: 14px; padding: 9px 16px 9px 12px; }
+  .v19-land-links a, .v19-land-go { padding: 11px 14px; }
+  /* the eyebrow wraps here: the dot stays on its first line */
+  .v19-eye { align-items: flex-start; line-height: 1.5; }
+  .v19-eye .v19-dot { margin-top: .55em; }
+  .v19-chip { font-size: 12px; padding: 4px 9px; }
+  .v19-role-when, .v19-role-head span { font-size: 12px; }
+  /* the facts under the site: the two that matter */
+  .v19-site-glance div:nth-child(n+3) { display: none; }
+  /* the figures, two to a row; an open one takes the row */
+  .v19-dials, .v19-dials.is-small { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .v19-dial.is-open { grid-column: 1 / -1; }
+  .v19-dial-now, .v19-dials.is-small .v19-dial-now, .v19-dials.is-many .v19-dial-now { white-space: normal; font-size: 22px; line-height: 1.15; }
+  .v19-dial-label { font-size: 13px; min-height: 0; }
+  /* the other roles: no indent under a logo column */
+  .v19-role-one { grid-template-columns: minmax(0, 1fr); }
+  .v19-role-one > .v19-role-head, .v19-role-one > ul, .v19-role-one > .v19-chiprow { grid-column: 1; }
+  .v19-role-logo.is-big { display: none; }
+  .v19-role-more ul li { font-size: 14px; }
+  /* the project viewer: a column that grows, so the chips cannot sit on the buttons */
+  .v19-view-words { display: flex; flex-direction: column; overflow: visible; }
+  .v19-view-body { display: none; }
+  .v19-view-links { margin-top: 12px; flex-wrap: wrap; }
+  .v19-view-links a { padding: 10px 14px; }
+  /* the papers: one figure and the gist; the rest comes with the whole abstract */
+  .v19-brief:not(.is-full) .v19-plate ~ .v19-plate, .v19-brief:not(.is-full) .v19-abs-body { display: none; }
+  .v19-abs-text, .v19-brief-words .v19-abs-text { text-align: left; hyphens: manual; }
+  .v19-abs-more, .v19-abs-more.is-inline { display: inline-block; padding: 12px 0; font-size: 12px; }
+}
+@media (max-width: 720px) {
+  .v19-land { padding: 32px 22px 26px; }
+  .v19-land.is-plate .v19-land-in { flex-direction: column; flex-wrap: nowrap; gap: 16px; }
+  .v19-land.is-plate .v19-land-face { width: 96px; }
+  .v19-land-name { font-size: 44px; }
+  .v19-land-intro { font-size: 15px; line-height: 1.58; }
+  .v19-bar-dots button { width: 24px; height: 44px; padding: 19px 3px; }
+  .v19-bar-dots button.on { width: 32px; }
+}
+@media (max-width: 380px) {
+  .v19-bar-face { display: none; }
+}
+/* a phone on its side: a short screen, so things sit beside each other instead of on top */
+@media (orientation: landscape) and (max-height: 500px) {
+  .v19 { --bar: 46px; }
+  .v19-bar-dots button { height: 34px; padding: 14px 2px; }
+  .v19-land { padding: 22px clamp(22px, 5vw, 48px); }
+  .v19-land.is-plate .v19-land-in { flex-wrap: nowrap; gap: 32px; max-width: none; }
+  .v19-land.is-plate .v19-land-face { width: 140px; }
+  .v19-land-badge { white-space: normal; align-items: flex-start; }
+  .v19-land-badge img { margin-top: 1px; }
+  .v19-land-name { font-size: 40px; }
+  .v19-land-intro { font-size: 14.5px; max-width: 62ch; }
+  .v19-land-hint { margin-left: 172px; }
+  .v19-ah { grid-template-columns: minmax(0, 1fr) minmax(0, 330px); }
+  .v19-site { max-width: none; }
+  .v19-dials, .v19-dials.is-small { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .v19-view { height: auto; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .v19-view-frame { height: auto; max-height: 62svh; }
+  .v19-room-stage { height: calc(100svh - var(--bar)); }
+  .v19-slip, .v19-slip.is-right, .v19-slip.is-left { max-height: 80svh; }
+}

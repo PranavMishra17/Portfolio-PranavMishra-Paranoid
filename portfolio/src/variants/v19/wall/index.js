@@ -283,11 +283,8 @@ const Detonator = forwardRef(function Detonator(
         if (onBlast) onBlast({ x: e.clientX, y: e.clientY });
         return;
       }
-      // on a phone a long press belongs to the OS (selection, the context menu): a tap is the fuse
-      if (e.pointerType === 'touch') {
-        detonate(e.clientX, e.clientY, performance.now());
-        return;
-      }
+      // a finger is read on lift-off (see touchEnd): a finger that lands is often a scroll starting
+      if (e.pointerType === 'touch') return;
       holdRef.current = { x: e.clientX, y: e.clientY, t0: performance.now() };
     };
     const up = () => {
@@ -296,6 +293,40 @@ const Detonator = forwardRef(function Detonator(
         rest(0);
       }
     };
+    // on a phone a tap is the fuse: the finger lifts quickly where it landed. A drag scrolls the
+    // landing; a drag up with the landing already at its end goes on into the page.
+    let finger = null;
+    const landEnd = () => {
+      const land = document.querySelector('.v19-land');
+      return !land || land.scrollTop + land.clientHeight >= land.scrollHeight - 2;
+    };
+    const touchStart = (e) => {
+      const t = e.touches[0];
+      finger = e.touches.length === 1
+        ? { x: t.clientX, y: t.clientY, t0: performance.now(), end: landEnd(), link: !!(e.target.closest && e.target.closest('a, button')) }
+        : null;
+    };
+    const touchEnd = (e) => {
+      const f = finger;
+      finger = null;
+      const wall = wallRef.current;
+      if (!f || !armedRef.current || !wall || wall.state !== 'intact') return;
+      const t = e.changedTouches[0];
+      const dx = t.clientX - f.x;
+      const dy = t.clientY - f.y;
+      const tap = !f.link && Math.hypot(dx, dy) < 12 && performance.now() - f.t0 < 500;
+      const onward = f.end && landEnd() && dy < -60 && Math.abs(dy) > Math.abs(dx);
+      if (!tap && !onward) return;
+      if (reduced) {
+        wall.state = 'gone';
+        wall.alpha = 0;
+        if (onBlast) onBlast({ x: t.clientX, y: t.clientY });
+        return;
+      }
+      detonate(t.clientX, onward ? window.innerHeight * 0.7 : t.clientY, performance.now());
+    };
+    window.addEventListener('touchstart', touchStart, { passive: true });
+    window.addEventListener('touchend', touchEnd, { passive: true });
     window.addEventListener('pointermove', move, { passive: true });
     window.addEventListener('pointerout', leave);
     window.addEventListener('pointerdown', down);
@@ -303,6 +334,8 @@ const Detonator = forwardRef(function Detonator(
     window.addEventListener('pointercancel', up);
     window.addEventListener('blur', up);
     return () => {
+      window.removeEventListener('touchstart', touchStart);
+      window.removeEventListener('touchend', touchEnd);
       window.removeEventListener('pointermove', move);
       window.removeEventListener('pointerout', leave);
       window.removeEventListener('pointerdown', down);

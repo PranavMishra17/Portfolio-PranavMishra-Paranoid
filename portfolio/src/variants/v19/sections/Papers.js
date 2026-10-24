@@ -348,7 +348,7 @@ function Abstract({ p, marked, opening = OPENING, inline = false, full: fullProp
   return (
     <>
       <p className="v19-abs-text">
-        {marked ? <Marked text={cut} /> : cut}
+        <span className="v19-abs-body">{marked ? <Marked text={cut} /> : cut}</span>
         {inline && more ? <> {more}</> : null}
       </p>
       {!inline ? more : null}
