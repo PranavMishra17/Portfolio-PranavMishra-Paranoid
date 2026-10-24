@@ -1308,3 +1308,14 @@ html.v19-html { scrollbar-gutter: stable; }
   .v19-site-glance { grid-row: 2; }
   .v19-site .v19-glance-go { grid-row: 1; grid-column: 1; align-self: end; justify-self: center; z-index: 2; margin-bottom: 14px; background: #fff; box-shadow: 0 10px 22px -12px rgba(40, 32, 120, .7); }
 }
+
+/* the landing coming back after the tiles: it settles in once the first of them have landed */
+.v19-face.is-entering .v19-land > * { animation: v19-land-back 620ms cubic-bezier(.2,.7,.3,1) 420ms both; }
+@keyframes v19-land-back { from { opacity: 0; transform: translateY(-22px); } }
+@media (prefers-reduced-motion: reduce) { .v19-face.is-entering .v19-land > * { animation: none; } }
+
+/* no grey box flashing under a finger anywhere on the page; keyboard focus keeps its outlines */
+.v19, .v19 * { -webkit-tap-highlight-color: transparent; }
+/* the car drives off the screen, never off the page: nothing past the edge may widen it */
+.v19-past { overflow-x: clip; }
+.v19-wp-drive { -webkit-user-select: none; user-select: none; }

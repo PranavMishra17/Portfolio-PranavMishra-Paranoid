@@ -353,6 +353,12 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
     st.hour = hour;
     st.lamp = st.night > 0.15;
     st.string = st.night > 0.15;
+    // the room is found with its window open by day and shut by night; after that it is yours
+    if (!st.windowSet) {
+      st.windowSet = true;
+      st.windowOpen = st.night <= 0.45;
+      st.windowT = st.windowOpen ? 1 : 0;
+    }
   }, [hour]);
 
   /* the real pictures, if they are there: pixelated onto the wall and the shelf */
@@ -546,8 +552,11 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
         }
       }
 
-      // the window open lets the day in
-      const night = Math.max(0, st.night - st.windowT * st.night * 0.85);
+      // the clock is the time of day; the window is only how much of it comes in. By day an
+      // open window is full daylight and a shut one a shade dimmer; by night an open one lets
+      // in a little moonlight and a shut one none. It never turns night into day.
+      const day = 1 - st.night;
+      const night = Math.min(1, Math.max(0, st.night + (1 - st.windowT) * day * 0.22 - st.windowT * st.night * 0.14));
       const lights = [];
       if (st.lamp) lights.push({ ...LIGHTS.lamp, y: LIGHTS.lamp.y + ROOF, on: true });
       if (st.pc) lights.push({ ...LIGHTS.screens, y: LIGHTS.screens.y + ROOF, on: true });

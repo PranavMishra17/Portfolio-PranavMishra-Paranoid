@@ -175,6 +175,22 @@ function Page() {
     return () => window.removeEventListener('scroll', onScroll);
   }, [phone, blown]);
 
+  /* when the wall comes back after the page was open, it comes back as a movement: the tiles
+     drop in and the landing settles after them */
+  const [entering, setEntering] = useState(false);
+  const wasBlown = useRef(false);
+  useEffect(() => {
+    if (blown) {
+      wasBlown.current = true;
+      return undefined;
+    }
+    if (!wasBlown.current) return undefined;
+    wasBlown.current = false;
+    setEntering(true);
+    const t = window.setTimeout(() => setEntering(false), 1500);
+    return () => window.clearTimeout(t);
+  }, [blown]);
+
   /* once the landing has been blown away it is taken out of the page entirely */
   useEffect(() => {
     if (!blown) {
@@ -336,7 +352,7 @@ function Page() {
 
       {landing ? (
         <div
-          className={`v19-face${blown ? ' is-blown' : ''}`}
+          className={`v19-face${blown ? ' is-blown' : ''}${entering ? ' is-entering' : ''}`}
           aria-hidden={blown ? 'true' : undefined}
         >
           <Detonator
@@ -346,6 +362,7 @@ function Page() {
             reduced={reduced}
             onBlast={onBlast}
             scroll={phone}
+            enter={entering}
           />
           {/* the fuse cord, for the landing that shows it: the spark climbs it as you scroll */}
           {phone ? <i className="v19-fuse" aria-hidden="true"><b /></i> : null}

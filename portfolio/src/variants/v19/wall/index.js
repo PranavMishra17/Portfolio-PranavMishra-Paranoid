@@ -20,7 +20,7 @@ import Wall from './Wall';
 const FUSE_MS = 880;
 
 const Detonator = forwardRef(function Detonator(
-  { surface = 'iso2', armed, onBlast, reduced, scroll = false },
+  { surface = 'iso2', armed, onBlast, reduced, scroll = false, enter = false },
   ref
 ) {
   const canvasRef = useRef(null);
@@ -115,6 +115,8 @@ const Detonator = forwardRef(function Detonator(
       if (onBlast) onBlast(null);
       return undefined;
     }
+    // made again after the page was open: the tiles come back rather than just being there
+    if (enter && !reduced) wallRef.current.enter(performance.now());
 
     function loop(now) {
       if (!alive) return;

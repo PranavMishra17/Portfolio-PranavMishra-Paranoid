@@ -165,6 +165,20 @@ export default class Wall {
     });
   }
 
+  // the wall coming back with no blast to undo (it was taken down and made again): every tile
+  // drops in from above the screen, the bottom rows landing first, the way a stack fills
+  enter(now) {
+    this.state = 'returning';
+    this.t0 = now;
+    this.alpha = 1;
+    this.blast = null;
+    this.blocks.forEach((b) => {
+      b.from = { x: b.cx, y: b.cy - this.H * (0.5 + b.seed * 0.35), rot: (b.seed - 0.5) * 0.7, scale: 1 };
+      b.back = (1 - b.cy / this.H) * 1500 + b.seed * 160;
+      b.live = true;
+    });
+  }
+
   step(now, dt) {
     if (this.state === 'intact' || this.state === 'gone') return;
     const t = now - this.t0;
