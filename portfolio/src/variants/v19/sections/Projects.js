@@ -6,7 +6,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ALL_PROJECTS, NOW_BUILDING } from '../copy';
-import { useOnScreen, useOpener } from '../hooks';
+import { useOnScreen, useOpener, usePhone } from '../hooks';
 
 const AUTOPLAY_MS = 5200;
 const COLS = [
@@ -130,6 +130,7 @@ export default function Projects({ sectionRef }) {
   const [all, setAll] = useState(false);
   const [filter, setFilter] = useState('all');
   const cols = useCols();
+  const phone = usePhone();
 
   const test = (FILTERS.find((f) => f.id === filter) || FILTERS[0]).test;
   const list = useMemo(() => ALL_PROJECTS.filter(test), [test]);
@@ -149,15 +150,16 @@ export default function Projects({ sectionRef }) {
     setPeek(null);
     // on a phone the viewer can be a screen above the tile you tapped: bring it into view first,
     // instantly, so the opener (which closes after a long scroll) records the new position
-    const view = wrapRef.current && wrapRef.current.querySelector('.v19-view');
-    if (view && open !== id) {
+    const view = wrapRef.current && wrapRef.current.querySelector('.v19-view, .v19-bb-screen');
+    // (on a phone the screen is pinned under the header already)
+    if (view && open !== id && !phone) {
       const top = view.getBoundingClientRect().top;
       if (top < 64 || top > window.innerHeight * 0.5) {
         window.scrollTo({ top: window.scrollY + top - 72, behavior: 'instant' });
       }
     }
     toggle(id);
-  }, [toggle, open]);
+  }, [toggle, open, phone]);
 
   const shown =
     (open && ALL_PROJECTS.find((p) => p.id === open)) ||
@@ -167,31 +169,88 @@ export default function Projects({ sectionRef }) {
   const mode = open ? 'detail' : peek ? 'peek' : 'auto';
   const browsing = Boolean(open) || all;
 
+  const filters = (
+    <div className={`v19-filters${browsing ? ' on' : ''}`} role="group" aria-label="Show only" data-keep-open="">
+      {FILTERS.map((f) => (
+        <button
+          type="button"
+          key={f.id}
+          className={filter === f.id ? 'on' : ''}
+          onClick={() => setFilter(f.id)}
+          data-keep-open=""
+        >
+          {f.label}
+        </button>
+      ))}
+    </div>
+  );
+  const head = (
+    <header className="v19-rack-head">
+      <div>
+        <p className="v19-eye">
+          <span className="v19-dot" aria-hidden="true" />
+          Built
+        </p>
+        <h2 className="v19-h2 v19-h2-tight">Everything I have built.</h2>
+      </div>
+      {filters}
+    </header>
+  );
+
+  /* a phone held upright: a screen above and the projects as keys below, the way a BlackBerry
+     was a screen over a keyboard. A key puts its project on the screen; the filters are the
+     row of keys along the top. What I am building now comes first. */
+  if (phone) {
+    const now = new Set(NOW_BUILDING.map((p) => p.id));
+    const ordered = [...list.filter((p) => now.has(p.id)), ...list.filter((p) => !now.has(p.id))];
+    return (
+      <section className="v19-slab v19-projects" ref={sectionRef} id="projects" aria-label="Projects">
+        <div className="v19-slab-in v19-projects-in" ref={wrapRef}>
+          <header className="v19-rack-head">
+            <div>
+              <p className="v19-eye">
+                <span className="v19-dot" aria-hidden="true" />
+                Built
+              </p>
+              <h2 className="v19-h2 v19-h2-tight">Everything I have built.</h2>
+            </div>
+          </header>
+          <div className="v19-bb">
+            <div className="v19-bb-screen" data-keep-open="">
+              <div className="v19-bb-shot">
+                <img key={shown.id} src={shown.image} alt="" decoding="async" />
+              </div>
+              <div className="v19-bb-words">
+                <p className="v19-prow-eye">{mode === 'auto' || now.has(shown.id) ? 'Building right now' : shown.tag}</p>
+                <h3 className="v19-prow-name">{shown.name}</h3>
+                <p className="v19-prow-line">{shown.line}</p>
+                <Links p={shown} />
+              </div>
+            </div>
+            <div className="v19-bb-fn" role="group" aria-label="Show only">
+              {FILTERS.map((f) => (
+                <button type="button" key={f.id} className={`v19-bb-key is-fn${filter === f.id ? ' on' : ''}`} onClick={() => setFilter(f.id)} data-keep-open="">
+                  {f.label}
+                </button>
+              ))}
+            </div>
+            <div className="v19-bb-pad">
+              {ordered.map((p) => (
+                <button type="button" key={p.id} className={`v19-bb-key${shown.id === p.id ? ' on' : ''}`} onClick={() => onPick(p.id)} aria-pressed={open === p.id} data-keep-open="">
+                  {p.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="v19-slab v19-projects" ref={sectionRef} id="projects" aria-label="Projects">
       <div className="v19-slab-in v19-projects-in" ref={wrapRef}>
-        <header className="v19-rack-head">
-          <div>
-            <p className="v19-eye">
-              <span className="v19-dot" aria-hidden="true" />
-              Built
-            </p>
-            <h2 className="v19-h2 v19-h2-tight">Everything I have built.</h2>
-          </div>
-          <div className={`v19-filters${browsing ? ' on' : ''}`} role="group" aria-label="Show only" data-keep-open="">
-            {FILTERS.map((f) => (
-              <button
-                type="button"
-                key={f.id}
-                className={filter === f.id ? 'on' : ''}
-                onClick={() => setFilter(f.id)}
-                data-keep-open=""
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
-        </header>
+        {head}
 
         <Frame shown={shown} mode={mode} onClose={close} />
 

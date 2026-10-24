@@ -944,6 +944,7 @@ html.v19-html { scrollbar-gutter: stable; }
   .v19-room-stage { height: 58svh; margin-bottom: 64px; }
   .v19-room-pan { display: block; position: relative; height: 100%; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; scrollbar-width: none; }
   .v19-room-pan::-webkit-scrollbar { display: none; }
+  .v19-room-pan { -webkit-mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent); mask-image: linear-gradient(to right, transparent, #000 7%, #000 93%, transparent); }
   .v19-room-pan .v19-room-canvas { width: calc(58svh * 288 / 156); max-width: none; height: 100%; }
   .v19-room-stage .v19-top { top: calc(100% + 12px); bottom: auto; }
 }
@@ -1166,10 +1167,50 @@ html.v19-html { scrollbar-gutter: stable; }
 }
 @keyframes v19-thumb { 0% { transform: none; opacity: 0; } 15% { opacity: 1; } 70% { transform: translateY(-14px); opacity: 1; } 100% { transform: translateY(-14px); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .v19-land-hint-key.is-scroll i { animation: none; } }
-/* the projects under the viewer: one strip you swipe, thumbnails big enough to know */
+/* the projects on a phone held upright: a screen pinned over a keyboard of projects */
+.v19-bb { display: grid; gap: 10px; }
+.v19-bb-screen { position: sticky; top: calc(var(--bar) + 8px); z-index: 3; background: #fdfcf7; border: 1px solid rgba(23,23,26,.14); border-radius: 10px; overflow: hidden; box-shadow: 0 18px 30px -24px rgba(40,36,28,.9); }
+.v19-bb-shot { aspect-ratio: 2 / 1; background: var(--paper-3); overflow: hidden; }
+.v19-bb-shot img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; animation: v19-bb-on 260ms ease; }
+@keyframes v19-bb-on { from { opacity: .35; filter: brightness(1.6); } }
+.v19-bb-words { padding: 10px 14px 12px; }
+.v19-bb-words .v19-prow-line { -webkit-line-clamp: 2; }
+.v19-prow-eye { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; color: var(--ink-3); }
+.v19-prow-name { font-family: var(--display); font-weight: var(--display-w); font-size: 19px; letter-spacing: -.02em; line-height: 1.2; margin-top: 2px; }
+.v19-prow-line { font-size: 14px; line-height: 1.5; color: var(--ink-2); margin-top: 3px; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+.v19-bb-words .v19-view-links { margin-top: 10px; gap: 6px; flex-wrap: wrap; }
+.v19-bb-words .v19-view-links a { padding: 7px 12px; font-size: 12.5px; }
+/* the keys: rounded a little more at the bottom than the top, a lip under each, down when pressed */
+.v19-bb-fn, .v19-bb-pad { display: grid; gap: 6px; }
+.v19-bb-fn { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 4px; }
+.v19-bb-pad { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.v19-bb-key { min-height: 46px; padding: 6px 8px; border-radius: 7px 7px 11px 11px; background: #fbfaf6; border: 1px solid rgba(23,23,26,.16); box-shadow: 0 2px 0 rgba(23,23,26,.16); font-family: var(--display); font-size: 12.5px; font-weight: 600; line-height: 1.2; letter-spacing: -.01em; color: var(--ink); text-align: center; overflow-wrap: anywhere; transition: background 120ms ease, color 120ms ease, transform 80ms ease, box-shadow 80ms ease; }
+.v19-bb-key:active { transform: translateY(2px); box-shadow: 0 0 0 rgba(23,23,26,.16); }
+.v19-bb-key.on { background: var(--ink); border-color: var(--ink); color: var(--paper-2); }
+.v19-bb-key.is-fn { min-height: 38px; padding: 4px; white-space: nowrap; font-family: var(--mono); font-size: 10.5px; font-weight: 500; letter-spacing: 0; background: #ecebe6; }
+.v19-bb-key.is-fn.on { background: var(--ember); border-color: var(--ember); color: #fff; }
+
+/* chess.com: the Letterboxd treatment, in its green */
+.v19-filmset.is-chess::after { background: rgba(129, 182, 76, .12); box-shadow: inset 0 0 0 1px rgba(105, 160, 52, .5); }
+.v19-filmset.is-chess:hover .v19-int.is-film, .v19-filmset.is-chess:focus-visible .v19-int.is-film { color: #4e7a26; text-decoration-color: #81b64c; }
+.v19-filmset.is-chess .v19-lbdots img { border-radius: 4px; }
+.v19-filmset.is-chess .v19-lbdots span { background: #312e2b; }
+
+/* ── a phone held upright, trimmed: nothing to open, less to read ─────── */
+.v19-role-gist { display: none; }
 @media (max-width: 720px) and (orientation: portrait) {
-  .v19-grid { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x proximity; scrollbar-width: none;
-    margin: 0 calc(-1 * clamp(18px, 5vw, 72px)); padding: 0 clamp(18px, 5vw, 72px); scroll-padding: 0 clamp(18px, 5vw, 72px); }
-  .v19-grid::-webkit-scrollbar { display: none; }
-  .v19-tile { flex: 0 0 136px; scroll-snap-align: start; }
+  /* alfred_: four figures, a square */
+  .v19-dials:not(.is-small) > .v19-dial:nth-child(n+5) { display: none; }
+  /* the roles before: always out, each one a name, a title, the dates and one line */
+  .v19-role-line { display: none; }
+  .v19-role-more { padding: 0; animation: none; }
+  .v19-role-one > ul, .v19-role-one > .v19-chiprow { display: none; }
+  .v19-role-one > .v19-role-gist { display: block; grid-column: 1; font-size: 14px; line-height: 1.5; color: var(--ink-2); margin-top: -2px; }
+  .v19-role-head { margin-bottom: 4px; }
+  /* the papers: the figure, the title, the finding and the links */
+  .v19-brief .v19-plate-cap, .v19-brief .v19-abs-text, .v19-brief .v19-abs-more { display: none; }
+  .v19-brief .v19-sheet-title { font-size: 16.5px; line-height: 1.3; margin-top: 8px; }
+  .v19-brief .v19-brief-line { font-size: 14.5px; line-height: 1.55; margin-top: 8px; }
+  .v19-brief .v19-plate-art { height: 150px; padding: 10px; }
+  .v19-brief-words .v19-sheet-foot { margin-top: 12px; padding-top: 10px; }
 }

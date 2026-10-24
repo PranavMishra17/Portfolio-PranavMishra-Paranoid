@@ -15,7 +15,7 @@ import Work from './sections/Work';
 import Projects from './sections/Projects';
 import Papers from './sections/Papers';
 import Room from './room/Room';
-import { useSky, useClock, STARS } from './hooks';
+import { useSky, useClock, usePhone, STARS } from './hooks';
 import { ME, LINKS } from './copy';
 import './v19.css';
 
@@ -50,15 +50,7 @@ function Page() {
   );
   // a phone held upright is its own site: the page scrolls from the start and the scroll is the
   // fuse; back at the very top, the wall is up again
-  const PHONE = '(max-width: 720px) and (orientation: portrait)';
-  const [phone, setPhone] = useState(() => typeof window !== 'undefined' && !!window.matchMedia && window.matchMedia(PHONE).matches);
-  useEffect(() => {
-    if (!window.matchMedia) return undefined;
-    const mq = window.matchMedia(PHONE);
-    const on = () => setPhone(mq.matches);
-    mq.addEventListener('change', on);
-    return () => mq.removeEventListener('change', on);
-  }, []);
+  const phone = usePhone();
   useEffect(() => {
     if (touch) return undefined;
     const on = () => setTouch(true);
@@ -136,8 +128,19 @@ function Page() {
       const face = document.querySelector('.v19-face');
       if (face) face.style.setProperty('--lift', `${Math.round(y)}px`);
       // the wall wakes the page itself once its tiles are clear (onBlast); with no wall, this does
-      if (detRef.current) detRef.current.fuse(y / (window.innerHeight * FUSE));
-      else if (y > window.innerHeight * FUSE) setBlown(true);
+      // and when it goes, the fling that set it off is stopped where the alfred_ heading is in
+      // view: a phone's momentum would otherwise carry the page well past it
+      const stop = () => {
+        const work = document.getElementById('work');
+        if (work) window.scrollTo({ top: work.getBoundingClientRect().top + window.scrollY, behavior: 'instant' });
+      };
+      if (detRef.current) {
+        if (detRef.current.fuse(y / (window.innerHeight * FUSE))) {
+          stop();
+          window.setTimeout(stop, 120);
+          window.setTimeout(stop, 320);
+        }
+      } else if (y > window.innerHeight * FUSE) setBlown(true);
     };
     const onScroll = () => {
       if (ticking) return;

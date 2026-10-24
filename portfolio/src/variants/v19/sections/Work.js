@@ -13,7 +13,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ALFRED, AFTER, AFTER_LINE, FIGURES, WHEELPRICE } from '../copy';
-import { useOnScreen, useOpener } from '../hooks';
+import { useOnScreen, useOpener, usePhone } from '../hooks';
 
 /* A number that counts to itself when it first arrives on screen, and again whenever you point
    at it. */
@@ -480,6 +480,7 @@ export default function Work({ sectionRef }) {
   const [past, setPast] = useState(false);
   const [wpLive, setWpLive] = useState(null);
   const [alsoOpen, setAlsoOpen] = useState(false);
+  const phone = usePhone(); // on a phone held upright the roles are always out
   const pastRef = useRef(null);
   const pastSeen = useOnScreen(pastRef, '-30%');
   const [go, setGo] = useState(false);
@@ -553,15 +554,22 @@ export default function Work({ sectionRef }) {
             <p className="v19-mini">Also</p>
             <div className={`v19-role${alsoOpen ? ' is-open' : ''}`} data-keep-open="">
               <button type="button" className="v19-role-line" onClick={() => setAlsoOpen((o) => !o)} aria-expanded={alsoOpen} data-keep-open="">
-                <span className="v19-role-when">{AFTER.map((r) => r.when.split(/\s[–-]\s/)[0]).join(' · ')}</span>
-                <span className="v19-role-who">
-                  {!alsoOpen ? AFTER.map((r) => (r.logo ? <img className="v19-role-logo" src={r.logo} alt="" key={r.id} /> : null)) : null}
-                  <b>{alsoOpen ? AFTER.map((r) => r.company).join(' · ') : AFTER_LINE}</b>
-                </span>
-                {!alsoOpen ? <span className="v19-role-say">{AFTER.map((r) => r.line).join(' ')}</span> : null}
+                {/* open, the roles below carry their own names; the bar is only the way to close them */}
+                {alsoOpen ? (
+                  <span className="v19-role-when">Show less</span>
+                ) : (
+                  <>
+                    <span className="v19-role-when">{AFTER.map((r) => r.when.split(/\s[–-]\s/)[0]).join(' · ')}</span>
+                    <span className="v19-role-who">
+                      {AFTER.map((r) => (r.logo ? <img className="v19-role-logo" src={r.logo} alt="" key={r.id} /> : null))}
+                      <b>{AFTER_LINE}</b>
+                    </span>
+                    <span className="v19-role-say">{AFTER.map((r) => r.line).join(' ')}</span>
+                  </>
+                )}
                 <span className="v19-role-chev" aria-hidden="true" />
               </button>
-              <div className="v19-role-more" hidden={!alsoOpen}>
+              <div className="v19-role-more" hidden={!alsoOpen && !phone}>
                 {AFTER.map((r) => (
                   <div className="v19-role-one" key={r.id}>
                     {r.logo ? <img className="v19-role-logo is-big" src={r.logo} alt="" /> : <span className="v19-role-logo is-big is-blank" />}
@@ -570,6 +578,7 @@ export default function Work({ sectionRef }) {
                       <i>{r.title}</i>
                       <span>{r.when}</span>
                     </p>
+                    <p className="v19-role-gist">{r.line}</p>
                     <ul>
                       {r.bullets.map((bl) => (
                         <li key={bl}>{bl}</li>

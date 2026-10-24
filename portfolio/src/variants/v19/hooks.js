@@ -220,3 +220,17 @@ export function useOnScreen(ref, margin = '-18%') {
   }, [ref, seen, margin]);
   return seen;
 }
+
+/* a phone held upright: the site is laid out for it on its own, not squeezed down from the desk */
+const PHONE = '(max-width: 720px) and (orientation: portrait)';
+export function usePhone() {
+  const [phone, setPhone] = useState(() => typeof window !== 'undefined' && !!window.matchMedia && window.matchMedia(PHONE).matches);
+  useEffect(() => {
+    if (!window.matchMedia) return undefined;
+    const mq = window.matchMedia(PHONE);
+    const on = () => setPhone(mq.matches);
+    mq.addEventListener('change', on);
+    return () => mq.removeEventListener('change', on);
+  }, []);
+  return phone;
+}

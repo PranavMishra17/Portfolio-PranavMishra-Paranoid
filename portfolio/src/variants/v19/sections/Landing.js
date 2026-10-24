@@ -6,9 +6,10 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ME, LINKS, GO, LETTERBOXD, ALFRED } from '../copy';
+import { ME, LINKS, GO, LETTERBOXD, CHESS, ALFRED } from '../copy';
 
 const LB = '/assets/images/icons/letterboxd.svg';
+const KNIGHT = '/assets/images/icons/chess.svg';
 
 function Links({ onGo }) {
   return (
@@ -40,6 +41,19 @@ function Films() {
       <span className="v19-lbdots" aria-hidden="true">
         <img src={LB} alt="" />
         <span>paranoid_critic</span>
+      </span>
+    </a>
+  );
+}
+
+/* chess, the same way: one link, a big target, the account and the ratings in the bubble */
+function Chess() {
+  return (
+    <a className="v19-filmset is-chess" href={CHESS.href} target="_blank" rel="noreferrer" aria-label={`at the chessboard: ${CHESS.name} on chess.com, ${CHESS.rapid} rapid, ${CHESS.blitz} blitz`}>
+      <span className="v19-int is-film">at the chessboard</span>
+      <span className="v19-lbdots" aria-hidden="true">
+        <img src={KNIGHT} alt="" />
+        <span>{CHESS.name} · {CHESS.rapid} rapid · {CHESS.blitz} blitz</span>
       </span>
     </a>
   );
@@ -79,7 +93,7 @@ export default function Landing({ hint, onGo, scroll }) {
           <p className="v19-land-intro is-away">
             Away from the desk, I'm{' '}
             <span className="v19-int">playing and designing games</span>,{' '}
-            <Films />, or{' '}
+            <Films />, <Chess />, or{' '}
             <span className="v19-int is-ball" tabIndex={0}>out on a football pitch</span>.
           </p>
           <Links onGo={onGo} />

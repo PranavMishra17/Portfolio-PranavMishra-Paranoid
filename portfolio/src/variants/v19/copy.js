@@ -43,6 +43,7 @@ export const LINKS = [
 export const GO = { label: 'See my work', target: 'work' };
 // films: an icon-only button beside See my work
 export const LETTERBOXD = 'https://letterboxd.com/paranoid_critic/';
+export const CHESS = { href: 'https://www.chess.com/member/pranavkenz17', name: 'Pranavkenz17', rapid: 1450, blitz: 1150 };
 
 // The rest of the places, for the room's card
 export const MORE_LINKS = [
