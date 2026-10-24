@@ -1253,3 +1253,50 @@ html.v19-html { scrollbar-gutter: stable; }
   .v19-brief .v19-sheet-title { font-size: 17px; }
   .v19-brief-row { gap: 10px; }
 }
+/* a link in a slip with its service's mark in front */
+.v19-slip-links a.v19-slip-badge { display: inline-flex; align-items: center; gap: 7px; }
+.v19-slip-badge img { width: 18px; height: 18px; border-radius: 4px; flex: none; }
+
+/* ── phone landings being tried (portrait only; ?pick shows the switcher) ─────────────── */
+.v19-land-say, .v19-fuse { display: none; }
+.v19-pick { position: fixed; left: 50%; bottom: 12px; transform: translateX(-50%); z-index: 6; display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: rgba(23,23,26,.86); }
+.v19-pick button { padding: 7px 12px; border-radius: 999px; font-family: var(--mono); font-size: 11px; color: rgba(255,255,255,.75); }
+.v19-pick button.on { background: #fff; color: var(--ink); }
+
+@media (max-width: 720px) and (orientation: portrait) {
+  /* 1 · the fuse: the name across the top, and a cord down the right edge that burns up as you
+     scroll; when the spark reaches the top the wall goes */
+  .lv-fuse .v19-land.is-plate .v19-land-in { grid-template-columns: 104px minmax(0, 1fr); padding-right: 22px; }
+  .lv-fuse .v19-land-name { grid-column: 1 / -1; grid-row: 1; font-size: 21vw; line-height: .84; align-items: flex-start; text-align: left; margin-bottom: 18px; }
+  .lv-fuse .v19-land.is-plate .v19-land-face { width: 104px; grid-row: 2 / span 2; }
+  .lv-fuse .v19-land-role { grid-row: 2; align-items: flex-start; text-align: left; align-self: end; margin: 0 0 4px; }
+  .lv-fuse .v19-land-hint { display: none; }
+  .lv-fuse .v19-fuse { display: block; position: absolute; z-index: 3; right: 16px; top: 26px; bottom: 26px; width: 3px; pointer-events: none; }
+  .lv-fuse .v19-fuse::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(to bottom, #8a5a3a 0 4px, #b98a5c 4px 7px); border-radius: 2px; }
+  .lv-fuse .v19-fuse::after { content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--fuse, 0) * 100%); background: repeating-linear-gradient(to bottom, rgba(40,36,30,.35) 0 2px, transparent 2px 6px); }
+  .lv-fuse .v19-fuse b { position: absolute; left: 50%; bottom: calc(var(--fuse, 0) * 100%); width: 12px; height: 12px; margin: 0 0 -6px -6px; border-radius: 50%; background: radial-gradient(circle, #fff6c8 0 25%, #ffb63c 45%, rgba(255,110,30,.0) 72%); box-shadow: 0 0 12px 4px rgba(255,140,40,.65); animation: v19-sparkle 180ms steps(2) infinite; }
+  @keyframes v19-sparkle { 50% { transform: scale(.75) translate(1px, -1px); box-shadow: 0 0 16px 6px rgba(255,120,30,.75); } }
+
+  /* 2 · the cover: the photo across the top, the name set over its fading edge */
+  .lv-cover .v19-land { padding: 0 0 26px; }
+  .lv-cover .v19-land.is-plate .v19-land-in { display: flex; flex-direction: column; align-items: stretch; }
+  .lv-cover .v19-land.is-plate .v19-land-face { width: 100%; }
+  .lv-cover .v19-land-face > img { aspect-ratio: auto; height: 44svh; border-radius: 0; object-position: 50% 28%; box-shadow: none; -webkit-mask-image: linear-gradient(#000 62%, transparent); mask-image: linear-gradient(#000 62%, transparent); }
+  .lv-cover .v19-land-name { align-self: stretch; position: relative; margin-top: -.72em; padding: 0 20px; font-size: 19vw; line-height: .86; align-items: flex-start; text-align: left; }
+  .lv-cover .v19-land-role { align-self: stretch; flex-direction: row; align-items: center; justify-content: flex-start; gap: 6px; padding: 0 20px; margin-top: 12px; }
+  .lv-cover .v19-land-intro, .lv-cover .v19-land-links { padding: 0 20px; }
+  .lv-cover .v19-land-intro { margin-top: 14px; }
+  .lv-cover .v19-land-hint { position: absolute; top: 14px; right: 14px; margin: 0; background: rgba(255,255,253,.82); }
+
+  /* 3 · the statement: the first line of the story is the headline; the face and name sign it */
+  .lv-say .v19-land { padding-top: 46px; }
+  .lv-say .v19-land.is-plate .v19-land-in { grid-template-columns: 64px minmax(0, 1fr); column-gap: 12px; align-items: center; }
+  .lv-say .v19-land-say { display: block; grid-column: 1 / -1; grid-row: 1; margin-bottom: 26px; }
+  .lv-say .v19-land-say b { display: block; font-family: var(--display); font-weight: var(--display-w); font-size: 11vw; line-height: 1.02; letter-spacing: -.035em; color: var(--ink); }
+  .lv-say .v19-land-say span { display: block; margin-top: 16px; font-size: 16px; line-height: 1.55; color: var(--ink-2); }
+  .lv-say .v19-land.is-plate .v19-land-face { width: 64px; grid-row: 2 / span 2; align-self: center; }
+  .lv-say .v19-land-name { grid-row: 2; font-size: 22px; line-height: 1.05; flex-direction: row; gap: .3em; align-items: baseline; text-align: left; align-self: end; }
+  .lv-say .v19-land-role { grid-row: 3; flex-direction: row; gap: 5px; align-items: center; justify-content: flex-start; align-self: start; margin-top: 4px; font-size: 13px; }
+  .lv-say .v19-land-intro:not(.is-away) { display: none; }
+  .lv-say .v19-land-intro.is-away { margin-top: 22px; }
+}

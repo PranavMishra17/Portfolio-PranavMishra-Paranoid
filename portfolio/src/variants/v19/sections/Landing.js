@@ -85,11 +85,19 @@ function Face() {
 const CUT = ME.intro.indexOf(': ', ME.intro.indexOf('teaches me the next'));
 const HEAD = CUT > 0 ? ME.intro.slice(0, CUT) : ME.intro;
 const TAIL = CUT > 0 ? ME.intro.slice(CUT) : '';
+// the statement landing leads with the first line and keeps the rest small
+const COLON = HEAD.indexOf(': ');
+const SAY = COLON > 0 ? `${HEAD.slice(0, COLON)}.` : HEAD;
+const REST = COLON > 0 ? `${HEAD.charAt(COLON + 2).toUpperCase()}${HEAD.slice(COLON + 3)}.` : '';
 
 export default function Landing({ hint, onGo, scroll }) {
   return (
     <div className="v19-land is-plate">
       <div className="v19-land-in">
+        <p className="v19-land-say">
+          <b>{SAY}</b>
+          <span>{REST}</span>
+        </p>
         <Face />
         <div className="v19-land-words">
           <Name />

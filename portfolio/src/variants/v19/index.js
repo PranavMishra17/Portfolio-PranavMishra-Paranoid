@@ -29,6 +29,9 @@ const WHERE = [
   { id: 'room', label: 'My room' },
 ];
 
+// the phone landings being tried: now, the fuse, the cover, the statement
+const LANDS = ['now', 'fuse', 'cover', 'say'];
+
 function Page() {
   const skyRef = useRef(null);
   const detRef = useRef(null);
@@ -51,6 +54,23 @@ function Page() {
   // a phone held upright is its own site: the page scrolls from the start and the scroll is the
   // fuse; back at the very top, the wall is up again
   const phone = usePhone();
+  // the phone landing has variants while it is being chosen: ?land=<name> shows one, ?pick adds
+  // a switcher; a pick is remembered on this device
+  const [land, setLand] = useState(() => {
+    try {
+      const q = new URLSearchParams(window.location.search).get('land');
+      if (LANDS.includes(q)) return q;
+      const saved = window.localStorage.getItem('v19-land');
+      return LANDS.includes(saved) ? saved : LANDS[0];
+    } catch (err) {
+      return LANDS[0];
+    }
+  });
+  const picking = typeof window !== 'undefined' && /[?&]pick\b/.test(window.location.search);
+  const pickLand = (l) => {
+    setLand(l);
+    try { window.localStorage.setItem('v19-land', l); } catch (err) { /* a private window keeps it for now */ }
+  };
   useEffect(() => {
     if (touch) return undefined;
     const on = () => setTouch(true);
@@ -126,7 +146,10 @@ function Page() {
         return;
       }
       const face = document.querySelector('.v19-face');
-      if (face) face.style.setProperty('--lift', `${Math.round(y)}px`);
+      if (face) {
+        face.style.setProperty('--lift', `${Math.round(y)}px`);
+        face.style.setProperty('--fuse', Math.min(1, y / (window.innerHeight * FUSE)).toFixed(3));
+      }
       // the wall wakes the page itself once its tiles are clear (onBlast); with no wall, this does
       // and when it goes, the fling that set it off is stopped where the alfred_ heading is in
       // view: a phone's momentum would otherwise carry the page well past it
@@ -240,7 +263,7 @@ function Page() {
   const current = WHERE.find((w) => w.id === where) || WHERE[0];
 
   return (
-    <div className={`v19 land-plate${blown ? ' is-open' : ' is-shut'}${disco ? ' is-disco' : ''} has-sun`}>
+    <div className={`v19 land-plate lv-${land}${blown ? ' is-open' : ' is-shut'}${disco ? ' is-disco' : ''} has-sun`}>
       <div className="v19-sky" ref={skyRef} aria-hidden="true">
         <i className="v19-stars" style={{ backgroundImage: `url("${STARS[0]}")` }} />
         <i className="v19-stars is-b" style={{ backgroundImage: `url("${STARS[1]}")` }} />
@@ -324,11 +347,20 @@ function Page() {
             onBlast={onBlast}
             scroll={phone}
           />
+          {/* the fuse cord, for the landing that shows it: the spark climbs it as you scroll */}
+          {phone ? <i className="v19-fuse" aria-hidden="true"><b /></i> : null}
           <Landing
             onGo={go}
             hint={phone ? 'Scroll down' : reduced || touch ? 'Tap anywhere' : 'Hold the left mouse button'}
             scroll={phone}
           />
+          {picking && phone && !blown ? (
+            <nav className="v19-pick" aria-label="Landing">
+              {LANDS.map((l) => (
+                <button type="button" key={l} className={land === l ? 'on' : ''} onClick={() => pickLand(l)}>{l}</button>
+              ))}
+            </nav>
+          ) : null}
         </div>
       ) : null}
 

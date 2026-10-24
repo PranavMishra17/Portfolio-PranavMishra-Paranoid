@@ -221,7 +221,10 @@ function Slip({ hotspot, onClose, onJump, phone }) {
               <p className="v19-slip-p">{p.note}</p>
               {p.placeholder ? <p className="v19-sample">Placeholder — his own line about it goes here.</p> : null}
               <p className="v19-slip-links">
-                <a href={LETTERBOXD} target="_blank" rel="noreferrer">Everything I watch, on Letterboxd</a>
+                <a className="v19-slip-badge" href={LETTERBOXD} target="_blank" rel="noreferrer">
+                  <img src="/assets/images/icons/letterboxd.svg" alt="" />
+                  Everything I watch, on Letterboxd
+                </a>
               </p>
             </>
           ),
@@ -235,7 +238,10 @@ function Slip({ hotspot, onClose, onJump, phone }) {
             <>
               <p className="v19-slip-p">{CHESS.rapid} in rapid, {CHESS.blitz} in blitz.</p>
               <p className="v19-slip-links">
-                <a href={CHESS.href} target="_blank" rel="noreferrer">{CHESS.name} on chess.com</a>
+                <a className="v19-slip-badge" href={CHESS.href} target="_blank" rel="noreferrer">
+                  <img src="/assets/images/icons/chess.svg" alt="" />
+                  {CHESS.name} on chess.com
+                </a>
               </p>
             </>
           ),
@@ -754,7 +760,7 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
       return `${p.title} — ${p.note}`;
     }
     if (hotspot.key === 'books') return BOOKS.map((b) => b.title).join(' · ');
-    if (hotspot.key === 'chair') return 'The chair';
+    if (hotspot.key === 'chair') return ''; // the chair just spins
     if (hotspot.key === 'disco') return !glassBroken ? 'Break the glass' : stateRef.current.disco ? 'Enough' : 'Press it';
     if (hotspot.key === 'pc') return stateRef.current.pc ? 'The tower — switch it off and see' : 'The tower';
     if (hotspot.key === 'clock') return flipped ? 'The clock — put the day back' : 'The clock — flip the day';
