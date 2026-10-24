@@ -1167,28 +1167,30 @@ html.v19-html { scrollbar-gutter: stable; }
 }
 @keyframes v19-thumb { 0% { transform: none; opacity: 0; } 15% { opacity: 1; } 70% { transform: translateY(-14px); opacity: 1; } 100% { transform: translateY(-14px); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .v19-land-hint-key.is-scroll i { animation: none; } }
-/* the projects on a phone held upright: a screen pinned over a keyboard of projects */
-.v19-bb { display: grid; gap: 10px; }
-.v19-bb-screen { position: sticky; top: calc(var(--bar) + 8px); z-index: 3; background: #fdfcf7; border: 1px solid rgba(23,23,26,.14); border-radius: 10px; overflow: hidden; box-shadow: 0 18px 30px -24px rgba(40,36,28,.9); }
-.v19-bb-shot { aspect-ratio: 2 / 1; background: var(--paper-3); overflow: hidden; }
+/* the projects on a phone held upright: a landscape screen over a keyboard of pictures */
+.v19-bb { display: grid; gap: 8px; }
+.v19-bb-screen { background: #fdfcf7; border: 1px solid rgba(23,23,26,.14); border-radius: 10px; overflow: hidden; box-shadow: 0 18px 30px -24px rgba(40,36,28,.9); }
+.v19-bb-shot { position: relative; aspect-ratio: 16 / 9; background: var(--paper-3); overflow: hidden; }
 .v19-bb-shot img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 20%; animation: v19-bb-on 260ms ease; }
 @keyframes v19-bb-on { from { opacity: .35; filter: brightness(1.6); } }
-.v19-bb-words { padding: 10px 14px 12px; }
-.v19-bb-words .v19-prow-line { -webkit-line-clamp: 2; }
-.v19-prow-eye { font-family: var(--mono); font-size: 11px; letter-spacing: .06em; color: var(--ink-3); }
-.v19-prow-name { font-family: var(--display); font-weight: var(--display-w); font-size: 19px; letter-spacing: -.02em; line-height: 1.2; margin-top: 2px; }
-.v19-prow-line { font-size: 14px; line-height: 1.5; color: var(--ink-2); margin-top: 3px; display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
-.v19-bb-words .v19-view-links { margin-top: 10px; gap: 6px; flex-wrap: wrap; }
+/* the name on the picture, the way a screen carries its title */
+.v19-bb-cap { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; gap: 1px; padding: 26px 12px 9px; background: linear-gradient(to top, rgba(14,13,18,.82), rgba(14,13,18,0)); color: #fff; }
+.v19-bb-cap span { font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; opacity: .8; }
+.v19-bb-cap b { font-family: var(--display); font-weight: var(--display-w); font-size: 19px; letter-spacing: -.02em; line-height: 1.15; }
+.v19-bb-words { padding: 9px 12px 11px; }
+.v19-prow-line { font-size: 14px; line-height: 1.5; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.v19-bb-words .v19-view-links { margin-top: 8px; gap: 6px; flex-wrap: wrap; }
 .v19-bb-words .v19-view-links a { padding: 7px 12px; font-size: 12.5px; }
-/* the keys: rounded a little more at the bottom than the top, a lip under each, down when pressed */
-.v19-bb-fn, .v19-bb-pad { display: grid; gap: 6px; }
-.v19-bb-fn { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 4px; }
-.v19-bb-pad { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.v19-bb-key { min-height: 46px; padding: 6px 8px; border-radius: 7px 7px 11px 11px; background: #fbfaf6; border: 1px solid rgba(23,23,26,.16); box-shadow: 0 2px 0 rgba(23,23,26,.16); font-family: var(--display); font-size: 12.5px; font-weight: 600; line-height: 1.2; letter-spacing: -.01em; color: var(--ink); text-align: center; overflow-wrap: anywhere; transition: background 120ms ease, color 120ms ease, transform 80ms ease, box-shadow 80ms ease; }
-.v19-bb-key:active { transform: translateY(2px); box-shadow: 0 0 0 rgba(23,23,26,.16); }
-.v19-bb-key.on { background: var(--ink); border-color: var(--ink); color: var(--paper-2); }
-.v19-bb-key.is-fn { min-height: 38px; padding: 4px; white-space: nowrap; font-family: var(--mono); font-size: 10.5px; font-weight: 500; letter-spacing: 0; background: #ecebe6; }
-.v19-bb-key.is-fn.on { background: var(--ember); border-color: var(--ember); color: #fff; }
+/* the keys: pictures, rounded a little more at the bottom than the top, a lip under each, down
+   when pressed; the one on the screen is lit */
+.v19-bb-top { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; margin-top: 4px; }
+.v19-bb-pad { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 5px; }
+.v19-bb-key { position: relative; aspect-ratio: 1; padding: 0; overflow: hidden; border-radius: 6px 6px 9px 9px; background: var(--paper-3); border: 1px solid rgba(23,23,26,.2); box-shadow: 0 2px 0 rgba(23,23,26,.22); transition: transform 80ms ease, box-shadow 80ms ease; }
+.v19-bb-key img { display: block; width: 100%; height: 100%; object-fit: cover; filter: saturate(.85); }
+.v19-bb-key:active { transform: translateY(2px); box-shadow: 0 0 0 rgba(23,23,26,.2); }
+.v19-bb-key.on { border-color: var(--ember); box-shadow: 0 0 0 2px var(--ember), 0 2px 0 rgba(23,23,26,.22); }
+.v19-bb-key.on img { filter: none; }
+.v19-bb-key.is-big { border-radius: 8px 8px 12px 12px; }
 
 /* chess.com: the Letterboxd treatment, in its green */
 .v19-filmset.is-chess::after { background: rgba(129, 182, 76, .12); box-shadow: inset 0 0 0 1px rgba(105, 160, 52, .5); }
@@ -1213,4 +1215,41 @@ html.v19-html { scrollbar-gutter: stable; }
   .v19-brief .v19-brief-line { font-size: 14.5px; line-height: 1.55; margin-top: 8px; }
   .v19-brief .v19-plate-art { height: 150px; padding: 10px; }
   .v19-brief-words .v19-sheet-foot { margin-top: 12px; padding-top: 10px; }
+}
+
+/* the party button behind its glass: duller until the glass is broken */
+.v19-room-btn.is-caged { filter: saturate(.55) brightness(.9); opacity: .82; }
+
+/* ── the landing on a phone held upright: the photo with the name and the role beside it ─── */
+.v19-land-role { display: none; }
+@media (max-width: 720px) and (orientation: portrait) {
+  .v19-land.is-plate .v19-land-in { display: grid; grid-template-columns: 136px minmax(0, 1fr); column-gap: 14px; row-gap: 0; align-items: end; }
+  .v19-land.is-plate .v19-land-words { display: contents; }
+  .v19-land.is-plate .v19-land-face { width: 136px; grid-column: 1; grid-row: 1 / span 2; align-self: end; }
+  .v19-land-face > img { border-radius: 4px; }
+  .v19-land-badge { display: none; }
+  /* the name and the role hold the right edge, across from the photo */
+  .v19-land-name { grid-column: 2; grid-row: 1; font-size: 40px; align-self: end; align-items: flex-end; text-align: right; }
+  .v19-land-role { grid-column: 2; grid-row: 2; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; margin-top: 12px; font-family: var(--body); font-size: 14px; line-height: 1.25; color: var(--ink-2); text-align: right; white-space: nowrap; }
+  .v19-land-role span:last-child { display: inline-flex; align-items: center; gap: 5px; color: var(--ink); font-weight: 600; }
+  .v19-land-role img { width: 18px; height: 18px; border-radius: 4px; flex: none; }
+  /* the roles before alfred_ are the desk's to tell; a phone keeps to now and WheelPrice */
+  .v19-after { display: none; }
+  .v19-wp { margin-top: 72px; }
+  .v19-land-intro, .v19-land-intro.is-away, .v19-land-links, .v19-land-hint { grid-column: 1 / -1; }
+  .v19-land-intro { margin-top: 20px; }
+  .v19-land-intro.is-away { margin-top: 10px; }
+  .v19-land-tail { display: none; }
+  .v19-land-head::after { content: '.'; }
+}
+
+/* the papers on a phone held upright: where, how far along, a short title, citations and links */
+.v19-title-short { display: none; }
+@media (max-width: 720px) and (orientation: portrait) {
+  .v19-brief { padding: 14px 16px; }
+  .v19-brief .v19-brief-fig, .v19-brief .v19-brief-line { display: none; }
+  .v19-brief:has(.v19-title-short) .v19-title-long { display: none; }
+  .v19-title-short { display: inline; }
+  .v19-brief .v19-sheet-title { font-size: 17px; }
+  .v19-brief-row { gap: 10px; }
 }

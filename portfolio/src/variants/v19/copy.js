@@ -362,9 +362,16 @@ const PAPER_NOW = {
 // From Google Scholar, 11 Sep 2026. src/data/publications.js is behind.
 const CITATIONS = { teammedagents: 8, metarag: 8 };
 
+// the titles a phone has room for
+const PAPER_SHORT = {
+  metarag: 'Leveraging LLM-Generated Metadata to Enhance RAG Systems',
+  teammedagents: 'Pareto-Efficient Multi-Agent Medical Reasoning',
+};
+
 export const PAPERS = publications.filter((p) => !PAPERS_OFF.has(p.id)).map((p) => ({
   id: p.id,
   title: (PAPER_NOW[p.id] || {}).title || p.title,
+  short: PAPER_SHORT[p.id] || '',
   venue: (PAPER_NOW[p.id] || {}).venue || p.venue,
   arxiv: (PAPER_NOW[p.id] || {}).arxiv || '',
   status: p.status,

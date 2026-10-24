@@ -13,10 +13,10 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createGrid, rasterize, W, H, ROOF } from './engine';
-import { nightAt } from '../hooks';
-import { drawScene, HOTSPOTS, LIGHTS, SCREENS, BUTTON } from './scene';
+import { nightAt, usePhone } from '../hooks';
+import { drawScene, hotspotsFor, LIGHTS, SCREENS, BUTTON } from './scene';
 import { BOOKS, GAMES, POSTERS, TROPHIES, MEDALS } from '../personal';
-import { ALL_PROJECTS, PAPERS, ROLES, ALFRED, LINKS, MORE_LINKS } from '../copy';
+import { ALL_PROJECTS, PAPERS, ROLES, ALFRED, LINKS, MORE_LINKS, LETTERBOXD, CHESS } from '../copy';
 
 // the books whose notes run long
 const LONG_NOTE = new Set(['hitchhikers', 'stranger']);
@@ -65,7 +65,7 @@ function List({ items }) {
   );
 }
 
-function Slip({ hotspot, onClose, onJump }) {
+function Slip({ hotspot, onClose, onJump, phone }) {
   if (!hotspot) return null;
   const { key } = hotspot;
   const sc = hotspot.screen;
@@ -113,6 +113,9 @@ function Slip({ hotspot, onClose, onJump }) {
             <>
               <p className="v19-slip-p">{ALFRED.company} now, and {ROLES.map((x) => x.company).join(', ')} before it.</p>
               <button type="button" className="v19-slip-go" onClick={() => onJump && onJump('work')}>Go and see the work</button>
+              {/* on a phone the papers' screen is a stack of books, so the papers are here */}
+              {phone ? <p className="v19-slip-p">And two papers: {PAPERS.map((x) => x.title.split(':')[0]).join(' and ')}.</p> : null}
+              {phone ? <button type="button" className="v19-slip-go" onClick={() => onJump && onJump('papers')}>Go and read them</button> : null}
               <p className="v19-slip-links">
                 {LINKS.concat(MORE_LINKS).map((l) => (
                   <a key={l.label} href={l.href} target={l.href.startsWith('http') ? '_blank' : undefined} rel="noreferrer">{l.label}</a>
@@ -217,10 +220,26 @@ function Slip({ hotspot, onClose, onJump }) {
               <p className="v19-slip-p">{p.by}, {p.year}.</p>
               <p className="v19-slip-p">{p.note}</p>
               {p.placeholder ? <p className="v19-sample">Placeholder — his own line about it goes here.</p> : null}
+              <p className="v19-slip-links">
+                <a href={LETTERBOXD} target="_blank" rel="noreferrer">Everything I watch, on Letterboxd</a>
+              </p>
             </>
           ),
         };
       }
+      case 'chess':
+        return {
+          eye: phone ? 'On the books' : 'On the desk',
+          title: 'Chess',
+          node: (
+            <>
+              <p className="v19-slip-p">{CHESS.rapid} in rapid, {CHESS.blitz} in blitz.</p>
+              <p className="v19-slip-links">
+                <a href={CHESS.href} target="_blank" rel="noreferrer">{CHESS.name} on chess.com</a>
+              </p>
+            </>
+          ),
+        };
       default:
         return null;
     }
@@ -251,6 +270,11 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
   const hoverScreenRef = useRef(null);
   const [hoverScreen, setHoverScreen] = useState(null);
   const [discoOn, setDiscoOn] = useState(false);
+  const [glassBroken, setGlassBroken] = useState(false); // the party button's case
+  const phone = usePhone();
+  const spots = hotspotsFor(phone);
+  const spotsRef = useRef(spots);
+  spotsRef.current = spots;
   const [btnAt, setBtnAt] = useState(null); // where the round button sits over the canvas
   const cursorRef = useRef(null);
   const gridRef = useRef(null);
@@ -266,6 +290,8 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
     spin: 0,
     spinAt: null,
     disco: false,
+    glassBroken: false,
+    glassAt: 0,
     t: 0,
   });
   const hoverRef = useRef(0);
@@ -334,8 +360,9 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
     return () => { alive = false; };
   }, []);
 
-  const hotspot = useMemo(() => HOTSPOTS.find((h) => h.id === hover) || null, [hover]);
-  const openHotspot = useMemo(() => HOTSPOTS.find((h) => h.key === openKey) || null, [openKey]);
+  stateRef.current.phone = phone;
+  const hotspot = useMemo(() => spots.find((h) => h.id === hover) || null, [hover, spots]);
+  const openHotspot = useMemo(() => spots.find((h) => h.key === openKey) || null, [openKey, spots]);
 
   useEffect(() => {
     let alive = true;
@@ -427,7 +454,7 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
         ctx.globalCompositeOperation = 'source-over';
       };
       artRef.current.posters.forEach((img, i) => {
-        const hs = HOTSPOTS.find((h) => h.key === `poster${i + 1}`);
+        const hs = spotsRef.current.find((h) => h.key === `poster${i + 1}`);
         if (hs) blit(img, hs.x, hs.y + ROOF, hs.w, hs.h);
       });
     };
@@ -458,25 +485,28 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
           ctx.globalCompositeOperation = 'source-over';
         }
       }
-      // the second screen: a paper, two columns
-      ctx.fillStyle = st.mono ? '#d6d4ce' : '#e8e6df';
-      ctx.fillRect(b.x + 1, b.y + 1, b.w - 2, b.h - 2);
-      ctx.fillStyle = '#3b3a38';
-      ctx.fillRect(b.x + 3, b.y + 3, b.w - 6, 2);
-      ctx.fillRect(b.x + 3, b.y + 6, b.w - 14, 1);
-      ctx.fillStyle = '#8a8782';
-      for (let i = 0; i < 6; i += 1) {
-        ctx.fillRect(b.x + 3, b.y + 9 + i * 2, 12, 1);
-        ctx.fillRect(b.x + 18, b.y + 9 + i * 2, 10 + ((i * 3) % 3), 1);
+      // the second screen: a paper, two columns (on a phone it is a stack of books instead)
+      const screens = st.phone ? [a] : [a, b];
+      if (!st.phone) {
+        ctx.fillStyle = st.mono ? '#d6d4ce' : '#e8e6df';
+        ctx.fillRect(b.x + 1, b.y + 1, b.w - 2, b.h - 2);
+        ctx.fillStyle = '#3b3a38';
+        ctx.fillRect(b.x + 3, b.y + 3, b.w - 6, 2);
+        ctx.fillRect(b.x + 3, b.y + 6, b.w - 14, 1);
+        ctx.fillStyle = '#8a8782';
+        for (let i = 0; i < 6; i += 1) {
+          ctx.fillRect(b.x + 3, b.y + 9 + i * 2, 12, 1);
+          ctx.fillRect(b.x + 18, b.y + 9 + i * 2, 10 + ((i * 3) % 3), 1);
+        }
+        ctx.fillStyle = st.mono ? '#68676a' : '#2f6a8f';
+        ctx.fillRect(b.x + 3, b.y + b.h - 3, 7, 1);
       }
-      ctx.fillStyle = st.mono ? '#68676a' : '#2f6a8f';
-      ctx.fillRect(b.x + 3, b.y + b.h - 3, 7, 1);
 
       // the chair is nearer than the screens: put its pixels back over whatever landed on them
       const grid = gridRef.current;
       const frame = imgRef.current;
       if (!grid || !frame) return;
-      [a, b].forEach((r) => {
+      screens.forEach((r) => {
         for (let y = r.y; y < r.y + r.h; y += 1) {
           for (let x = r.x; x < r.x + r.w; x += 1) {
             const i = y * W + x;
@@ -605,7 +635,7 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
     const gy = (e.clientY - r.top - offY) / scale;
     if (x < 0 || gy < 0 || x >= W || gy >= H) return null;
     const y = gy - ROOF; // hotspots are in room coordinates; the roof sits above them
-    const hit = HOTSPOTS.find((h) => x >= h.x && x < h.x + h.w && y >= h.y && y < h.y + h.h) || null;
+    const hit = spotsRef.current.find((h) => x >= h.x && x < h.x + h.w && y >= h.y && y < h.y + h.h) || null;
     if (hit) {
       // where the object sits on screen, relative to the stage — the slip is placed beside it
       hit.screen = {
@@ -683,6 +713,12 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
           case 'mug': st.cold = !st.cold; break;
           case 'clock': if (onClock) onClock(); break;
           case 'disco':
+            if (!st.glassBroken) {
+              st.glassBroken = true;
+              st.glassAt = performance.now();
+              setGlassBroken(true);
+              break;
+            }
             st.disco = !st.disco;
             setDiscoOn(st.disco);
             if (onDisco) onDisco(st.disco);
@@ -719,7 +755,7 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
     }
     if (hotspot.key === 'books') return BOOKS.map((b) => b.title).join(' · ');
     if (hotspot.key === 'chair') return 'The chair';
-    if (hotspot.key === 'disco') return stateRef.current.disco ? 'Enough' : 'Press it';
+    if (hotspot.key === 'disco') return !glassBroken ? 'Break the glass' : stateRef.current.disco ? 'Enough' : 'Press it';
     if (hotspot.key === 'pc') return stateRef.current.pc ? 'The tower — switch it off and see' : 'The tower';
     if (hotspot.key === 'clock') return flipped ? 'The clock — put the day back' : 'The clock — flip the day';
     return hotspot.label;
@@ -753,14 +789,14 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
 
         {btnAt ? (
           <span
-            className={`v19-room-btn${discoOn ? ' on' : ''}`}
+            className={`v19-room-btn${discoOn ? ' on' : ''}${glassBroken ? '' : ' is-caged'}`}
             style={{ left: btnAt.left, top: btnAt.top, width: btnAt.size, height: btnAt.size }}
             aria-hidden="true"
           />
         ) : null}
         </div>
         <p className={`v19-room-cap${caption ? ' on' : ''}`}>{caption}</p>
-        <Slip hotspot={openHotspot} onClose={() => setOpenKey(null)} onJump={(id) => { setOpenKey(null); if (onJump) onJump(id); }} />
+        <Slip phone={phone} hotspot={openHotspot} onClose={() => setOpenKey(null)} onJump={(id) => { setOpenKey(null); if (onJump) onJump(id); }} />
 
         {/* the way back up, standing on the rug */}
         <button type="button" className="v19-top" onClick={onTop} data-keep-open="">

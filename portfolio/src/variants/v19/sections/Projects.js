@@ -198,11 +198,25 @@ export default function Projects({ sectionRef }) {
   );
 
   /* a phone held upright: a screen above and the projects as keys below, the way a BlackBerry
-     was a screen over a keyboard. A key puts its project on the screen; the filters are the
-     row of keys along the top. What I am building now comes first. */
+     was a screen over a keyboard. Every key is the project's picture: a row of six bigger ones
+     for what I am building now and the ones after it, then rows of eight. A key puts its project
+     on the screen. */
   if (phone) {
     const now = new Set(NOW_BUILDING.map((p) => p.id));
-    const ordered = [...list.filter((p) => now.has(p.id)), ...list.filter((p) => !now.has(p.id))];
+    const ordered = [...ALL_PROJECTS.filter((p) => now.has(p.id)), ...ALL_PROJECTS.filter((p) => !now.has(p.id))];
+    const key = (p, big) => (
+      <button
+        type="button"
+        key={p.id}
+        className={`v19-bb-key${big ? ' is-big' : ''}${shown.id === p.id ? ' on' : ''}`}
+        onClick={() => onPick(p.id)}
+        aria-label={p.name}
+        aria-pressed={open === p.id}
+        data-keep-open=""
+      >
+        <img src={p.image} alt="" loading="lazy" decoding="async" />
+      </button>
+    );
     return (
       <section className="v19-slab v19-projects" ref={sectionRef} id="projects" aria-label="Projects">
         <div className="v19-slab-in v19-projects-in" ref={wrapRef}>
@@ -219,28 +233,18 @@ export default function Projects({ sectionRef }) {
             <div className="v19-bb-screen" data-keep-open="">
               <div className="v19-bb-shot">
                 <img key={shown.id} src={shown.image} alt="" decoding="async" />
+                <p className="v19-bb-cap">
+                  <span>{mode === 'auto' || now.has(shown.id) ? 'Building right now' : shown.tag}</span>
+                  <b>{shown.name}</b>
+                </p>
               </div>
               <div className="v19-bb-words">
-                <p className="v19-prow-eye">{mode === 'auto' || now.has(shown.id) ? 'Building right now' : shown.tag}</p>
-                <h3 className="v19-prow-name">{shown.name}</h3>
                 <p className="v19-prow-line">{shown.line}</p>
                 <Links p={shown} />
               </div>
             </div>
-            <div className="v19-bb-fn" role="group" aria-label="Show only">
-              {FILTERS.map((f) => (
-                <button type="button" key={f.id} className={`v19-bb-key is-fn${filter === f.id ? ' on' : ''}`} onClick={() => setFilter(f.id)} data-keep-open="">
-                  {f.label}
-                </button>
-              ))}
-            </div>
-            <div className="v19-bb-pad">
-              {ordered.map((p) => (
-                <button type="button" key={p.id} className={`v19-bb-key${shown.id === p.id ? ' on' : ''}`} onClick={() => onPick(p.id)} aria-pressed={open === p.id} data-keep-open="">
-                  {p.name}
-                </button>
-              ))}
-            </div>
+            <div className="v19-bb-top">{ordered.slice(0, 6).map((p) => key(p, true))}</div>
+            <div className="v19-bb-pad">{ordered.slice(6).map((p) => key(p, false))}</div>
           </div>
         </div>
       </section>

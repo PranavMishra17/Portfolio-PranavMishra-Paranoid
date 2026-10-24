@@ -390,7 +390,10 @@ function Brief({ p }) {
       </div>
       <div className="v19-brief-words">
         <SheetHead p={p} />
-        <h3 className="v19-sheet-title">{p.title}</h3>
+        <h3 className="v19-sheet-title">
+          <span className="v19-title-long">{p.title}</span>
+          {p.short ? <span className="v19-title-short">{p.short}</span> : null}
+        </h3>
         <p className="v19-brief-line">{p.line}</p>
         <Abstract p={p} opening={190} inline full={full} onFull={setFull} />
         <div className="v19-sheet-foot">

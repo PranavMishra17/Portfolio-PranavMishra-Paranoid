@@ -16,7 +16,7 @@
 // Room is 288 × 144. The floor is at 106; the desk surface at 84.
 
 import { painter, createGrid, W, ROOM_H as H, ROOF } from './engine';
-import { BOOKS, GAMES, MAGNETS, POSTERS } from '../personal';
+import { BOOKS, POSTERS } from '../personal';
 
 const FLOOR_Y = 106;
 const DESK_Y = 84;
@@ -31,13 +31,14 @@ export const SCREENS = {
 /* Hit-test order: first match wins, so what is nearest to you comes first. */
 export const HOTSPOTS = [
   { id: 2, key: 'chair', label: 'The chair', kind: 'hand', x: 118, y: 68, w: 52, h: 48 },
-  { id: 4, key: 'mug', label: 'Tea', kind: 'hand', x: 195, y: 72, w: 14, h: 14 },
+  { id: 4, key: 'mug', label: 'Coffee', kind: 'hand', x: 195, y: 72, w: 14, h: 14 },
+  { id: 24, key: 'chess', label: 'Chess', kind: 'zoom', x: 80, y: 70, w: 13, h: 15 },
   { id: 5, key: 'laptop', label: 'Where I have worked', kind: 'zoom', x: 208, y: 56, w: 38, h: 30 },
   { id: 1, key: 'lamp', label: 'The lamp', kind: 'hand', x: 50, y: 32, w: 36, h: 16 },
   { id: 6, key: 'monitorA', label: 'Everything I have built', kind: 'zoom', x: 92, y: 54, w: 42, h: 30 },
   { id: 7, key: 'monitorB', label: 'Two papers', kind: 'zoom', x: 154, y: 54, w: 42, h: 30 },
   { id: 8, key: 'pc', label: 'The tower', kind: 'hand', x: 50, y: 86, w: 28, h: 34 },
-  { id: 9, key: 'games', label: 'Video games', kind: 'zoom', x: 78, y: 96, w: 32, h: 24 },
+  { id: 9, key: 'games', label: 'The PS5', kind: 'zoom', x: 80, y: 92, w: 32, h: 32 },
   // 28 by 42: the three pictures are all two by three, so the frame is too, and nothing is cropped
   { id: 10, key: 'poster1', label: POSTERS[0].title, kind: 'zoom', x: 85, y: 6, w: 28, h: 42 },
   { id: 11, key: 'poster2', label: POSTERS[1].title, kind: 'zoom', x: 125, y: 6, w: 28, h: 42 },
@@ -47,13 +48,25 @@ export const HOTSPOTS = [
   { id: 15, key: 'books', label: 'Books', kind: 'zoom', x: 6, y: 32, w: 32, h: 24 },
   { id: 21, key: 'clock', label: 'The clock', kind: 'zoom', x: 20, y: 12, w: 20, h: 20 },
   { id: 18, key: 'ball', label: 'Football and boots', kind: 'hand', x: 8, y: 104, w: 70, h: 22 },
-  { id: 23, key: 'disco', label: 'A button', kind: 'hand', x: 259, y: 73, w: 12, h: 12 },
+  { id: 23, key: 'disco', label: 'A button', kind: 'hand', x: 182, y: 94, w: 23, h: 26 },
   { id: 19, key: 'window', label: 'The window', kind: 'hand', x: 208, y: -2, w: 64, h: 46 },
   { id: 20, key: 'lights', label: 'String lights', kind: 'hand', x: 4, y: -7, w: 280, h: 12 },
 ];
 
-// the button on the wall, right of the desk, above the bin
-export const BUTTON = { x: 265, y: 79, r: 3 };
+// the party button: on the floor under the right of the desk, where the PS5 is on the left,
+// in a case with a glass front
+export const BUTTON = { x: 193, y: 106, r: 3 };
+
+/* On a phone held upright the room is walked along from its middle, so what has to be seen goes
+   there: the right screen is a stack of books, and the chess stands on top of it. */
+const PHONE_SPOTS = {
+  monitorB: { id: 25, key: 'books', label: 'Books', kind: 'zoom', x: 154, y: 66, w: 42, h: 18 },
+  chess: { id: 24, key: 'chess', label: 'Chess', kind: 'zoom', x: 166, y: 52, w: 16, h: 14 },
+};
+export function hotspotsFor(phone) {
+  if (!phone) return HOTSPOTS;
+  return HOTSPOTS.map((h) => PHONE_SPOTS[h.key] || h);
+}
 
 export const LIGHTS = {
   lamp: { x: 68, y: 52, r: 78, warm: 1, strength: 0.95 },
@@ -321,7 +334,7 @@ function panel(g, x, y, w, h, on) {
   if (!on) g.dither(x, y, w, h, 'screen', 'screen2');
 }
 
-function monitors(g, on) {
+function monitors(g, on, phone) {
   const a = SCREENS.monitorA;
   const b = SCREENS.monitorB;
   g.setId(6);
@@ -329,6 +342,8 @@ function monitors(g, on) {
   g.rect(a.x + 14, a.y + a.h + 4, 7, 4, 'grey3');
   g.rect(a.x + 7, a.y + a.h + 8, 21, 2, 'grey3');
   g.px(a.x + a.w + 1, a.y + a.h + 1, on ? 'led' : 'ledRed');
+  g.setId(0);
+  if (phone) return;
   g.setId(7);
   panel(g, b.x, b.y, b.w, b.h, on);
   g.rect(b.x + 14, b.y + b.h + 4, 7, 4, 'grey3');
@@ -393,19 +408,63 @@ function tower(g, on, t) {
   g.line(56, 116, 49, 118, 'cable');
 }
 
+// a PS5 standing on the floor, white wings round a black core, and its two controllers
 function games(g) {
   g.setId(9);
-  const CASE = ['purple2', 'blue2', 'orange2', 'red2', 'green2'];
-  GAMES.forEach((it, i) => {
-    const y = 118 - (i + 1) * 4;
-    g.rect(80, y, 22, 4, 'ink2');
-    g.rect(81, y + 1, 20, 2, CASE[i % CASE.length]);
-    g.px(99, y + 1, 'cream');
+  g.rect(82, 117, 13, 1, 'ink2');
+  g.rect(83, 94, 3, 23, 'white');
+  g.px(83, 94, 'wallDim');
+  g.rect(86, 96, 4, 21, 'ink');
+  g.rect(87, 97, 2, 1, 'blue2');
+  g.rect(90, 94, 3, 23, 'white');
+  g.px(92, 94, 'wallDim');
+  g.vline(86, 99, 15, 'ink2');
+  // the controllers: white, a black middle, two grips; one lying in front of the other
+  [[96, 113], [99, 118]].forEach(([cx, cy]) => {
+    g.rect(cx, cy, 11, 3, 'white');
+    g.rect(cx + 4, cy, 3, 2, 'ink');
+    g.px(cx + 1, cy + 3, 'white');
+    g.px(cx + 2, cy + 3, 'white');
+    g.px(cx + 8, cy + 3, 'white');
+    g.px(cx + 9, cy + 3, 'white');
+    g.px(cx + 2, cy + 1, 'grey3');
+    g.px(cx + 8, cy + 1, 'blue2');
+    g.hline(cx, cy + 4, 11, 'floorDark');
   });
-  g.rect(104, 104, 5, 14, 'ink2');
-  g.rect(104, 105, 4, 12, 'green2');
-  g.rect(105, 107, 2, 5, 'ink2');
   g.setId(0);
+}
+
+// a king and a knight standing together: a white king, a black knight
+function chess(g, x, y) {
+  g.setId(24);
+  g.rect(x, y - 2, 5, 2, 'cream');
+  g.rect(x + 1, y - 7, 3, 5, 'cream');
+  g.rect(x, y - 8, 5, 1, 'cream');
+  g.vline(x + 2, y - 11, 3, 'cream');
+  g.hline(x + 1, y - 10, 3, 'cream');
+  g.vline(x + 4, y - 7, 5, 'sand');
+  const k = x + 6;
+  g.rect(k, y - 2, 6, 2, 'ink');
+  g.rect(k + 1, y - 6, 4, 4, 'ink');
+  g.rect(k + 2, y - 8, 3, 2, 'ink');
+  g.rect(k, y - 8, 2, 2, 'ink');
+  g.px(k + 4, y - 9, 'ink');
+  g.px(k + 2, y - 7, 'grey3');
+  g.setId(0);
+}
+
+// the phone's right screen: books lying flat in a stack, the chess on top
+function bookStack(g) {
+  g.setId(25);
+  const SPINE = ['blue2', 'red2', 'sand', 'green2', 'purple2'];
+  [[156, 34], [158, 30], [155, 33], [159, 28], [157, 31]].forEach(([bx, bw], i) => {
+    const by = DESK_Y - 3 - i * 3;
+    g.rect(bx, by, bw, 3, SPINE[i]);
+    g.hline(bx, by, bw, 'ink2');
+    g.rect(bx + bw - 3, by + 1, 3, 1, 'cream');
+  });
+  g.setId(0);
+  chess(g, 166, DESK_Y - 15);
 }
 
 /* ── him, and the chair he is inside ───────────────────────────────── */
@@ -560,49 +619,59 @@ function ball(g, bounce) {
 
 /* ── the right corner: a bin, and what it was standing in front of ──── */
 
-// a small switch plate on the wall. The round glossy button itself is a DOM element Room lays
-// over this spot, so it can be a true circle; the pixels under it are a fallback. Glitter
-// while the disco is on.
-function button(g, on, t) {
+// the party button, in a case on the floor with a glass front. The round glossy button itself is
+// a DOM element Room lays over this spot, so it can be a true circle; the pixels under it are a
+// fallback. The first press breaks the glass and the pieces fall to the floor; after that it is
+// the button. Glitter while the disco is on.
+const CASE = { x: 184, y: 98, w: 19, h: 20 };
+// where each piece of glass starts on the front, and how far it falls and slides
+const SHARDS = [[2, 3, -6, 22], [6, 2, -3, 24], [12, 4, 5, 23], [15, 9, 9, 25], [3, 12, -8, 25], [9, 14, 2, 26], [14, 15, 7, 26], [5, 7, -4, 23]];
+function button(g, on, broken, brokeAt, t) {
   const { x, y } = BUTTON;
+  const c = CASE;
   g.setId(23);
+  g.rect(c.x, c.y, c.w, c.h, 'ink2');
+  g.rect(c.x + 1, c.y + 1, c.w - 2, c.h - 5, 'grey3');
+  for (let i = 0; i < c.w; i += 1) g.px(c.x + i, c.y + c.h - 3, Math.floor(i / 2) % 2 ? 'yellow' : 'ink');
+  for (let i = 0; i < c.w; i += 1) g.px(c.x + i, c.y + c.h - 2, Math.floor((i + 1) / 2) % 2 ? 'yellow' : 'ink');
   g.rect(x - 4, y - 4, 9, 9, 'grey2');
   g.frame(x - 4, y - 4, 9, 9, 'grey3');
   g.disc(x, y, 2, on ? 'ledRed' : 'red');
   g.px(x - 1, y - 1, on ? 'pink' : 'red2');
   g.px(x, y + 1, 'red3');
+  if (!broken) {
+    // the glass: a pale sheen with two glints across it
+    for (let yy = c.y + 1; yy < c.y + c.h - 4; yy += 1) {
+      for (let xx = c.x + 1; xx < c.x + c.w - 1; xx += 1) {
+        const d = (xx - c.x) - (yy - c.y);
+        if (d === 3 || d === 4 || d === 9) g.px(xx, yy, 'white');
+        else if ((xx + yy) % 4 === 0) g.px(xx, yy, 'glass');
+      }
+    }
+  } else {
+    // a few jagged pieces left in the corners, the rest falling, then lying on the floor
+    g.px(c.x + 1, c.y + 1, 'glass'); g.px(c.x + 2, c.y + 1, 'glass'); g.px(c.x + 1, c.y + 2, 'glass');
+    g.px(c.x + c.w - 2, c.y + c.h - 5, 'glass'); g.px(c.x + c.w - 3, c.y + c.h - 5, 'glass');
+    const p = Math.min(1, (t - (brokeAt || 0)) / 420);
+    const e = p * p;
+    SHARDS.forEach(([sx, sy, dx, dy]) => {
+      const px = Math.round(c.x + sx + dx * e);
+      const py = Math.round(c.y + sy + (dy - sy) * e);
+      g.px(px, py, p < 1 ? 'white' : 'glass');
+      if (p >= 1) g.px(px + 1, py, 'white');
+    });
+  }
   if (on) {
-    // the glitter, only while the disco is on: three sparks that take turns, out past the stripes
     const k = Math.floor(t / 220) % 3;
-    const sparks = [[x - 10, y - 9], [x + 10, y - 6], [x + 9, y + 10]];
+    const sparks = [[x - 12, y - 10], [x + 12, y - 7], [x + 11, y + 9]];
     sparks.forEach(([sx, sy], i) => {
       const lit = i === k;
-      const c = lit ? 'white' : (i + 1) % 3 === k ? 'gold2' : null;
-      if (!c) return;
-      g.px(sx, sy, c);
+      const col = lit ? 'white' : (i + 1) % 3 === k ? 'gold2' : null;
+      if (!col) return;
+      g.px(sx, sy, col);
       if (lit) { g.px(sx - 1, sy, 'gold2'); g.px(sx + 1, sy, 'gold2'); g.px(sx, sy - 1, 'gold2'); g.px(sx, sy + 1, 'gold2'); }
     });
   }
-  g.setId(0);
-}
-
-// stripes round the button, and a caution triangle under it
-function hazard(g) {
-  g.setId(0);
-  const { x, y } = BUTTON;
-  for (let yy = -7; yy <= 7; yy += 1) {
-    for (let xx = -7; xx <= 7; xx += 1) {
-      if (Math.abs(xx) < 5 && Math.abs(yy) < 5) continue;
-      g.px(x + xx, y + yy, Math.floor((xx + yy + 14) / 2) % 2 ? 'yellow' : 'ink');
-    }
-  }
-  const ty = y + 12;
-  for (let r = 0; r < 7; r += 1) {
-    g.hline(x - r, ty + r, r * 2 + 1, r === 6 ? 'ink' : 'yellow');
-    g.px(x - r, ty + r, 'ink'); g.px(x + r, ty + r, 'ink');
-  }
-  g.rect(x, ty + 2, 1, 3, 'ink');
-  g.px(x, ty + 6 - 1, 'yellow'); g.px(x, ty + 5, 'ink');
   g.setId(0);
 }
 
@@ -639,7 +708,6 @@ function stillParts(hour) {
   const g = painter(still, ROOF);
   shell(g);
   POSTERS.forEach((p, i) => poster(g, 10 + i, 85 + i * 40, 6, i));
-  hazard(g);
   clock(g, hour);
   rug(g);
   desk(g);
@@ -655,14 +723,16 @@ export function drawScene(grid, state) {
   const t = state.t || 0;
   stringLights(g, state.string, t);
   if (state.disco) mirrorBall(g, t);
-  button(g, state.disco, t);
   windowUnit(g, state.windowT || 0, t, (state.night || 0) > 0.45);
   shelf(g, state.sparkle, t);
   tower(g, state.pc, t);
-  monitors(g, state.pc);
+  monitors(g, state.pc, state.phone);
+  if (state.phone) bookStack(g);
+  else chess(g, 82, DESK_Y);
   laptop(g, state.pc);
   lamp(g, state.lamp);
   mug(g, !state.cold, t);
+  button(g, state.disco, state.glassBroken, state.glassAt, t);
   chair(g, state.spin || 0);
   ball(g, state.bounce || 0);
   return grid;

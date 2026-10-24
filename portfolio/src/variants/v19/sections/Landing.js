@@ -81,6 +81,11 @@ function Face() {
   );
 }
 
+// on a phone the intro stops at the turn: the list after it is the desk's to show
+const CUT = ME.intro.indexOf(': ', ME.intro.indexOf('teaches me the next'));
+const HEAD = CUT > 0 ? ME.intro.slice(0, CUT) : ME.intro;
+const TAIL = CUT > 0 ? ME.intro.slice(CUT) : '';
+
 export default function Landing({ hint, onGo, scroll }) {
   return (
     <div className="v19-land is-plate">
@@ -88,7 +93,17 @@ export default function Landing({ hint, onGo, scroll }) {
         <Face />
         <div className="v19-land-words">
           <Name />
-          <p className="v19-land-intro">{ME.intro}</p>
+          {/* on a phone the role sits under the name, beside the photo, instead of under the photo */}
+          <p className="v19-land-role">
+            <span>{ME.role.split(' at ')[0]}</span>
+            <span>
+              at <img src={ALFRED.logo} alt="" /> {ME.role.split(' at ')[1]}
+            </span>
+          </p>
+          <p className="v19-land-intro">
+            <span className="v19-land-head">{HEAD}</span>
+            <span className="v19-land-tail">{TAIL}</span>
+          </p>
           {/* what I love, on its own line, in the same voice and colour as the rest */}
           <p className="v19-land-intro is-away">
             Away from the desk, I'm{' '}
