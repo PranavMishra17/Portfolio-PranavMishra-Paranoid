@@ -401,6 +401,9 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
     let lastDraw = 0;
     let lastFrame = 0;
     let onScreen = true; // the room is the bottom of the page; behind the wall it is not drawn
+    let scrolledAt = 0;
+    const onScroll = () => { scrolledAt = performance.now(); };
+    window.addEventListener('scroll', onScroll, { passive: true });
 
     // the only way a frame is ever asked for: whatever was pending is dropped first, so a
     // hidden tab never comes back with a queue of them
@@ -580,6 +583,9 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
       if (!alive) return;
       if (!onScreen || document.hidden) return; // it is picked up again when it is seen
       lastFrame = now;
+      // while the page is moving the room holds still: a frame of it in the middle of a scroll is
+      // a dropped frame on a phone, and nobody is looking at it then
+      if (now - scrolledAt < 160) { schedule(); return; }
       if (now - lastDraw >= FRAME_MS) {
         const dt = lastDraw ? now - lastDraw : FRAME_MS;
         lastDraw = now;
@@ -627,6 +633,7 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
 
     return () => {
       alive = false;
+      window.removeEventListener('scroll', onScroll);
       window.cancelAnimationFrame(raf);
       window.clearInterval(watchdog);
       document.removeEventListener('visibilitychange', wake);

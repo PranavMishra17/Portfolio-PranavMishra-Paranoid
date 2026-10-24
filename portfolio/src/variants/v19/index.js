@@ -114,15 +114,18 @@ function Page() {
     if (!blown) window.scrollTo(0, 0);
   }, [blown]);
 
-  /* when the wall goes, however it went, the page comes to rest with the alfred_ heading in view
-     and is held there a moment: a phone's fling or a wheel's last ticks would carry it past, and
-     a wall blown at the very top would otherwise read as scrolled back up and come straight back */
+  /* where the page comes to rest when the wall goes: with the alfred_ heading in view. On a touch
+     screen the browser's own snap does it (v19.css) and nothing here pushes the scroll, so a
+     finger is never fought. With a mouse there is no finger: the page is put on the heading and
+     held there a moment, so a wheel's last notches do not carry it past. And a wall held away at
+     the very top leaves the page there, which would read as scrolled back up and bring the wall
+     straight back, so that moves to the work on any screen. */
   const settleRef = useRef(null);
-  const settle = useCallback(() => {
+  const settle = useCallback((hold) => {
     const work = document.getElementById('work');
     if (!work) return;
     const top = work.getBoundingClientRect().top + window.scrollY;
-    settleRef.current = { top, until: performance.now() + 700 };
+    if (hold) settleRef.current = { top, until: performance.now() + 600 };
     window.scrollTo({ top, behavior: 'instant' });
   }, []);
 
@@ -154,7 +157,8 @@ function Page() {
       }
       // the wall wakes the page itself once its tiles are clear (onBlast); with no wall, this does
       if (detRef.current) {
-        if (detRef.current.fuse(y / (window.innerHeight * FUSE))) settle();
+        const fired = detRef.current.fuse(y / (window.innerHeight * FUSE));
+        if (fired && !window.matchMedia('(pointer: coarse)').matches) settle(true);
       } else if (y > window.innerHeight * FUSE) setBlown(true);
     };
     const onScroll = () => {
@@ -235,9 +239,9 @@ function Page() {
   }, [blown]);
 
   const onBlast = useCallback(() => {
-    // a wall held, tapped or clicked away from the top of the page: bring the page to the work
-    const work = document.getElementById('work');
-    if (work && work.getBoundingClientRect().top > 2) settle();
+    // a wall held or tapped away at the very top of the page: bring the page to the work (one
+    // scrolled away is already on its way there)
+    if (window.scrollY <= 2) settle();
     setBlown(true);
     // the résumé, quietly, so the link is instant when it is wanted
     window.setTimeout(() => {

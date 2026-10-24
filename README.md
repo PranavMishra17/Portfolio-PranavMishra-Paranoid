@@ -8,7 +8,7 @@ Live at [pranavmishra17.vercel.app](https://pranavmishra17.vercel.app/).
 
 ## What's on the page
 
-**The wall.** The site opens on a plaster wall with a short intro on it. There is no cursor: the tiles lift under your hand, and hold the mouse button and they tremble harder until the whole thing comes apart and the page is underneath (on a phone, one tap). See my work does the same from a button; point at it and it says Light the fuse. The words at the end of the intro each do something when you point at them, and watching films goes to Letterboxd. The face in the header puts the wall back.
+**The wall.** The site opens on a plaster wall with a short intro on it. Scrolling is the fuse, on any screen: the first part of the scroll lifts the tiles and the intro with them, and past two fifths of a screen the whole thing comes apart and the page is underneath, with the alfred\_ heading in view. Back at the very top the wall drops back in, tile by tile. With a mouse you can also hold the button over it until it goes. See my work does the same from a button; point at it and it says Light the fuse. The words at the end of the intro each do something when you point at them: watching films goes to Letterboxd, the chessboard to chess.com. The face in the header puts the wall back.
 
 ![alfred\_](./docs/screens/work.jpg)
 
@@ -24,7 +24,7 @@ Live at [pranavmishra17.vercel.app](https://pranavmishra17.vercel.app/).
 
 ![The room by day](./docs/screens/room-day.jpg)
 
-**The room.** A 288-pixel-wide room drawn into a palette-index buffer every frame and lit for the hour it actually is: the lamp and string lights come on as it gets dark, the window shows the sun or a crescent moon. Everything in it does something. The books, the games and the posters are real (the covers pixelate onto the shelf and clear when you point at them); the chair spins; the clock flips the day; the red button on the wall starts the disco.
+**The room.** A 288-pixel-wide room drawn into a palette-index buffer every frame and lit for the hour it actually is: the lamp and string lights come on as it gets dark, the window shows the sun or a crescent moon. Everything in it does something. The books, the games and the posters are real (the covers pixelate onto the wall and clear when you point at them, and the posters lead to Letterboxd); the king and knight on the desk open chess.com; the chair spins; the clock flips the day; the window lets more or less of it in. The party button is in a case on the wall under the desk: the first press breaks the glass, the second starts the disco.
 
 ![The room at night, disco on](./docs/screens/room-night-disco.jpg)
 
@@ -32,7 +32,7 @@ Live at [pranavmishra17.vercel.app](https://pranavmishra17.vercel.app/).
 
 ![Night](./docs/screens/night.jpg)
 
-**On a phone.** The same page, laid out for one hand: the wall goes with a tap, the header keeps the section dots and the résumé, a figure's note opens inside its own box, and the whole room fits across the screen, its notes rising from the bottom.
+**On a phone.** Laid out for a phone held upright rather than squeezed down from the desk: the wall goes with the scroll (let go early and it springs back), the intro is shorter, the projects are a screen over a keyboard of their pictures, the papers are a title and their links, the figures sit two by two, and the room is tall enough to aim at and swiped along sideways, its notes rising from the bottom.
 
 ![On a phone](./docs/screens/phone.jpg)
 
@@ -58,6 +58,7 @@ portfolio/
 ├── scripts/
 │   ├── stress.js                    # performance and stress harness (see below)
 │   ├── blast.js                     # frame timing across the wall's collapse only
+│   ├── scroll-jank.js               # a phone scrolled up and down, through the wall and back
 │   └── generate-resume-manifest.js
 └── src/
     ├── App.js                       # "/" and "/resume" are v19; "/classic" is the old site
@@ -86,6 +87,7 @@ npm start                         # http://localhost:3000
 |---|---|
 | `npm run build` | Production build. Bash sets `CI=false`; on Windows CMD use `set CI=false && npx react-scripts build`. |
 | `node scripts/stress.js <url> [dpr] [--quick]` | Loads the page in a real Chromium and reports fps, animation loops per frame, JS time per frame, long frames, heap, nodes and listeners across a set of scenes: idle on the wall, a stalled main thread, twenty seconds in a background tab, a resize storm, the blast, the room, three rebuild-and-blast cycles and a soak. Needs `playwright-core` and a Chromium. |
+| `node scripts/scroll-jank.js <url> [cpu-slowdown] [--hide=<selectors>]` | A 390 × 844 touch screen, the CPU slowed to a phone's, finger-dragged through the wall, down the page, up it and back to the top, three times. Per stretch: the median and 95th percentile frame, frames past 33 ms, frames that moved against the scroll, and the scripts behind the longest frames. `--hide` takes parts of the page out to find which one the frames go to. |
 | `node scripts/blast.js <url> [dpr]` | Holds the wall until it goes, then times every frame of the collapse at 1x and 4x CPU throttle: median, 95th percentile, worst frame and frames over 25 ms. The worst frame should stay near 17 ms. Point `PLAYWRIGHT_CORE` at a `playwright-core` directory. |
 | `npm run resume-manifest` | Scans `public/resumes/{ai,game}/` and writes `manifest.json`. Runs on `prestart` and `prebuild`. |
 | `npm test` | Jest via react-scripts. |

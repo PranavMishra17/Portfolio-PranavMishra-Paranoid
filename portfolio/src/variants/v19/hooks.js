@@ -117,22 +117,28 @@ export function useSky(ref, hour, deep = 0.2) {
       el.style.setProperty('--sun-c', c.sunC);
     };
 
-    // the drift is applied in 48 steps down the page, so a scroll repaints the sky a few times
-    // on the way down rather than at every frame — a change of colour is a full-screen paint
+    // the drift is applied in 48 steps down the page, and only once the scroll has stopped: a
+    // change of colour is a full-screen paint, and one in the middle of a scroll is a dropped
+    // frame on a phone
     let step = -1;
+    let idle = 0;
+    const read = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const p = max > 0 ? window.scrollY / max : 0;
+      const s = Math.round(p * 48);
+      if (s !== step) {
+        step = s;
+        apply(s / 48);
+      }
+      ticking = false;
+    };
     const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      window.requestAnimationFrame(() => {
-        const max = document.documentElement.scrollHeight - window.innerHeight;
-        const p = max > 0 ? window.scrollY / max : 0;
-        const s = Math.round(p * 48);
-        if (s !== step) {
-          step = s;
-          apply(s / 48);
-        }
-        ticking = false;
-      });
+      window.clearTimeout(idle);
+      idle = window.setTimeout(() => {
+        if (ticking) return;
+        ticking = true;
+        window.requestAnimationFrame(read);
+      }, 160);
     };
 
     apply(0);
@@ -143,6 +149,7 @@ export function useSky(ref, hour, deep = 0.2) {
     window.addEventListener('resize', onScroll);
     return () => {
       window.clearTimeout(settle);
+      window.clearTimeout(idle);
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
     };

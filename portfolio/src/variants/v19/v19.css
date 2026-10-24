@@ -110,6 +110,8 @@ html.v19-html { scrollbar-gutter: stable; }
 .v19-disco i:nth-child(3) { left: 50%; top: 100%; background: conic-gradient(from 320deg, transparent 0 8deg, rgba(255, 220, 60, .22) 8deg 12deg, transparent 12deg 60deg, rgba(60, 210, 255, .22) 60deg 64deg, transparent 64deg 360deg); animation-duration: 8s; }
 @keyframes v19-swing { from { transform: rotate(-22deg); } to { transform: rotate(22deg); } }
 
+/* the sky and the grain are their own layers: the page scrolls past them without repainting them */
+.v19-sky, .v19-grain { will-change: transform; }
 .v19-grain {
   position: fixed; inset: 0; z-index: 1; pointer-events: none;
   opacity: .5;
@@ -1322,3 +1324,12 @@ html.v19-html { scrollbar-gutter: stable; }
 /* the car drives off the screen, never off the page: nothing past the edge may widen it */
 .v19-past { overflow-x: clip; }
 .v19-wp-drive { -webkit-user-select: none; user-select: none; }
+
+/* on a touch screen the gate is the browser's own: two snap points, the top of the page and the
+   alfred_ heading. Let go early and the page springs back and the tiles settle; past half way it
+   lands on the heading and the wall goes. Native, so a finger or a fling is never fought. A wheel
+   moves in notches that would all snap back to the top, so a mouse gets no snap (see index.js). */
+@media (pointer: coarse) {
+  html.v19-html { scroll-snap-type: y proximity; }
+  .v19-lead, #work { scroll-snap-align: start; }
+}
