@@ -1300,3 +1300,8 @@ html.v19-html { scrollbar-gutter: stable; }
   .lv-say .v19-land-intro:not(.is-away) { display: none; }
   .lv-say .v19-land-intro.is-away { margin-top: 22px; }
 }
+/* a phone held upright: Try it for free above the alfred_ site, not under it */
+@media (max-width: 720px) and (orientation: portrait) {
+  .v19-site-under { display: contents; }
+  .v19-site .v19-glance-go { order: -1; justify-self: start; }
+}
