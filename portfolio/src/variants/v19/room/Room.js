@@ -763,6 +763,10 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
     };
   }, [openKey]);
 
+  const isPoster = (h) => Boolean(h && h.key.startsWith('poster'));
+  const art = isPoster(hoverScreen) ? hoverScreen
+    : isPoster(openHotspot) && openHotspot.screen ? { key: openHotspot.key, ...openHotspot.screen } : null;
+
   const caption = (() => {
     if (!hotspot) return '';
     if (hotspot.key.startsWith('poster')) {
@@ -792,13 +796,14 @@ export default function Room({ sectionRef, onTop, hour = 19, flipped = false, on
           role="img"
         />
 
-        {/* the real picture, over the pixelated one, while you point at it */}
-        {hoverScreen && hoverScreen.key.startsWith('poster') && POSTERS[Number(hoverScreen.key.slice(-1)) - 1].image ? (
+        {/* the real picture, over the pixelated one, while you point at it, or, with no pointer
+            to point (a phone), while its slip is open */}
+        {art && POSTERS[Number(art.key.slice(-1)) - 1].image ? (
           <img
             className="v19-room-art"
-            src={POSTERS[Number(hoverScreen.key.slice(-1)) - 1].image}
+            src={POSTERS[Number(art.key.slice(-1)) - 1].image}
             alt=""
-            style={{ left: hoverScreen.left, top: hoverScreen.top, width: hoverScreen.width, height: hoverScreen.height }}
+            style={{ left: art.left, top: art.top, width: art.width, height: art.height }}
             onError={(e) => { e.currentTarget.style.display = 'none'; }}
           />
         ) : null}

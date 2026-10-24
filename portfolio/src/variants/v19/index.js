@@ -44,15 +44,7 @@ function Page() {
     typeof window !== 'undefined' &&
     window.matchMedia &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  // some phones report a fine pointer that can hover, so a finger on the glass settles it
-  const [touch, setTouch] = useState(
-    () =>
-      typeof window !== 'undefined' &&
-      !!window.matchMedia &&
-      window.matchMedia('(pointer: coarse), (hover: none)').matches
-  );
-  // a phone held upright is its own site: the page scrolls from the start and the scroll is the
-  // fuse; back at the very top, the wall is up again
+  // a phone held upright gets a layout of its own (and the fuse is its only way in: no tap)
   const phone = usePhone();
   // the phone landing has variants while it is being chosen: ?land=<name> shows one, ?pick adds
   // a switcher; a pick is remembered on this device
@@ -71,12 +63,6 @@ function Page() {
     setLand(l);
     try { window.localStorage.setItem('v19-land', l); } catch (err) { /* a private window keeps it for now */ }
   };
-  useEffect(() => {
-    if (touch) return undefined;
-    const on = () => setTouch(true);
-    window.addEventListener('touchstart', on, { passive: true, once: true });
-    return () => window.removeEventListener('touchstart', on);
-  }, [touch]);
 
   // the real clock, unless the clock in the room has been clicked: then it is flipped to the
   // other half of the day, and clicked again, back
@@ -125,19 +111,35 @@ function Page() {
   }, []);
 
   useEffect(() => {
-    document.body.classList.toggle('v19-locked', !blown && !phone);
-    if (!blown && !phone) window.scrollTo(0, 0);
-  }, [blown, phone]);
+    if (!blown) window.scrollTo(0, 0);
+  }, [blown]);
 
-  /* the phone's fuse: the first part of the scroll lifts the tiles and the landing with it; past
-     FUSE of a screen it blows. Back at the top, the wall is rebuilt. */
+  /* when the wall goes, however it went, the page comes to rest with the alfred_ heading in view
+     and is held there a moment: a phone's fling or a wheel's last ticks would carry it past, and
+     a wall blown at the very top would otherwise read as scrolled back up and come straight back */
+  const settleRef = useRef(null);
+  const settle = useCallback(() => {
+    const work = document.getElementById('work');
+    if (!work) return;
+    const top = work.getBoundingClientRect().top + window.scrollY;
+    settleRef.current = { top, until: performance.now() + 700 };
+    window.scrollTo({ top, behavior: 'instant' });
+  }, []);
+
+  /* the fuse, on every screen: the page scrolls from the start, and the first part of the scroll
+     lifts the tiles and the landing with it; past FUSE of a screen it blows. Back at the top, the
+     wall is rebuilt. On a desktop the held mouse button still works as well. */
   useEffect(() => {
-    if (!phone) return undefined;
     const FUSE = 0.4;
     let ticking = false;
     const read = () => {
       ticking = false;
       const y = window.scrollY;
+      const held = settleRef.current;
+      if (held && performance.now() < held.until) {
+        if (Math.abs(y - held.top) > 2) window.scrollTo({ top: held.top, behavior: 'instant' });
+        return;
+      }
       if (blown) {
         if (y <= 2) {
           setBlown(false);
@@ -151,18 +153,8 @@ function Page() {
         face.style.setProperty('--fuse', Math.min(1, y / (window.innerHeight * FUSE)).toFixed(3));
       }
       // the wall wakes the page itself once its tiles are clear (onBlast); with no wall, this does
-      // and when it goes, the fling that set it off is stopped where the alfred_ heading is in
-      // view: a phone's momentum would otherwise carry the page well past it
-      const stop = () => {
-        const work = document.getElementById('work');
-        if (work) window.scrollTo({ top: work.getBoundingClientRect().top + window.scrollY, behavior: 'instant' });
-      };
       if (detRef.current) {
-        if (detRef.current.fuse(y / (window.innerHeight * FUSE))) {
-          stop();
-          window.setTimeout(stop, 120);
-          window.setTimeout(stop, 320);
-        }
+        if (detRef.current.fuse(y / (window.innerHeight * FUSE))) settle();
       } else if (y > window.innerHeight * FUSE) setBlown(true);
     };
     const onScroll = () => {
@@ -173,7 +165,7 @@ function Page() {
     read();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, [phone, blown]);
+  }, [blown, settle]);
 
   /* when the wall comes back after the page was open, it comes back as a movement: the tiles
      drop in and the landing settles after them */
@@ -243,13 +235,16 @@ function Page() {
   }, [blown]);
 
   const onBlast = useCallback(() => {
+    // a wall held, tapped or clicked away from the top of the page: bring the page to the work
+    const work = document.getElementById('work');
+    if (work && work.getBoundingClientRect().top > 2) settle();
     setBlown(true);
     // the résumé, quietly, so the link is instant when it is wanted
     window.setTimeout(() => {
       prefetchResumePage();
       prefetchResume();
     }, 1500);
-  }, []);
+  }, [settle]);
 
   const home = useCallback(() => {
     window.scrollTo(0, 0);
@@ -343,7 +338,7 @@ function Page() {
       </header>
 
       <main className="v19-main">
-        {phone ? <div className="v19-lead" aria-hidden="true" /> : null}
+        <div className="v19-lead" aria-hidden="true" />
         <Work sectionRef={(el) => { sections.current[0] = el; }} />
         <Projects sectionRef={(el) => { sections.current[1] = el; }} />
         <Papers sectionRef={(el) => { sections.current[2] = el; }} />
@@ -368,8 +363,7 @@ function Page() {
           {phone ? <i className="v19-fuse" aria-hidden="true"><b /></i> : null}
           <Landing
             onGo={go}
-            hint={phone ? 'Scroll down' : reduced || touch ? 'Tap anywhere' : 'Hold the left mouse button'}
-            scroll={phone}
+            hint="Scroll down"
           />
           {picking && phone && !blown ? (
             <nav className="v19-pick" aria-label="Landing">

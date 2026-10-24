@@ -1160,12 +1160,15 @@ html.v19-html { scrollbar-gutter: stable; }
 /* the first two fifths of a screen are the wall's; scrolling them lifts the tiles and the landing with
    them, and at the end of them the wall goes. Back at the top it is up again. */
 .v19-lead { height: 40svh; }
+/* the landing rises with the scroll that lights the fuse, on every screen */
+.v19-land { transform: translateY(calc(var(--lift, 0px) * -.55)); }
 @media (max-width: 720px) and (orientation: portrait) {
-  .v19-land { overflow: visible; transform: translateY(calc(var(--lift, 0px) * -.55)); }
-  .v19-land-hint-key.is-scroll { width: 18px; height: 30px; border-radius: 9px; }
-  .v19-land-hint-key.is-scroll i { left: 4px; top: auto; bottom: 4px; width: 6px; height: 6px; border-radius: 50%; animation: v19-thumb 1.8s cubic-bezier(.4,0,.2,1) infinite; }
+  .v19-land { overflow: visible; }
 }
-@keyframes v19-thumb { 0% { transform: none; opacity: 0; } 15% { opacity: 1; } 70% { transform: translateY(-14px); opacity: 1; } 100% { transform: translateY(-14px); opacity: 0; } }
+/* the hint's mark: a scroll wheel, its dot running down the way the page goes */
+.v19-land-hint-key.is-scroll { width: 18px; height: 30px; border-radius: 9px; }
+.v19-land-hint-key.is-scroll i { left: 4px; top: 4px; width: 6px; height: 6px; border-radius: 50%; animation: v19-thumb 1.8s cubic-bezier(.4,0,.2,1) infinite; }
+@keyframes v19-thumb { 0% { transform: none; opacity: 0; } 15% { opacity: 1; } 70% { transform: translateY(14px); opacity: 1; } 100% { transform: translateY(14px); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .v19-land-hint-key.is-scroll i { animation: none; } }
 /* the projects on a phone held upright: a landscape screen over a keyboard of pictures */
 .v19-bb { display: grid; gap: 8px; }

@@ -90,7 +90,7 @@ const COLON = HEAD.indexOf(': ');
 const SAY = COLON > 0 ? `${HEAD.slice(0, COLON)}.` : HEAD;
 const REST = COLON > 0 ? `${HEAD.charAt(COLON + 2).toUpperCase()}${HEAD.slice(COLON + 3)}.` : '';
 
-export default function Landing({ hint, onGo, scroll }) {
+export default function Landing({ hint, onGo }) {
   return (
     <div className="v19-land is-plate">
       <div className="v19-land-in">
@@ -123,7 +123,7 @@ export default function Landing({ hint, onGo, scroll }) {
         </div>
       </div>
       <p className="v19-land-hint">
-        <span className={`v19-land-hint-key${scroll ? ' is-scroll' : ''}`} aria-hidden="true">
+        <span className="v19-land-hint-key is-scroll" aria-hidden="true">
           <i />
         </span>
         {hint}
